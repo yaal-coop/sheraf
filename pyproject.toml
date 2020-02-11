@@ -1,0 +1,80 @@
+[build-system]
+requires = ["poetry>=1.0.0"]
+build-backend = "poetry.masonry.api"
+
+[tool]
+[tool.poetry]
+name = "sheraf"
+version = "4.0.0"
+description = "Versatile ZODB abstraction layer"
+license = "MIT"
+keywords = ["zodb", "orm"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: ZODB",
+]
+authors = ["Yaal team <contact@yaal.fr>"]
+
+[tool.poetry.dependencies]
+python = ">=3.5"
+orderedset = "*"
+zodb = ">=5"
+zodburi = "*"
+
+zeo = {version = "*", optional=true}
+
+recommonmark = {version = "*", optional=true}
+sphinx = {version = "*", optional=true}
+sphinx-rtd-theme = {version = "*", optional=true}
+
+psycopg2 = {version = "*", optional=true}
+psycopg2cffi = {version = "*", optional=true}
+relstorage = {version = "*", optional=true}
+
+colored = {version = "*", optional=true}
+tqdm = {version = "*", optional=true}
+
+[tool.poetry.extras]
+all = [
+    "zeo",
+    "psycopg2",
+    "psycopg2cffi",
+    "relstorage",
+    "colored",
+    "tqdm",
+]
+relstorage_pg = [
+    "psycopg2",
+    "psycopg2cffi",
+    "relstorage",
+]
+zeo = [
+    "zeo",
+]
+doc = [
+    "recommonmark",
+    "sphinx",
+    "sphinx-rtd-theme",
+]
+
+[tool.poetry.dev-dependencies]
+coverage = "*"
+mock = "*"
+portpicker = "*"
+pytest = "*"
+pytest-flakes = "*"
+pytest-lazy-fixture = "*"
+pytest-libfaketime = "*"
+pytest-sugar = "*"
+pytest-timeout = "*"
+pytest-xdist = "*"
+werkzeug = "*"
+wtforms = "*"
+tox = "*"

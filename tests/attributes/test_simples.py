@@ -1,0 +1,186 @@
+import mock
+import pytest
+
+import sheraf
+
+
+def test_simple(sheraf_connection):
+    class ModelForTest(sheraf.AutoModel):
+        opt = sheraf.SimpleAttribute()
+
+    m = ModelForTest.create()
+    assert m.opt is None
+
+    m = ModelForTest.read(m.id)
+    m.opt = mock.sentinel.OPT
+    assert mock.sentinel.OPT == m.opt
+
+    m.toto = mock.sentinel.TOTO
+    assert mock.sentinel.TOTO == m.toto
+
+    m = ModelForTest.read(m.id)
+    with pytest.raises(AttributeError):
+        m.toto
+    assert mock.sentinel.OPT == m.opt
+
+    m.update(opt="YEAH")
+    assert "YEAH" == m.opt
+
+
+def test_string(sheraf_connection):
+    class M(sheraf.AutoModel):
+        string = sheraf.StringAttribute()
+
+    m = M.create()
+    assert "" == m.string
+
+    m.string = 1
+    assert "1" == m.string
+
+
+def test_default_value(sheraf_connection):
+    class ModelForTest(sheraf.AutoModel):
+        opt_false = sheraf.SimpleAttribute(default=bool)
+        opt_true = sheraf.SimpleAttribute(default=True)
+        opt_none = sheraf.SimpleAttribute()
+        opt_str = sheraf.SimpleAttribute(default=str)
+        opt_empty_str = sheraf.SimpleAttribute(default="")
+
+    m = ModelForTest.create()
+    assert False == m.opt_false
+    assert True == m.opt_true
+    assert m.opt_none is None
+    assert "" == m.opt_str
+    assert "" == m.opt_empty_str
+    m.opt_empty_str += "a"
+    m_bis = ModelForTest.create()
+    assert "" == m_bis.opt_empty_str
+
+
+def test_model_default_value(sheraf_connection):
+    class M(sheraf.AutoModel):
+        foo = sheraf.SimpleAttribute(default=lambda m: m.count())
+
+    assert 1 == M.create().foo
+    assert 2 == M.create().foo
+
+
+def test_not_store_deault_value(sheraf_connection):
+    class MyModel(sheraf.AutoModel):
+        my_attr = sheraf.SimpleAttribute(store_default_value=False)
+
+    model = MyModel.create()
+    model.my_attr
+    assert "my_attr" not in model._persistent
+
+
+def test_define_keyname(sheraf_connection):
+    class ModelForTest(sheraf.Model):
+        table = "model_test_with_simple_attribute_3"
+        opt = sheraf.SimpleAttribute(key="defined_key_in_db")
+
+    m = ModelForTest.create()
+    m.opt = "data"
+
+    class ModifiedModel(sheraf.Model):
+        table = "model_test_with_simple_attribute__workaround_unicity"
+        new_name = sheraf.SimpleAttribute(key="defined_key_in_db")
+
+    ModifiedModel.table = "model_test_with_simple_attribute_3"
+
+    m = ModifiedModel.read(m.id)
+    assert "data" == m.new_name
+
+
+def test_inherit_define_keyname(sheraf_connection):
+    class ParentModel(sheraf.Model):
+        table = "parent_model_test_1"
+        opt = sheraf.SimpleAttribute(key="defined_key_in_db")
+
+    class ChildModel(ParentModel):
+        table = "son_model_test_1"
+
+    m = ChildModel.create()
+    m.opt = "data"
+
+    class ModifiedParentModel(sheraf.Model):
+        table = "parent_model_test__workaround_unicity"
+        new_name = sheraf.SimpleAttribute(key="defined_key_in_db")
+
+    class ModifiedChildModel(ModifiedParentModel):
+        table = "son_model_test__workaround_unicity"
+
+    ModifiedParentModel.table = "parent_model_test_1"
+    ModifiedChildModel.table = "son_model_test_1"
+
+    m = ModifiedChildModel.read(m.id)
+    assert "data" == m.new_name
+
+
+def test_define_keyname_list(sheraf_connection):
+    class ModelForTest(sheraf.Model):
+        table = "model_test__define_keyname_list"
+        a = sheraf.SimpleAttribute(key=("a", "old_a"))
+        b = sheraf.SimpleAttribute(key=[0, "b"])
+
+    m = ModelForTest.create()
+    m._persistent["old_a"] = "a_value"
+    m._persistent["b"] = "b_value"
+
+    m = ModelForTest.read(m.id)
+    assert "a_value" == m.a
+    assert "b_value" == m.b
+
+    m = ModelForTest.create()
+    m.a = 1
+    m.b = 2
+    assert 1 == m._persistent["a"]
+    assert 2 == m._persistent[0]
+
+
+def test_del(sheraf_connection):
+    class ModelForTest(sheraf.AutoModel):
+        attr = sheraf.SimpleAttribute(default="default")
+
+    m = ModelForTest.create()
+    m.attr = "yolo"
+    del m.attr
+
+    assert "attr" not in m._persistent
+    assert m.attr == "default"
+
+
+def test_del_after_read(sheraf_connection):
+    class ModelForTest(sheraf.AutoModel):
+        attr = sheraf.SimpleAttribute(default="default")
+
+    m = ModelForTest.create()
+    m.attr = "yolo"
+    m = ModelForTest.read(m.id)
+    del m.attr
+
+    assert "attr" not in m._persistent
+    assert m.attr == "default"
+
+
+def test_del_on_unsetted_attr(sheraf_connection):
+    class ModelForTest(sheraf.AutoModel):
+        attr = sheraf.SimpleAttribute(default="default")
+
+    m = ModelForTest.create()
+    del m.attr
+
+    assert "attr" not in m._persistent
+    assert m.attr == "default"
+
+
+def test_del_on_specifed_key_attr(sheraf_connection):
+    class ModelForTest(sheraf.AutoModel):
+        attr = sheraf.SimpleAttribute(default="default", key="other_key")
+
+    m = ModelForTest.create()
+    m.attr = "yolo"
+    del m.attr
+
+    assert "other_key" not in m._persistent
+    assert m.attr == "default"
