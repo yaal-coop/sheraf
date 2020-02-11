@@ -47,6 +47,7 @@ relstorage = {version = "*", optional=true}
 
 colored = {version = "*", optional=true}
 tqdm = {version = "*", optional=true}
+pytest-cov = "*"
 
 [tool.poetry.extras]
 all = [
@@ -76,6 +77,7 @@ coverage = "*"
 mock = "*"
 portpicker = "*"
 pytest = "*"
+pytest-cov = "*"
 pytest-flakes = "*"
 pytest-lazy-fixture = "*"
 pytest-libfaketime = "*"
