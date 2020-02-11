@@ -9,7 +9,7 @@ stages:
 before_script:
   - curl -O https://bootstrap.pypa.io/get-pip.py
   - python get-pip.py
-  - pip install tox poetry
+  - pip install tox poetry python-coveralls
 
 python35:
   image: python:3.5
@@ -29,4 +29,6 @@ python37:
 python38:
   image: python:3.8
   stage: test
-  script: tox -e py38
+  script:
+    - tox -e py38
+    - coveralls
