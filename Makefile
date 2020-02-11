@@ -1,8 +1,5 @@
 PERSISTENT=local.persistent
 
-continuous-integration:
-	tox
-
 run-zeo:
 	@mkdir --parents "${PERSISTENT}/files" "${PERSISTENT}/blobs" "${PERSISTENT}/logs"
 	env PYTHONPATH=. poetry run runzeo -C ./tests/zeo.config
