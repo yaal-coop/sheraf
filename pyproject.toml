@@ -24,6 +24,8 @@ authors = ["Yaal team <contact@yaal.fr>"]
 maintainers = [
     "Éloi Rivard <eloi@yaal.fr>",
 ]
+homepage = "https://sheraf.readthedocs.io/en/latest/"
+documentation = "https://sheraf.readthedocs.io/en/latest/"
 repository = "https://gitlab.com/yaal/sheraf"
 readme = "README.md"
 

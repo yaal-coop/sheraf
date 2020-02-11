@@ -13,7 +13,7 @@ If you need pytest fixtures for your project check out pytest-sheraf
 
     pip install pytest-sheraf
 
-The documentation is [hosted here](https://deploy.yaal.fr/doc/sheraf/default/).
+The documentation is [hosted here](https://sheraf.readthedocs.io/en/latest/).
 
 
 # Contributing
