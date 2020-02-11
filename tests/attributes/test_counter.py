@@ -114,6 +114,7 @@ class TestMonoprocessConflict:
                 m1.counter.increment(100)
 
 
+@pytest.mark.skip
 def test_multiprocessing_conflict_nominal_case(sheraf_zeo_database):
     class ModelForTest(sheraf.AutoModel):
         counter = sheraf.SimpleAttribute(default=0)
@@ -166,6 +167,7 @@ def test_multiprocessing_conflict_nominal_case(sheraf_zeo_database):
         assert m.counter in (10, 100)
 
 
+@pytest.mark.skip
 def test_multiprocessing_int_conflict_resolution(sheraf_zeo_database):
     class IntModelForTest(sheraf.AutoModel):
         counter = sheraf.CounterAttribute()
@@ -204,6 +206,7 @@ def test_multiprocessing_int_conflict_resolution(sheraf_zeo_database):
         assert sum(i for i in range(0, nb_process)) == m.counter
 
 
+@pytest.mark.skip
 def test_multiprocessing_float_conflict_resolution(sheraf_zeo_database):
     class FloatModelForTest(sheraf.AutoModel):
         counter = sheraf.CounterAttribute(default=0.5)
