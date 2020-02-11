@@ -2,8 +2,6 @@ ZODB Model Layer
 
 sheraf is an overlay over ZODB. It provides a high level interface to save and read your data.
 
-[![Documentation Status](https://readthedocs.org/projects/sheraf/badge/?version=latest)](https://sheraf.readthedocs.io/en/latest/?badge=latest)
-
 # Installation
 sheraf is compatible with Python 3.5+
 
