@@ -21,6 +21,11 @@ classifiers = [
     "Framework :: ZODB",
 ]
 authors = ["Yaal team <contact@yaal.fr>"]
+maintainers = [
+    "Éloi Rivard <eloi@yaal.fr>",
+]
+repository = "https://gitlab.com/yaal/sheraf"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.5"
