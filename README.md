@@ -33,6 +33,6 @@ Bug reports and pull requests are highly encouraged!
 
 # Development installation
 
-    sheraf use poetry as its main build tool. Do not hesitate to check [the documentation](https://python-poetry.org/docs/).
+sheraf use poetry as its main build tool. Do not hesitate to check [the documentation](https://python-poetry.org/docs/).
 
     poetry install --extras all
