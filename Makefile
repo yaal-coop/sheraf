@@ -24,9 +24,3 @@ perf-size:
 disk-usage:
 	mkdir -p tmp/
 	poetry run pytest tests/perf/test_disk_usage.py
-
-package:
-	poetry publish --repository yaaldev
-
-publish: package
-	poetry publish --repository yaalprod
