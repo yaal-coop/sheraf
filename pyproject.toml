@@ -87,3 +87,17 @@ pytest-xdist = "*"
 werkzeug = "*"
 wtforms = "*"
 tox = "*"
+
+
+[tool.coverage.run]
+source = [
+    "tests",
+    "sheraf",
+]
+
+omit = [
+    ".tox/*",
+    "*.virtualenv",
+    "tests/perf/*",
+    "**/perf_*",
+]
