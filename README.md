@@ -22,7 +22,7 @@ Bug reports and pull requests are highly encouraged!
 
  - Test some code : `poetry run pytest` and `poetry run tox`
  - Format code : `black`
- - Generate documentation : `poetry run tox -e docs`
+ - Generate documentation : `poetry run tox -e doc`
 
 ## Documentation
 
