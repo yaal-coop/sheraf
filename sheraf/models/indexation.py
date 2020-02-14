@@ -10,14 +10,6 @@ from sheraf.models.base import BaseModel, BaseModelMetaclass
 import warnings
 
 
-def no_indexation_warning(index_key):
-    warnings.warn(
-        "Already instanciated model: %s will not be indexed. "
-        "Consider a migration" % index_key,
-        UserWarning,
-    )
-
-
 class IndexedModelMetaclass(BaseModelMetaclass):
     """Internal class.
 
@@ -240,7 +232,13 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             if len(table) == 0 or (index_tables and index.key in index_tables):
                 model._update_index(index)
             else:
-                no_indexation_warning(index.key)
+                warnings.warn(
+                    "Already instanciated model: %s will not be indexed. "
+                    "Consider a migration" % index.key,
+                    UserWarning,
+                    stacklevel=2,
+                )
+
 
         table[id] = model._persistent
         model.id = id
@@ -451,7 +449,13 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         is_indexable = len(_table.get("id", [])) == 1 or (index and index.key in _table)
         is_indexed = index and is_indexable
         if index and not is_indexable:
-            no_indexation_warning(name)
+            warnings.warn(
+                "Already instanciated model: %s will not be indexed. "
+                "Consider a migration" % name,
+                UserWarning,
+                stacklevel=4,
+            )
+
 
         if is_created and is_indexed:
             self._delete_index(index)
