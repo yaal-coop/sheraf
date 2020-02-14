@@ -19,15 +19,19 @@ class ModelObjectNotFoundException(ObjectNotFoundException):
     :type object_id: str
     """
 
-    MESSAGE_TPL = "Id {id} not found in {model_name}"
+    MESSAGE_TPL = "Id {id} not found in {model_name}, '{index_name}' index"
 
-    def __init__(self, model_class, object_id):
+    def __init__(self, model_class, object_id, index_name="id"):
         self.model_class = model_class
         self.object_id = object_id
 
-        model_name = self.model_class.__name__
+        try:
+            model_name = self.model_class.__name__
+        except AttributeError:
+            model_name = self.model_class.split(".")[-1]
+
         message = self.MESSAGE_TPL.format(
-            id=repr(self.object_id), model_name=model_name
+            id=repr(self.object_id), model_name=model_name, index_name=index_name
         )
 
         super(ModelObjectNotFoundException, self).__init__(message)
@@ -51,7 +55,10 @@ class IndexObjectNotFoundException(ObjectNotFoundException):
         self.model_class = model_class
         self.key = key
 
-        model_name = self.model_class.__name__
+        try:
+            model_name = self.model_class.__name__
+        except AttributeError:
+            model_name = self.model_class.split(".")[-1]
 
         _message = self.MESSAGE_TPL.format(
             key=self.key,
@@ -173,4 +180,22 @@ class EmptyQuerySetUnpackException(QuerySetUnpackException):
     Traceback (most recent call last):
     ...
     sheraf.exceptions.EmptyQuerySetUnpackException: Trying to unpack an empty QuerySet
+    """
+
+
+class InvalidIndexException(SherafException):
+    """
+    TODO
+    """
+
+
+class UniqueIndexException(InvalidIndexException):
+    """
+    TODO
+    """
+
+
+class MultipleIndexException(InvalidIndexException):
+    """
+    TODO
     """

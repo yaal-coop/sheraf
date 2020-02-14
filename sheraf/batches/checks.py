@@ -59,10 +59,82 @@ def check_conflict_resolution():
         sheraf.Database.get().nestable = nestable
 
 
+def check_attributes_index(model_instance):
+    root = sheraf.Database.current_connection().root()
+    result = {}
+    index_table = root.get(model_instance.table)
+    if not index_table:
+        return result
+    # Check that all indexed model attributes exist in index table
+    for attribute_name, attribute in model_instance.attributes.items():
+        if attribute_name not in model_instance._persistent:
+            continue
+        for attribute_index_key, attribute_index_content in index_table.items():
+            if attribute_index_key != "id" and (
+                attribute_index_key == attribute_name
+                or attribute_index_key in attribute.indexes
+            ):
+                key = (
+                    None
+                    if attribute_index_key == attribute_name
+                    else attribute_index_key
+                )
+                values_func = attribute.indexes[key].values_func
+                result = {
+                    attribute_name: all(
+                        v in attribute_index_content
+                        for v in values_func(attribute.read(model_instance))
+                    )
+                }
+                # todo check if key is unique in a model elsewhere?
+    # result = { "A1" : True, "A2" : False, "A3" : True }
+    return result
+
+
+def check_model_index(model):
+    """
+    For a given attribute:
+    - If MULTIPLE: an attribute index is ok if all model instances for an attribute value are present
+    - If UNIQUE: an attribute index is ok if the model instances for this attribute value is present
+    :param model: a model (class)
+    :return: a health report dictionary for each model for each attribute.
+    """
+    root = sheraf.Database.current_connection().root()
+    index_table = root.get(model.table)
+    result = {}
+
+    if not index_table:
+        return result
+
+    for attribute_index_key, attribute_index_table in index_table.items():
+        for attribute_name, attribute in model.attributes.items():
+            if attribute_index_key != "id" and (
+                attribute_index_key == attribute_name
+                or attribute_index_key in attribute.indexes
+            ):
+                for m_persistent in attribute_index_table.values():
+                    try:
+                        # TODO: We cannot trust isinstance here, as nothing guarantees that
+                        # model mappings will be SmallDicts.
+                        if isinstance(m_persistent, sheraf.types.SmallDict):
+                            model.read(model._decorate(m_persistent).id)
+                        else:
+                            [
+                                model.read(model._decorate(persistent).id)
+                                for persistent in m_persistent
+                            ]
+                        result.setdefault(attribute_name, {"ok": 0, "ko": 0})["ok"] += 1
+                    except sheraf.exceptions.ModelObjectNotFoundException:
+                        result.setdefault(attribute_name, {"ok": 0, "ko": 0})["ko"] += 1
+    return result
+
+
 # Set the list of check functions to be run
 INSTANCE_CHECK_FUNCS = {}
-ATTRIBUTE_CHECK_FUNCS = {}
-MODEL_CHECK_FUNCS = {}
+ATTRIBUTE_CHECK_FUNCS = {
+    "index": check_attributes_index,
+}
+MODEL_CHECK_FUNCS = {"index": check_model_index}
 
 
 def check_health(*args, model_checks=None, instance_checks=None, attribute_checks=None):

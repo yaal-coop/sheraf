@@ -1,6 +1,7 @@
 import datetime
 import uuid
 from numbers import Integral
+from BTrees.IOBTree import IOBTree
 
 from sheraf.attributes.base import BaseAttribute
 
@@ -39,6 +40,7 @@ class IntegerAttribute(TypedAttribute):
     """Stores an :class:`int` object."""
 
     type = int
+    default_index_mapping = IOBTree
 
 
 class FloatAttribute(TypedAttribute):

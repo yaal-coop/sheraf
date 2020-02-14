@@ -9,42 +9,6 @@ from sheraf.batches.checks import check_health, print_health
 from . import fixture1
 
 
-def test_healthcheck(sheraf_database):
-    pass
-
-
-def test_healthcheck_conflict_resolution(sheraf_database):
-    with sheraf.connection():
-        assert check_health(fixture1)["check_conflict_resolution"] is True
-
-
-@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
-@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
-def test_healthcheck_attributes_index(sheraf_database, capsys):
-    from .fixture1 import Model2
-
-    with sheraf.connection(commit=True) as conn:
-        Model2.create(simple="simple1", str_indexed="str1")
-        Model2.create(simple="simple2", str_indexed="str2")
-        index_table = conn.root()["model2_table"]["str_indexed"]
-        del index_table["str1"]
-
-    with sheraf.connection() as conn:
-        kwargs = dict(instance_checks=[], attribute_checks=["index"])
-
-        assert "str1" not in conn.root()["model2_table"]["str_indexed"]
-        assert "str2" in conn.root()["model2_table"]["str_indexed"]
-        health = check_health(fixture1, **kwargs)["check_attributes_index"]
-
-        assert {"str_indexed": {"ok": 1, "ko": 1}} == health[
-            "tests.batches.fixture1.Model2"
-        ]
-
-        print_health(fixture1, **kwargs)
-        stdout = capsys.readouterr().out
-        assert re.search(r"tests.batches.fixture1.Model2[^\n]*1[^\n]*1", stdout)
-
-
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
 @mock.patch("sheraf.batches.checks.HAS_TQDM", False)
 def test_healthcheck_attributes_index_when_instance_deleted(sheraf_database, capsys):
@@ -105,7 +69,7 @@ def test_healthcheck_attributes_index_with_key_when_instance_deleted(
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
 @mock.patch("sheraf.batches.checks.HAS_TQDM", False)
-def test_multiple_healthcheck_attributes_index_with_key_when_instance_deleted(
+def test_multiple_healthcheck_attributes_index_when_instance_deleted(
     sheraf_database, capsys
 ):
     from .fixture1 import Model2
@@ -115,7 +79,7 @@ def test_multiple_healthcheck_attributes_index_with_key_when_instance_deleted(
         index_table = conn.root()["model2_table"]["str_indexed"]
         m21 = Model2.create(simple="simple21", str_indexed="str2")
         m22 = Model2.create(simple="simple22", str_indexed="str2")
-        m21_deleted_persistent = m21._persistent
+        m21_deleted_persistent = sheraf.types.SmallDict(m21._persistent)
         assert index_table["str2"] == [m21._persistent, m22._persistent]
         m21.delete()
         index_table["str2"] = [m21_deleted_persistent, m22._persistent]
@@ -134,7 +98,63 @@ def test_multiple_healthcheck_attributes_index_with_key_when_instance_deleted(
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
 @mock.patch("sheraf.batches.checks.HAS_TQDM", False)
-def test_healthcheck_attributes_index_with_key(sheraf_database, capsys):
+def test_multiple_healthcheck_attributes_index_with_key_when_instance_deleted(
+    sheraf_database, capsys
+):
+    from .fixture1 import Model2k
+
+    with sheraf.connection(commit=True) as conn:
+        Model2k.create(simple="simple1", str_indexed="str1")
+        index_table = conn.root()["model2k_table"]["str"]
+        m21 = Model2k.create(simple="simple21", str_indexed="str2")
+        m22 = Model2k.create(simple="simple22", str_indexed="str2")
+        m21_deleted_persistent = sheraf.types.SmallDict(m21._persistent)
+        assert index_table["str2"] == [m21._persistent, m22._persistent]
+        m21.delete()
+        index_table["str2"] = [m21_deleted_persistent, m22._persistent]
+
+    with sheraf.connection() as conn:
+        kwargs = dict(model_checks=["index"], instance_checks=[], attribute_checks=[])
+
+        assert "str1" in conn.root()["model2k_table"]["str"]
+        assert "str2" in conn.root()["model2k_table"]["str"]
+        health = check_health(fixture1, **kwargs)["check_model_index"]
+
+        assert {"str_indexed": {"ok": 1, "ko": 1}} == health[
+            "tests.batches.fixture1.Model2k"
+        ]
+
+
+@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
+@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
+def test_multiple_healthcheck_attributes_index(sheraf_database, capsys):
+    from .fixture1 import Model2
+
+    with sheraf.connection(commit=True) as conn:
+        Model2.create(simple="simple1", str_indexed="str1")
+        Model2.create(simple="simple2", str_indexed="str2")
+        index_table = conn.root()["model2_table"]["str_indexed"]
+        del index_table["str1"]
+
+    with sheraf.connection() as conn:
+        kwargs = dict(instance_checks=[], attribute_checks=["index"])
+
+        assert "str1" not in conn.root()["model2_table"]["str_indexed"]
+        assert "str2" in conn.root()["model2_table"]["str_indexed"]
+        health = check_health(fixture1, **kwargs)["check_attributes_index"]
+
+        assert {"str_indexed": {"ok": 1, "ko": 1}} == health[
+            "tests.batches.fixture1.Model2"
+        ]
+
+        print_health(fixture1, **kwargs)
+        stdout = capsys.readouterr().out
+        assert re.search(r"tests.batches.fixture1.Model2[^\n]*1[^\n]*1", stdout)
+
+
+@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
+@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
+def test_multiple_healthcheck_attributes_index_with_key(sheraf_database, capsys):
     from .fixture1 import Model2k
 
     with sheraf.connection(commit=True) as conn:
@@ -157,6 +177,60 @@ def test_healthcheck_attributes_index_with_key(sheraf_database, capsys):
         print_health(fixture1, **kwargs)
         stdout = capsys.readouterr().out
         assert re.search(r"tests.batches.fixture1.Model2k[^\n]*1[^\n]*1", stdout)
+
+
+@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
+@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
+def test_healthcheck_attributes_index(sheraf_database, capsys):
+    from .fixture1 import Model2unique
+
+    with sheraf.connection(commit=True) as conn:
+        Model2unique.create(simple="simple1", str_indexed="str1")
+        Model2unique.create(simple="simple2", str_indexed="str2")
+        index_table = conn.root()["model2unique_table"]["str_indexed"]
+        del index_table["str1"]
+
+    with sheraf.connection() as conn:
+        kwargs = dict(instance_checks=[], attribute_checks=["index"])
+
+        assert "str1" not in conn.root()["model2unique_table"]["str_indexed"]
+        assert "str2" in conn.root()["model2unique_table"]["str_indexed"]
+        health = check_health(fixture1, **kwargs)["check_attributes_index"]
+
+        assert {"str_indexed": {"ok": 1, "ko": 1}} == health[
+            "tests.batches.fixture1.Model2unique"
+        ]
+
+        print_health(fixture1, **kwargs)
+        stdout = capsys.readouterr().out
+        assert re.search(r"tests.batches.fixture1.Model2unique[^\n]*1[^\n]*1", stdout)
+
+
+@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
+@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
+def test_healthcheck_attributes_index_with_key(sheraf_database, capsys):
+    from .fixture1 import Model2kunique
+
+    with sheraf.connection(commit=True) as conn:
+        Model2kunique.create(simple="simple1", str_indexed="str1")
+        Model2kunique.create(simple="simple2", str_indexed="str2")
+        index_table = conn.root()["model2kunique_table"]["str"]
+        del index_table["str1"]
+
+    with sheraf.connection() as conn:
+        kwargs = dict(instance_checks=[], attribute_checks=["index"])
+
+        assert "str1" not in conn.root()["model2kunique_table"]["str"]
+        assert "str2" in conn.root()["model2kunique_table"]["str"]
+        health = check_health(fixture1, **kwargs)["check_attributes_index"]
+
+        assert {"str_indexed": {"ok": 1, "ko": 1}} == health[
+            "tests.batches.fixture1.Model2kunique"
+        ]
+
+        print_health(fixture1, **kwargs)
+        stdout = capsys.readouterr().out
+        assert re.search(r"tests.batches.fixture1.Model2kunique[^\n]*1[^\n]*1", stdout)
 
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)

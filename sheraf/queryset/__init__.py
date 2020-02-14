@@ -116,10 +116,19 @@ class QuerySet(object):
         return "<QuerySet>"
 
     def _model_has_expected_values(self, model):
-        for filter_name, expected_value in self.filters.items():
-            if getattr(model, filter_name) != expected_value:
-                return False
+        for filter_name, expected_value, filter_transformation in self.filters.values():
+            if filter_name in model.indexes():
+                index = model.indexes()[filter_name]
+                if filter_transformation:
+                    if index.values_func(expected_value) != index.get_values(model):
+                        return False
+                else:
+                    if expected_value not in index.get_values(model):
+                        return False
 
+            elif filter_name in model.attributes:
+                if getattr(model, filter_name) != expected_value:
+                    return False
         return True
 
     def __next__(self):
@@ -127,7 +136,10 @@ class QuerySet(object):
             self._init_iterator()
 
         while True:
-            model = next(self._iterator)
+            try:
+                model = next(self._iterator)
+            except sheraf.exceptions.ModelObjectNotFoundException:
+                continue
             if self._model_has_expected_values(model) and (
                 not self._predicate or self._predicate(model)
             ):
@@ -199,11 +211,36 @@ class QuerySet(object):
         # TODO: Avoid to recreate a QuerySet and avoid itertools.islice
         return QuerySet(itertools.islice(self._iterator, start, stop, step))
 
+    def _init_indexed_iterator(self, filter_name, filter_value, filter_transformation):
+        if not filter_transformation:
+            self._iterator = self.model.read_these(**{filter_name: [filter_value]})
+        else:
+            index_values = self.model.indexes()[filter_name].values_func(filter_value)
+            # TODO: Now only the first index is used. When filters matches several
+            # indexes, we should maybe do something clever.
+            for index_value in index_values:
+                self._iterator = self.model.read_these(**{filter_name: [index_value]})
+                return
+
     def _init_default_iterator(self, reverse=False):
         if self.model:
-            # Iterator over ids
-            keys = self.model._tables_iterkeys(reverse=reverse)
-            self._iterator = self.model.read_these(keys)
+            for (
+                filter_name,
+                filter_value,
+                filter_transformation,
+            ) in self.filters.values():
+                if filter_name not in self.model.indexes():
+                    continue
+                self._init_indexed_iterator(
+                    filter_name, filter_value, filter_transformation
+                )
+                if self._iterator:
+                    return
+
+            if not self._iterator:
+                # Iterator over ids
+                keys = self.model._tables_iterkeys(reverse=reverse)
+                self._iterator = self.model.read_these(keys)
 
         elif reverse:
             self._iterator = reversed(self._iterable)
@@ -304,26 +341,65 @@ class QuerySet(object):
         Traceback (most recent call last):
             ...
         sheraf.exceptions.InvalidFilterException: Some filter parameters appeared twice
-        """
-        qs = self.copy()
 
+        .. note::   Filtering on indexed attributes is more performant than filtering on non-indexed attributes. See :func:`~sheraf.attributes.base.BaseAttribute.index`.
+        """
+        return self._filter(False, predicate=predicate, **kwargs)
+
+    def filter_raw(self, **kwargs):
+        """
+        Refine a copy of the current :class:`~sheraf.queryset.QuerySet` with further tests.
+
+        This method is very similar to :func:`~sheraf.queryset.QuerySet.filter` except the values it takes are transformed with the same way values are transformed at indexation.
+        TODO: pas très clair
+
+        For instance, if an attribute indexes its values with a lowercase transformation, the :func:`~sheraf.queryset.QuerySet.filter_raw` attributes will go through the same transformation. Hence it allows to pass uppercase filter values, while :func:`~sheraf.queryset.QuerySet.filter` does not allow this.
+
+        >>> class MyCustomModel(sheraf.IntAutoModel):
+        ...     my_attribute = sheraf.SimpleAttribute().index(
+        ...        values=lambda string: {string.lower()}
+        ...     )
+        ...
+        >>> with sheraf.connection(commit=True):
+        ...     m = MyCustomModel.create(my_attribute="FOO")
+        ...
+        >>> with sheraf.connection():
+        ...     assert [m] == MyCustomModel.filter_raw(my_attribute="foo")
+        ...     assert [m] == MyCustomModel.filter(my_attribute="foo")
+        ...
+        ...     assert [m] == MyCustomModel.filter_raw(my_attribute="FOO")
+        ...     assert [] == MyCustomModel.filter(my_attribute="FOO")
+        """
+
+        return self._filter(True, **kwargs)
+
+    def _filter(self, transformation, predicate=None, **kwargs):
+        qs = self.copy()
         if self.model:
             for filter_name in kwargs.keys():
-                if filter_name not in self.model.attributes:
+                if (
+                    filter_name not in self.model.attributes
+                    and filter_name not in self.model.indexes()
+                ):
                     raise sheraf.exceptions.InvalidFilterException(
                         "{} has no attribute {}".format(
                             self.model.__name__, filter_name
                         )
                     )
-
-        common_attributes = set(qs.filters) & set(kwargs)
+        kwargs_values = OrderedDict(
+            {
+                filter_name: (filter_name, filter_value, transformation)
+                for filter_name, filter_value in kwargs.items()
+            }
+        )
+        common_attributes = set(qs.filters) & set(kwargs_values)
         invalid_common_attributes = any(
-            key for key in common_attributes if qs.filters[key] != kwargs[key]
+            key for key in common_attributes if qs.filters[key] != kwargs_values[key]
         )
         if invalid_common_attributes:
             raise InvalidFilterException("Some filter parameters appeared twice")
 
-        qs.filters.update(kwargs)
+        qs.filters.update(kwargs_values)
 
         if not qs._predicate:
             qs._predicate = predicate
@@ -382,7 +458,9 @@ class QuerySet(object):
         ... with sheraf.connection():
         ...     assert [george, steven, peter] == Cowboy.all().order(age=sheraf.DESC, name=sheraf.ASC)
 
-        .. note:: As ids are indexed, sorting on ids only is very performant.
+        .. note:: Sorting on indexed attributes is more performant than
+            sorting on other attributes. See
+            :func:`~sheraf.attributes.base.BaseAttribute.index`.
             The less :func:`~sheraf.queryset.QuerySet.order` parameters are
             passed, the better performances will be.
         """
@@ -400,6 +478,13 @@ class QuerySet(object):
                 if attribute not in self.model.attributes:
                     raise sheraf.exceptions.InvalidOrderException(
                         "{} has no attribute {}".format(self.model.__name__, attribute)
+                    )
+
+                if value not in (sheraf.constants.ASC, sheraf.constants.DESC):
+                    raise sheraf.exceptions.InvalidOrderException(
+                        "Parameter {} has an invalid order value {}".format(
+                            attribute, value
+                        )
                     )
 
         if id is not None:
