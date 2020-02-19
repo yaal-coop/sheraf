@@ -75,7 +75,7 @@ commit the transaction, i.e. to update objects before leaving the context.
 
     >>> with sheraf.connection(commit=True):
     ...     c = Cowboy.create()
-    ...     c.name = "Jane Calamity"
+    ...     c.name = "Calamity Jane"
 
 .. note::
   ZODBNOTE: Creation action adds the object `c` to the database ZODB’s `root`.
