@@ -22,7 +22,7 @@ def test_create_not_indexed(sheraf_database):
         my_simple_attribute = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
-        m = MyModel.create(my_simple_attribute="foo")
+        MyModel.create(my_simple_attribute="foo")
 
     with sheraf.connection() as conn:
         assert "my_simple_attribute" not in conn.root()["mymodel"]
@@ -132,7 +132,7 @@ def test_create_one_with_attribute_key_index(sheraf_database):
         my_simple_attribute = sheraf.SimpleAttribute(key="attr_key").index()
 
     with sheraf.connection(commit=True):
-        m = MyModel.create(my_simple_attribute="foo1")
+        MyModel.create(my_simple_attribute="foo1")
 
     with sheraf.connection() as conn:
         assert {"foo1"} == set(conn.root()["mymodel"]["attr_key"])

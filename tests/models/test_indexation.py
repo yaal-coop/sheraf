@@ -144,7 +144,7 @@ def test_unique_indexation_on_model_attribute(sheraf_database):
 
     with sheraf.connection(commit=True):
         foo = DummyModel.create(v="fou")
-        m = MyModel.create(dummy_attribute=foo)
+        MyModel.create(dummy_attribute=foo)
 
     with sheraf.connection() as conn:
         index_table = conn.root()["mymodel_table"]["dummy_attribute"]

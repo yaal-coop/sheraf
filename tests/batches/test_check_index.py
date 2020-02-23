@@ -1,7 +1,6 @@
 import re
 
 import mock
-import persistent
 
 import sheraf
 from sheraf.batches.checks import check_health, print_health
