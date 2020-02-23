@@ -63,8 +63,10 @@ def check_attributes_index(model_instance):
     root = sheraf.Database.current_connection().root()
     result = {}
     index_table = root.get(model_instance.table)
+
     if not index_table:
         return result
+
     # Check that all indexed model attributes exist in index table
     for attribute_name, attribute in model_instance.attributes.items():
         if attribute_name not in model_instance._persistent:
@@ -80,12 +82,10 @@ def check_attributes_index(model_instance):
                     else attribute_index_key
                 )
                 values_func = attribute.indexes[key].values_func
-                result = {
-                    attribute_name: all(
-                        v in attribute_index_content
-                        for v in values_func(attribute.read(model_instance))
-                    )
-                }
+                result[attribute_name] = all(
+                    v in attribute_index_content
+                    for v in values_func(attribute.read(model_instance))
+                )
                 # todo check if key is unique in a model elsewhere?
     # result = { "A1" : True, "A2" : False, "A3" : True }
     return result
