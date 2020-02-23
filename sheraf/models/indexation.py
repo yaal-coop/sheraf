@@ -230,7 +230,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         index_tables = root.get(cls.table)
         for index in model.indexes().values():
             if len(table) == 0 or (index_tables and index.key in index_tables):
-                model._update_index(index)
+                model.update_index(index)
             else:
                 warnings.warn(
                     "New index in an already populated table. %s.%s will not be indexed. "
@@ -458,14 +458,14 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
 
         if is_created and is_indexed:
-            self._delete_index(index)
+            self.delete_index(index)
 
         super(IndexedModel, self).__setattr__(name, value)
 
         if is_created and is_indexed:
-            self._update_index(index)
+            self.update_index(index)
 
-    def _delete_index(self, index):
+    def delete_index(self, index):
         """
         Delete a model id for a given index.
         """
@@ -483,7 +483,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                 if len(index_table[value]) == 0:
                     del index_table[value]
 
-    def _update_index(self, index):
+    def update_index(self, index):
         """
         Creates or updates the model id for a given index.
         """
@@ -522,7 +522,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         sheraf.exceptions.ModelObjectNotFoundException: Id '...' not found in MyModel
         """
         for index in self.indexes().values():
-            self._delete_index(index)
+            self.delete_index(index)
 
         for attr in self.attributes.values():
             attr.delete(self)
