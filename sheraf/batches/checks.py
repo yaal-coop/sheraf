@@ -63,9 +63,10 @@ def check_conflict_resolution():
 INSTANCE_CHECK_FUNCS = {}
 ATTRIBUTE_CHECK_FUNCS = {}
 MODEL_CHECK_FUNCS = {}
+OTHER_CHECK_FUNCS = {"check_conflict_resolution": check_conflict_resolution}
 
 
-def check_health(*args, model_checks=None, instance_checks=None, attribute_checks=None):
+def check_health(*args, model_checks=None, instance_checks=None, attribute_checks=None, other_checks=None):
     """
     Takes some modules in parameters.
     :param model_checks: If None, check also model consistency (see constant model_check_funcs)
@@ -80,14 +81,18 @@ def check_health(*args, model_checks=None, instance_checks=None, attribute_check
     models = discover_models(*args)
     health_report = {}
 
-    if instance_checks is None:
+    instance_checks = instance_checks or []
+    attribute_checks = attribute_checks or []
+    model_checks = model_checks or []
+    other_checks = other_checks or []
+    if not instance_checks and not attribute_checks and not model_checks:
         instance_checks = INSTANCE_CHECK_FUNCS.keys()
-    if attribute_checks is None:
         attribute_checks = ATTRIBUTE_CHECK_FUNCS.keys()
-    if model_checks is None:
         model_checks = MODEL_CHECK_FUNCS.keys()
+        other_checks = OTHER_CHECK_FUNCS.keys()
 
-    health_report["check_conflict_resolution"] = check_conflict_resolution()
+    for check_key in other_checks:
+        health_report[check_key] = OTHER_CHECK_FUNCS[check_key]()
 
     for model_path, model in models:
 
@@ -156,9 +161,21 @@ def print_failure(string, padding=0):
     return _print(string, padding, "red")
 
 
+def _print_check_other_health_result(check_reason, health_table):
+    print(
+        "- {:_<86} ".format(print_neutral(check_reason)) +
+        " " + (
+            print_success("OK")
+            if health_table[check_reason]
+            else print_failure("KO")
+        )
+    )
+
+
 def _print_check_model_health_result(check_reason, health_table):
 
-    print(80 * "=" + "\n" + print_neutral(check_reason) + 39 * " " + """OK       KO""")
+    print(80 * "=" + "\n" +
+          print_neutral(check_reason) + 39 * " " + """OK       KO""")
     table_key = "check_model_" + check_reason
     for model_path, attributes in health_table[table_key].items():
         print(
@@ -218,7 +235,7 @@ def _print_check_attribute_health_result(check_reason, health_table):
         print("  No model to visit.")
 
 
-def print_health(*args, model_checks=None, instance_checks=None, attribute_checks=None):
+def print_health(*args, model_checks=None, instance_checks=None, attribute_checks=None, other_checks=None):
     """Takes some modules in parameters (e.g. "american.class.cowboy_module").
 
     The function will discover models in the modules, analyze every model instance, and return
@@ -236,29 +253,26 @@ def print_health(*args, model_checks=None, instance_checks=None, attribute_check
     )
     print("Analyzing your models, this operation can be very long...")
 
-    if instance_checks is None:
+    instance_checks = instance_checks or []
+    attribute_checks = attribute_checks or []
+    model_checks = model_checks or []
+    other_checks = other_checks or []
+    if not instance_checks and not attribute_checks and not model_checks:
         instance_checks = INSTANCE_CHECK_FUNCS.keys()
-    if attribute_checks is None:
         attribute_checks = ATTRIBUTE_CHECK_FUNCS.keys()
-    if model_checks is None:
         model_checks = MODEL_CHECK_FUNCS.keys()
+        other_checks = OTHER_CHECK_FUNCS.keys()
 
     health = check_health(
         *args,
         model_checks=model_checks,
         instance_checks=instance_checks,
-        attribute_checks=attribute_checks
+        attribute_checks=attribute_checks,
+        other_checks=other_checks,
     )
 
-    print(
-        "  "
-        + print_neutral("Custom conflict resolution enabled")
-        + """                                         {conflict_resolution}""".format(
-            conflict_resolution=print_success("OK")
-            if health["check_conflict_resolution"]
-            else print_failure("KO")
-        )
-    )
+    for other_check_type in other_checks:
+        _print_check_other_health_result(other_check_type, health)
 
     for model_check_type in model_checks:
         _print_check_model_health_result(model_check_type, health)
