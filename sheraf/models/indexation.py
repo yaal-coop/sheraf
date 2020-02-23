@@ -444,9 +444,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
     def __setattr__(self, name, value):
         root = sheraf.Database.current_connection(self.database_name).root()
         index = self._find_index(name)
-        _table = root.get(self.table, {})
+        table = root.get(self.table, {})
         is_created = self._persistent is not None and "id" in self._persistent
-        is_indexable = len(_table.get("id", [])) == 1 or (index and index.key in _table)
+        is_indexable = len(table.get("id", [])) <= 1 or (index and index.key in table)
         is_indexed = index and is_indexable
         if index and not is_indexable:
             warnings.warn(
