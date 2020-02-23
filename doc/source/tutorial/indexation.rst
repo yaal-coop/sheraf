@@ -214,8 +214,22 @@ Sheraf provides tools to check the health of your model tables. So now, let us c
 .. code-block:: python
 
     >>> from sheraf.batches.checks import print_health
-    >>> with sheraf.connection(): # doctest: +SKIP
-    ...     print_health(Cowboy, model_checks=["index"])
+    >>> with sheraf.connection():
+    ...     print_health(Cowboy, attribute_checks=["index"])
+                 _                     __        _               _
+    =========== | | ================= / _| ==== | | =========== | | ===============
+             ___| |__   ___ _ __ __ _| |_    ___| |__   ___  ___| | _____
+            / __| '_ \ / _ \ '__/ _` |  _|  / __| '_ \ / _ \/ __| |/ / __|
+            \__ \ | | |  __/ | | (_| | |   | (__| | | |  __/ (__|   <\__ \
+            |___/_| |_|\___|_|  \__,_|_|    \___|_| |_|\___|\___|_|\_\___/
+    ===============================================================================
+    Analyzing your models, this operation can be very long...
+    ================================================================================
+    index                                       OK       KO
+    - __main__.Cowboy_____________________________________ TOTAL: 0_______ 3_______
+      - name_____________________________________________________ 0_______ 3_______
+
+
 
 You can see here that the indexation table *name* is absent. You can call :func:`~sheraf.models.indexation.IndexedModel.reset_indexes` to create and populate it.
 
