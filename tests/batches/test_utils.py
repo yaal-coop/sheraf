@@ -11,3 +11,10 @@ def test_model_discovery():
 
     assert ("tests.batches.fixture1.Model1", Model1) in discovery
     assert ("tests.batches.fixture1.subdirectory.model2.Model2", Model2) in discovery
+
+def test_model_discovery_with_model():
+    from .fixture1 import Model1
+
+    discovery = discover_models(Model1)
+
+    assert ("tests.batches.fixture1.Model1", Model1) in discovery

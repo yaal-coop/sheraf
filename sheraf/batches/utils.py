@@ -43,8 +43,17 @@ def discover_models(*args):
     """
 
     modules = import_submodules(*args)
-    return set(
+    result = set(
         (path, model)
         for path, model in IndexedModelMetaclass.tables.values()
         if model.__module__ in modules.keys()
     )
+
+    for model in args:
+        if isinstance(model, IndexedModelMetaclass):
+            result.add((
+                "{}.{}".format(model.__module__, model.__name__),
+                model,
+            ))
+
+    return result
