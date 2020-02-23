@@ -20,7 +20,7 @@ Sheraf stores automagically the creation date of every object when the object is
 .. doctest::
 
     >>> with sheraf.connection(commit=True):
-    ...  c = Cowboy.create(name="Jane Calamity")
+    ...  c = Cowboy.create(name="Calamity Jane")
 
     >>> with sheraf.connection(commit=True):
     ...  c = next(Cowboy.all())
