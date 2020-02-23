@@ -60,6 +60,10 @@ def check_conflict_resolution():
 
 
 def check_attributes_index(model_instance):
+    """
+    Compute the values that should be indexed from the instance indexable attributes,
+    then checks if they are present in the index table.
+    """
     root = sheraf.Database.current_connection().root()
     result = {}
     index_table = root.get(model_instance.table)
@@ -67,32 +71,24 @@ def check_attributes_index(model_instance):
     if not index_table:
         return result
 
-    # Check that all indexed model attributes exist in index table
-    for attribute_name, attribute in model_instance.attributes.items():
-        if attribute_name not in model_instance._persistent:
+    for index_name, index in model_instance.indexes().items():
+        values = index.get_values(model_instance)
+
+        if values and index_name not in index_table:
+            result[index_name] = False
             continue
-        for attribute_index_key, attribute_index_content in index_table.items():
-            if attribute_index_key != "id" and (
-                attribute_index_key == attribute_name
-                or attribute_index_key in attribute.indexes
-            ):
-                key = (
-                    None
-                    if attribute_index_key == attribute_name
-                    else attribute_index_key
-                )
-                values_func = attribute.indexes[key].values_func
-                result[attribute_name] = all(
-                    v in attribute_index_content
-                    for v in values_func(attribute.read(model_instance))
-                )
-                # todo check if key is unique in a model elsewhere?
-    # result = { "A1" : True, "A2" : False, "A3" : True }
+
+        result[index_name] = all(
+            value in index_table[index_name]
+            for value in values
+        )
     return result
 
 
 def check_model_index(model):
     """
+    Browse an index_table, and checks that every indexed persistent can be read.
+
     For a given attribute:
     - If MULTIPLE: an attribute index is ok if all model instances for an attribute value are present
     - If UNIQUE: an attribute index is ok if the model instances for this attribute value is present

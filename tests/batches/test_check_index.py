@@ -169,7 +169,7 @@ def test_multiple_healthcheck_attributes_index_with_key(sheraf_database, capsys)
         assert "str2" in conn.root()["model2k_table"]["str"]
         health = check_health(fixture1, **kwargs)["check_attributes_index"]
 
-        assert {"str_indexed": {"ok": 1, "ko": 1}} == health[
+        assert {"str": {"ok": 1, "ko": 1}} == health[
             "tests.batches.fixture1.Model2k"
         ]
 
@@ -223,7 +223,7 @@ def test_healthcheck_attributes_index_with_key(sheraf_database, capsys):
         assert "str2" in conn.root()["model2kunique_table"]["str"]
         health = check_health(fixture1, **kwargs)["check_attributes_index"]
 
-        assert {"str_indexed": {"ok": 1, "ko": 1}} == health[
+        assert {"str": {"ok": 1, "ko": 1}} == health[
             "tests.batches.fixture1.Model2kunique"
         ]
 
@@ -280,10 +280,31 @@ def test_healthcheck_attributes_index_non_primitive_with_key(sheraf_database, ca
             "check_attributes_index"
         ]
 
-        assert {"obj_indexed": {"ok": 1, "ko": 1}} == health[
+        assert {"obj": {"ok": 1, "ko": 1}} == health[
             "tests.batches.fixture1.Model3k"
         ]
 
         print_health(fixture1)
         stdout = capsys.readouterr().out
         assert re.search(r"tests.batches.fixture1.Model3k[^\n]*1[^\n]*1", stdout)
+
+
+@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
+@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
+def test_index_table_not_yet_created(sheraf_database, capsys):
+    class Cowboy(sheraf.Model):
+        table = "future_cowboys"
+        name = sheraf.StringAttribute()
+
+    with sheraf.connection(commit=True):
+        Cowboy.create(name="George")
+        Cowboy.create(name="Peter")
+
+    class Cowboy(sheraf.Model):
+        table = "future_cowboys"
+        name = sheraf.StringAttribute().index()
+
+    with sheraf.connection():
+        health = check_health(Cowboy, attribute_checks=["index"])
+
+    assert {"ok": 0, "ko": 2} == health['check_attributes_index']['tests.batches.test_check_index.Cowboy']['name']
