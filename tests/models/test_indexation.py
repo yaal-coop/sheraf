@@ -1,9 +1,9 @@
-# coding: utf-8
 import BTrees.OOBTree
 import mock
 import pytest
-
+import warnings
 import sheraf
+import sheraf.exceptions
 
 
 # ----------------------------------------------------------------------------
@@ -347,3 +347,59 @@ def test_unique_indexation_and_filter_on_wrong_attribute(sheraf_database):
 
 # TODO: les indexes auront besoin d'être initialisés si jamais quelqu'un veut passer d'une base non indexée à une base indexée.
 #  Tester qu'un attribut passé « indexé » mais non initialisé adopte toujours un comportement valide.
+
+def test_reset_index_table(sheraf_database):
+    class MyModel(sheraf.AutoModel):
+        foo = sheraf.SimpleAttribute()
+
+    with sheraf.connection(commit=True):
+        MyModel.create(foo="bar")
+        MyModel.create(foo="baz")
+
+    class MyModel(sheraf.AutoModel):
+        foo = sheraf.SimpleAttribute().index()
+
+    with sheraf.connection(commit=True):
+        with warnings.catch_warnings(record=True) as warns:
+            MyModel.create(foo="foobar")
+            assert warns[0].category is sheraf.exceptions.IndexationWarning
+
+    with sheraf.connection(commit=True):
+        MyModel.reset_indexes(["foo"])
+
+    with sheraf.connection(commit=True):
+        assert 3 == MyModel.count()
+
+        with warnings.catch_warnings(record=True) as warns:
+            MyModel.create(foo="foobar")
+            assert not warns
+
+
+def test_reset_indexes(sheraf_database):
+    class MyModel(sheraf.AutoModel):
+        foo = sheraf.SimpleAttribute()
+        bar = sheraf.SimpleAttribute()
+
+    with sheraf.connection(commit=True):
+        MyModel.create(foo="bar", bar="bar")
+        MyModel.create(foo="baz", bar="bor")
+
+    class MyModel(sheraf.AutoModel):
+        foo = sheraf.SimpleAttribute().index()
+        bar = sheraf.SimpleAttribute().index()
+
+    with sheraf.connection(commit=True):
+        with warnings.catch_warnings(record=True) as warns:
+            MyModel.create(foo="foobar", bar="bur")
+            assert warns[0].category is sheraf.exceptions.IndexationWarning
+            assert warns[1].category is sheraf.exceptions.IndexationWarning
+
+    with sheraf.connection(commit=True):
+        MyModel.reset_indexes()
+
+    with sheraf.connection(commit=True):
+        assert 3 == MyModel.count()
+
+        with warnings.catch_warnings(record=True) as warns:
+            MyModel.create(foo="foobar", bar="boo")
+            assert not warns

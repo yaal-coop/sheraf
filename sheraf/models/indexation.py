@@ -141,6 +141,16 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                 pass
         del cls._table(sheraf.Database.current_name(), index_name)[key]
 
+    @classmethod
+    def _delete_index_table(cls, index_name):
+        database_name = (
+            cls.database_name or cls._current_database_name()
+        )
+        root = sheraf.Database.current_connection(database_name).root()
+        index_root = root[cls.table]
+
+        del index_root[index_name]
+
     def make_id(self):
         """:return: a unique id for this object. Not intended for use"""
         _id = self.attributes["id"].create(self)
@@ -234,7 +244,12 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             else:
                 warnings.warn(
                     "New index in an already populated table. %s.%s will not be indexed. "
-                    "Consider a migration" % (cls.__name__, index.key),
+                    "Consider calling %s.reset_indexes([\"%s\"]) to initialize the indexation table." % (
+                        cls.__name__,
+                        index.key,
+                        cls.__name__,
+                        index.key,
+                    ),
                     sheraf.exceptions.IndexationWarning,
                     stacklevel=2,
                 )
@@ -331,6 +346,36 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             return (cls._decorate(mapping) for mapping in mappings)
         except (KeyError, sheraf.exceptions.ModelObjectNotFoundException):
             raise sheraf.exceptions.ModelObjectNotFoundException(cls, key, index_name)
+
+    @classmethod
+    def reset_indexes(cls, index_names=None):
+        """
+        Resets a model indexation tables.
+
+        This method should be called if an attribute became indexed in an already
+        populated database.
+
+        :param index_names: A list of index names to reset. If `None`, all the
+                            indexes will be reseted.
+        """
+        if not index_names:
+            indexes = cls.indexes().values()
+        else:
+            indexes = [
+                index
+                for index_name, index in cls.indexes().items()
+                if index_name in index_names
+            ]
+
+        for index in indexes:
+            try:
+                cls._delete_index_table(index)
+            except KeyError:
+                pass
+
+        for m in cls.all():
+            for index in indexes:
+                m.update_index(index)
 
     @classmethod
     def count(cls, index_name=None):
@@ -451,7 +496,12 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         if index and not is_indexable:
             warnings.warn(
                 "New index in an already populated table. %s.%s will not be indexed. "
-                "Consider a migration" % (self.__class__.__name__, name),
+                "Consider calling %s.reset_indexes([\"%s\"]) to initialize the indexation table." % (
+                    self.__class__.__name__,
+                    name,
+                    self.__class__.__name__,
+                    name,
+                ),
                 sheraf.exceptions.IndexationWarning,
                 stacklevel=4,
             )
@@ -467,7 +517,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def delete_index(self, index):
         """
-        Delete a model id for a given index.
+        Delete a model instance for a given index.
         """
         index_table = self._table(index_name=index.key)
         for value in index.get_values(self):
@@ -485,7 +535,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def update_index(self, index):
         """
-        Creates or updates the model id for a given index.
+        Creates or updates the model instance for a given index.
         """
 
         index_table = self._table(index_name=index.key)
