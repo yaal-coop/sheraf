@@ -233,9 +233,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                 model._update_index(index)
             else:
                 warnings.warn(
-                    "Already instanciated model: %s will not be indexed. "
-                    "Consider a migration" % index.key,
-                    UserWarning,
+                    "New index in an already populated table. %s.%s will not be indexed. "
+                    "Consider a migration" % (cls.__name__, index.key),
+                    sheraf.exceptions.IndexationWarning,
                     stacklevel=2,
                 )
 
@@ -450,9 +450,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         is_indexed = index and is_indexable
         if index and not is_indexable:
             warnings.warn(
-                "Already instanciated model: %s will not be indexed. "
-                "Consider a migration" % name,
-                UserWarning,
+                "New index in an already populated table. %s.%s will not be indexed. "
+                "Consider a migration" % (self.__class__.__name__, name),
+                sheraf.exceptions.IndexationWarning,
                 stacklevel=4,
             )
 

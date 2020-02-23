@@ -199,3 +199,7 @@ class MultipleIndexException(InvalidIndexException):
     """
     TODO
     """
+
+
+class IndexationWarning(UserWarning):
+    pass
