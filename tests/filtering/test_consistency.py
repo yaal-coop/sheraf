@@ -1,4 +1,5 @@
 import sheraf
+import sys
 
 from unittest.mock import patch
 
@@ -8,10 +9,10 @@ def assert_filter_queryset(qs, is_indexed=False):
         "sheraf.queryset.QuerySet._init_indexed_iterator"
     ) as indexed_iterator_method:
         list(qs)
-        if is_indexed:
-            indexed_iterator_method.assert_called_once()
-        else:
+        if not is_indexed:
             assert not indexed_iterator_method.called
+        elif sys.version_info >= (3, 6):
+            indexed_iterator_method.assert_called_once()
 
 
 def test_temp_canonic_index(sheraf_database):
