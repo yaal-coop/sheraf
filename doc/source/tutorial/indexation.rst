@@ -209,10 +209,26 @@ If your database is empty, indexation will work out of the box, but if you alrea
     ...         steven = Cowboy.create(name="Steven")
     ...         assert warns[0].category is sheraf.exceptions.IndexationWarning
 
- Sheraf provides tools to check the health of your model tables. So now, let us check how things are going for cowboys:
+Sheraf provides tools to check the health of your model tables. So now, let us check how things are going for cowboys:
 
- .. code-block:: python
+.. code-block:: python
 
-    >>> from sheraf.batches.checks import print_health, check_health
-    >>> with sheraf.connection():
-    ...     check_health(Cowboy, model_checks=["index"])
+    >>> from sheraf.batches.checks import print_health
+    >>> with sheraf.connection(): # doctest: +SKIP
+    ...     print_health(Cowboy, model_checks=["index"])
+
+You can see here that the indexation table *name* is absent. You can call :func:`~sheraf.models.indexation.IndexedModel.reset_indexes` to create and populate it.
+
+.. code-block:: python
+
+    >>> with sheraf.connection(commit=True):
+    ...     Cowboy.reset_indexes(["name"])
+
+Now that your index table is created and filled, you won't be bothered by an :class:`~sheraf.exceptions.IndexationWarning` anymore.
+
+.. code-block:: python
+
+    >>> with sheraf.connection(commit=True):
+    ...     with warnings.catch_warnings(record=True) as warns:
+    ...         boss = Cowboy.create(name="Boss")
+    ...         assert not warns
