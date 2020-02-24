@@ -42,7 +42,9 @@ def test_params_override_conf_file():
 
 
 def test_conf_file_params():
-    db = sheraf.Database("zconfig://" + DIR + "tests/zodb_multiple_databases.conf#temp1")
+    db = sheraf.Database(
+        "zconfig://" + DIR + "tests/zodb_multiple_databases.conf#temp1"
+    )
     assert db.name == "database1"
     assert db.db.database_name == "database1"
     assert db.db.getCacheSize() == 7000

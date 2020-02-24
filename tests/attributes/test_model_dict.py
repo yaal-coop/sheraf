@@ -64,7 +64,9 @@ def test_model_dict(sheraf_connection, model):
 
 def test_error_if_delete_a_nonexisting_key(sheraf_connection):
     class _AnotherModelForTest(sheraf.AutoModel):
-        a_dict_for_test = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
+        a_dict_for_test = sheraf.LargeDictAttribute(
+            sheraf.ModelAttribute(AModelForTest)
+        )
 
     another = _AnotherModelForTest.create()
     with pytest.raises(KeyError):

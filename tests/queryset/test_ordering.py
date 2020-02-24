@@ -31,8 +31,12 @@ def test_attribute_order(sheraf_connection, m0, m1, m2):
 
 def test_multiple_attribute_orders(sheraf_connection, m0, m1, m2, m3):
     assert [m0, m1, m2, m3] == Cowboy.all()
-    assert [m0, m3, m2, m1] == Cowboy.all().order(age=sheraf.ASC).order(size=sheraf.DESC)
-    assert [m1, m2, m3, m0] == Cowboy.all().order(age=sheraf.DESC).order(size=sheraf.ASC)
+    assert [m0, m3, m2, m1] == Cowboy.all().order(age=sheraf.ASC).order(
+        size=sheraf.DESC
+    )
+    assert [m1, m2, m3, m0] == Cowboy.all().order(age=sheraf.DESC).order(
+        size=sheraf.ASC
+    )
 
 
 def test_successive_orders_copy(sheraf_connection, m0, m1, m2, m3):
@@ -79,7 +83,9 @@ def test_invalid_order_call(sheraf_connection, m0, m1, m2, m3):
         Cowboy.all().order(age=sheraf.ASC).order(age=sheraf.DESC)
 
     with pytest.raises(InvalidOrderException):
-        Cowboy.all().order(age=sheraf.ASC).order(name=sheraf.DESC).order(age=sheraf.DESC)
+        Cowboy.all().order(age=sheraf.ASC).order(name=sheraf.DESC).order(
+            age=sheraf.DESC
+        )
 
     with pytest.raises(InvalidOrderException):
         Cowboy.order(age="foobar")

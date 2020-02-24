@@ -298,16 +298,22 @@ class TestMultipleConnections:
                 with sheraf.connection(commit=True) as c2:
                     c2.root()["data"].append("connection2")
 
-    def test_get_current_connection_nested(self, sheraf_database, other_nested_database):
+    def test_get_current_connection_nested(
+        self, sheraf_database, other_nested_database
+    ):
         with sheraf.connection(sheraf.Database.DEFAULT_DATABASE_NAME) as conn_default:
-            assert sheraf.Database.DEFAULT_DATABASE_NAME == sheraf.Database.current_name()
+            assert (
+                sheraf.Database.DEFAULT_DATABASE_NAME == sheraf.Database.current_name()
+            )
             assert conn_default == sheraf.Database.current_connection()
 
             with sheraf.connection("other_nested_database") as conn_other:
                 assert "other_nested_database" == sheraf.Database.current_name()
                 assert conn_other == sheraf.Database.current_connection()
 
-            assert sheraf.Database.DEFAULT_DATABASE_NAME == sheraf.Database.current_name()
+            assert (
+                sheraf.Database.DEFAULT_DATABASE_NAME == sheraf.Database.current_name()
+            )
             assert conn_default == sheraf.Database.current_connection()
 
 

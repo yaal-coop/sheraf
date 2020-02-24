@@ -66,7 +66,13 @@ MODEL_CHECK_FUNCS = {}
 OTHER_CHECK_FUNCS = {"check_conflict_resolution": check_conflict_resolution}
 
 
-def check_health(*args, model_checks=None, instance_checks=None, attribute_checks=None, other_checks=None):
+def check_health(
+    *args,
+    model_checks=None,
+    instance_checks=None,
+    attribute_checks=None,
+    other_checks=None
+):
     """
     Takes some modules in parameters.
     :param model_checks: If None, check also model consistency (see constant model_check_funcs)
@@ -163,19 +169,15 @@ def print_failure(string, padding=0):
 
 def _print_check_other_health_result(check_reason, health_table):
     print(
-        "- {:_<86} ".format(print_neutral(check_reason)) +
-        " " + (
-            print_success("OK")
-            if health_table[check_reason]
-            else print_failure("KO")
-        )
+        "- {:_<86} ".format(print_neutral(check_reason))
+        + " "
+        + (print_success("OK") if health_table[check_reason] else print_failure("KO"))
     )
 
 
 def _print_check_model_health_result(check_reason, health_table):
 
-    print(80 * "=" + "\n" +
-          print_neutral(check_reason) + 39 * " " + """OK       KO""")
+    print(80 * "=" + "\n" + print_neutral(check_reason) + 39 * " " + """OK       KO""")
     table_key = "check_model_" + check_reason
     for model_path, attributes in health_table[table_key].items():
         print(
@@ -235,7 +237,13 @@ def _print_check_attribute_health_result(check_reason, health_table):
         print("  No model to visit.")
 
 
-def print_health(*args, model_checks=None, instance_checks=None, attribute_checks=None, other_checks=None):
+def print_health(
+    *args,
+    model_checks=None,
+    instance_checks=None,
+    attribute_checks=None,
+    other_checks=None
+):
     """Takes some modules in parameters (e.g. "american.class.cowboy_module").
 
     The function will discover models in the modules, analyze every model instance, and return
@@ -243,13 +251,14 @@ def print_health(*args, model_checks=None, instance_checks=None, attribute_check
 
     This function does not edit any data and is safe to be executed in a production shell.
     """
-    print("             _                     __        _               _\n"
-          "=========== | | ================= / _| ==== | | =========== | | ===============\n"
-          "         ___| |__   ___ _ __ __ _| |_    ___| |__   ___  ___| | _____\n"
-          "        / __| '_ \\ / _ \\ '__/ _` |  _|  / __| '_ \\ / _ \\/ __| |/ / __|\n"
-          "        \\__ \\ | | |  __/ | | (_| | |   | (__| | | |  __/ (__|   <\\__ \\\n"
-          "        |___/_| |_|\\___|_|  \\__,_|_|    \\___|_| |_|\\___|\\___|_|\\_\\___/\n"
-          "==============================================================================="
+    print(
+        "             _                     __        _               _\n"
+        "=========== | | ================= / _| ==== | | =========== | | ===============\n"
+        "         ___| |__   ___ _ __ __ _| |_    ___| |__   ___  ___| | _____\n"
+        "        / __| '_ \\ / _ \\ '__/ _` |  _|  / __| '_ \\ / _ \\/ __| |/ / __|\n"
+        "        \\__ \\ | | |  __/ | | (_| | |   | (__| | | |  __/ (__|   <\\__ \\\n"
+        "        |___/_| |_|\\___|_|  \\__,_|_|    \\___|_| |_|\\___|\\___|_|\\_\\___/\n"
+        "==============================================================================="
     )
     print("Analyzing your models, this operation can be very long...")
 
