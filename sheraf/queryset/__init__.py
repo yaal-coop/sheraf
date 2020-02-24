@@ -249,7 +249,7 @@ class QuerySet(object):
             self._iterator = iter(self._iterable)
 
     def _init_iterator(self):
-        # The default sort order is by ascending pk
+        # The default sort order is by ascending identifier
         if not self.orders:
             self._init_default_iterator()
             return
