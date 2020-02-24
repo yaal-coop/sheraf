@@ -83,7 +83,9 @@ def test_attr_dir_not_exists(sheraf_temp_dir, sheraf_connection, file_object_cla
     s = FileStorable.create()
     s.logo = {"extension": "EXT", "stream": b"STREAM"}
     s.save()
-    shutil.rmtree(sheraf.attributes.files.FILES_ROOT_DIR + FileStorable.table + "/logo/")
+    shutil.rmtree(
+        sheraf.attributes.files.FILES_ROOT_DIR + FileStorable.table + "/logo/"
+    )
     FileStorable.read(s.id)
 
 
@@ -179,7 +181,9 @@ def test_optional_files(sheraf_temp_dir, sheraf_connection, file_object_class):
     "file_object_class",
     [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
 )
-def test_optional_files_not_filled(sheraf_temp_dir, sheraf_connection, file_object_class):
+def test_optional_files_not_filled(
+    sheraf_temp_dir, sheraf_connection, file_object_class
+):
     class FileStorable(sheraf.AutoModel):
         unique_table_name = False
         logo = sheraf.FileAttribute(file_object_class)

@@ -16,7 +16,10 @@ import sheraf.exceptions
     [
         (sheraf.IntegerAttribute().index(unique=True), BTrees.IOBTree.IOBTree),
         # ( sheraf.IntegerAttribute().index(unique=True, key="my_int"), BTrees.IOBTree.IOBTree)
-        (sheraf.SimpleAttribute(default=int).index(unique=True), BTrees.OOBTree.OOBTree),
+        (
+            sheraf.SimpleAttribute(default=int).index(unique=True),
+            BTrees.OOBTree.OOBTree,
+        ),
     ],
 )
 def test_integer_unique_index_creation(sheraf_database, instance, mapping):
@@ -347,6 +350,7 @@ def test_unique_indexation_and_filter_on_wrong_attribute(sheraf_database):
 
 # TODO: les indexes auront besoin d'être initialisés si jamais quelqu'un veut passer d'une base non indexée à une base indexée.
 #  Tester qu'un attribut passé « indexé » mais non initialisé adopte toujours un comportement valide.
+
 
 def test_reset_index_table(sheraf_database):
     class MyModel(sheraf.AutoModel):

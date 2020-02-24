@@ -51,9 +51,6 @@ def discover_models(*args):
 
     for model in args:
         if isinstance(model, IndexedModelMetaclass):
-            result.add((
-                "{}.{}".format(model.__module__, model.__name__),
-                model,
-            ))
+            result.add(("{}.{}".format(model.__module__, model.__name__), model,))
 
     return result

@@ -143,9 +143,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def _delete_index_table(cls, index_name):
-        database_name = (
-            cls.database_name or cls._current_database_name()
-        )
+        database_name = cls.database_name or cls._current_database_name()
         root = sheraf.Database.current_connection(database_name).root()
         index_root = root[cls.table]
 
@@ -244,16 +242,11 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             else:
                 warnings.warn(
                     "New index in an already populated table. %s.%s will not be indexed. "
-                    "Consider calling %s.reset_indexes([\"%s\"]) to initialize the indexation table." % (
-                        cls.__name__,
-                        index.key,
-                        cls.__name__,
-                        index.key,
-                    ),
+                    'Consider calling %s.reset_indexes(["%s"]) to initialize the indexation table.'
+                    % (cls.__name__, index.key, cls.__name__, index.key,),
                     sheraf.exceptions.IndexationWarning,
                     stacklevel=2,
                 )
-
 
         table[id] = model._persistent
         model.id = id
@@ -496,16 +489,11 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         if index and not is_indexable:
             warnings.warn(
                 "New index in an already populated table. %s.%s will not be indexed. "
-                "Consider calling %s.reset_indexes([\"%s\"]) to initialize the indexation table." % (
-                    self.__class__.__name__,
-                    name,
-                    self.__class__.__name__,
-                    name,
-                ),
+                'Consider calling %s.reset_indexes(["%s"]) to initialize the indexation table.'
+                % (self.__class__.__name__, name, self.__class__.__name__, name,),
                 sheraf.exceptions.IndexationWarning,
                 stacklevel=4,
             )
-
 
         if is_created and is_indexed:
             self.delete_index(index)

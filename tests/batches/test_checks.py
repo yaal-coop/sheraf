@@ -149,9 +149,7 @@ def test_healthcheck_attributes_index_with_key(sheraf_database, capsys):
         assert "str2" in conn.root()["model2k_table"]["str"]
         health = check_health(fixture1, **kwargs)["check_attributes_index"]
 
-        assert {"str": {"ok": 1, "ko": 1}} == health[
-            "tests.batches.fixture1.Model2k"
-        ]
+        assert {"str": {"ok": 1, "ko": 1}} == health["tests.batches.fixture1.Model2k"]
 
         print_health(fixture1, **kwargs)
         stdout = capsys.readouterr().out
@@ -206,9 +204,7 @@ def test_healthcheck_attributes_index_non_primitive_with_key(sheraf_database, ca
             "check_attributes_index"
         ]
 
-        assert {"obj": {"ok": 1, "ko": 1}} == health[
-            "tests.batches.fixture1.Model3k"
-        ]
+        assert {"obj": {"ok": 1, "ko": 1}} == health["tests.batches.fixture1.Model3k"]
 
         print_health(fixture1)
         stdout = capsys.readouterr().out

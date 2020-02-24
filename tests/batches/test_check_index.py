@@ -169,9 +169,7 @@ def test_multiple_healthcheck_attributes_index_with_key(sheraf_database, capsys)
         assert "str2" in conn.root()["model2k_table"]["str"]
         health = check_health(fixture1, **kwargs)["check_attributes_index"]
 
-        assert {"str": {"ok": 1, "ko": 1}} == health[
-            "tests.batches.fixture1.Model2k"
-        ]
+        assert {"str": {"ok": 1, "ko": 1}} == health["tests.batches.fixture1.Model2k"]
 
         print_health(fixture1, **kwargs)
         stdout = capsys.readouterr().out
@@ -280,9 +278,7 @@ def test_healthcheck_attributes_index_non_primitive_with_key(sheraf_database, ca
             "check_attributes_index"
         ]
 
-        assert {"obj": {"ok": 1, "ko": 1}} == health[
-            "tests.batches.fixture1.Model3k"
-        ]
+        assert {"obj": {"ok": 1, "ko": 1}} == health["tests.batches.fixture1.Model3k"]
 
         print_health(fixture1)
         stdout = capsys.readouterr().out
@@ -307,4 +303,6 @@ def test_index_table_not_yet_created(sheraf_database, capsys):
     with sheraf.connection():
         health = check_health(Cowboy, attribute_checks=["index"])
 
-    assert {"ok": 0, "ko": 2} == health['check_attributes_index']['tests.batches.test_check_index.Cowboy']['name']
+    assert {"ok": 0, "ko": 2} == health["check_attributes_index"][
+        "tests.batches.test_check_index.Cowboy"
+    ]["name"]

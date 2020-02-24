@@ -10,7 +10,9 @@ class DictInlineModel(sheraf.InlineModel):
 
 def test_inline_model_dict(sheraf_connection):
     class ModelForTest(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(DictInlineModel))
+        inlines = sheraf.LargeDictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel)
+        )
 
     _model = ModelForTest.create()
     assert not _model.inlines
@@ -49,7 +51,9 @@ def test_inline_model_dict(sheraf_connection):
 
 def test_create(sheraf_database):
     class ModelForTest(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(DictInlineModel))
+        inlines = sheraf.LargeDictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel)
+        )
 
     with sheraf.connection(commit=True):
         model = ModelForTest.create(inlines={"a": {"name": "A"}, "b": {"name": "B"}})
@@ -79,7 +83,9 @@ def test_default_parameter(sheraf_connection):
 
 def test_clear(sheraf_connection):
     class ModelForTest(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(DictInlineModel))
+        inlines = sheraf.LargeDictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel)
+        )
 
     _model = ModelForTest.create()
     _inline = DictInlineModel.create()
@@ -94,7 +100,9 @@ def test_clear(sheraf_connection):
 
 def test_keys_and_items(sheraf_connection):
     class ModelForTest(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(DictInlineModel))
+        inlines = sheraf.LargeDictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel)
+        )
 
     _model = ModelForTest.create()
     _inlineA = DictInlineModel.create()
@@ -140,7 +148,9 @@ def test_model_invalid_string(sheraf_connection):
 
 def test_minKey_and_maxKey(sheraf_connection):
     class ModelForTest(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(DictInlineModel))
+        inlines = sheraf.LargeDictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel)
+        )
 
     _model = ModelForTest.create()
     _inlineA = DictInlineModel.create()
@@ -154,7 +164,9 @@ def test_minKey_and_maxKey(sheraf_connection):
 
 def test_update_edition(sheraf_database):
     class Model(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(DictInlineModel))
+        inlines = sheraf.LargeDictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel)
+        )
 
     with sheraf.connection(commit=True):
         model = Model.create(inlines={"a": {"name": "c"}, "b": {"name": "c"}})
@@ -186,7 +198,9 @@ def test_update_edition(sheraf_database):
 
 def test_update_no_edition(sheraf_database):
     class Model(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(DictInlineModel))
+        inlines = sheraf.LargeDictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel)
+        )
 
     with sheraf.connection(commit=True):
         model = Model.create(inlines={"a": {"name": "c"}, "b": {"name": "c"}})
@@ -218,7 +232,9 @@ def test_update_no_edition(sheraf_database):
 
 def test_update_replacement(sheraf_database):
     class Model(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(DictInlineModel))
+        inlines = sheraf.LargeDictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel)
+        )
 
     with sheraf.connection(commit=True):
         model = Model.create(inlines={"a": {"name": "c"}, "b": {"name": "c"}})
@@ -252,7 +268,9 @@ def test_update_replacement(sheraf_database):
 
 def test_update_addition(sheraf_database):
     class Model(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(DictInlineModel))
+        inlines = sheraf.LargeDictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel)
+        )
 
     with sheraf.connection(commit=True):
         model = Model.create(inlines={"a": {"name": "a"}})
@@ -272,7 +290,9 @@ def test_update_addition(sheraf_database):
 
 def test_update_no_addition(sheraf_database):
     class Model(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(DictInlineModel))
+        inlines = sheraf.LargeDictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel)
+        )
 
     with sheraf.connection(commit=True):
         model = Model.create(inlines={"a": {"name": "a"}})
@@ -298,7 +318,9 @@ def test_update_no_addition(sheraf_database):
 
 def test_update_deletion(sheraf_database):
     class Model(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(DictInlineModel))
+        inlines = sheraf.LargeDictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel)
+        )
 
     with sheraf.connection(commit=True):
         model = Model.create(inlines={"a": {"name": "a"}})
@@ -318,7 +340,9 @@ def test_update_deletion(sheraf_database):
 
 def test_update_no_deletion(sheraf_database):
     class Model(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(DictInlineModel))
+        inlines = sheraf.LargeDictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel)
+        )
 
     with sheraf.connection(commit=True):
         model = Model.create(inlines={"a": {"name": "a"}})
