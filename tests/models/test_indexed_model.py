@@ -17,13 +17,13 @@ def test_read_invalid_parameters(sheraf_connection):
     class M(sheraf.AutoModel):
         pass
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         M.read(1, 2)
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         M.read(1, id=2)
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         M.read(foo=1, id=2)
 
 

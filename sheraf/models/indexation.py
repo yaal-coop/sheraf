@@ -159,7 +159,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         """
 
         if len(args) + len(kwargs) != 1:
-            raise AttributeError(
+            raise TypeError(
                 "IndexedModel.read_these takes only one positionnal or named parameter"
             )
 
@@ -207,7 +207,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         """
 
         if len(args) + len(kwargs) != 1:
-            raise AttributeError(
+            raise TypeError(
                 "IndexedModel.read takes only one positionnal or named parameter"
             )
 
