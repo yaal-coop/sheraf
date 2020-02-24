@@ -17,7 +17,6 @@ def test_id_order(sheraf_connection, m0, m1, m2):
     assert [m2, m1, m0] == Cowboy.all().order(sheraf.DESC)
 
     assert [m0, m1, m2] == QuerySet([m0, m1, m2]).order(sheraf.ASC)
-    assert [m0, m1, m2] == QuerySet([m2, m1, m0]).order(sheraf.DESC)
     assert [m2, m1, m0] == QuerySet([m0, m1, m2]).order(sheraf.DESC)
 
 

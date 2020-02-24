@@ -249,15 +249,15 @@ class QuerySet(object):
             self._iterator = iter(self._iterable)
 
     def _init_iterator(self):
-        # The default sort order is by ascending id
+        # The default sort order is by ascending pk
         if not self.orders:
             self._init_default_iterator()
             return
 
-        # If there is only one sort option, and it is over id
+        # If there is only one sort option, and it is over the primary key
         # we can use iterators instead of sorting the whole collection.
-        if len(self.orders) == 1 and "id" in self.orders:
-            self._init_default_iterator(self.orders["id"] == sheraf.constants.DESC)
+        if self.model and len(self.orders) == 1 and self.model.primary_key in self.orders:
+            self._init_default_iterator(self.orders[self.model.primary_key] == sheraf.constants.DESC)
             return
 
         # Else we need to sort the collection.
