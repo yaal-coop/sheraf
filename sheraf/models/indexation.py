@@ -42,9 +42,21 @@ class IndexedModelMetaclass(BaseModelMetaclass):
         return klass
 
     @property
+    def indexes(cls):
+        if cls._indexes is None:
+            cls._indexes = {}
+            for attribute_name, attribute in cls.attributes.items():
+                for index_key, index in attribute.indexes.items():
+                    index.key = index_key or attribute.key(cls)
+                    cls._indexes[index.key] = index
+
+        return cls._indexes
+
+
+    @property
     def primary_key(cls):
         if cls._primary_key is None:
-            for index_name, index in cls.indexes().items():
+            for index_name, index in cls.indexes.items():
                 if not index.primary:
                     continue
 
@@ -225,7 +237,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         index_name, keys = list(kwargs.items())[0]
 
         try:
-            index = cls.indexes()[index_name]
+            index = cls.indexes[index_name]
         except KeyError:
             raise sheraf.exceptions.InvalidIndexException(
                 "{} is not a valid index".format(index_name)
@@ -258,7 +270,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         root = sheraf.Database.current_connection(cls._current_database_name()).root()
         index_tables = root.get(cls.table)
-        for index in model.indexes().values():
+        for index in model.indexes.values():
             if index.primary:
                 continue
 
@@ -321,7 +333,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         index_name, key = list(kwargs.items())[0]
 
         try:
-            index = cls.indexes()[index_name]
+            index = cls.indexes[index_name]
         except KeyError:
             raise sheraf.exceptions.InvalidIndexException(
                 "{} is not a valid index".format(index_name)
@@ -367,11 +379,11 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                             indexes will be reseted.
         """
         if not index_names:
-            indexes = cls.indexes().values()
+            indexes = cls.indexes.values()
         else:
             indexes = [
                 index
-                for index_name, index in cls.indexes().items()
+                for index_name, index in cls.indexes.items()
                 if index_name in index_names
             ]
 
@@ -463,17 +475,6 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         """
         return cls.filter(*args, **kwargs).get()
 
-    @classmethod
-    def indexes(cls):
-        if cls._indexes is None:
-            cls._indexes = {}
-            for attribute_name, attribute in cls.attributes.items():
-                for index_key, index in attribute.indexes.items():
-                    index.key = index_key or attribute.key(cls)
-                    cls._indexes[index.key] = index
-
-        return cls._indexes
-
     def __repr__(self):
         pk = (
             getattr(self, self.__class__.primary_key)
@@ -497,7 +498,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         )
 
     def _find_index(self, name):
-        index = self.indexes().get(name)
+        index = self.indexes.get(name)
         if index:
             return index
 
@@ -534,6 +535,10 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         if should_update_index:
             self.update_index(index)
+
+    @property
+    def indexes(self):
+        return self.__class__.indexes
 
     def delete_index(self, index):
         """
@@ -591,7 +596,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             ...
         sheraf.exceptions.ModelObjectNotFoundException: Id '...' not found in MyModel
         """
-        for index in self.indexes().values():
+        for index in self.indexes.values():
             self.delete_index(index)
 
         for attr in self.attributes.values():
