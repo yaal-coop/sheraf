@@ -251,10 +251,10 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             )
 
         args = list(args)
-        id = args.pop() if args else kwargs.get(cls.primary_key)
+        pk = args.pop() if args else kwargs.get(cls.primary_key)
         model = super(IndexedModel, cls).create(*args, **kwargs)
         table = cls._table()
-        pk = id or model.make_primary_key()
+        pk = pk or model.make_primary_key()
 
         root = sheraf.Database.current_connection(cls._current_database_name()).root()
         index_tables = root.get(cls.table)
