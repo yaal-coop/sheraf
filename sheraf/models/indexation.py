@@ -112,7 +112,6 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def _table(cls, database_name=None, index_name=None):
-        # indexed_attribute_name
         database_name = (
             database_name or cls.database_name or cls._current_database_name()
         )
