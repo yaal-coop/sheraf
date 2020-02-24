@@ -478,7 +478,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def __repr__(self):
         pk = (
-            self.id
+            getattr(self, self.__class__.primary_key)
             if self._persistent is not None
             and self.__class__.primary_key in self._persistent
             else None
@@ -488,7 +488,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         )
 
     def __hash__(self):
-        return hash(self.id)
+        return hash(getattr(self, self.__class__.primary_key))
 
     def __eq__(self, other):
         return (
@@ -573,7 +573,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def copy(self):
         copy = super(IndexedModel, self).copy()
-        copy.id = copy.make_primary_key()
+        setattr(copy, copy.__class__.primary_key, copy.make_primary_key())
         return copy
 
     def delete(self):
