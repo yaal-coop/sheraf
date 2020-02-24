@@ -344,17 +344,6 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         try:
             mapping = cls._tables_getitem(key, index_name)
             model = cls._decorate(mapping)
-
-            # TODO: Remove this when all the ideas will be in the persistent
-            if (
-                index_name == cls.primary_key
-                and cls.primary_key not in model._persistent
-            ):
-                setattr(model, cls.primary_key, key)
-                model.fresh_id = True
-            else:
-                model.fresh_id = False
-
             return model
 
         except (KeyError, sheraf.exceptions.ModelObjectNotFoundException):
