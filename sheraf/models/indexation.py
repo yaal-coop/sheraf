@@ -286,7 +286,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                 )
 
         table[indentifier] = model._persistent
-        setattr(model, cls.primary_key, indentifier)
+        self.identifier = indentifier
         return model
 
     @classmethod
