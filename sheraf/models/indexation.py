@@ -123,11 +123,11 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def make_identifier(self):
         """:return: a unique id for this object. Not intended for use"""
-        pk = self.attributes[self.primary_key].create(self)
-        while self._tables_contains(pk):
-            pk = self.attributes[self.primary_key].create(self)
+        identifier = self.attributes[self.primary_key].create(self)
+        while self._tables_contains(identifier):
+            identifier = self.attributes[self.primary_key].create(self)
 
-        return pk
+        return identifier
 
     @classmethod
     def all(cls):
@@ -166,9 +166,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                 "IndexedModel.read_these takes only one positionnal or named parameter"
             )
 
-        pks = args[0] if args else kwargs.get(cls.primary_key)
+        identifiers = args[0] if args else kwargs.get(cls.primary_key)
 
-        return (cls.read(pk) for pk in pks)
+        return (cls.read(identifier) for identifier in identifiers)
 
     @classmethod
     def create(cls, *args, **kwargs):
@@ -181,12 +181,12 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                 )
             )
 
-        pk = args.pop() if args else kwargs.get(cls.primary_key)
+        identifier = args.pop() if args else kwargs.get(cls.primary_key)
         model = super(IndexedModel, cls).create(*args, **kwargs)
         table = cls._table()
-        pk = pk or model.make_identifier()
-        table[pk] = model._persistent
-        setattr(model, cls.primary_key, pk)
+        identifier = identifier or model.make_identifier()
+        table[identifier] = model._persistent
+        setattr(model, cls.primary_key, identifier)
         return model
 
     @classmethod
@@ -290,12 +290,12 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return cls.filter(*args, **kwargs).get()
 
     def __repr__(self):
-        pk = (
+        identifier = (
             self.identifier
             if self._persistent is not None and self.primary_key in self._persistent
             else None
         )
-        return "<{} {}={}>".format(self.__class__.__name__, self.primary_key, pk)
+        return "<{} {}={}>".format(self.__class__.__name__, self.primary_key, identifier)
 
     def __hash__(self):
         return hash(self.identifier)
