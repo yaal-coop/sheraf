@@ -187,7 +187,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         table = cls._table()
         identifier = identifier or model.make_identifier()
         table[identifier] = model._persistent
-        setattr(model, cls.primary_key, identifier)
+        model.identifier = identifier
         return model
 
     @classmethod

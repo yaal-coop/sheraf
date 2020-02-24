@@ -201,7 +201,6 @@ class QuerySet(object):
 
     def _init_default_iterator(self, reverse=False):
         if self.model:
-            # Iterator over ids
             keys = self.model._tables_iterkeys(reverse=reverse)
             self._iterator = self.model.read_these(keys)
 
@@ -212,12 +211,12 @@ class QuerySet(object):
             self._iterator = iter(self._iterable)
 
     def _init_iterator(self):
-        # The default sort order is by ascending id
+        # The default sort order is by ascending identifier
         if not self.orders:
             self._init_default_iterator()
             return
 
-        # If there is only one sort option, and it is over id
+        # If there is only one sort option, and it is over the primary key
         # we can use iterators instead of sorting the whole collection.
         if (
             self.model
