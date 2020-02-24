@@ -41,8 +41,9 @@ class AttributeIndex:
     values_func = None
     attribute = None
     mapping = None
+    primary = False
 
-    def __init__(self, attribute, unique, key, values_func, mapping):
+    def __init__(self, attribute, unique, key, values_func, mapping, primary):
         def default_values_func(value):
             return {value}
 
@@ -51,6 +52,7 @@ class AttributeIndex:
         self.key = key
         self.values_func = values_func or default_values_func
         self.mapping = mapping
+        self.primary = primary
 
     def __repr__(self):
         return "<AttributeIndex key={} unique={}>".format(self.key, self.unique)
@@ -227,15 +229,16 @@ class BaseAttribute(object):
     def delete(self, parent):
         pass
 
-    def index(self, unique=False, key=None, values=None, mapping=None):
+    def index(self, unique=False, key=None, values=None, mapping=None, primary=False):
         """
         Indexing an attribute allows very fast reading with :func:`~sheraf.queryset.QuerySet.filter` calls.
 
-       :param unique: If the attribute is unique, and two models have the same value for this
+        :param unique: If the attribute is unique, and two models have the same value for this
                       attribute, a :class:`~sheraf.exceptions.UniqueIndexException` is raised
                       when trying to write the second one.
         :param key: The key the index will use. By default, just the attribute name is used.
         :param values: A callable that takes the current attribute value and returns a collection of values to index. Each generated value will be indexed each time this attribute is edited. It may take time if the generated collection is large. By default, the current attribute raw value is used.
+        :param primary: If true, this will be the default index for the model. `False` by default.
 
         When indexes are used, **lazy_creation** is disabled.
 
@@ -263,7 +266,7 @@ class BaseAttribute(object):
         UniqueIndexException
         """
         self.indexes[key] = AttributeIndex(
-            self, unique, key, values, mapping or self.default_index_mapping
+            self, unique, key, values, mapping or self.default_index_mapping, primary
         )
         self.lazy_creation = False
 

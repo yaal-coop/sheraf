@@ -53,7 +53,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     database_name = None
     _indexes = None
-    id = sheraf.attributes.simples.SimpleAttribute()
+    id = sheraf.attributes.simples.SimpleAttribute().index(primary=True, unique=True)
 
     @staticmethod
     def _current_database_name():
@@ -237,6 +237,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         root = sheraf.Database.current_connection(cls._current_database_name()).root()
         index_tables = root.get(cls.table)
         for index in model.indexes().values():
+            if index.primary:
+                continue
+
             if len(table) == 0 or (index_tables and index.key in index_tables):
                 model.update_index(index)
             else:
@@ -361,6 +364,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             ]
 
         for index in indexes:
+            if index.primary:
+                continue
+
             try:
                 cls._delete_index_table(index)
             except KeyError:
@@ -368,7 +374,8 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         for m in cls.all():
             for index in indexes:
-                m.update_index(index)
+                if not index.primary:
+                    m.update_index(index)
 
     @classmethod
     def count(cls, index_name=None):
@@ -486,6 +493,8 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         is_created = self._persistent is not None and "id" in self._persistent
         is_indexable = len(table.get("id", [])) <= 1 or (index and index.key in table)
         is_indexed = index and is_indexable
+        should_update_index = is_created and is_indexed and not index.primary
+
         if index and not is_indexable:
             warnings.warn(
                 "New index in an already populated table. %s.%s will not be indexed. "
@@ -495,12 +504,12 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                 stacklevel=4,
             )
 
-        if is_created and is_indexed:
+        if should_update_index:
             self.delete_index(index)
 
         super(IndexedModel, self).__setattr__(name, value)
 
-        if is_created and is_indexed:
+        if should_update_index:
             self.update_index(index)
 
     def delete_index(self, index):
@@ -564,7 +573,12 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         for attr in self.attributes.values():
             attr.delete(self)
-        self._tables_del(self.id)
+
+        # TODO: this should be done in 'delete_index'
+        try:
+            self._tables_del(self.id)
+        except KeyError:
+            pass
 
 
 class UUIDIndexedModel:
@@ -580,7 +594,7 @@ class UUIDIndexedModel:
 
     id = sheraf.attributes.simples.StringUUIDAttribute(
         default=lambda: "{}".format(uuid.uuid4())
-    )
+    ).index(primary=True, unique=True)
 
 
 class IntIndexedModel:
@@ -599,7 +613,7 @@ class IntIndexedModel:
     MAX_INT = sys.maxsize
     id = sheraf.attributes.simples.IntegerAttribute(
         default=lambda m: random.randint(0, m.MAX_INT)
-    )
+    ).index(primary=True, unique=True)
 
     @classmethod
     def _table_default(cls):
