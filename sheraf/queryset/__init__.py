@@ -386,6 +386,11 @@ class QuerySet(object):
             The less :func:`~sheraf.queryset.QuerySet.order` parameters are
             passed, the better performances will be.
         """
+        if not self.model and (args or not kwargs):
+            raise InvalidOrderException(
+                "QuerySets without models should have explict order arguments"
+            )
+
         if len(args) > 1:
             raise InvalidOrderException(
                 "Only one 'order' positionnal parameter is allowed."

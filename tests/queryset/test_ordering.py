@@ -16,8 +16,8 @@ def test_id_order(sheraf_connection, m0, m1, m2):
     assert [m0, m1, m2] == Cowboy.all().order(sheraf.ASC)
     assert [m2, m1, m0] == Cowboy.all().order(sheraf.DESC)
 
-    assert [m0, m1, m2] == QuerySet([m0, m1, m2]).order(sheraf.ASC)
-    assert [m2, m1, m0] == QuerySet([m0, m1, m2]).order(sheraf.DESC)
+    assert [m0, m1, m2] == QuerySet([m0, m1, m2]).order(id=sheraf.ASC)
+    assert [m2, m1, m0] == QuerySet([m0, m1, m2]).order(id=sheraf.DESC)
 
 
 def test_attribute_order(sheraf_connection, m0, m1, m2):
@@ -97,3 +97,9 @@ def test_invalid_order_call(sheraf_connection, m0, m1, m2, m3):
 
     with pytest.raises(InvalidOrderException):
         list(Cowboy.all().order(foobar=sheraf.ASC))
+
+    with pytest.raises(InvalidOrderException):
+        QuerySet([Cowboy.create()]).order()
+
+    with pytest.raises(InvalidOrderException):
+        QuerySet([Cowboy.create()]).order(sheraf.ASC)
