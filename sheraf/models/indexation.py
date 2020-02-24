@@ -184,7 +184,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def make_primary_key(self):
         """:return: a unique id for this object. Not intended for use"""
-        primary_key = self.__class__.primary_key
+        primary_key = self.primary_key
         pk = self.attributes[primary_key].create(self)
         while self._tables_contains(pk):
             pk = self.attributes[primary_key].create(self)
@@ -477,24 +477,24 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def __repr__(self):
         pk = (
-            getattr(self, self.__class__.primary_key)
+            getattr(self, self.primary_key)
             if self._persistent is not None
-            and self.__class__.primary_key in self._persistent
+            and self.primary_key in self._persistent
             else None
         )
         return "<{} {}={}>".format(
-            self.__class__.__name__, self.__class__.primary_key, pk
+            self.__class__.__name__, self.primary_key, pk
         )
 
     def __hash__(self):
-        return hash(getattr(self, self.__class__.primary_key))
+        return hash(getattr(self, self.primary_key))
 
     def __eq__(self, other):
         return (
-            hasattr(self, self.__class__.primary_key)
-            and hasattr(other, self.__class__.primary_key)
-            and getattr(self, self.__class__.primary_key)
-            == getattr(other, self.__class__.primary_key)
+            hasattr(self, self.primary_key)
+            and hasattr(other, self.primary_key)
+            and getattr(self, self.primary_key)
+            == getattr(other, self.primary_key)
         )
 
     def _find_index(self, name):
@@ -511,7 +511,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         root = sheraf.Database.current_connection(self.database_name).root()
         index = self._find_index(name)
         table = root.get(self.table, {})
-        primary_key = self.__class__.primary_key
+        primary_key = self.primary_key
         is_created = self._persistent is not None and primary_key in self._persistent
         is_indexable = len(table.get(primary_key, [])) <= 1 or (
             index and index.key in table
@@ -539,6 +539,10 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
     @property
     def indexes(self):
         return self.__class__.indexes
+
+    @property
+    def primary_key(self):
+        return self.__class__.primary_key
 
     def delete_index(self, index):
         """
@@ -578,7 +582,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def copy(self):
         copy = super(IndexedModel, self).copy()
-        setattr(copy, copy.__class__.primary_key, copy.make_primary_key())
+        setattr(copy, copy.primary_key, copy.make_primary_key())
         return copy
 
     def delete(self):
