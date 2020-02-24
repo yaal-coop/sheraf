@@ -183,10 +183,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def make_identifier(self):
         """:return: a unique id for this object. Not intended for use"""
-        primary_key = self.primary_key
-        pk = self.attributes[primary_key].create(self)
+        pk = self.attributes[self.primary_key].create(self)
         while self._tables_contains(pk):
-            pk = self.attributes[primary_key].create(self)
+            pk = self.attributes[self.primary_key].create(self)
 
         return pk
 
