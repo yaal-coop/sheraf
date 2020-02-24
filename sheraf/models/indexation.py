@@ -135,7 +135,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return sheraf.queryset.QuerySet(model_class=cls)
 
     @classmethod
-    def read_these(cls, ids):
+    def read_these(cls, *args, **kwargs):
         """Get model instances from their ids. If an instance id does not
         exist, a :class:`~sheraf.exceptions.ModelObjectNotFoundException` is
         raised.
@@ -157,10 +157,18 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             ...
         sheraf.exceptions.ModelObjectNotFoundException: Id 'invalid' not found in MyModel
         """
-        return (cls.read(id) for id in ids)
+
+        if len(args) + len(kwargs) != 1:
+            raise AttributeError(
+                "IndexedModel.read_these takes only one positionnal or named parameter"
+            )
+
+        pks = args[0] if args else kwargs.get("id")
+
+        return (cls.read(pk) for pk in pks)
 
     @classmethod
-    def create(cls, id=None, *args, **kwargs):
+    def create(cls, *args, **kwargs):
         """:return: an instance of this model"""
 
         if "id" not in cls.attributes:
@@ -170,6 +178,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                 )
             )
 
+        id = args.pop() if args else kwargs.get("id")
         model = super(IndexedModel, cls).create(*args, **kwargs)
         table = cls._table()
         id = id or model.make_primary_key()
@@ -178,7 +187,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return model
 
     @classmethod
-    def read(cls, id):
+    def read(cls, *args, **kwargs):
         """Get a model instance from its id. If the model id does not exist, a
         :class:`~sheraf.exceptions.ModelObjectNotFoundException` is raised.
 
@@ -196,6 +205,15 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             ...
         sheraf.exceptions.ModelObjectNotFoundException: Id 'invalid' not found in MyModel
         """
+
+        if len(args) + len(kwargs) != 1:
+            raise AttributeError(
+                "IndexedModel.read takes only one positionnal or named parameter"
+            )
+
+        args = list(args)
+        id = args.pop() if args else kwargs.get("id")
+
         try:
             mapping = cls._tables_getitem(id)
             model = cls._decorate(mapping)
