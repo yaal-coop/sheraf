@@ -45,6 +45,8 @@ class IndexedModelMetaclass(BaseModelMetaclass):
 class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
     """This class handles the whole indexation mechanism."""
 
+    index_root_default = sheraf.types.SmallDict
+
     database_name = None
     id = sheraf.attributes.simples.SimpleAttribute()
 
@@ -75,7 +77,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             database_name or cls.database_name or cls._current_database_name()
         )
         _root = sheraf.Database.current_connection(database_name).root()
-        index_root = _root.setdefault(cls.table, sheraf.types.SmallDict())
+        index_root = _root.setdefault(cls.table, cls.index_root_default())
         return index_root.setdefault(cls.primary_key, cls._table_default())
 
     @classmethod
