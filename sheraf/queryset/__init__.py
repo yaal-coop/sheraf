@@ -504,10 +504,10 @@ class QuerySet(object):
                     "Parameter id has an invalid order value {}".format(pk)
                 )
 
-            if "id" in qs.orders:
+            if self.model.primary_key in qs.orders:
                 raise InvalidOrderException("Id order has been set twice")
 
-            qs.orders["id"] = pk
+            qs.orders[self.model.primary_key] = pk
 
         common_attributes = set(qs.orders) & set(kwargs)
         if common_attributes:
