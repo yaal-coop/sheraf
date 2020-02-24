@@ -38,7 +38,9 @@ def test_count(sheraf_database):
 
 def test_default_id(sheraf_database):
     class M(sheraf.AutoModel):
-        id = sheraf.IntegerAttribute(default=lambda m: m.count())
+        id = sheraf.IntegerAttribute(default=lambda m: m.count()).index(
+            primary=True, unique=True
+        )
 
     with sheraf.connection():
         assert 0 == M.create().id
@@ -140,7 +142,9 @@ def test_database_retrocompatibility(sheraf_database):
 def test_make_id_with_two_databases(sheraf_database):
     class ModelWithProposeId(MyModel):
         table = "modelwithproposeid"
-        id = sheraf.IntegerAttribute(default=lambda m: m.count())
+        id = sheraf.IntegerAttribute(default=lambda m: m.count()).index(
+            primary=True, unique=True
+        )
 
     with sheraf.connection(commit=True):
         m0 = ModelWithProposeId.create()
@@ -166,7 +170,9 @@ def test_id_in_persistent_uuid_model(sheraf_database):
 
     class M(sheraf.Model):
         table = "test_uuid_model"
-        id = sheraf.StringUUIDAttribute(default=lambda: "{}".format(str(mid)))
+        id = sheraf.StringUUIDAttribute(default=lambda: "{}".format(str(mid))).index(
+            primary=True, unique=True
+        )
 
     assert isinstance(M.attributes["id"], sheraf.attributes.simples.StringUUIDAttribute)
 
@@ -180,7 +186,7 @@ def test_id_in_persistent_int_model(sheraf_database):
 
     class M(sheraf.IntIndexedNamedAttributesModel):
         table = "test_int_model"
-        id = sheraf.IntegerAttribute(default=mid)
+        id = sheraf.IntegerAttribute(default=mid).index(primary=True, unique=True)
 
     assert isinstance(M.attributes["id"], sheraf.attributes.simples.IntegerAttribute)
 
@@ -193,7 +199,7 @@ def test_id_in_persistent_automodel(sheraf_database):
     mid = str(uuid.uuid4())
 
     class M(sheraf.AutoModel):
-        id = sheraf.StringUUIDAttribute(default=mid)
+        id = sheraf.StringUUIDAttribute(default=mid).index(primary=True, unique=True)
 
     assert isinstance(M.attributes["id"], sheraf.attributes.simples.StringUUIDAttribute)
 
