@@ -103,25 +103,25 @@ def check_model_index(model):
         return result
 
     for attribute_index_key, attribute_index_table in index_table.items():
-        for attribute_name, attribute in model.attributes.items():
-            if attribute_index_key != "id" and (
-                attribute_index_key == attribute_name
-                or attribute_index_key in attribute.indexes
-            ):
-                for m_persistent in attribute_index_table.values():
-                    try:
-                        # TODO: We cannot trust isinstance here, as nothing guarantees that
-                        # model mappings will be SmallDicts.
-                        if isinstance(m_persistent, sheraf.types.SmallDict):
-                            model.read(model._decorate(m_persistent).id)
-                        else:
-                            [
-                                model.read(model._decorate(persistent).id)
-                                for persistent in m_persistent
-                            ]
-                        result.setdefault(attribute_name, {"ok": 0, "ko": 0})["ok"] += 1
-                    except sheraf.exceptions.ModelObjectNotFoundException:
-                        result.setdefault(attribute_name, {"ok": 0, "ko": 0})["ko"] += 1
+        index = model.indexes()[attribute_index_key]
+
+        if index.primary:
+            continue
+
+        for m_persistent in attribute_index_table.values():
+            try:
+                if index.unique:
+                    model.read(model._decorate(m_persistent).id)
+                else:
+                    [
+                        model.read(model._decorate(persistent).id)
+                        for persistent in m_persistent
+                    ]
+                result.setdefault(attribute_index_key, {"ok": 0, "ko": 0})["ok"] += 1
+
+            except sheraf.exceptions.ModelObjectNotFoundException:
+                result.setdefault(attribute_index_key, {"ok": 0, "ko": 0})["ko"] += 1
+
     return result
 
 

@@ -61,7 +61,7 @@ def test_healthcheck_attributes_index_with_key_when_instance_deleted(
         assert "str2" in conn.root()["model2kunique_table"]["str"]
         health = check_health(fixture1, **kwargs)["check_model_index"]
 
-        assert {"str_indexed": {"ok": 2, "ko": 1}} == health[
+        assert {"str": {"ok": 2, "ko": 1}} == health[
             "tests.batches.fixture1.Model2kunique"
         ]
 
@@ -119,7 +119,7 @@ def test_multiple_healthcheck_attributes_index_with_key_when_instance_deleted(
         assert "str2" in conn.root()["model2k_table"]["str"]
         health = check_health(fixture1, **kwargs)["check_model_index"]
 
-        assert {"str_indexed": {"ok": 1, "ko": 1}} == health[
+        assert {"str": {"ok": 1, "ko": 1}} == health[
             "tests.batches.fixture1.Model2k"
         ]
 
