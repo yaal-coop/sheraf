@@ -299,7 +299,11 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return hash(self.id)
 
     def __eq__(self, other):
-        return hasattr(self, self.primary_key) and hasattr(other, self.primary_key) and getattr(self, self.primary_key) == getattr(other, self.primary_key)
+        return (
+            hasattr(self, self.primary_key)
+            and hasattr(other, self.primary_key)
+            and getattr(self, self.primary_key) == getattr(other, self.primary_key)
+        )
 
     @property
     def primary_key(self):
