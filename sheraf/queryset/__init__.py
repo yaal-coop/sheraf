@@ -272,9 +272,9 @@ class QuerySet(object):
 
         Avoids problems when itering on deleted objects.
         """
-        ids = [(m.__class__, m.identifier) for m in self]
-        for klass, id in ids:
-            klass.read(id).delete()
+        identifiers = [(m.__class__, m.identifier) for m in self]
+        for klass, identifier in identifiers:
+            klass.read(identifier).delete()
 
     def filter(self, predicate=None, **kwargs):
         """Refine a copy of the current :class:`~sheraf.queryset.QuerySet` with

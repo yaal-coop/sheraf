@@ -122,7 +122,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         del cls._table(sheraf.Database.current_name())[key]
 
     def make_identifier(self):
-        """:return: a unique id for this object. Not intended for use"""
+        """:return: a unique identifier for this object. Not intended for use"""
         identifier = self.attributes[self.primary_key].create(self)
         while self._tables_contains(identifier):
             identifier = self.attributes[self.primary_key].create(self)
@@ -139,7 +139,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def read_these(cls, *args, **kwargs):
-        """Get model instances from their ids. If an instance id does not
+        """Get model instances from their identifiers. If an instance identifiers does not
         exist, a :class:`~sheraf.exceptions.ModelObjectNotFoundException` is
         raised.
 
@@ -181,6 +181,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                 )
             )
 
+        args = list(args)
         identifier = args.pop() if args else kwargs.get(cls.primary_key)
         model = super(IndexedModel, cls).create(*args, **kwargs)
         table = cls._table()
@@ -191,10 +192,13 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def read(cls, *args, **kwargs):
-        """Get a model instance from its id. If the model id does not exist, a
+        """Get a model instance from its identifier. If the model identifier is not valid, a
         :class:`~sheraf.exceptions.ModelObjectNotFoundException` is raised.
 
-        :param id: The ``id`` of the model.
+        :param *args: The ``identifier`` of the model. There can be only one positionnal or
+                      keyword argument.
+        :param *kwargs: The ``identifier`` of the model. There can be only one positionnal or
+                        keyword argument.
         :return: The :class:`~sheraf.models.indexation.IndexedModel` matching the id.
 
         >>> class MyModel(sheraf.Model):
@@ -215,14 +219,14 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             )
 
         args = list(args)
-        id = args.pop() if args else kwargs.get(cls.primary_key)
+        identifier = args.pop() if args else kwargs.get(cls.primary_key)
 
         try:
-            mapping = cls._tables_getitem(id)
+            mapping = cls._tables_getitem(identifier)
             model = cls._decorate(mapping)
             return model
         except (KeyError, TypeError):
-            raise sheraf.exceptions.ModelObjectNotFoundException(cls, id)
+            raise sheraf.exceptions.ModelObjectNotFoundException(cls, identifier)
 
     @classmethod
     def count(cls):
