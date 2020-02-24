@@ -118,13 +118,13 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                 pass
         del cls._table(sheraf.Database.current_name())[key]
 
-    def make_id(self):
+    def make_primary_key(self):
         """:return: a unique id for this object. Not intended for use"""
-        _id = self.attributes["id"].create(self)
-        while self._tables_contains(_id):
-            _id = self.attributes["id"].create(self)
+        pk = self.attributes["id"].create(self)
+        while self._tables_contains(pk):
+            pk = self.attributes["id"].create(self)
 
-        return _id
+        return pk
 
     @classmethod
     def all(cls):
@@ -172,7 +172,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         model = super(IndexedModel, cls).create(*args, **kwargs)
         table = cls._table()
-        id = id or model.make_id()
+        id = id or model.make_primary_key()
         table[id] = model._persistent
         model.id = id
         return model
@@ -284,7 +284,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def copy(self):
         copy = super(IndexedModel, self).copy()
-        copy.id = copy.make_id()
+        copy.id = copy.make_primary_key()
         return copy
 
     def delete(self):
