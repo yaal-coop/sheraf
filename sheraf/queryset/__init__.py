@@ -272,7 +272,7 @@ class QuerySet(object):
 
         Avoids problems when itering on deleted objects.
         """
-        ids = [(m.__class__, m.id) for m in self]
+        ids = [(m.__class__, m.identifier) for m in self]
         for klass, id in ids:
             klass.read(id).delete()
 

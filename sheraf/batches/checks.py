@@ -41,10 +41,10 @@ def check_conflict_resolution():
 
     try:
         with sheraf.connection(commit=True):
-            TestModel.read(m.id).counter.increment(1)
+            TestModel.read(m.identifier).counter.increment(1)
 
             with sheraf.connection(commit=True):
-                TestModel.read(m.id).counter.increment(15)
+                TestModel.read(m.identifier).counter.increment(15)
 
     except ZODB.POSException.ConflictError:  # pragma: no cover
         return False
