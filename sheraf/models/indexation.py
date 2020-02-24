@@ -188,7 +188,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return sheraf.queryset.QuerySet(model_class=cls)
 
     @classmethod
-    def read_these(cls, id=None, **kwargs):
+    def read_these(cls, *args, **kwargs):
         """
         Read models from a collection of keys.
         If an instance id does not exist, a
@@ -214,15 +214,13 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         sheraf.exceptions.ModelObjectNotFoundException: Id 'invalid' not found in MyModel, 'id' index
         """
 
-        if len(kwargs) > 1:
+        if len(args) + len(kwargs) != 1:
             raise TypeError(
-                "IndexedModel.read takes exactly one argument ({} given)".format(
-                    len(kwargs)
-                )
+                "IndexedModel.read_these takes only one positionnal or named parameter"
             )
 
         if not kwargs:
-            kwargs["id"] = id
+            kwargs[cls.primary_key] = args[0]
 
         index_name, keys = list(kwargs.items())[0]
 
@@ -242,7 +240,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             )
 
     @classmethod
-    def create(cls, id=None, *args, **kwargs):
+    def create(cls, *args, **kwargs):
         """:return: an instance of this model"""
 
         if not cls.primary_key:
@@ -252,6 +250,8 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                 )
             )
 
+        args = list(args)
+        id = args.pop() if args else kwargs.get(cls.primary_key)
         model = super(IndexedModel, cls).create(*args, **kwargs)
         table = cls._table()
         pk = id or model.make_primary_key()
@@ -278,7 +278,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return model
 
     @classmethod
-    def read(cls, id=None, **kwargs):
+    def read(cls, *args, **kwargs):
         """Read models in an index.
         The function takes only one parameter which key is the index where to
         search, and which value is the index identifier. If the index is
@@ -310,15 +310,13 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         MultipleIndexException
         """
 
-        if len(kwargs) > 1:
+        if len(args) + len(kwargs) != 1:
             raise TypeError(
-                "IndexedModel.read takes exactly one argument ({} given)".format(
-                    len(kwargs)
-                )
+                "IndexedModel.read takes only one positionnal or named parameter"
             )
 
         if not kwargs:
-            kwargs["id"] = id
+            kwargs[cls.primary_key] = args[0]
 
         index_name, key = list(kwargs.items())[0]
 
@@ -514,7 +512,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         table = root.get(self.table, {})
         primary_key = self.__class__.primary_key
         is_created = self._persistent is not None and primary_key in self._persistent
-        is_indexable = len(table.get(primary_key, [])) <= 1 or (index and index.key in table)
+        is_indexable = len(table.get(primary_key, [])) <= 1 or (
+            index and index.key in table
+        )
         is_indexed = index and is_indexable
         should_update_index = is_created and is_indexed and not index.primary
 

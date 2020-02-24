@@ -13,6 +13,20 @@ class MyModel(sheraf.AutoModel):
     inline_model = sheraf.InlineModelAttribute(MyInlineModel)
 
 
+def test_read_invalid_parameters(sheraf_connection):
+    class M(sheraf.AutoModel):
+        pass
+
+    with pytest.raises(TypeError):
+        M.read(1, 2)
+
+    with pytest.raises(TypeError):
+        M.read(1, id=2)
+
+    with pytest.raises(TypeError):
+        M.read(foo=1, id=2)
+
+
 def test_read_these_invalid_index(sheraf_database):
     with sheraf.connection():
         with pytest.raises(sheraf.exceptions.ModelObjectNotFoundException):
