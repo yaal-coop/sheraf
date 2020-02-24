@@ -52,10 +52,10 @@ class ModelAttribute(ModelLoader, BaseAttribute):
             return None
 
         elif isinstance(value, sheraf.IndexedModel):
-            return value.id
+            return value.identifier
 
         elif isinstance(value, dict):
-            return self.model.create(**value).id
+            return self.model.create(**value).identifier
 
         else:
             return value

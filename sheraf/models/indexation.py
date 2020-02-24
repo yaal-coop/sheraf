@@ -181,7 +181,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         del index_root[index_name]
 
-    def make_primary_key(self):
+    def make_identifier(self):
         """:return: a unique id for this object. Not intended for use"""
         primary_key = self.primary_key
         pk = self.attributes[primary_key].create(self)
@@ -265,7 +265,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         pk = args.pop() if args else kwargs.get(cls.primary_key)
         model = super(IndexedModel, cls).create(*args, **kwargs)
         table = cls._table()
-        pk = pk or model.make_primary_key()
+        pk = pk or model.make_identifier()
 
         root = sheraf.Database.current_connection(cls._current_database_name()).root()
         index_tables = root.get(cls.table)
@@ -476,20 +476,20 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def __repr__(self):
         pk = (
-            getattr(self, self.primary_key)
+            self.identifier
             if self._persistent is not None and self.primary_key in self._persistent
             else None
         )
         return "<{} {}={}>".format(self.__class__.__name__, self.primary_key, pk)
 
     def __hash__(self):
-        return hash(getattr(self, self.primary_key))
+        return hash(self.identifier)
 
     def __eq__(self, other):
         return (
             hasattr(self, self.primary_key)
             and hasattr(other, self.primary_key)
-            and getattr(self, self.primary_key) == getattr(other, self.primary_key)
+            and self.identifier == other.identifier
         )
 
     def _find_index(self, name):
@@ -537,6 +537,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     @property
     def primary_key(self):
+        """
+        The primary key is the primary index of the model. It is generally 'id'.
+        """
         return self.__class__.primary_key
 
     def delete_index(self, index):
@@ -575,9 +578,21 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                     raise sheraf.exceptions.UniqueIndexException
                 index_table[value] = self._persistent
 
+    @property
+    def identifier(self):
+        """
+        The identifier is the value of the primary_key for the current instance.
+        If the primary_key is 'id', then the identifier might be an UUID.
+        """
+        return getattr(self, self.primary_key)
+
+    @identifier.setter
+    def identifier(self, value):
+        return setattr(self, self.primary_key, value)
+
     def copy(self):
         copy = super(IndexedModel, self).copy()
-        setattr(copy, copy.primary_key, copy.make_primary_key())
+        copy.identifier = copy.make_identifier()
         return copy
 
     def delete(self):
@@ -603,7 +618,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         # TODO: this should be done in 'delete_index'
         try:
-            self._tables_del(self.id)
+            self._tables_del(self.identifier)
         except KeyError:
             pass
 

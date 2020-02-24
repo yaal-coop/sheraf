@@ -41,10 +41,10 @@ def check_conflict_resolution():
 
     try:
         with sheraf.connection(commit=True):
-            TestModel.read(m.id).counter.increment(1)
+            TestModel.read(m.identifier).counter.increment(1)
 
             with sheraf.connection(commit=True):
-                TestModel.read(m.id).counter.increment(15)
+                TestModel.read(m.identifier).counter.increment(15)
 
     except ZODB.POSException.ConflictError:  # pragma: no cover
         return False
@@ -111,10 +111,10 @@ def check_model_index(model):
         for m_persistent in attribute_index_table.values():
             try:
                 if index.unique:
-                    model.read(model._decorate(m_persistent).id)
+                    model.read(model._decorate(m_persistent).identifier)
                 else:
                     [
-                        model.read(model._decorate(persistent).id)
+                        model.read(model._decorate(persistent).identifier)
                         for persistent in m_persistent
                     ]
                 result.setdefault(attribute_index_key, {"ok": 0, "ko": 0})["ok"] += 1

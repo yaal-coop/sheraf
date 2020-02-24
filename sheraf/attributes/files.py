@@ -59,11 +59,11 @@ class FileObjectV1(object):
         return os.path.relpath(path, FILES_ROOT_DIR)
 
     def absolute_path(self):
-        if not self.model or not self.model.id:
+        if not self.model or not self.model.identifier:
             return None
 
         _dir = self.directory()
-        _file_name = "%s.%s" % (self.model.id, self.extension)
+        _file_name = "%s.%s" % (self.model.identifier, self.extension)
         return os.path.join(_dir, _file_name)
 
     def directory(self):
@@ -110,7 +110,7 @@ class FileObjectV1(object):
 
         for file_name in os.listdir(directory):
             root = os.path.splitext(file_name)[0]
-            if root != model.id:
+            if root != model.identifier:
                 continue
 
             path = os.path.join(directory, file_name)
