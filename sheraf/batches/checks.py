@@ -215,7 +215,7 @@ def _print_check_instance_health_result(check_reason, health_table):
 
 
 def _print_check_attribute_health_result(check_reason, health_table):
-    print(80 * "=" + "\n" + print_neutral(check_reason) + 39 * " " + """OK       KO""")
+    print(80 * "=" + "\n{:<62}".format(print_neutral(check_reason)) + """OK       KO""")
     table_key = "check_attributes_" + check_reason
     for model_path, attributes in health_table[table_key].items():
         print(
