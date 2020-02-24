@@ -52,7 +52,6 @@ class IndexedModelMetaclass(BaseModelMetaclass):
 
         return cls._indexes
 
-
     @property
     def primary_key(cls):
         if cls._primary_key is None:
@@ -478,13 +477,10 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
     def __repr__(self):
         pk = (
             getattr(self, self.primary_key)
-            if self._persistent is not None
-            and self.primary_key in self._persistent
+            if self._persistent is not None and self.primary_key in self._persistent
             else None
         )
-        return "<{} {}={}>".format(
-            self.__class__.__name__, self.primary_key, pk
-        )
+        return "<{} {}={}>".format(self.__class__.__name__, self.primary_key, pk)
 
     def __hash__(self):
         return hash(getattr(self, self.primary_key))
@@ -493,8 +489,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return (
             hasattr(self, self.primary_key)
             and hasattr(other, self.primary_key)
-            and getattr(self, self.primary_key)
-            == getattr(other, self.primary_key)
+            and getattr(self, self.primary_key) == getattr(other, self.primary_key)
         )
 
     def _find_index(self, name):
