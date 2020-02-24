@@ -85,7 +85,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
     _indexes = None
     _primary_key = None
 
-    id = sheraf.attributes.simples.SimpleAttribute().index(primary=True, unique=True)
+    id = sheraf.attributes.simples.SimpleAttribute().index(primary=True)
 
     @staticmethod
     def _current_database_name():
@@ -635,7 +635,7 @@ class UUIDIndexedModel:
 
     id = sheraf.attributes.simples.StringUUIDAttribute(
         default=lambda: "{}".format(uuid.uuid4())
-    ).index(primary=True, unique=True)
+    ).index(primary=True)
 
 
 class IntIndexedModel:
@@ -654,7 +654,7 @@ class IntIndexedModel:
     MAX_INT = sys.maxsize
     id = sheraf.attributes.simples.IntegerAttribute(
         default=lambda m: random.randint(0, m.MAX_INT)
-    ).index(primary=True, unique=True)
+    ).index(primary=True)
 
     @classmethod
     def _table_default(cls):
