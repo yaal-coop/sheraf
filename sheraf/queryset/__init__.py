@@ -334,13 +334,13 @@ class QuerySet(object):
 
         return qs
 
-    def order(self, id=None, **kwargs):
+    def order(self, *args, **kwargs):
         """Copies the current :class:`~sheraf.queryset.QuerySet` and adds more
         order to it.
 
-        :param id: Choose to iterate over ids in an ascending or ai
-            descending way.
-        :type id: ``sheraf.ASC`` or ``sheraf.DESC``
+        :param args: There can be only one positionnal argument. Choose to iterate
+            over ids in an ascending or a descending way.
+        :type args: ``sheraf.ASC`` or ``sheraf.DESC``
         :param kwargs: Further parameters will set an order on the matching
             model attributes.
         :type kwargs: A dictionary which keys must be valid attributes of the
@@ -386,6 +386,11 @@ class QuerySet(object):
             The less :func:`~sheraf.queryset.QuerySet.order` parameters are
             passed, the better performances will be.
         """
+        if len(args) > 1:
+            raise InvalidOrderException(
+                "Only one 'order' positionnal parameter is allowed."
+            )
+
         if (sys.version_info.major, sys.version_info.minor) < (3, 6) and len(
             kwargs
         ) > 1:
@@ -402,16 +407,17 @@ class QuerySet(object):
                         "{} has no attribute {}".format(self.model.__name__, attribute)
                     )
 
-        if id is not None:
-            if id not in (sheraf.constants.ASC, sheraf.constants.DESC):
+        if len(args) > 0:
+            pk = args[0]
+            if pk not in (sheraf.constants.ASC, sheraf.constants.DESC):
                 raise InvalidOrderException(
-                    "Parameter id has an invalid order value {}".format(id)
+                    "Parameter id has an invalid order value {}".format(pk)
                 )
 
             if "id" in qs.orders:
                 raise InvalidOrderException("Id order has been set twice")
 
-            qs.orders["id"] = id
+            qs.orders["id"] = pk
 
         common_attributes = set(qs.orders) & set(kwargs)
         if common_attributes:
