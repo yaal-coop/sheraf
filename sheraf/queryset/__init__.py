@@ -309,9 +309,9 @@ class QuerySet(object):
 
         Avoids problems when itering on deleted objects.
         """
-        ids = [(m.__class__, m.identifier) for m in self]
-        for klass, id in ids:
-            klass.read(id).delete()
+        identifiers = [(m.__class__, m.identifier) for m in self]
+        for klass, identifier in identifiers:
+            klass.read(identifier).delete()
 
     def filter(self, predicate=None, **kwargs):
         """Refine a copy of the current :class:`~sheraf.queryset.QuerySet` with
@@ -504,16 +504,16 @@ class QuerySet(object):
                     )
 
         if len(args) > 0:
-            pk = args[0]
-            if pk not in (sheraf.constants.ASC, sheraf.constants.DESC):
+            identifier = args[0]
+            if identifier not in (sheraf.constants.ASC, sheraf.constants.DESC):
                 raise InvalidOrderException(
-                    "Parameter id has an invalid order value {}".format(pk)
+                    "Parameter id has an invalid order value {}".format(identifier)
                 )
 
             if self.model.primary_key in qs.orders:
                 raise InvalidOrderException("Id order has been set twice")
 
-            qs.orders[self.model.primary_key] = pk
+            qs.orders[self.model.primary_key] = identifier
 
         common_attributes = set(qs.orders) & set(kwargs)
         if common_attributes:

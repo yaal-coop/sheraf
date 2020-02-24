@@ -19,11 +19,11 @@ class ModelObjectNotFoundException(ObjectNotFoundException):
     :type object_id: str
     """
 
-    MESSAGE_TPL = "Key {pk} not found in {model_name}, '{index_name}' index"
+    MESSAGE_TPL = "Key {identifier} not found in {model_name}, '{index_name}' index"
 
-    def __init__(self, model_class, object_id, index_name=None):
+    def __init__(self, model_class, identifier, index_name=None):
         self.model_class = model_class
-        self.object_id = object_id
+        self.identifier = identifier
         index_name = index_name or model_class.primary_key
 
         try:
@@ -32,7 +32,7 @@ class ModelObjectNotFoundException(ObjectNotFoundException):
             model_name = self.model_class.split(".")[-1]
 
         message = self.MESSAGE_TPL.format(
-            pk=repr(self.object_id), model_name=model_name, index_name=index_name
+            identifier=repr(identifier), model_name=model_name, index_name=index_name
         )
 
         super(ModelObjectNotFoundException, self).__init__(message)

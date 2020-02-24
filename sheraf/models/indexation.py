@@ -81,6 +81,8 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
     :func:`~sheraf.attributes.base.BaseAttribute.index` method.
     """
 
+    index_root_default = sheraf.types.SmallDict
+
     database_name = None
     _indexes = None
     _primary_key = None
@@ -182,12 +184,12 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         del index_root[index_name]
 
     def make_identifier(self):
-        """:return: a unique id for this object. Not intended for use"""
-        pk = self.attributes[self.primary_key].create(self)
-        while self._tables_contains(pk):
-            pk = self.attributes[self.primary_key].create(self)
+        """:return: a unique identifier for this object. Not intended for use"""
+        identifier = self.attributes[self.primary_key].create(self)
+        while self._tables_contains(identifier):
+            identifier = self.attributes[self.primary_key].create(self)
 
-        return pk
+        return identifier
 
     @classmethod
     def all(cls):
@@ -261,10 +263,10 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             )
 
         args = list(args)
-        pk = args.pop() if args else kwargs.get(cls.primary_key)
+        indentifier = args.pop() if args else kwargs.get(cls.primary_key)
         model = super(IndexedModel, cls).create(*args, **kwargs)
         table = cls._table()
-        pk = pk or model.make_identifier()
+        indentifier = indentifier or model.make_identifier()
 
         root = sheraf.Database.current_connection(cls._current_database_name()).root()
         index_tables = root.get(cls.table)
@@ -283,8 +285,8 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                     stacklevel=2,
                 )
 
-        table[pk] = model._persistent
-        setattr(model, cls.primary_key, pk)
+        table[indentifier] = model._persistent
+        setattr(model, cls.primary_key, indentifier)
         return model
 
     @classmethod
@@ -295,6 +297,11 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         multiple, a :class:`~sheraf.exceptions.MultipleIndexException` is
         raised.
         By default the index used is the `id` index.
+
+        :param *args: The ``identifier`` of the model. There can be only one positionnal or
+                      keyword argument.
+        :param *kwargs: The ``identifier`` of the model. There can be only one positionnal or
+                        keyword argument.
 
         :return: The model matching the key.
 
@@ -474,12 +481,12 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return cls.filter(*args, **kwargs).get()
 
     def __repr__(self):
-        pk = (
+        identifier = (
             self.identifier
             if self._persistent is not None and self.primary_key in self._persistent
             else None
         )
-        return "<{} {}={}>".format(self.__class__.__name__, self.primary_key, pk)
+        return "<{} {}={}>".format(self.__class__.__name__, self.primary_key, identifier)
 
     def __hash__(self):
         return hash(self.identifier)
