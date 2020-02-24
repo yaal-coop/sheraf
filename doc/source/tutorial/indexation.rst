@@ -214,7 +214,7 @@ Sheraf provides tools to check the health of your model tables. So now, let us c
 .. code-block:: python
 
     >>> from sheraf.batches.checks import print_health
-    >>> with sheraf.connection():
+    >>> with sheraf.connection(): : # doctest: +SKIP
     ...     print_health(Cowboy, attribute_checks=["index"])
                  _                     __        _               _
     =========== | | ================= / _| ==== | | =========== | | ===============
@@ -225,7 +225,7 @@ Sheraf provides tools to check the health of your model tables. So now, let us c
     ===============================================================================
     Analyzing your models, this operation can be very long...
     ================================================================================
-    index                                       OK       KO
+    index                                                         OK       KO
     - __main__.Cowboy_____________________________________ TOTAL: 0_______ 3_______
       - name_____________________________________________________ 0_______ 3_______
 
