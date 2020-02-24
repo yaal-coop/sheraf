@@ -41,6 +41,25 @@ class IndexedModelMetaclass(BaseModelMetaclass):
             IndexedModelMetaclass.tables[table_name] = (qualname, klass)
         return klass
 
+    @property
+    def primary_key(cls):
+        if cls._primary_key is None:
+            for index_name, index in cls.indexes().items():
+                if not index.primary:
+                    continue
+
+                if cls._primary_key is None:
+                    cls._primary_key = index_name
+
+                else:
+                    raise sheraf.exceptions.PrimaryKeyException(
+                        "A model can have only one primary key. {} has {} and {}".format(
+                            cls.__class__.name, cls._primary_key, index_name,
+                        )
+                    )
+
+        return cls._primary_key
+
 
 class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
     """
@@ -53,6 +72,8 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     database_name = None
     _indexes = None
+    _primary_key = None
+
     id = sheraf.attributes.simples.SimpleAttribute().index(primary=True, unique=True)
 
     @staticmethod
@@ -84,9 +105,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         )
         root = sheraf.Database.current_connection(database_name).root()
 
-        if index_name in (None, "id"):
+        if index_name in (None, cls.primary_key):
             mapping = cls._table_default
-            index_name = "id"
+            index_name = cls.primary_key
         else:
             mapping = cls._indexes[index_name].mapping
 
@@ -149,13 +170,14 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         del index_root[index_name]
 
-    def make_id(self):
+    def make_primary_key(self):
         """:return: a unique id for this object. Not intended for use"""
-        _id = self.attributes["id"].create(self)
-        while self._tables_contains(_id):
-            _id = self.attributes["id"].create(self)
+        primary_key = self.__class__.primary_key
+        pk = self.attributes[primary_key].create(self)
+        while self._tables_contains(pk):
+            pk = self.attributes[primary_key].create(self)
 
-        return _id
+        return pk
 
     @classmethod
     def all(cls):
@@ -204,35 +226,35 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         index_name, keys = list(kwargs.items())[0]
 
-        if index_name == "id" or (
-            index_name in cls.indexes() and cls.indexes()[index_name].unique
-        ):
-            return (cls._read_unique_index(key, index_name) for key in keys)
-
-        elif index_name in cls.indexes():
-            return itertools.chain.from_iterable(
-                cls._read_multiple_index(key, index_name) for key in keys
-            )
-
-        else:
+        try:
+            index = cls.indexes()[index_name]
+        except KeyError:
             raise sheraf.exceptions.InvalidIndexException(
                 "{} is not a valid index".format(index_name)
+            )
+
+        if index.unique:
+            return (cls._read_unique_index(key, index_name) for key in keys)
+
+        else:
+            return itertools.chain.from_iterable(
+                cls._read_multiple_index(key, index_name) for key in keys
             )
 
     @classmethod
     def create(cls, id=None, *args, **kwargs):
         """:return: an instance of this model"""
 
-        if "id" not in cls.attributes:
-            raise sheraf.exceptions.SherafException(
-                "{} inherit from IndexedModel but has no id attribute. Cannot create.".format(
+        if not cls.primary_key:
+            raise sheraf.exceptions.PrimaryKeyException(
+                "{} inherit from IndexedModel but has no primary indexed attribute. Cannot create.".format(
                     cls.__name__
                 )
             )
 
         model = super(IndexedModel, cls).create(*args, **kwargs)
         table = cls._table()
-        id = id or model.make_id()
+        pk = id or model.make_primary_key()
 
         root = sheraf.Database.current_connection(cls._current_database_name()).root()
         index_tables = root.get(cls.table)
@@ -251,8 +273,8 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                     stacklevel=2,
                 )
 
-        table[id] = model._persistent
-        model.id = id
+        table[pk] = model._persistent
+        setattr(model, cls.primary_key, pk)
         return model
 
     @classmethod
@@ -300,21 +322,21 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         index_name, key = list(kwargs.items())[0]
 
-        if index_name == "id" or (
-            index_name in cls.indexes() and cls.indexes()[index_name].unique
-        ):
+        try:
+            index = cls.indexes()[index_name]
+        except KeyError:
+            raise sheraf.exceptions.InvalidIndexException(
+                "{} is not a valid index".format(index_name)
+            )
+
+        if index.unique:
             return cls._read_unique_index(key, index_name)
 
-        elif index_name in cls.indexes():
+        else:
             raise sheraf.exceptions.MultipleIndexException(
                 "{} is a multiple index and cannot be used with 'read'".format(
                     index_name
                 )
-            )
-
-        else:
-            raise sheraf.exceptions.InvalidIndexException(
-                "{} is not a valid index".format(index_name)
             )
 
     @classmethod
@@ -324,8 +346,11 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             model = cls._decorate(mapping)
 
             # TODO: Remove this when all the ideas will be in the persistent
-            if index_name == "id" and "id" not in model._persistent:
-                model.id = key
+            if (
+                index_name == cls.primary_key
+                and cls.primary_key not in model._persistent
+            ):
+                setattr(model, cls.primary_key, key)
                 model.fresh_id = True
             else:
                 model.fresh_id = False
@@ -463,18 +488,26 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return cls._indexes
 
     def __repr__(self):
-        id = (
+        pk = (
             self.id
-            if self._persistent is not None and "id" in self._persistent
+            if self._persistent is not None
+            and self.__class__.primary_key in self._persistent
             else None
         )
-        return "<{} id={}>".format(self.__class__.__name__, id)
+        return "<{} {}={}>".format(
+            self.__class__.__name__, self.__class__.primary_key, pk
+        )
 
     def __hash__(self):
         return hash(self.id)
 
     def __eq__(self, other):
-        return hasattr(self, "id") and hasattr(other, "id") and self.id == other.id
+        return (
+            hasattr(self, self.__class__.primary_key)
+            and hasattr(other, self.__class__.primary_key)
+            and getattr(self, self.__class__.primary_key)
+            == getattr(other, self.__class__.primary_key)
+        )
 
     def _find_index(self, name):
         index = self.indexes().get(name)
@@ -490,8 +523,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         root = sheraf.Database.current_connection(self.database_name).root()
         index = self._find_index(name)
         table = root.get(self.table, {})
-        is_created = self._persistent is not None and "id" in self._persistent
-        is_indexable = len(table.get("id", [])) <= 1 or (index and index.key in table)
+        primary_key = self.__class__.primary_key
+        is_created = self._persistent is not None and primary_key in self._persistent
+        is_indexable = len(table.get(primary_key, [])) <= 1 or (index and index.key in table)
         is_indexed = index and is_indexable
         should_update_index = is_created and is_indexed and not index.primary
 
@@ -550,7 +584,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def copy(self):
         copy = super(IndexedModel, self).copy()
-        copy.id = copy.make_id()
+        copy.id = copy.make_primary_key()
         return copy
 
     def delete(self):

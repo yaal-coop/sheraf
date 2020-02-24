@@ -206,3 +206,7 @@ class IndexationWarning(UserWarning):
     This warning is emitted when you edit or create a model instance which has an outdated
     indexation table.
     """
+
+
+class PrimaryKeyException(SherafException):
+    pass
