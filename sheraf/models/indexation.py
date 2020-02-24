@@ -20,6 +20,7 @@ class IndexedModelMetaclass(BaseModelMetaclass):
 
     def __new__(cls, name, bases, attrs):
         klass = super(IndexedModelMetaclass, cls).__new__(cls, name, bases, attrs)
+        klass.primary_key = "id"
 
         if "table" in attrs:
             table_name = attrs["table"]
@@ -75,7 +76,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         )
         _root = sheraf.Database.current_connection(database_name).root()
         index_root = _root.setdefault(cls.table, sheraf.types.SmallDict())
-        return index_root.setdefault("id", cls._table_default())
+        return index_root.setdefault(cls.primary_key, cls._table_default())
 
     @classmethod
     def _table_default(cls):
@@ -120,9 +121,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     def make_primary_key(self):
         """:return: a unique id for this object. Not intended for use"""
-        pk = self.attributes["id"].create(self)
+        pk = self.attributes[self.primary_key].create(self)
         while self._tables_contains(pk):
-            pk = self.attributes["id"].create(self)
+            pk = self.attributes[self.primary_key].create(self)
 
         return pk
 
@@ -163,7 +164,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                 "IndexedModel.read_these takes only one positionnal or named parameter"
             )
 
-        pks = args[0] if args else kwargs.get("id")
+        pks = args[0] if args else kwargs.get(cls.primary_key)
 
         return (cls.read(pk) for pk in pks)
 
@@ -171,19 +172,19 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
     def create(cls, *args, **kwargs):
         """:return: an instance of this model"""
 
-        if "id" not in cls.attributes:
+        if cls.primary_key not in cls.attributes:
             raise sheraf.exceptions.SherafException(
                 "{} inherit from IndexedModel but has no id attribute. Cannot create.".format(
                     cls.__name__
                 )
             )
 
-        id = args.pop() if args else kwargs.get("id")
+        pk = args.pop() if args else kwargs.get(cls.primary_key)
         model = super(IndexedModel, cls).create(*args, **kwargs)
         table = cls._table()
-        id = id or model.make_primary_key()
-        table[id] = model._persistent
-        model.id = id
+        pk = pk or model.make_primary_key()
+        table[pk] = model._persistent
+        setattr(model, cls.primary_key, pk)
         return model
 
     @classmethod
@@ -212,7 +213,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             )
 
         args = list(args)
-        id = args.pop() if args else kwargs.get("id")
+        id = args.pop() if args else kwargs.get(cls.primary_key)
 
         try:
             mapping = cls._tables_getitem(id)
@@ -287,18 +288,22 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return cls.filter(*args, **kwargs).get()
 
     def __repr__(self):
-        id = (
-            self.id
-            if self._persistent is not None and "id" in self._persistent
+        pk = (
+            getattr(self, self.primary_key)
+            if self._persistent is not None and self.primary_key in self._persistent
             else None
         )
-        return "<{} id={}>".format(self.__class__.__name__, id)
+        return "<{} {}={}>".format(self.__class__.__name__, self.primary_key, pk)
 
     def __hash__(self):
         return hash(self.id)
 
     def __eq__(self, other):
-        return hasattr(self, "id") and hasattr(other, "id") and self.id == other.id
+        return hasattr(self, self.primary_key) and hasattr(other, self.primary_key) and getattr(self, self.primary_key) == getattr(other, self.primary_key)
+
+    @property
+    def primary_key(self):
+        return self.__class__.primary_key
 
     def copy(self):
         copy = super(IndexedModel, self).copy()

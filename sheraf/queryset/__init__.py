@@ -219,8 +219,8 @@ class QuerySet(object):
 
         # If there is only one sort option, and it is over id
         # we can use iterators instead of sorting the whole collection.
-        if len(self.orders) == 1 and "id" in self.orders:
-            self._init_default_iterator(self.orders["id"] == sheraf.constants.DESC)
+        if self.model and len(self.orders) == 1 and self.model.primary_key in self.orders:
+            self._init_default_iterator(self.orders[self.model.primary_key] == sheraf.constants.DESC)
             return
 
         # Else we need to sort the collection.
@@ -419,10 +419,10 @@ class QuerySet(object):
                     "Parameter id has an invalid order value {}".format(pk)
                 )
 
-            if "id" in qs.orders:
+            if self.model.primary_key in qs.orders:
                 raise InvalidOrderException("Id order has been set twice")
 
-            qs.orders["id"] = pk
+            qs.orders[self.model.primary_key] = pk
 
         common_attributes = set(qs.orders) & set(kwargs)
         if common_attributes:
