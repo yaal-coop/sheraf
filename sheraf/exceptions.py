@@ -19,19 +19,21 @@ class ModelObjectNotFoundException(ObjectNotFoundException):
     :type object_id: str
     """
 
-    MESSAGE_TPL = "Id {id} not found in {model_name}"
-
-    def __init__(self, model_class, object_id):
+    MESSAGE_TPL = "Key {identifier} not found in {model_name}, '{index_name}' index"
+    def __init__(self, model_class, identifier, index_name=None):
         self.model_class = model_class
-        self.object_id = object_id
+        self.identifier = identifier
+        index_name = index_name or model_class.primary_key
+        try:
+            model_name = self.model_class.__name__
+        except AttributeError:
+            model_name = self.model_class.split(".")[-1]
 
-        model_name = self.model_class.__name__
         message = self.MESSAGE_TPL.format(
-            id=repr(self.object_id), model_name=model_name
+            identifier=repr(identifier), model_name=model_name, index_name=index_name
         )
 
         super(ModelObjectNotFoundException, self).__init__(message)
-
 
 class IndexObjectNotFoundException(ObjectNotFoundException):
     """Raised when trying to read an unexisting :class:`IndexObject`.
