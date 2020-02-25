@@ -291,10 +291,10 @@ def test_attribute_inheritance(sheraf_connection):
         bar = sheraf.SimpleAttribute(default="bar_A")
 
     class B(A):
-        foo = sheraf.IntegerAttribute(default="foo_B")
+        foo = sheraf.IntegerAttribute(default=33)
 
     b = B.create()
-    assert "foo_B" == b.foo
+    assert 33 == b.foo
     assert "bar_A" == b.bar
 
 
