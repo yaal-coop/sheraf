@@ -93,11 +93,11 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         )
 
     @classmethod
-    def _tables_contains(cls, key):
+    def index_contains(cls, key):
         return any(key in table for table in cls._tables())
 
     @classmethod
-    def _tables_getitem(cls, key):
+    def index_getitem(cls, key):
         if cls.database_name:
             try:
                 return cls._table(cls.database_name)[key]
@@ -106,13 +106,13 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return cls._table(cls._current_database_name())[key]
 
     @classmethod
-    def _tables_iterkeys(cls, reverse=False):
+    def index_iterkeys(cls, reverse=False):
         return itertools.chain.from_iterable(
             cls._table_iterkeys(table, reverse=reverse) for table in cls._tables()
         )
 
     @classmethod
-    def _tables_del(cls, key):
+    def index_delete(cls, key):
         if cls.database_name:
             try:
                 del cls._table(cls.database_name)[key]
@@ -124,7 +124,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
     def make_identifier(self):
         """:return: a unique identifier for this object. Not intended for use"""
         identifier = self.attributes[self.primary_key].create(self)
-        while self._tables_contains(identifier):
+        while self.index_contains(identifier):
             identifier = self.attributes[self.primary_key].create(self)
 
         return identifier
@@ -222,7 +222,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         identifier = args.pop() if args else kwargs.get(cls.primary_key)
 
         try:
-            mapping = cls._tables_getitem(identifier)
+            mapping = cls.index_getitem(identifier)
             model = cls._decorate(mapping)
             return model
         except (KeyError, TypeError):
@@ -352,7 +352,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         """
         for attr in self.attributes.values():
             attr.delete(self)
-        self._tables_del(self.identifier)
+        self.index_delete(self.identifier)
 
 
 class UUIDIndexedModel:
