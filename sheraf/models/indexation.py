@@ -367,7 +367,7 @@ class UUIDIndexedModel:
     """
 
     id = sheraf.attributes.simples.StringUUIDAttribute(
-        default=lambda: "{}".format(uuid.uuid4())
+        default=lambda: str(uuid.uuid4())
     )
 
 
