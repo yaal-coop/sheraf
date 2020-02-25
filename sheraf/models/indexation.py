@@ -10,37 +10,7 @@ from sheraf.models.base import BaseModel, BaseModelMetaclass
 import warnings
 
 
-class IndexedModelMetaclass(BaseModelMetaclass):
-    """Internal class.
-
-    Contains the mapping of tables (name of models) to their
-    corresponding model definitions
-    """
-
-    tables = {}
-
-    def __new__(cls, name, bases, attrs):
-        klass = super().__new__(cls, name, bases, attrs)
-
-        if "table" in attrs:
-            table_name = attrs["table"]
-            qualname = attrs["__module__"] + "." + attrs["__qualname__"]
-
-            unique_table_name = attrs.get("unique_table_name", True)
-            if (
-                unique_table_name
-                and table_name in IndexedModelMetaclass.tables
-                and name != IndexedModelMetaclass.tables[table_name][0].split(".")[-1]
-            ):
-                message = "Table named '{table_name}' used twice: {first_class} and {second_class}".format(
-                    table_name=table_name,
-                    first_class=IndexedModelMetaclass.tables[table_name][0],
-                    second_class=qualname,
-                )
-                raise sheraf.exceptions.SameNameForTableException(message)
-            IndexedModelMetaclass.tables[table_name] = (qualname, klass)
-        return klass
-
+class BaseIndexedModelMetaclass(BaseModelMetaclass):
     @property
     def indexes(cls):
         if cls._indexes is None:
@@ -72,7 +42,7 @@ class IndexedModelMetaclass(BaseModelMetaclass):
         return cls._primary_key
 
 
-class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
+class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
     """
     This class handles the whole indexation mechanism.
 
@@ -83,111 +53,13 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     index_root_default = sheraf.types.SmallDict
 
-    database_name = None
     _indexes = None
     _primary_key = None
 
-    id = sheraf.attributes.simples.SimpleAttribute().index(primary=True)
-
-    @staticmethod
-    def _current_database_name():
-        current_name = sheraf.Database.current_name()
-        if not current_name:
-            raise sheraf.exceptions.NotConnectedException()
-        return current_name
-
-    @staticmethod
-    def _table_iterkeys(table, reverse=False):
-        try:
-            return table.iterkeys(reverse=reverse)
-        # TODO: Remove this guard (or just keep it and remove the first lines of this function)
-        # on the next compatibility breaking release.
-        except TypeError:
-            # Some previous stored data may have been OOBTree instead of LargeDict,
-            # so the 'reverse' parameter was not available
-            keys = table.iterkeys()
-            if reverse:
-                keys = reversed(list(keys))
-            return keys
-
-    @classmethod
-    def _table(cls, database_name=None, index_name=None):
-        database_name = (
-            database_name or cls.database_name or cls._current_database_name()
-        )
-        root = sheraf.Database.current_connection(database_name).root()
-
-        if index_name in (None, cls.primary_key):
-            mapping = cls._table_default
-            index_name = cls.primary_key
-        else:
-            mapping = cls._indexes[index_name].mapping
-
-        try:
-            index_root = root[cls.table]
-        except KeyError:
-            index_root = root.setdefault(cls.table, sheraf.types.SmallDict())
-
-        try:
-            return index_root[index_name]
-        except KeyError:
-            return index_root.setdefault(index_name, mapping())
-
-    @classmethod
-    def _table_default(cls):
-        return sheraf.types.LargeDict()
-
-    @classmethod
-    def _tables(cls, index_name=None):
-        return (
-            cls._table(db_name, index_name)
-            for db_name in (cls.database_name, cls._current_database_name())
-            if db_name
-        )
-
-    @classmethod
-    def index_contains(cls, model_id, index_name=None):
-        return any(model_id in table for table in cls._tables(index_name))
-
-    @classmethod
-    def index_getitem(cls, key, index_name=None):
-        if cls.database_name:
-            try:
-                return cls._table(cls.database_name, index_name)[key]
-            except KeyError:
-                pass
-        return cls._table(cls._current_database_name(), index_name)[key]
-
-    @classmethod
-    def index_setitem(cls, key, value):
-        cls._table()[key] = value
-
-    @classmethod
-    def index_iterkeys(cls, reverse=False, index_name=None):
-        return itertools.chain.from_iterable(
-            cls._table_iterkeys(table, reverse) for table in cls._tables(index_name)
-        )
-
-    @classmethod
-    def index_delete(cls, key, index_name=None):
-        if cls.database_name:
-            try:
-                del cls._table(cls.database_name, index_name)[key]
-                return
-            except KeyError:
-                pass
-        del cls._table(sheraf.Database.current_name(), index_name)[key]
-
-    @classmethod
-    def _delete_index_table(cls, index_name):
-        database_name = cls.database_name or cls._current_database_name()
-        root = sheraf.Database.current_connection(database_name).root()
-        index_root = root[cls.table]
-
-        del index_root[index_name]
-
     def make_identifier(self):
-        """:return: a unique identifier for this object. Not intended for use"""
+        """
+        :return: a unique identifier for this object. Not intended for use."
+        """
         identifier = self.attributes[self.primary_key].create(self)
         while self.index_contains(identifier):
             identifier = self.attributes[self.primary_key].create(self)
@@ -231,7 +103,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         if len(args) + len(kwargs) != 1:
             raise TypeError(
-                "IndexedModel.read_these takes only one positionnal or named parameter"
+                "BaseIndexedModel.read_these takes only one positionnal or named parameter"
             )
 
         if not kwargs:
@@ -256,14 +128,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def create(cls, *args, **kwargs):
-        """:return: an instance of this model"""
-
-        if not cls.primary_key:
-            raise sheraf.exceptions.PrimaryKeyException(
-                "{} inherit from IndexedModel but has no primary indexed attribute. Cannot create.".format(
-                    cls.__name__
-                )
-            )
+        """
+        :return: an instance of this model
+        """
 
         args = list(args)
         identifier = args.pop() if args else kwargs.get(cls.primary_key)
@@ -293,19 +160,19 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def read(cls, *args, **kwargs):
-        """Read models in an index.
+        """
+        Read models in an index.
         The function takes only one parameter which key is the index where to
         search, and which value is the index identifier. If the index is
         multiple, a :class:`~sheraf.exceptions.MultipleIndexException` is
         raised.
         By default the index used is the `id` index.
 
-        :param *args: The ``identifier`` of the model. There can be only one positionnal or
+        :param *args*: The ``identifier`` of the model. There can be only one positionnal or
                       keyword argument.
-        :param *kwargs: The ``identifier`` of the model. There can be only one positionnal or
+        :param *kwargs*: The ``identifier`` of the model. There can be only one positionnal or
                         keyword argument.
-
-        :return: The model matching the key.
+        :return: The :class:`~sheraf.models.indexation.BaseIndexedModel` matching the id.
 
         >>> class MyModel(sheraf.Model):
         ...     table = "my_model"
@@ -331,7 +198,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         if len(args) + len(kwargs) != 1:
             raise TypeError(
-                "IndexedModel.read takes only one positionnal or named parameter"
+                "BaseIndexedModel.read takes only one positionnal or named parameter"
             )
 
         if not kwargs:
@@ -409,15 +276,6 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                     m.update_index(index)
 
     @classmethod
-    def count(cls, index_name=None):
-        """
-        :return: the number of instances.
-
-        Using this method is faster than using ``len(MyModel.all())``.
-        """
-        return sum(len(table) for table in cls._tables(index_name))
-
-    @classmethod
     def filter(cls, predicate=None, **kwargs):
         """Shortcut for :func:`sheraf.queryset.QuerySet.filter`.
 
@@ -488,7 +346,9 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             if self._persistent is not None and self.primary_key in self._persistent
             else None
         )
-        return "<{} {}={}>".format(self.__class__.__name__, self.primary_key, identifier)
+        return "<{} {}={}>".format(
+            self.__class__.__name__, self.primary_key, identifier
+        )
 
     def __hash__(self):
         return hash(self.identifier)
@@ -631,6 +491,166 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             pass
 
 
+class IndexedModelMetaclass(BaseIndexedModelMetaclass):
+    """Internal class.
+
+    Contains the mapping of tables (name of models) to their
+    corresponding model definitions
+    """
+
+    tables = {}
+
+    def __new__(cls, name, bases, attrs):
+        klass = super().__new__(cls, name, bases, attrs)
+
+        if "table" in attrs:
+            table_name = attrs["table"]
+            qualname = attrs["__module__"] + "." + attrs["__qualname__"]
+
+            unique_table_name = attrs.get("unique_table_name", True)
+            if (
+                unique_table_name
+                and table_name in IndexedModelMetaclass.tables
+                and name != IndexedModelMetaclass.tables[table_name][0].split(".")[-1]
+            ):
+                message = "Table named '{table_name}' used twice: {first_class} and {second_class}".format(
+                    table_name=table_name,
+                    first_class=IndexedModelMetaclass.tables[table_name][0],
+                    second_class=qualname,
+                )
+                raise sheraf.exceptions.SameNameForTableException(message)
+            IndexedModelMetaclass.tables[table_name] = (qualname, klass)
+        return klass
+
+
+class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
+    """
+    Top-level indexed models.
+    Those models are stored at the root of the database. They must
+    have a 'table' parameter defined and an 'id' attribute.
+    """
+
+    database_name = None
+    id = sheraf.attributes.simples.SimpleAttribute().index(primary=True)
+
+    @staticmethod
+    def _current_database_name():
+        current_name = sheraf.Database.current_name()
+        if not current_name:
+            raise sheraf.exceptions.NotConnectedException()
+        return current_name
+
+    @staticmethod
+    def _table_iterkeys(table, reverse=False):
+        try:
+            return table.iterkeys(reverse=reverse)
+        # TODO: Remove this guard (or just keep it and remove the first lines of this function)
+        # on the next compatibility breaking release.
+        except TypeError:
+            # Some previous stored data may have been OOBTree instead of LargeDict,
+            # so the 'reverse' parameter was not available
+            keys = table.iterkeys()
+            if reverse:
+                keys = reversed(list(keys))
+            return keys
+
+    @classmethod
+    def _table(cls, database_name=None, index_name=None):
+        database_name = (
+            database_name or cls.database_name or cls._current_database_name()
+        )
+        root = sheraf.Database.current_connection(database_name).root()
+
+        if index_name in (None, cls.primary_key):
+            mapping = cls._table_default
+            index_name = cls.primary_key
+        else:
+            mapping = cls._indexes[index_name].mapping
+
+        try:
+            index_root = root[cls.table]
+        except KeyError:
+            index_root = root.setdefault(cls.table, sheraf.types.SmallDict())
+
+        try:
+            return index_root[index_name]
+        except KeyError:
+            return index_root.setdefault(index_name, mapping())
+
+    @classmethod
+    def _table_default(cls):
+        return sheraf.types.LargeDict()
+
+    @classmethod
+    def _tables(cls, index_name=None):
+        return (
+            cls._table(db_name, index_name)
+            for db_name in (cls.database_name, cls._current_database_name())
+            if db_name
+        )
+
+    @classmethod
+    def index_contains(cls, model_id, index_name=None):
+        return any(model_id in table for table in cls._tables(index_name))
+
+    @classmethod
+    def index_getitem(cls, key, index_name=None):
+        if cls.database_name:
+            try:
+                return cls._table(cls.database_name, index_name)[key]
+            except KeyError:
+                pass
+        return cls._table(cls._current_database_name(), index_name)[key]
+
+    @classmethod
+    def index_setitem(cls, key, value):
+        cls._table()[key] = value
+
+    @classmethod
+    def index_iterkeys(cls, reverse=False, index_name=None):
+        return itertools.chain.from_iterable(
+            cls._table_iterkeys(table, reverse) for table in cls._tables(index_name)
+        )
+
+    @classmethod
+    def index_delete(cls, key, index_name=None):
+        if cls.database_name:
+            try:
+                del cls._table(cls.database_name, index_name)[key]
+                return
+            except KeyError:
+                pass
+        del cls._table(sheraf.Database.current_name(), index_name)[key]
+
+    @classmethod
+    def _delete_index_table(cls, index_name):
+        database_name = cls.database_name or cls._current_database_name()
+        root = sheraf.Database.current_connection(database_name).root()
+        index_root = root[cls.table]
+
+        del index_root[index_name]
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        if cls.primary_key not in cls.attributes:
+            raise sheraf.exceptions.SherafException(
+                "{} inherit from IndexedModel but has no id attribute. Cannot create.".format(
+                    cls.__name__
+                )
+            )
+
+        return super().create(*args, **kwargs)
+
+    @classmethod
+    def count(cls, index_name=None):
+        """
+        :return: the number of instances.
+
+        Using this method is faster than using ``len(MyModel.all())``.
+        """
+        return sum(len(table) for table in cls._tables(index_name))
+
+
 class UUIDIndexedModel:
     """Model using uuid4 as ids. Ids are stored as strings.
 
@@ -678,7 +698,9 @@ class BaseAutoModelMetaclass(IndexedModelMetaclass):
 
 class BaseAutoModel(metaclass=BaseAutoModelMetaclass):
     """
-    :class:`~sheraf.models.indexation.BaseAutoModel` are regular models which 'table' parameter automatically takes the lowercase class name.
+    :class:`~sheraf.models.indexation.BaseAutoModel` are regular
+    models which 'table' parameter automatically takes the
+    lowercase class name.
     It should only be used with unit tests.
 
     >>> class MyWonderfulClass(sheraf.AutoModel):
