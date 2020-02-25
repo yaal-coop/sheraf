@@ -216,18 +216,14 @@ class SmallListAttribute(ListAttribute):
     """Shortcut for ``ListAttribute(persistent_type=SmallList)``."""
 
     def __init__(self, *args, **kwargs):
-        super().__init__(
-            *args, persistent_type=sheraf.types.SmallList, **kwargs
-        )
+        super().__init__(*args, persistent_type=sheraf.types.SmallList, **kwargs)
 
 
 class LargeListAttribute(ListAttribute):
     """Shortcut for ``ListAttribute(persistent_type=LargeList)``."""
 
     def __init__(self, *args, **kwargs):
-        super().__init__(
-            *args, persistent_type=sheraf.types.LargeList, **kwargs
-        )
+        super().__init__(*args, persistent_type=sheraf.types.LargeList, **kwargs)
 
 
 class DictAttributeAccessor:
@@ -409,9 +405,7 @@ class LargeDictAttribute(DictAttribute):
     """Shortcut for ``DictAttribute(persistent_type=LargeDict)``"""
 
     def __init__(self, *args, **kwargs):
-        super().__init__(
-            *args, persistent_type=sheraf.types.LargeDict, **kwargs
-        )
+        super().__init__(*args, persistent_type=sheraf.types.LargeDict, **kwargs)
 
 
 class SetAttributeAccessor:

@@ -33,7 +33,9 @@ class DatedNamedAttributesModel(NamedAttributesModel):
     creation are equal.
     """
 
-    _creation = sheraf.attributes.simples.SimpleAttribute(default=time.time, lazy_creation=False)
+    _creation = sheraf.attributes.simples.SimpleAttribute(
+        default=time.time, lazy_creation=False,
+    )
 
     def creation_datetime(self):
         """The date the object has been created. By now it refers to the date
