@@ -159,6 +159,10 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return cls._table(cls._current_database_name(), index_name)[key]
 
     @classmethod
+    def index_setitem(cls, key, value):
+        cls._table()[key] = value
+
+    @classmethod
     def index_iterkeys(cls, reverse=False, index_name=None):
         return itertools.chain.from_iterable(
             cls._table_iterkeys(table, reverse) for table in cls._tables(index_name)
@@ -264,7 +268,6 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         args = list(args)
         identifier = args.pop() if args else kwargs.get(cls.primary_key)
         model = super(IndexedModel, cls).create(*args, **kwargs)
-        table = cls._table()
         identifier = identifier or model.make_identifier()
 
         root = sheraf.Database.current_connection(cls._current_database_name()).root()
@@ -273,7 +276,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
             if index.primary:
                 continue
 
-            if len(table) == 0 or (index_tables and index.key in index_tables):
+            if cls.count() == 0 or (index_tables and index.key in index_tables):
                 model.update_index(index)
             else:
                 warnings.warn(
@@ -284,7 +287,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
                     stacklevel=2,
                 )
 
-        table[identifier] = model._persistent
+        cls.index_setitem(identifier, model._persistent)
         model.identifier = identifier
         return model
 
