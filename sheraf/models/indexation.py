@@ -52,6 +52,8 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
     """
 
     index_root_default = sheraf.types.SmallDict
+    # TODO: Is LargeList the right the right collection here?
+    index_multiple_default = sheraf.types.LargeList
 
     _indexes = None
     _primary_key = None
@@ -438,8 +440,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         # TODO: Handle multiple indexes
         for value in index.get_values(self):
             if not index.unique:
-                # TODO: Is LargeList the right the right collection here?
-                index_list = index_table.setdefault(value, sheraf.types.LargeList())
+                index_list = index_table.setdefault(value, self.index_multiple_default())
                 index_list.append(self._persistent)
             else:
                 if value in index_table:
