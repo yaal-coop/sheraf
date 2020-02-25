@@ -157,7 +157,7 @@ class ListAttribute(sheraf.attributes.base.BaseAttribute):
         self.persistent_type = persistent_type
         self.accessor_type = accessor_type
         kwargs.setdefault("default", self.persistent_type)
-        super(ListAttribute, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def deserialize(self, value):
         if not self.attribute:
@@ -216,7 +216,7 @@ class SmallListAttribute(ListAttribute):
     """Shortcut for ``ListAttribute(persistent_type=SmallList)``."""
 
     def __init__(self, *args, **kwargs):
-        super(SmallListAttribute, self).__init__(
+        super().__init__(
             *args, persistent_type=sheraf.types.SmallList, **kwargs
         )
 
@@ -225,7 +225,7 @@ class LargeListAttribute(ListAttribute):
     """Shortcut for ``ListAttribute(persistent_type=LargeList)``."""
 
     def __init__(self, *args, **kwargs):
-        super(LargeListAttribute, self).__init__(
+        super().__init__(
             *args, persistent_type=sheraf.types.LargeList, **kwargs
         )
 
@@ -348,7 +348,7 @@ class DictAttribute(sheraf.attributes.base.BaseAttribute):
         self.persistent_type = persistent_type
         self.accessor_type = accessor_type
         kwargs.setdefault("default", self.persistent_type)
-        super(DictAttribute, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def deserialize(self, value):
         if not self.attribute:
@@ -409,7 +409,7 @@ class LargeDictAttribute(DictAttribute):
     """Shortcut for ``DictAttribute(persistent_type=LargeDict)``"""
 
     def __init__(self, *args, **kwargs):
-        super(LargeDictAttribute, self).__init__(
+        super().__init__(
             *args, persistent_type=sheraf.types.LargeDict, **kwargs
         )
 
@@ -489,7 +489,7 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         self.persistent_type = persistent_type
         self.accessor_type = accessor_type
         kwargs.setdefault("default", self.persistent_type)
-        super(SetAttribute, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def deserialize(self, value):
         if not self.attribute:

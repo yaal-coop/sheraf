@@ -25,7 +25,7 @@ class LocalData:
 
         class GlobalThreadContext(threading.local):
             def __init__(self):
-                super(GlobalThreadContext, self).__init__()
+                super().__init__()
                 self.connections = []
                 self.last_connection_context = None
 
@@ -78,7 +78,7 @@ class Database(object):
 
         class DatabaseThreadContext(threading.local):
             def __init__(self):
-                super(DatabaseThreadContext, self).__init__()
+                super().__init__()
                 self.connections = []
 
         self.thread_context = DatabaseThreadContext()

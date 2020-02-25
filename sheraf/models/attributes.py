@@ -38,7 +38,7 @@ class DatedNamedAttributesModel(NamedAttributesModel):
     @classmethod
     def create(cls, *args, **kwargs):
         kwargs.setdefault("_creation", time.time())
-        return super(DatedNamedAttributesModel, cls).create(*args, **kwargs)
+        return super().create(*args, **kwargs)
 
     def creation_datetime(self):
         """The date the object has been created. By now it refers to the date
@@ -83,4 +83,4 @@ class DatedNamedAttributesModel(NamedAttributesModel):
         value and saves all the model attributes."""
 
         self._persistent._p_changed = True
-        return super(DatedNamedAttributesModel, self).save()
+        return super().save()

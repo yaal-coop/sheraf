@@ -71,7 +71,7 @@ class InlineModel(NamedAttributesModel):
     """
 
     def __init__(self, **kwargs):
-        super(InlineModel, self).__init__()
+        super().__init__()
         for k, v in kwargs.items():
             if isinstance(v, BaseAttribute):
                 self.attributes[k] = v

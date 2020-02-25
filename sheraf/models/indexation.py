@@ -78,7 +78,7 @@ class BaseIndexedModel(BaseModel):
 
         args = list(args)
         identifier = args.pop() if args else kwargs.get(cls.primary_key)
-        model = super(BaseIndexedModel, cls).create(*args, **kwargs)
+        model = super().create(*args, **kwargs)
         identifier = identifier or model.make_identifier()
         cls.index_setitem(identifier, model._persistent)
         model.identifier = identifier
@@ -218,7 +218,7 @@ class BaseIndexedModel(BaseModel):
         return setattr(self, self.primary_key, value)
 
     def copy(self):
-        copy = super(BaseIndexedModel, self).copy()
+        copy = super().copy()
         copy.identifier = copy.make_identifier()
         return copy
 
@@ -252,7 +252,7 @@ class IndexedModelMetaclass(BaseModelMetaclass):
     tables = {}
 
     def __new__(cls, name, bases, attrs):
-        klass = super(IndexedModelMetaclass, cls).__new__(cls, name, bases, attrs)
+        klass = super().__new__(cls, name, bases, attrs)
         klass.primary_key = "id"
 
         if "table" in attrs:
@@ -369,7 +369,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
                 )
             )
 
-        return super(IndexedModel, cls).create(*args, **kwargs)
+        return super().create(*args, **kwargs)
 
     @classmethod
     def count(cls):

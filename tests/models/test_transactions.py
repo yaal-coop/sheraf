@@ -28,7 +28,7 @@ class Book(sheraf.AutoModel):
 
 class BookRenamer(threading.Thread):
     def __init__(self, book_id, name):
-        super(BookRenamer, self).__init__()
+        super().__init__()
         self.queue = queue.Queue()
         self._book_id = book_id
         self._name = name

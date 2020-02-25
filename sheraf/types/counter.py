@@ -4,7 +4,7 @@ import ZODB.POSException
 
 class CounterMetaclass(type):
     def __new__(cls, name, bases, attrs):
-        klass = super(CounterMetaclass, cls).__new__(cls, name, bases, attrs)
+        klass = super().__new__(cls, name, bases, attrs)
 
         unary_methods = [
             "__abs__",

@@ -8,7 +8,7 @@ class BaseModelMetaclass(type):
     """
 
     def __new__(cls, name, bases, attrs):
-        klass = super(BaseModelMetaclass, cls).__new__(cls, name, bases, attrs)
+        klass = super().__new__(cls, name, bases, attrs)
         klass.attributes = {}
 
         for name, attr in attrs.items():
@@ -133,22 +133,22 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
     def __setattr__(self, name, value):
         if name not in self.attributes:
-            super(BaseModel, self).__setattr__(name, value)
+            super().__setattr__(name, value)
             return
 
         value = self.attributes[name].write(self, value)
         if self.attributes[name].write_memoization:
-            super(BaseModel, self).__setattr__(name, value)
+            super().__setattr__(name, value)
 
     def __delattr__(self, name):
         if name in self.attributes:
             try:
                 self.attributes[name].delattr(self)
-                super(BaseModel, self).__delattr__(name)
+                super().__delattr__(name)
             except (KeyError, AttributeError):
                 return
         else:
-            super(BaseModel, self).__delattr__(name)
+            super().__delattr__(name)
 
     def __getattribute__(self, name):
         # TODO: Find a way to check that self.name exists or not without
@@ -158,7 +158,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         # was emitted.
 
         try:
-            attribute = super(BaseModel, self).__getattribute__(name)
+            attribute = super().__getattribute__(name)
             if not isinstance(attribute, sheraf.attributes.base.BaseAttribute):
                 return attribute
 
@@ -172,7 +172,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
             raise AttributeError(name)
 
         if self.attributes[name].read_memoization:
-            super(BaseModel, self).__setattr__(name, value)
+            super().__setattr__(name, value)
 
         return value
 
@@ -304,7 +304,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
     def __setitem__(self, key, value):
         value = self.attributes[key].write(self, value)
-        super(BaseModel, self).__setattr__(key, value)
+        super().__setattr__(key, value)
 
     def __contains__(self, key):
         return key in self.attributes
