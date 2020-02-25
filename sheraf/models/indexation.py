@@ -20,7 +20,7 @@ class IndexedModelMetaclass(BaseModelMetaclass):
     tables = {}
 
     def __new__(cls, name, bases, attrs):
-        klass = super(IndexedModelMetaclass, cls).__new__(cls, name, bases, attrs)
+        klass = super().__new__(cls, name, bases, attrs)
 
         if "table" in attrs:
             table_name = attrs["table"]
@@ -267,7 +267,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         args = list(args)
         identifier = args.pop() if args else kwargs.get(cls.primary_key)
-        model = super(IndexedModel, cls).create(*args, **kwargs)
+        model = super().create(*args, **kwargs)
         identifier = identifier or model.make_identifier()
 
         root = sheraf.Database.current_connection(cls._current_database_name()).root()
@@ -534,7 +534,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         if should_update_index:
             self.delete_index(index)
 
-        super(IndexedModel, self).__setattr__(name, value)
+        super().__setattr__(name, value)
 
         if should_update_index:
             self.update_index(index)
@@ -599,7 +599,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return setattr(self, self.primary_key, value)
 
     def copy(self):
-        copy = super(IndexedModel, self).copy()
+        copy = super().copy()
         copy.identifier = copy.make_identifier()
         return copy
 

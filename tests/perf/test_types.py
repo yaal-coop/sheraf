@@ -13,7 +13,7 @@ def test_threading(self, sheraf_database):
 
     class Writer(threading.Thread):
         def __init__(self, name):
-            super(Writer, self).__init__()
+            super().__init__()
             self.failed = False
             self.name = name
 

@@ -153,7 +153,7 @@ class QuerySet(object):
                     iter(self), iter(other), fillvalue=object()
                 )
             )
-        return super(QuerySet, self).__eq__(other)
+        return super().__eq__(other)
 
     def __and__(self, other):
         return QuerySet(OrderedSet(self) & OrderedSet(other))

@@ -243,7 +243,7 @@ def test_multiprocessing_database_connection(sheraf_zeo_database):
 
     class MyProcess(multiprocessing.Process):
         def __init__(self, uri):
-            super(MyProcess, self).__init__()
+            super().__init__()
             self.uri = uri
 
         def run(self):

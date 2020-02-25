@@ -24,7 +24,7 @@ class TypedAttribute(BaseAttribute):
 
     def __init__(self, **kwargs):
         kwargs.setdefault("default", self.type)
-        super(TypedAttribute, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def serialize(self, value):
         return self.type(value)
@@ -80,7 +80,7 @@ class StringUUIDAttribute(UUIDAttribute):
     """Stores an :class:`uuid.UUID` but data is handled as a string."""
 
     def deserialize(self, value):
-        uuid = super(StringUUIDAttribute, self).deserialize(value)
+        uuid = super().deserialize(value)
         if uuid is None:
             return None
         return str(uuid)
@@ -98,7 +98,7 @@ class DateTimeAttribute(BaseAttribute):
             assert isinstance(default, datetime.datetime)
             _default = self.datetime_to_timestamp(default.replace(tzinfo=None))
 
-        super(DateTimeAttribute, self).__init__(default=_default, **kwargs)
+        super().__init__(default=_default, **kwargs)
 
     def deserialize(self, value):
         if value is None:
@@ -124,7 +124,7 @@ class TimeAttribute(IntegerAttribute):
     """Stores a :class:`datetime.time` object."""
 
     def __init__(self, default=-1, **kwargs):
-        super(TimeAttribute, self).__init__(default=default, **kwargs)
+        super().__init__(default=default, **kwargs)
 
     def deserialize(self, value):
         if value == -1:
@@ -154,7 +154,7 @@ class DateAttribute(IntegerAttribute):
     """Stores a :class:`datetime.date` object."""
 
     def __init__(self, default=-1, **kwargs):
-        super(DateAttribute, self).__init__(default=default, **kwargs)
+        super().__init__(default=default, **kwargs)
 
     def deserialize(self, value):
         if value == -1:

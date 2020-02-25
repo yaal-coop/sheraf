@@ -58,7 +58,7 @@ class LargeList(IOBTree):
     def pop(self):
         length = len(self)
         self._set_length(length - 1)
-        return super(LargeList, self).pop(length - 1)
+        return super().pop(length - 1)
 
     def __iter__(self):
         _values = IOBTree.itervalues(self)
@@ -94,7 +94,7 @@ class LargeList(IOBTree):
     def __setitem__(self, key, value):
         if not isinstance(key, slice) and key >= len(self):
             raise IndexError
-        return super(LargeList, self).__setitem__(key, value)
+        return super().__setitem__(key, value)
 
     def _reslice(self, item):
         if item.step is None or item.step > 0:

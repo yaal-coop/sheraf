@@ -21,7 +21,7 @@ class Blob(sheraf.models.inline.InlineModel):
         :param kwargs: optional attributes to set
         :return: A sheraf object wrapping a :class:`ZODB.blob.Blob` object, or ``None`` if this is an empty and unnamed file.
         """
-        m = super(Blob, cls).create(**kwargs)
+        m = super().create(**kwargs)
 
         stream_data = stream.read() if stream else None
         if data or filename or stream_data:
@@ -94,7 +94,7 @@ class BlobAttribute(sheraf.attributes.inlines.InlineModelAttribute):
     """
 
     def __init__(self, model=Blob, **kwargs):
-        super(BlobAttribute, self).__init__(model=model, **kwargs)
+        super().__init__(model=model, **kwargs)
 
     def deserialize(self, value):
         if not value:

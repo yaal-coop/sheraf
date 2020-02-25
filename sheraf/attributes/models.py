@@ -39,7 +39,7 @@ class ModelAttribute(ModelLoader, BaseAttribute):
     """
 
     def __init__(self, model=None, **kwargs):
-        super(ModelAttribute, self).__init__(default=None, model=model, **kwargs)
+        super().__init__(default=None, model=model, **kwargs)
 
     def deserialize(self, value):
         try:

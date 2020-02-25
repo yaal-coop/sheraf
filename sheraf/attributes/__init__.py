@@ -8,7 +8,7 @@ class ModelLoader(object):
     cache = {}
 
     def __init__(self, model=None, **kwargs):
-        super(ModelLoader, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._model = model
 
     def load_model(self, modelpath):

@@ -13,7 +13,7 @@ class Child(sheraf.InlineModel):
 
     @classmethod
     def create(cls, val):
-        model = super(Child, cls).create()
+        model = super().create()
         model.nom = val
         model.a1 = val
         model.a2 = val
@@ -52,7 +52,7 @@ class TestIterations:
 
         class Reader(threading.Thread):
             def __init__(self):
-                super(Reader, self).__init__()
+                super().__init__()
                 self.failed = False
 
             def run(self):
@@ -83,7 +83,7 @@ class TestZip:
 
         class Reader(threading.Thread):
             def __init__(self):
-                super(Reader, self).__init__()
+                super().__init__()
                 self.failed = False
 
             def run(self):

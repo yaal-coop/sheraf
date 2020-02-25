@@ -33,7 +33,7 @@ class ModelObjectNotFoundException(ObjectNotFoundException):
             identifier=repr(identifier), model_name=model_name, index_name=index_name
         )
 
-        super(ModelObjectNotFoundException, self).__init__(message)
+        super().__init__(message)
 
 class IndexObjectNotFoundException(ObjectNotFoundException):
     """Raised when trying to read an unexisting :class:`IndexObject`.
@@ -63,7 +63,7 @@ class IndexObjectNotFoundException(ObjectNotFoundException):
             model_name=model_name,
             index_name=self.index.__class__.__name__,
         )
-        super(IndexObjectNotFoundException, self).__init__(_message)
+        super().__init__(_message)
 
 
 class SameNameForTableException(SherafException):

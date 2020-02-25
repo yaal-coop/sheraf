@@ -146,7 +146,7 @@ class FileObjectV2(FileObjectV1):
 
     def exists(self):
         if not self._is_new_model():
-            return super(FileObjectV2, self).exists()
+            return super().exists()
 
         return os.path.exists(self.absolute_path())
 
@@ -168,7 +168,7 @@ class FileObjectV2(FileObjectV1):
     def read(cls, model, attribute_name):
         persisted_file_path = model._persistent.get(attribute_name)
         if not persisted_file_path:
-            return super(FileObjectV2, cls).read(model, attribute_name)
+            return super().read(model, attribute_name)
 
         extension = os.path.splitext(persisted_file_path)[1].lstrip(".")
         file_instance = cls(extension=extension)
@@ -180,23 +180,23 @@ class FileObjectV2(FileObjectV1):
 
     def relative_path(self):
         if not self._is_new_model():
-            return super(FileObjectV2, self).relative_path()
+            return super().relative_path()
 
         return self.model._persistent[self.attribute_name]
 
     def absolute_path(self):
         if not self._is_new_model():
-            return super(FileObjectV2, self).absolute_path()
+            return super().absolute_path()
 
         return os.path.join(FILES_ROOT_DIR, self.relative_path())
 
     def write(self):
-        super(FileObjectV2, self).write()
+        super().write()
         self.model._persistent[self.attribute_name] = self.relative_path()
 
     def delete(self):
         if not self._is_new_model():
-            super(FileObjectV2, self).delete()
+            super().delete()
         else:
             FilesGarbageCollector.instance().add(
                 self.model._persistent[self.attribute_name]
@@ -222,7 +222,7 @@ class FileAttribute(BaseAttribute):
     def __init__(self, file_object_class=FileObject, **kwargs):
         self.FileObjectClass = file_object_class
         kwargs.setdefault("read_memoization", True)
-        super(FileAttribute, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def read(self, parent):
         # TODO: Implement deserialize instead of read

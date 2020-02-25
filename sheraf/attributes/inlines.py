@@ -19,7 +19,7 @@ class InlineModelAttribute(ModelLoader, BaseAttribute):
 
     def __init__(self, model=None, **kwargs):
         kwargs.setdefault("default", sheraf.types.SmallDict)
-        super(InlineModelAttribute, self).__init__(model=model, **kwargs)
+        super().__init__(model=model, **kwargs)
 
     def deserialize(self, value):
         if value is None:
