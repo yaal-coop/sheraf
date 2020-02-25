@@ -86,12 +86,13 @@ class BaseIndexedModel(BaseModel):
 
     @classmethod
     def read(cls, *args, **kwargs):
-        """Get a model instance from its identifier. If the model identifier is not valid, a
+        """
+        Get a model instance from its identifier. If the model identifier is not valid, a
         :class:`~sheraf.exceptions.ModelObjectNotFoundException` is raised.
 
-        :param *args: The ``identifier`` of the model. There can be only one positionnal or
+        :param *args*: The ``identifier`` of the model. There can be only one positionnal or
                       keyword argument.
-        :param *kwargs: The ``identifier`` of the model. There can be only one positionnal or
+        :param *kwargs*: The ``identifier`` of the model. There can be only one positionnal or
                         keyword argument.
         :return: The :class:`~sheraf.models.indexation.BaseIndexedModel` matching the id.
 
