@@ -239,7 +239,7 @@ class QuerySet(object):
 
             if not self._iterator:
                 # Iterator over ids
-                keys = self.model._tables_iterkeys(reverse=reverse)
+                keys = self.model.index_iterkeys(reverse=reverse)
                 self._iterator = self.model.read_these(keys)
 
         elif reverse:
@@ -270,7 +270,7 @@ class QuerySet(object):
         # So we successively sort the list from the less important
         # order to the most important order.
         if self._iterable is None:
-            self._iterable = self.model.read_these(self.model._tables_iterkeys())
+            self._iterable = self.model.read_these(self.model.index_iterkeys())
 
         for attribute, order in reversed(self.orders.items()):
             self._iterable = sorted(

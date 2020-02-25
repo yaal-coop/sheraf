@@ -23,7 +23,7 @@ class IntOrderedNamedAttributesModel(
 ):
     """The ids are 64bits integers, distributed ascendently starting at 0."""
 
-    id = IntegerAttribute(default=lambda m: len(m._table())).index(primary=True)
+    id = IntegerAttribute(default=lambda m: m.count()).index(primary=True)
 
 
 class UUIDIndexedNamedAttributesModel(

@@ -146,11 +146,11 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         )
 
     @classmethod
-    def _tables_contains(cls, model_id, index_name=None):
+    def index_contains(cls, model_id, index_name=None):
         return any(model_id in table for table in cls._tables(index_name))
 
     @classmethod
-    def _tables_getitem(cls, key, index_name=None):
+    def index_getitem(cls, key, index_name=None):
         if cls.database_name:
             try:
                 return cls._table(cls.database_name, index_name)[key]
@@ -159,13 +159,13 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
         return cls._table(cls._current_database_name(), index_name)[key]
 
     @classmethod
-    def _tables_iterkeys(cls, reverse=False, index_name=None):
+    def index_iterkeys(cls, reverse=False, index_name=None):
         return itertools.chain.from_iterable(
             cls._table_iterkeys(table, reverse) for table in cls._tables(index_name)
         )
 
     @classmethod
-    def _tables_del(cls, key, index_name=None):
+    def index_delete(cls, key, index_name=None):
         if cls.database_name:
             try:
                 del cls._table(cls.database_name, index_name)[key]
@@ -185,7 +185,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
     def make_identifier(self):
         """:return: a unique identifier for this object. Not intended for use"""
         identifier = self.attributes[self.primary_key].create(self)
-        while self._tables_contains(identifier):
+        while self.index_contains(identifier):
             identifier = self.attributes[self.primary_key].create(self)
 
         return identifier
@@ -356,7 +356,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
     @classmethod
     def _read_unique_index(cls, key, index_name=None):
         try:
-            mapping = cls._tables_getitem(key, index_name)
+            mapping = cls.index_getitem(key, index_name)
             model = cls._decorate(mapping)
             return model
 
@@ -366,7 +366,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
     @classmethod
     def _read_multiple_index(cls, key, index_name=None):
         try:
-            mappings = cls._tables_getitem(key, index_name)
+            mappings = cls.index_getitem(key, index_name)
             return (cls._decorate(mapping) for mapping in mappings)
         except (KeyError, sheraf.exceptions.ModelObjectNotFoundException):
             raise sheraf.exceptions.ModelObjectNotFoundException(cls, key, index_name)
@@ -623,7 +623,7 @@ class IndexedModel(BaseModel, metaclass=IndexedModelMetaclass):
 
         # TODO: this should be done in 'delete_index'
         try:
-            self._tables_del(self.identifier)
+            self.index_delete(self.identifier)
         except KeyError:
             pass
 

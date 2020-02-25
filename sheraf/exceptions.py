@@ -20,12 +20,10 @@ class ModelObjectNotFoundException(ObjectNotFoundException):
     """
 
     MESSAGE_TPL = "Key {identifier} not found in {model_name}, '{index_name}' index"
-
     def __init__(self, model_class, identifier, index_name=None):
         self.model_class = model_class
         self.identifier = identifier
         index_name = index_name or model_class.primary_key
-
         try:
             model_name = self.model_class.__name__
         except AttributeError:
@@ -36,7 +34,6 @@ class ModelObjectNotFoundException(ObjectNotFoundException):
         )
 
         super(ModelObjectNotFoundException, self).__init__(message)
-
 
 class IndexObjectNotFoundException(ObjectNotFoundException):
     """Raised when trying to read an unexisting :class:`IndexObject`.
