@@ -72,6 +72,7 @@ class TestMonoprocessConflict:
 
         with sheraf.connection(commit=True):
             m = MyModel.create()
+            mid = m.id
 
         with pytest.raises(ZODB.POSException.ConflictError):
             with sheraf.connection(commit=True):
@@ -84,7 +85,7 @@ class TestMonoprocessConflict:
                 m1.something = "connection 1"
 
         with sheraf.connection():
-            m = MyModel.read(m.id)
+            m = MyModel.read(mid)
             assert "connection 2" == m.something
 
 
