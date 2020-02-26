@@ -72,8 +72,8 @@ def test_create(sheraf_database):
 
 def test_default_parameter(sheraf_connection):
     class Model(sheraf.AutoModel):
-        inlines = sheraf.LargeDictAttribute(
-            sheraf.InlineModelAttribute(DictInlineModel), default=IOBTree
+        inlines = sheraf.DictAttribute(
+            sheraf.InlineModelAttribute(DictInlineModel), persistent_type=IOBTree
         )
 
     model = Model.create()

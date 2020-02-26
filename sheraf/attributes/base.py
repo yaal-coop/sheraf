@@ -150,7 +150,7 @@ class BaseAttribute(object):
         try:
             return parent._persistent[self.key(parent)]
         except KeyError:
-            default_value = self.create(parent)
+            default_value = self.serialize(self.create(parent))
             if self.store_default_value:
                 parent._persistent[self.key(parent)] = default_value
             return default_value

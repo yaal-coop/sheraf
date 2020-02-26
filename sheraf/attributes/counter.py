@@ -92,22 +92,35 @@ class CounterAttribute(IntegerAttribute):
         )
 
     def write(self, parent, value):
-        if isinstance(value, sheraf.types.counter.Counter):
-            self.read_raw(parent).set(value.value)
-        else:
-            self.read_raw(parent).set(value)
+        counter = self.read_raw(parent)
+        deserialized = self.deserialize(counter)
 
-        return self.read_raw(parent)
+        if not isinstance(counter, sheraf.types.counter.Counter):
+            self.write_raw(parent, deserialized)
+
+        deserialized.set(self.serialize(value))
+        return deserialized
 
     def read(self, parent):
         value = self.read_raw(parent)
-
-        if isinstance(value, BTrees.Length.Length):
-            value = sheraf.types.counter.Counter(value.value)
-            self.write_raw(parent, value)
+        deserialized = self.deserialize(value)
 
         if not isinstance(value, sheraf.types.counter.Counter):
-            value = sheraf.types.counter.Counter(value)
-            self.write_raw(parent, value)
+            self.write_raw(parent, deserialized)
+
+        return deserialized
+
+    def serialize(self, value):
+        if isinstance(value, sheraf.types.counter.Counter):
+            return value.value
+
+        return value
+
+    def deserialize(self, value):
+        if isinstance(value, BTrees.Length.Length):
+            return sheraf.types.counter.Counter(value.value)
+
+        if not isinstance(value, sheraf.types.counter.Counter):
+            return sheraf.types.counter.Counter(value)
 
         return value

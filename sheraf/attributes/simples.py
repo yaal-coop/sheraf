@@ -89,17 +89,6 @@ class StringUUIDAttribute(UUIDAttribute):
 class DateTimeAttribute(BaseAttribute):
     """Store a :class:`datetime.datetime` object."""
 
-    def __init__(self, default=None, **kwargs):
-        _default = default
-        if default:
-            if callable(default):
-                default = default()
-
-            assert isinstance(default, datetime.datetime)
-            _default = self.datetime_to_timestamp(default.replace(tzinfo=None))
-
-        super().__init__(default=_default, **kwargs)
-
     def deserialize(self, value):
         if value is None:
             return None
@@ -123,7 +112,7 @@ class DateTimeAttribute(BaseAttribute):
 class TimeAttribute(IntegerAttribute):
     """Stores a :class:`datetime.time` object."""
 
-    def __init__(self, default=-1, **kwargs):
+    def __init__(self, default=None, **kwargs):
         super().__init__(default=default, **kwargs)
 
     def deserialize(self, value):
@@ -153,7 +142,7 @@ class TimeAttribute(IntegerAttribute):
 class DateAttribute(IntegerAttribute):
     """Stores a :class:`datetime.date` object."""
 
-    def __init__(self, default=-1, **kwargs):
+    def __init__(self, default=None, **kwargs):
         super().__init__(default=default, **kwargs)
 
     def deserialize(self, value):

@@ -66,7 +66,12 @@ from .models.attributes import (
     NamedAttributesModel,
 )
 from .models.base import BaseModel
-from .models.indexation import BaseIndexedModel, IndexedModel, IntIndexedModel, UUIDIndexedModel
+from .models.indexation import (
+    BaseIndexedModel,
+    IndexedModel,
+    IntIndexedModel,
+    UUIDIndexedModel,
+)
 from .models.inline import InlineModel
 from .queryset import QuerySet
 from .transactions import attempt, commit
