@@ -26,9 +26,11 @@ def test_create_default_intauto(sheraf_database):
     assert "myintautomodel" == MyIntAutoModel.table
 
     with sheraf.connection(commit=True):
+        assert 0 == MyIntAutoModel.count()
         m = MyIntAutoModel.create()
         assert "myintautomodel" == m.table
         assert 0 == m.id
+        assert 1 == MyIntAutoModel.count()
         assert 1 == MyIntAutoModel.create().id
 
     with sheraf.connection() as conn:
