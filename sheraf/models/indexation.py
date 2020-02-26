@@ -2,6 +2,7 @@ import itertools
 import random
 import sys
 import uuid
+import warnings
 
 import BTrees
 
@@ -55,16 +56,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     _indexes = None
     _primary_key = None
-
-    def make_id(self):
-        """
-        :return: a unique identifier for this object. Not intended for use."
-        """
-        identifier = self.attributes[self.primary_key].create(self)
-        while self.index_contains(identifier):
-            identifier = self.attributes[self.primary_key].create(self)
-
-        return identifier
 
     @classmethod
     def all(cls):
@@ -137,10 +128,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         :return: an instance of this model
         """
 
-        args = list(args)
-        identifier = args.pop() if args else kwargs.get(cls.primary_key)
         model = super().create(*args, **kwargs)
-        identifier = identifier or model.make_id()
 
         for index in model.indexes.values():
             if index.primary:
@@ -157,8 +145,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                     stacklevel=2,
                 )
 
-        cls.index_setitem(identifier, model._persistent)
-        model.identifier = identifier
+        cls.index_setitem(model.identifier, model._persistent)
         return model
 
     @classmethod
@@ -463,7 +450,17 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     def copy(self):
         copy = super().copy()
-        copy.identifier = copy.make_id()
+        if hasattr(self, "make_id"):
+            warnings.warn(
+                "BaseIndexedModel.make_id is deprecated and wont be supported with sheraf 0.2. "
+                "Please use your id attribute 'default' parameter instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            copy.identifier = copy.make_id()
+        else:
+            self.reset(self.primary_key)
+
         return copy
 
     def delete(self):
@@ -667,8 +664,15 @@ class UUIDIndexedModel:
     "e4bb714e-b5a8-40d6-bb69-ab3b932fbfe0"
     """
 
+    def make_unique_id(self):
+        identifier = str(uuid.uuid4())
+        while self.index_contains(identifier):
+            identifier = str(uuid.uuid4())
+
+        return identifier
+
     id = sheraf.attributes.simples.StringUUIDAttribute(
-        default=lambda: "{}".format(uuid.uuid4())
+        default=lambda m: m.make_unique_id()
     ).index(primary=True)
 
 
@@ -686,8 +690,16 @@ class IntIndexedModel:
     """
 
     MAX_INT = sys.maxsize
+
+    def make_unique_id(self):
+        identifier = random.randint(0, self.MAX_INT)
+        while self.index_contains(identifier):
+            identifier = random.randint(0, self.MAX_INT)
+
+        return identifier
+
     id = sheraf.attributes.simples.IntegerAttribute(
-        default=lambda m: random.randint(0, m.MAX_INT)
+        default=lambda m: m.make_unique_id()
     ).index(primary=True)
 
     @classmethod
