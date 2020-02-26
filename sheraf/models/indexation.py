@@ -96,10 +96,12 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 "BaseIndexedModel.read_these takes only one positionnal or named parameter"
             )
 
-        if not kwargs:
-            kwargs[cls.primary_key] = args[0]
+        if args:
+            index_name = cls.primary_key
+            keys = args[0]
 
-        index_name, keys = list(kwargs.items())[0]
+        else:
+            index_name, keys = list(kwargs.items())[0]
 
         try:
             index = cls.indexes[index_name]
@@ -187,10 +189,12 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 "BaseIndexedModel.read takes only one positionnal or named parameter"
             )
 
-        if not kwargs:
-            kwargs[cls.primary_key] = args[0]
+        if args:
+            index_name = cls.primary_key
+            key = args[0]
 
-        index_name, key = list(kwargs.items())[0]
+        else:
+            index_name, key = list(kwargs.items())[0]
 
         try:
             index = cls.indexes[index_name]
