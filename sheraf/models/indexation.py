@@ -44,11 +44,9 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
 
 class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
     """
-    This class handles the whole indexation mechanism.
-
-    By default, indexed models come with a `id` index which keys are unique.
-    Further indexes can be created using the attributes
-    :func:`~sheraf.attributes.base.BaseAttribute.index` method.
+    This class handles the whole indexation mechanism. The mechanisms
+    for reading or iterating over models in the database are handled
+    here.
     """
 
     index_root_default = sheraf.types.SmallDict
@@ -79,9 +77,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
     @classmethod
     def read_these(cls, *args, **kwargs):
         """
-        Read models from a collection of keys.
-        If an instance id does not exist, a
-        :class:`~sheraf.exceptions.ModelObjectNotFoundException` is raised.
+        Get model instances from their identifiers. If an instance identifiers does not
+        exist, a :class:`~sheraf.exceptions.ModelObjectNotFoundException` is
+        raised.
 
         The function takes only one parameter which key is the index where to
         search, and which values are the index identifier.
@@ -163,7 +161,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
     @classmethod
     def read(cls, *args, **kwargs):
         """
-        Read models in an index.
+        Get a model instance from its identifier. If the model identifier is not valid, a
+        :class:`~sheraf.exceptions.ModelObjectNotFoundException` is raised.
+
         The function takes only one parameter which key is the index where to
         search, and which value is the index identifier. If the index is
         multiple, a :class:`~sheraf.exceptions.MultipleIndexException` is
