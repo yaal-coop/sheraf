@@ -79,15 +79,6 @@ def test_datetime_default(sheraf_connection):
     assert _test_date == m._date
 
 
-def test_datetime_default_invalid(sheraf_connection):
-    _default_test_date = "invalid"
-
-    with pytest.raises(AssertionError):
-
-        class ModelForTest(sheraf.AutoModel):
-            _date = sheraf.DateTimeAttribute(default=_default_test_date)
-
-
 @libfaketime.fake_time("2014-08-04 01:01:01")
 def test_datetime_creation_datetime(sheraf_database):
     sheraf_database.reset()

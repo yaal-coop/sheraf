@@ -117,7 +117,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
         for name, attribute in model.attributes.items():
             if not attribute.lazy_creation and name not in kwargs:
-                attribute.write_raw(model, attribute.create(model))
+                attribute.write(model, attribute.create(model))
 
         return model
 
