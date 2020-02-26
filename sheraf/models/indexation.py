@@ -118,7 +118,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             )
 
     @classmethod
-    def index_root_initialized(cls, index_name):
+    def index_table_initialized(cls, index_name):
         index_root = cls.index_root()
         return index_root and index_name in index_root
 
@@ -130,7 +130,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
         model = super().create(*args, **kwargs)
         for index in model.indexes.values():
-            if cls.count() == 0 or cls.index_root_initialized(index.key):
+            if cls.count() == 0 or cls.index_table_initialized(index.key):
                 model.update_index(index)
             else:
                 warnings.warn(
@@ -361,8 +361,8 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         index = self._find_index(name)
         index_root = self.index_root()
         is_created = self._persistent is not None and self.primary_key in self._persistent
-        index_table_exists = index_root and index and index.key in index_root
-        is_first_instance = index_root and len(index_root[self.primary_key]) <= 1
+        index_table_exists = index and self.index_table_initialized(index.key)
+        is_first_instance = self.count() <= 1
         is_indexable = is_first_instance or index_table_exists
         is_indexed = index and is_indexable
         should_update_index = is_created and is_indexed and not index.primary
