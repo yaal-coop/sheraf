@@ -127,6 +127,11 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             )
 
     @classmethod
+    def index_root_initialized(cls, index_name):
+        index_root = cls.index_root()
+        return index_root and index_name in index_root
+
+    @classmethod
     def create(cls, *args, **kwargs):
         """
         :return: an instance of this model
@@ -137,13 +142,11 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         model = super().create(*args, **kwargs)
         identifier = identifier or model.make_id()
 
-        root = sheraf.Database.current_connection(cls._current_database_name()).root()
-        index_tables = root.get(cls.table)
         for index in model.indexes.values():
             if index.primary:
                 continue
 
-            if cls.count() == 0 or (index_tables and index.key in index_tables):
+            if cls.count() == 0 or cls.index_root_initialized(index.key):
                 model.update_index(index)
             else:
                 warnings.warn(
@@ -373,14 +376,13 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 return index
 
     def __setattr__(self, name, value):
-        root = sheraf.Database.current_connection(self.database_name).root()
         index = self._find_index(name)
-        table = root.get(self.table, {})
+        table = self.index_root()
         primary_key = self.primary_key
         is_created = self._persistent is not None and primary_key in self._persistent
-        is_indexable = len(table.get(primary_key, [])) <= 1 or (
+        is_indexable = table and (len(table.get(primary_key, [])) <= 1 or (
             index and index.key in table
-        )
+        ))
         is_indexed = index and is_indexable
         should_update_index = is_created and is_indexed and not index.primary
 
@@ -624,12 +626,14 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
         del cls._table(sheraf.Database.current_name(), index_name)[key]
 
     @classmethod
-    def _delete_index_table(cls, index_name):
-        database_name = cls.database_name or cls._current_database_name()
+    def index_root(cls, database_name=None):
+        database_name = database_name or cls.database_name or cls._current_database_name()
         root = sheraf.Database.current_connection(database_name).root()
-        index_root = root[cls.table]
+        return root.get(cls.table)
 
-        del index_root[index_name]
+    @classmethod
+    def _delete_index_table(cls, index_name):
+        del cls.index_root()[index_name]
 
     @classmethod
     def create(cls, *args, **kwargs):
