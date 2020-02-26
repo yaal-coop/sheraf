@@ -43,9 +43,11 @@ class BaseIndexedModel(BaseModel):
         exist, a :class:`~sheraf.exceptions.ModelObjectNotFoundException` is
         raised.
 
-        :param ids: A collection of ids.
-        :return: A generator of :class:`~sheraf.models.indexation.BaseIndexedModel`
-            matching the ids.
+        The function takes only one parameter which key is the index where to
+        search, and which values are the index identifier.
+        By default the index used is the `id` index.
+
+        :return: A generator over the models matching the keys.
 
         >>> class MyModel(sheraf.IntIndexedNamedAttributesModel):
         ...     table = "my_model"
@@ -58,7 +60,7 @@ class BaseIndexedModel(BaseModel):
         ...     list(MyModel.read_these(["invalid"]))
         Traceback (most recent call last):
             ...
-        sheraf.exceptions.ModelObjectNotFoundException: Id 'invalid' not found in MyModel
+        sheraf.exceptions.ModelObjectNotFoundException: Id 'invalid' not found in MyModel, 'id' index
         """
 
         if len(args) + len(kwargs) != 1:
