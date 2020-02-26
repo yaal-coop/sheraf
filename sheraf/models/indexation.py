@@ -129,11 +129,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         """
 
         model = super().create(*args, **kwargs)
-
         for index in model.indexes.values():
-            if index.primary:
-                continue
-
             if cls.count() == 0 or cls.index_root_initialized(index.key):
                 model.update_index(index)
             else:
@@ -145,7 +141,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                     stacklevel=2,
                 )
 
-        cls.index_setitem(model.identifier, model._persistent)
         return model
 
     @classmethod
@@ -364,12 +359,12 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     def __setattr__(self, name, value):
         index = self._find_index(name)
-        table = self.index_root()
+        index_root = self.index_root()
         primary_key = self.primary_key
         is_created = self._persistent is not None and primary_key in self._persistent
-        is_indexable = table and (len(table.get(primary_key, [])) <= 1 or (
-            index and index.key in table
-        ))
+        is_indexable = index_root and ((len(index_root[primary_key])) <= 1 or (
+            index and index.key in index_root)
+        )
         is_indexed = index and is_indexable
         should_update_index = is_created and is_indexed and not index.primary
 
@@ -450,17 +445,8 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     def copy(self):
         copy = super().copy()
-        if hasattr(self, "make_id"):
-            warnings.warn(
-                "BaseIndexedModel.make_id is deprecated and wont be supported with sheraf 0.2. "
-                "Please use your id attribute 'default' parameter instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            copy.identifier = copy.make_id()
-        else:
-            self.reset(self.primary_key)
-
+        if copy.primary_key:
+            copy.reset(copy.primary_key)
         return copy
 
     def delete(self):
