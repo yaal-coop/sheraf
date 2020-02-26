@@ -18,7 +18,7 @@ class BaseIndexedModel(BaseModel):
 
     index_root_default = sheraf.types.SmallDict
 
-    def make_identifier(self):
+    def make_id(self):
         """
         :return: a unique identifier for this object. Not intended for use."
         """
@@ -79,7 +79,7 @@ class BaseIndexedModel(BaseModel):
         args = list(args)
         identifier = args.pop() if args else kwargs.get(cls.primary_key)
         model = super().create(*args, **kwargs)
-        identifier = identifier or model.make_identifier()
+        identifier = identifier or model.make_id()
         cls.index_setitem(identifier, model._persistent)
         model.identifier = identifier
         return model
@@ -220,7 +220,7 @@ class BaseIndexedModel(BaseModel):
 
     def copy(self):
         copy = super().copy()
-        copy.identifier = copy.make_identifier()
+        copy.identifier = copy.make_id()
         return copy
 
     def delete(self):
