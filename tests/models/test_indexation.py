@@ -265,12 +265,53 @@ def test_index_key(sheraf_database):
         )
 
 
-def test_multiple_keys_index(sheraf_database):
+def test_multiple_keys_index_create(sheraf_database):
     class MyMultipleKeysIndexModel(sheraf.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(key="key_1").index(key="key_2")
 
     with sheraf.connection(commit=True):
         mfoo = MyMultipleKeysIndexModel.create(my_attribute="foo")
+
+    with sheraf.connection() as conn:
+        index_table_key_1 = conn.root()["mymultiplekeysindexmodel"]["key_1"]
+        index_table_key_2 = conn.root()["mymultiplekeysindexmodel"]["key_2"]
+        assert {"foo"} == set(index_table_key_1)
+        assert [mfoo._persistent] == list(index_table_key_1["foo"])
+        assert {"foo"} == set(index_table_key_2)
+        assert [mfoo._persistent] == list(index_table_key_2["foo"])
+
+        with pytest.raises(sheraf.exceptions.MultipleIndexException):
+            MyMultipleKeysIndexModel.read(key_1="foo")
+        assert [mfoo] == list(MyMultipleKeysIndexModel.read_these(key_1=["foo"]))
+
+        with pytest.raises(sheraf.exceptions.MultipleIndexException):
+            MyMultipleKeysIndexModel.read(key_2="foo")
+        assert [mfoo] == list(MyMultipleKeysIndexModel.read_these(key_2=["foo"]))
+
+        MyMultipleKeysIndexModel._read_multiple_index = mock.MagicMock(
+            side_effect=MyMultipleKeysIndexModel._read_multiple_index
+        )
+        assert [mfoo] == MyMultipleKeysIndexModel.filter(key_1="foo")
+        MyMultipleKeysIndexModel._read_multiple_index.assert_has_calls(
+            [mock.call("foo", "key_1")]
+        )
+
+        assert [mfoo] == MyMultipleKeysIndexModel.filter(key_2="foo")
+        MyMultipleKeysIndexModel._read_multiple_index.assert_has_calls(
+            [mock.call("foo", "key_1")]
+        )
+
+
+def test_multiple_keys_index_update(sheraf_database):
+    class MyMultipleKeysIndexModel(sheraf.IntAutoModel):
+        my_attribute = sheraf.SimpleAttribute().index(key="key_1").index(key="key_2")
+
+    with sheraf.connection(commit=True):
+        mfoo = MyMultipleKeysIndexModel.create(my_attribute="bar")
+
+    with sheraf.connection(commit=True):
+        mfoo = MyMultipleKeysIndexModel.read(mfoo.id)
+        mfoo.my_attribute = "foo"
 
     with sheraf.connection() as conn:
         index_table_key_1 = conn.root()["mymultiplekeysindexmodel"]["key_1"]
