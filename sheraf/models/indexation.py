@@ -8,7 +8,6 @@ import BTrees
 
 import sheraf.exceptions
 from sheraf.models.base import BaseModel, BaseModelMetaclass
-import warnings
 
 
 class BaseIndexedModelMetaclass(BaseModelMetaclass):
@@ -347,42 +346,34 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             and self.identifier == other.identifier
         )
 
-    def _find_index(self, name):
-        index = self.indexes.get(name)
-        if index:
-            return index
-
-        attr = self.attributes.get(name)
-        if attr:
-            for index in attr.indexes.values():
-                return index
-
     def __setattr__(self, name, value):
-        index = self._find_index(name)
-        index_root = self.index_root()
-        is_created = self._persistent is not None and self.primary_key in self._persistent
-        index_table_exists = index and self.index_table_initialized(index.key)
+        attribute = self.attributes.get(name)
+        indexes = [index for index in attribute.indexes.values()] if attribute else []
         is_first_instance = self.count() <= 1
-        is_indexable = is_first_instance or index_table_exists
-        is_indexed = index and is_indexable
-        should_update_index = is_created and is_indexed and not index.primary
+        is_created = self._persistent is not None and self.primary_key in self._persistent
 
-        if index and not is_indexable:
-            warnings.warn(
-                "New index in an already populated table. %s.%s will not be indexed. "
-                'Consider calling %s.reset_indexes(["%s"]) to initialize the indexation table.'
-                % (self.__class__.__name__, name, self.__class__.__name__, name,),
-                sheraf.exceptions.IndexationWarning,
-                stacklevel=4,
-            )
+        for index in indexes:
+            index_table_exists = self.index_table_initialized(index.key)
+            is_indexable = is_first_instance or index_table_exists
+            index.should_update_index = is_created and is_indexable and not index.primary
 
-        if should_update_index:
-            self.delete_index(index)
+            if not is_indexable:
+                warnings.warn(
+                    "New index in an already populated table. %s.%s will not be indexed. "
+                    'Consider calling %s.reset_indexes(["%s"]) to initialize the indexation table.'
+                    % (self.__class__.__name__, name, self.__class__.__name__, name,),
+                    sheraf.exceptions.IndexationWarning,
+                    stacklevel=4,
+                )
+
+            if index.should_update_index:
+                self.delete_index(index)
 
         super().__setattr__(name, value)
 
-        if should_update_index:
-            self.update_index(index)
+        for index in indexes:
+            if index.should_update_index:
+                self.update_index(index)
 
     @property
     def indexes(self):
