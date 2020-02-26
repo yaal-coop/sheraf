@@ -234,7 +234,8 @@ class BaseIndexedModel(BaseModel):
             )
             copy.identifier = copy.make_id()
         else:
-            self.reset(self.primary_key)
+            if self.primary_key:
+                self.reset(self.primary_key)
 
         return copy
 
