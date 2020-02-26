@@ -58,7 +58,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
     _indexes = None
     _primary_key = None
 
-    def make_identifier(self):
+    def make_id(self):
         """
         :return: a unique identifier for this object. Not intended for use."
         """
@@ -137,7 +137,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         args = list(args)
         identifier = args.pop() if args else kwargs.get(cls.primary_key)
         model = super().create(*args, **kwargs)
-        identifier = identifier or model.make_identifier()
+        identifier = identifier or model.make_id()
 
         root = sheraf.Database.current_connection(cls._current_database_name()).root()
         index_tables = root.get(cls.table)
@@ -461,7 +461,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     def copy(self):
         copy = super().copy()
-        copy.identifier = copy.make_identifier()
+        copy.identifier = copy.make_id()
         return copy
 
     def delete(self):
