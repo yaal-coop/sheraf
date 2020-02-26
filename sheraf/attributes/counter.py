@@ -93,8 +93,13 @@ class CounterAttribute(IntegerAttribute):
 
     def write(self, parent, value):
         counter = self.read_raw(parent)
-        counter.set(self.serialize(value))
-        return counter
+        deserialized = self.deserialize(counter)
+
+        if not isinstance(counter, sheraf.types.counter.Counter):
+            self.write_raw(parent, deserialized)
+
+        deserialized.set(self.serialize(value))
+        return deserialized
 
     def read(self, parent):
         value = self.read_raw(parent)
