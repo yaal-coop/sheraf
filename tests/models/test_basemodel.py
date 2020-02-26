@@ -320,3 +320,35 @@ def test_copy(sheraf_connection):
     assert a1.foo == a2.foo
     assert a1.id != a2.id
     assert a1 != a2
+
+
+def test_reset_simple_value(sheraf_database):
+    class M(sheraf.AutoModel):
+        foo = sheraf.SimpleAttribute(default=None)
+
+    with sheraf.connection(commit=True):
+        m = M.create(foo="foo")
+        mid = m.id
+        assert "foo" == m.foo
+
+    with sheraf.connection():
+        m = M.read(mid)
+        assert "foo" == m.foo
+        m.reset("foo")
+        assert m.foo is None
+
+
+def test_reset_callable(sheraf_database):
+    class M(sheraf.AutoModel):
+        foo = sheraf.SimpleAttribute(default=lambda: None)
+
+    with sheraf.connection(commit=True):
+        m = M.create(foo="foo")
+        mid = m.id
+        assert "foo" == m.foo
+
+    with sheraf.connection():
+        m = M.read(mid)
+        assert "foo" == m.foo
+        m.reset("foo")
+        assert m.foo is None

@@ -289,6 +289,12 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
             attr.save(self)
         return self
 
+    def reset(self, attribute):
+        """
+        Resets an attribute to its default value.
+        """
+        self.__setattr__(attribute, self.attributes[attribute].create(self))
+
     def __ne__(self, other):
         return not self == other
 
