@@ -395,7 +395,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         Delete a model instance for a given index.
         """
         index_table = self._table(index_name=index.key)
-        for value in index.get_values(self):
+        for value in index.values_func(index.attribute.read(self)):
             # Suggestion: test a faire plus tot. Car si cette cond. est verifiee alors
             # c'est qu'on n'a pas fait d'indexation pour cause de compatibilite
             if value not in index_table:
@@ -415,8 +415,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
         index_table = self._table(index_name=index.key)
 
-        # TODO: Handle multiple indexes
-        for value in index.get_values(self):
+        for value in index.values_func(index.attribute.read(self)):
             if not index.unique:
                 index_list = index_table.setdefault(value, self.index_multiple_default())
                 index_list.append(self._persistent)
