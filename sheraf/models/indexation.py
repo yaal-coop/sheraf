@@ -352,32 +352,36 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     def __setattr__(self, name, value):
         attribute = self.attributes.get(name)
-        indexes = [index for index in attribute.indexes.values()] if attribute else []
-        is_first_instance = self.count() <= 1
-        is_created = self._persistent is not None and self.primary_key in self._persistent
+        if attribute:
+            is_first_instance = self.count() <= 1
+            is_created = self._persistent is not None and self.primary_key in self._persistent
 
-        for index in indexes:
-            index_table_exists = self.index_table_initialized(index.key)
-            is_indexable = is_first_instance or index_table_exists
-            index.should_update_index = is_created and is_indexable and not index.primary
+            for index in attribute.indexes.values():
+                index_table_exists = self.index_table_initialized(index.key)
+                is_indexable = is_first_instance or index_table_exists
+                index.should_update_index = is_created and is_indexable and not index.primary
 
-            if not is_indexable:
-                warnings.warn(
-                    "New index in an already populated table. %s.%s will not be indexed. "
-                    'Consider calling %s.reset_indexes(["%s"]) to initialize the indexation table.'
-                    % (self.__class__.__name__, name, self.__class__.__name__, name,),
-                    sheraf.exceptions.IndexationWarning,
-                    stacklevel=4,
-                )
+                if not is_indexable:
+                    warnings.warn(
+                        "New index in an already populated table. %s.%s will not be indexed. "
+                        'Consider calling %s.reset_indexes(["%s"]) to initialize the indexation table.'
+                        % (self.__class__.__name__, name, self.__class__.__name__, name,),
+                        sheraf.exceptions.IndexationWarning,
+                        stacklevel=4,
+                    )
 
-            if index.should_update_index:
-                self.delete_index(index)
+                if not index.should_update_index:
+                    continue
+
+                old_values = index.values_func(index.attribute.read(self))
+                new_values = index.values_func(value)
+                del_values = old_values - new_values
+                add_values = new_values - old_values
+
+                self.delete_index(index, del_values)
+                self.update_index(index, add_values)
 
         super().__setattr__(name, value)
-
-        for index in indexes:
-            if index.should_update_index:
-                self.update_index(index)
 
     @property
     def indexes(self):
@@ -390,39 +394,55 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         """
         return self.__class__.primary_key
 
-    def delete_index(self, index):
+    def delete_index(self, index, keys=None):
         """
-        Delete a model instance for a given index.
+        Delete model instances from a given index .
+
+        :param index: The index where the instances should be removed.
+        :param keys: The keys to remove from the index. If :class:`None`, all
+                     the current values of the index for the current model
+                     are removed.
         """
+        if not keys:
+            keys = index.values_func(index.attribute.read(self))
+
         index_table = self._table(index_name=index.key)
-        for value in index.values_func(index.attribute.read(self)):
-            # Suggestion: test a faire plus tot. Car si cette cond. est verifiee alors
-            # c'est qu'on n'a pas fait d'indexation pour cause de compatibilite
-            if value not in index_table:
+
+        for key in keys:
+            if key not in index_table:
                 continue
 
             if index.unique:
-                del index_table[value]
+                del index_table[key]
             else:
-                index_table[value].remove(self._persistent)
-                if len(index_table[value]) == 0:
-                    del index_table[value]
+                index_table[key].remove(self._persistent)
+                if len(index_table[key]) == 0:
+                    del index_table[key]
 
-    def update_index(self, index):
+
+    def update_index(self, index, keys=None):
         """
-        Creates or updates the model instance for a given index.
+        Sets model instances from a given index .
+
+        :param index: The index where the instances should be set.
+        :param keys: The keys to set in the index. If :class:`None`, all
+                     the current values of the index for the current model
+                     are set.
         """
+        if not keys:
+            keys = index.values_func(index.attribute.read(self))
 
         index_table = self._table(index_name=index.key)
 
-        for value in index.values_func(index.attribute.read(self)):
+        for key in keys:
             if not index.unique:
-                index_list = index_table.setdefault(value, self.index_multiple_default())
+                index_list = index_table.setdefault(key, self.index_multiple_default())
                 index_list.append(self._persistent)
             else:
-                if value in index_table:
+                if key in index_table:
                     raise sheraf.exceptions.UniqueIndexException
-                index_table[value] = self._persistent
+                index_table[key] = self._persistent
+
 
     @property
     def identifier(self):
