@@ -340,7 +340,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
             return keys
 
     @classmethod
-    def _table(cls, database_name=None, setdefault=True):
+    def index_table(cls, database_name=None, setdefault=True):
         database_name = (
             database_name or cls.database_name or cls._current_database_name()
         )
@@ -360,22 +360,21 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
             if not setdefault:
                 raise
 
-        return index_root.setdefault(cls.primary_key, cls._table_default())
-
+        return index_root.setdefault(cls.primary_key, cls.index_table_default())
 
     @classmethod
-    def _table_default(cls):
+    def index_table_default(cls):
         return sheraf.types.LargeDict()
 
     @classmethod
-    def _tables(cls, database_name=None):
+    def index_tables(cls, database_name=None):
         tables = []
         for db_name in (database_name, cls.database_name, cls._current_database_name()):
             if not db_name:
                 continue
 
             try:
-                tables.append(cls._table(db_name, False))
+                tables.append(cls.index_table(db_name, False))
             except KeyError:
                 continue
 
@@ -383,36 +382,36 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def index_contains(cls, key):
-        return any(key in table for table in cls._tables())
+        return any(key in table for table in cls.index_tables())
 
     @classmethod
     def index_getitem(cls, key):
         if cls.database_name:
             try:
-                return cls._table(cls.database_name)[key]
+                return cls.index_table(cls.database_name)[key]
             except KeyError:
                 pass
-        return cls._table(cls._current_database_name())[key]
+        return cls.index_table(cls._current_database_name())[key]
 
     @classmethod
     def index_setitem(cls, key, value):
-        cls._table()[key] = value
+        cls.index_table()[key] = value
 
     @classmethod
     def index_iterkeys(cls, reverse=False):
         return itertools.chain.from_iterable(
-            cls._table_iterkeys(table, reverse=reverse) for table in cls._tables()
+            cls._table_iterkeys(table, reverse=reverse) for table in cls.index_tables()
         )
 
     @classmethod
     def index_delete(cls, key):
         if cls.database_name:
             try:
-                del cls._table(cls.database_name)[key]
+                del cls.index_table(cls.database_name)[key]
                 return
             except KeyError:
                 pass
-        del cls._table(sheraf.Database.current_name())[key]
+        del cls.index_table(sheraf.Database.current_name())[key]
 
     @classmethod
     def create(cls, *args, **kwargs):
@@ -432,7 +431,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
         Using this method is faster than using ``len(MyModel.all())``.
         """
-        return sum(len(table) for table in cls._tables())
+        return sum(len(table) for table in cls.index_tables())
 
 
 class UUIDIndexedModel:
@@ -485,7 +484,7 @@ class IntIndexedModel:
     )
 
     @classmethod
-    def _table_default(cls):
+    def index_table_default(cls):
         return BTrees.LOBTree.LOBTree()
 
 
