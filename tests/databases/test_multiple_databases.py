@@ -66,20 +66,18 @@ def test_default_database(sheraf_database, other_nested_database):
     class MyModel(sheraf.AutoModel):
         anything = sheraf.SimpleAttribute(lazy_creation=False)
 
-    with sheraf.connection(
-        database_name=sheraf.Database.DEFAULT_DATABASE_NAME, commit=True
-    ):
+    with sheraf.connection(sheraf.Database.DEFAULT_DATABASE_NAME, commit=True):
         m1 = MyModel.create()
 
-    with sheraf.connection(database_name="other_nested_database", commit=True):
+    with sheraf.connection("other_nested_database", commit=True):
         m2 = MyModel.create()
 
-    with sheraf.connection(database_name=sheraf.Database.DEFAULT_DATABASE_NAME):
+    with sheraf.connection(sheraf.Database.DEFAULT_DATABASE_NAME):
         assert MyModel.read(m1.id)
         with pytest.raises(ObjectNotFoundException):
             MyModel.read(m2.id)
 
-    with sheraf.connection(database_name="other_nested_database"):
+    with sheraf.connection("other_nested_database"):
         assert MyModel.read(m2.id)
         with pytest.raises(ObjectNotFoundException):
             MyModel.read(m1.id)
