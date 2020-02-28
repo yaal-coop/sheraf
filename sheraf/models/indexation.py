@@ -299,7 +299,8 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     Those models are stored at the root of the database. They must
     have a **table** parameter defined and an **id** attribute.
 
-    They can have a **database_name** attribute. If it is set, then:
+    They can have a **database_name** attribute. If it is set, then in a
+    default connection context:
 
     - :func:`~sheraf.models.indexation.IndexedModel.create` will store the\
     new model instances in this database;
@@ -308,6 +309,10 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     priority in this database, and then in the default database.
     - :func:`~sheraf.models.indexation.IndexedModel.delete` will try to delete\
     the model from this database, and by default in the default database.
+
+    However, if a **database_name** is explicitly passed to
+    :func:`sheraf.databases.connection`, then every action will be
+    performed on this database, ignoring the model **database_name** attribute.
     """
 
     database_name = None
@@ -340,8 +345,17 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
             database_name or cls.database_name or cls._current_database_name()
         )
         _root = sheraf.Database.current_connection(database_name).root()
-        index_root = _root.setdefault(cls.table, cls.index_root_default())
-        return index_root.setdefault(cls.primary_key, cls._table_default())
+
+        try:
+            index_root = _root[cls.table]
+        except KeyError:
+            index_root = _root.setdefault(cls.table, cls.index_root_default())
+
+        try:
+            return index_root[cls.primary_key]
+        except KeyError:
+            return index_root.setdefault(cls.primary_key, cls._table_default())
+
 
     @classmethod
     def _table_default(cls):
