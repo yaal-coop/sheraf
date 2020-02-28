@@ -178,6 +178,11 @@ def test_database_retrocompatibility(sheraf_database):
 
 
 def test_make_id_with_two_databases(sheraf_database):
+    sheraf.Database("memory://?database_name=db2")
+
+    class MyModel(sheraf.AutoModel):
+        inline_model = sheraf.InlineModelAttribute(MyInlineModel)
+
     class ModelWithProposeId(MyModel):
         table = "modelwithproposeid"
         id = sheraf.IntegerAttribute(default=lambda m: m.count())
@@ -188,15 +193,25 @@ def test_make_id_with_two_databases(sheraf_database):
         assert m0.id == 0
         assert m1.id == 1
 
-    ModelWithProposeId.current_id = -1
-    sheraf.Database("memory://?database_name=db2")
+    class MyModel(sheraf.AutoModel):
+        database_name = "db2"
+        inline_model = sheraf.InlineModelAttribute(MyInlineModel)
 
-    with mock.patch(__name__ + ".MyModel.database_name", "db2"):
-        with sheraf.connection():
-            m2 = ModelWithProposeId.create()
-            m3 = ModelWithProposeId.create()
-            assert m2.id == 2
-            assert m3.id == 3
+    class ModelWithProposeId(MyModel):
+        table = "modelwithproposeid"
+        id = sheraf.IntegerAttribute(default=lambda m: m.count())
+
+    with sheraf.connection() as conn:
+        root1 = conn.root()
+        root2 = conn.get_connection("db2").root()
+
+        m2 = ModelWithProposeId.create()
+        m3 = ModelWithProposeId.create()
+        assert m2.id == 2
+        assert m3.id == 3
+
+        assert root1["modelwithproposeid"]["id"][m1.id] is m1._persistent
+        assert root2["modelwithproposeid"]["id"][m2.id] is m2._persistent
 
     sheraf.Database.get("db2").close()
 
