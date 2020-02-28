@@ -8,7 +8,6 @@ def db2(request):
     database = None
     try:
         database = sheraf.Database("memory://?database_name=db2")
-
         yield database
 
     finally:
@@ -16,24 +15,36 @@ def db2(request):
             database.close()
 
 
-class MyInlineModel(sheraf.InlineModel):
-    pass
+def test_model_create_in_default_connection(sheraf_database, db2):
+    class MyModel(sheraf.AutoModel):
+        pass
 
+    class MyDefaultModel(sheraf.AutoModel):
+        database_name = "unnamed"
 
-class MyModel(sheraf.AutoModel):
-    inline_model = sheraf.InlineModelAttribute(MyInlineModel)
+    class MyDB2Model(sheraf.AutoModel):
+        database_name = "db2"
 
-
-def test_two_databases_and_model_in_default_database(sheraf_database, db2):
-    with sheraf.connection(commit=True):
+    with sheraf.connection(commit=True) as connection:
+        rootd = connection.root()
         m = MyModel.create()
+        md = MyDefaultModel.create()
+        m2 = MyDB2Model.create()
 
     with sheraf.connection() as connection:
-        assert connection.root()[MyModel.table]["id"][m.id] is m._persistent
-        assert MyModel.table not in connection.get_connection("db2").root()
+        rootd = connection.root()
+        root2 = connection.get_connection("db2").root()
+
+        assert m.id in rootd[MyModel.table]["id"]
+        assert md.id in rootd[MyDefaultModel.table]["id"]
+        assert m2.id in root2[MyDB2Model.table]["id"]
+
+        assert MyModel.table not in root2
+        assert MyDefaultModel.table not in root2
+        assert MyDB2Model.table not in rootd
 
 
-def test_two_databases_and_model_with_database_name_specified(sheraf_database, db2):
+def test_model_with_database_name_specified(sheraf_database, db2):
     class Db2Model(sheraf.AutoModel):
         database_name = "db2"
 
@@ -61,14 +72,13 @@ def test_database_retrocompatibility(sheraf_database, db2):
     """
 
     class MyModel(sheraf.AutoModel):
-        inline_model = sheraf.InlineModelAttribute(MyInlineModel)
+        pass
 
     with sheraf.connection(commit=True):
         m1 = MyModel.create()
 
     class MyModel(sheraf.AutoModel):
         database_name = "db2"
-        inline_model = sheraf.InlineModelAttribute(MyInlineModel)
 
     with sheraf.connection() as connection:
         root1 = connection.root()
@@ -86,9 +96,9 @@ def test_database_retrocompatibility(sheraf_database, db2):
         assert MyModel.count() == 1
 
 
-def test_make_id_with_two_databases(sheraf_database, db2):
+def test_make_id(sheraf_database, db2):
     class MyModel(sheraf.AutoModel):
-        inline_model = sheraf.InlineModelAttribute(MyInlineModel)
+        pass
 
     class ModelWithProposeId(MyModel):
         table = "modelwithproposeid"
@@ -102,7 +112,6 @@ def test_make_id_with_two_databases(sheraf_database, db2):
 
     class MyModel(sheraf.AutoModel):
         database_name = "db2"
-        inline_model = sheraf.InlineModelAttribute(MyInlineModel)
 
     class ModelWithProposeId(MyModel):
         table = "modelwithproposeid"

@@ -340,21 +340,27 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
             return keys
 
     @classmethod
-    def _table(cls, database_name=None):
+    def _table(cls, database_name=None, setdefault=True):
         database_name = (
             database_name or cls.database_name or cls._current_database_name()
         )
-        _root = sheraf.Database.current_connection(database_name).root()
+        root = sheraf.Database.current_connection(database_name).root()
 
         try:
-            index_root = _root[cls.table]
+            index_root = root[cls.table]
         except KeyError:
-            index_root = _root.setdefault(cls.table, cls.index_root_default())
+            if not setdefault:
+                raise
+
+            index_root = root.setdefault(cls.table, cls.index_root_default())
 
         try:
             return index_root[cls.primary_key]
         except KeyError:
-            return index_root.setdefault(cls.primary_key, cls._table_default())
+            if not setdefault:
+                raise
+
+        return index_root.setdefault(cls.primary_key, cls._table_default())
 
 
     @classmethod
@@ -362,12 +368,18 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
         return sheraf.types.LargeDict()
 
     @classmethod
-    def _tables(cls):
-        return (
-            cls._table(db_name)
-            for db_name in (cls.database_name, cls._current_database_name())
-            if db_name
-        )
+    def _tables(cls, database_name=None):
+        tables = []
+        for db_name in (database_name, cls.database_name, cls._current_database_name()):
+            if not db_name:
+                continue
+
+            try:
+                tables.append(cls._table(db_name, False))
+            except KeyError:
+                continue
+
+        return tables
 
     @classmethod
     def index_contains(cls, key):
