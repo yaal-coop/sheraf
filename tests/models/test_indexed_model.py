@@ -99,6 +99,7 @@ def test_all(sheraf_database):
 def test_single_database(sheraf_database):
     with sheraf.connection(commit=True):
         m = MyModel.create()
+
     with sheraf.connection() as connection:
         assert connection.root()[MyModel.table]["id"][m.id] is m._persistent
 
@@ -111,6 +112,7 @@ def test_two_databases_and_model_in_default_database(sheraf_database):
     with sheraf.connection() as connection:
         assert connection.root()[MyModel.table]["id"][m.id] is m._persistent
         assert MyModel.table not in connection.get_connection("db2").root()
+
     sheraf.Database.get("db2").close()
 
 
@@ -122,32 +124,56 @@ def test_two_databases_and_model_with_database_name_specified(sheraf_database):
 
     with sheraf.connection(commit=True):
         m = Db2Model.create()
+
     with sheraf.connection() as connection:
         assert m.id not in connection.root().get(Db2Model.table, {})
+
         connection_2 = connection.get_connection("db2")
         assert connection_2.root()[Db2Model.table]["id"][m.id] is m._persistent
         assert Db2Model.read(m.id) == m
         assert Db2Model.count() == 1
         assert Db2Model.all() == [m]
+
         m.delete()
         assert m.id not in connection_2.root()[Db2Model.table]["id"]
+        assert Db2Model.count() == 0
+
     sheraf.Database.get("db2").close()
 
 
 def test_database_retrocompatibility(sheraf_database):
+    """
+    When a model is assigned a new database. We should still
+    be able to delete instances created in the old database.
+    """
+
+    sheraf.Database("memory://?database_name=db2")
+
+    class MyModel(sheraf.AutoModel):
+        inline_model = sheraf.InlineModelAttribute(MyInlineModel)
+
     with sheraf.connection(commit=True):
         m1 = MyModel.create()
-    sheraf.Database("memory://?database_name=db2")
-    with mock.patch(__name__ + ".MyModel.database_name", "db2"):
-        with sheraf.connection() as connection:
-            m2 = MyModel.create()
-            assert connection.root()[MyModel.table]["id"][m1.id] is m1._persistent
-            assert m1.id not in connection.get_connection("db2").root()[MyModel.table]
-            assert m1._persistent == MyModel.read(m1.id)._persistent
-            assert MyModel.count() == 2
-            assert set(MyModel.all()) == {m1, m2}
-            m1.delete()
-            assert m1.id not in connection.root()[MyModel.table]["id"]
+
+    class MyModel(sheraf.AutoModel):
+        database_name = "db2"
+        inline_model = sheraf.InlineModelAttribute(MyInlineModel)
+
+    with sheraf.connection() as connection:
+        root1 = connection.root()
+        root2 = connection.get_connection("db2").root()
+
+        m2 = MyModel.create()
+        assert root1[MyModel.table]["id"][m1.id] is m1._persistent
+        assert m1.id not in root2[MyModel.table]["id"]
+        assert m1._persistent == MyModel.read(m1.id)._persistent
+        assert MyModel.count() == 2
+        assert set(MyModel.all()) == {m1, m2}
+
+        m1.delete()
+        assert m1.id not in root1[MyModel.table]["id"]
+        assert MyModel.count() == 1
+
     sheraf.Database.get("db2").close()
 
 
