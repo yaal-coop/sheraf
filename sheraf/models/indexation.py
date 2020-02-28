@@ -379,7 +379,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 del_values = old_values - new_values
                 add_values = new_values - old_values
 
-                self.delete_index(index, del_values)
+                self.index_del(index, del_values)
                 self.update_index(index, add_values)
 
         super().__setattr__(name, value)
@@ -395,7 +395,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         """
         return self.__class__.primary_key
 
-    def delete_index(self, index, keys=None):
+    def index_del(self, index, keys=None):
         """
         Delete model instances from a given index .
 
@@ -477,12 +477,12 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         sheraf.exceptions.ModelObjectNotFoundException: Id '...' not found in MyModel
         """
         for index in self.indexes.values():
-            self.delete_index(index)
+            self.index_del(index)
 
         for attr in self.attributes.values():
             attr.delete(self)
 
-        # TODO: this should be done in 'delete_index'
+        # TODO: this should be done in 'index_del'
         try:
             self.index_delete(self.identifier)
         except KeyError:
