@@ -257,7 +257,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 continue
 
             try:
-                cls._delete_index_table(index)
+                cls.index_root_del(index)
             except KeyError:
                 pass
 
@@ -627,7 +627,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
         return root.get(cls.table)
 
     @classmethod
-    def _delete_index_table(cls, index_name):
+    def index_root_del(cls, index_name):
         del cls.index_root()[index_name]
 
     @classmethod
