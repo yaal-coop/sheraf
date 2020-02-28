@@ -136,7 +136,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             else:
                 warnings.warn(
                     "New index in an already populated table. %s.%s will not be indexed. "
-                    'Consider calling %s.reset_indexes(["%s"]) to initialize the indexation table.'
+                    'Consider calling %s.index_table_rebuild(["%s"]) to initialize the indexation table.'
                     % (cls.__name__, index.key, cls.__name__, index.key,),
                     sheraf.exceptions.IndexationWarning,
                     stacklevel=2,
@@ -232,7 +232,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             raise sheraf.exceptions.ModelObjectNotFoundException(cls, key, index_name)
 
     @classmethod
-    def reset_indexes(cls, index_names=None):
+    def index_table_rebuild(cls, index_names=None):
         """
         Resets a model indexation tables.
 
@@ -240,7 +240,8 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         populated database.
 
         :param index_names: A list of index names to reset. If `None`, all the
-                            indexes will be reseted.
+                            indexes will be reseted. The primary index cannot be
+                            resetted.
         """
         if not index_names:
             indexes = cls.indexes.values()
@@ -364,7 +365,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 if not is_indexable:
                     warnings.warn(
                         "New index in an already populated table. %s.%s will not be indexed. "
-                        'Consider calling %s.reset_indexes(["%s"]) to initialize the indexation table.'
+                        'Consider calling %s.index_table_rebuild(["%s"]) to initialize the indexation table.'
                         % (self.__class__.__name__, name, self.__class__.__name__, name,),
                         sheraf.exceptions.IndexationWarning,
                         stacklevel=4,
@@ -419,7 +420,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 if len(index_table[key]) == 0:
                     del index_table[key]
 
-
     def update_index(self, index, keys=None):
         """
         Sets model instances from a given index .
@@ -442,7 +442,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 if key in index_table:
                     raise sheraf.exceptions.UniqueIndexException
                 index_table[key] = self._persistent
-
 
     @property
     def identifier(self):

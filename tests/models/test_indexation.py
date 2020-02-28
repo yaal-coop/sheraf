@@ -410,7 +410,7 @@ def test_reset_index_table(sheraf_database):
             assert warns[0].category is sheraf.exceptions.IndexationWarning
 
     with sheraf.connection(commit=True):
-        MyModel.reset_indexes(["foo"])
+        MyModel.index_table_rebuild(["foo"])
 
     with sheraf.connection(commit=True):
         assert 3 == MyModel.count()
@@ -420,7 +420,7 @@ def test_reset_index_table(sheraf_database):
             assert not warns
 
 
-def test_reset_indexes(sheraf_database):
+def test_index_table_rebuild(sheraf_database):
     class MyModel(sheraf.AutoModel):
         foo = sheraf.SimpleAttribute()
         bar = sheraf.SimpleAttribute()
@@ -440,7 +440,7 @@ def test_reset_indexes(sheraf_database):
             assert warns[1].category is sheraf.exceptions.IndexationWarning
 
     with sheraf.connection(commit=True):
-        MyModel.reset_indexes()
+        MyModel.index_table_rebuild()
 
     with sheraf.connection(commit=True):
         assert 3 == MyModel.count()

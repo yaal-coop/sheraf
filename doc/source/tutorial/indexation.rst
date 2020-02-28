@@ -231,12 +231,12 @@ Sheraf provides tools to check the health of your model tables. So now, let us c
 
 
 
-You can see here that the indexation table *name* is absent. You can call :func:`~sheraf.models.indexation.IndexedModel.reset_indexes` to create and populate it.
+You can see here that the indexation table *name* is absent. You can call :func:`~sheraf.models.indexation.IndexedModel.index_table_rebuild` to create and populate it.
 
 .. code-block:: python
 
     >>> with sheraf.connection(commit=True):
-    ...     Cowboy.reset_indexes(["name"])
+    ...     Cowboy.index_table_rebuild(["name"])
 
 Now that your index table is created and filled, you won't be bothered by an :class:`~sheraf.exceptions.IndexationWarning` anymore.
 
