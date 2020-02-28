@@ -355,18 +355,27 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         attribute = self.attributes.get(name)
         if attribute:
             is_first_instance = self.count() <= 1
-            is_created = self._persistent is not None and self.primary_key in self._persistent
+            is_created = (
+                self._persistent is not None and self.primary_key in self._persistent
+            )
 
             for index in attribute.indexes.values():
                 index_table_exists = self.index_table_initialized(index.key)
                 is_indexable = is_first_instance or index_table_exists
-                index.should_index_set = is_created and is_indexable and not index.primary
+                index.should_index_set = (
+                    is_created and is_indexable and not index.primary
+                )
 
                 if not is_indexable:
                     warnings.warn(
                         "New index in an already populated table. %s.%s will not be indexed. "
                         'Consider calling %s.index_table_rebuild(["%s"]) to initialize the indexation table.'
-                        % (self.__class__.__name__, name, self.__class__.__name__, name,),
+                        % (
+                            self.__class__.__name__,
+                            name,
+                            self.__class__.__name__,
+                            name,
+                        ),
                         sheraf.exceptions.IndexationWarning,
                         stacklevel=4,
                     )
@@ -397,7 +406,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     def index_del(self, index, keys=None):
         """
-        Delete model instances from a given index .
+        Delete model instances from a given index.
 
         :param index: The index where the instances should be removed.
         :param keys: The keys to remove from the index. If :class:`None`, all
@@ -414,11 +423,17 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 continue
 
             if index.unique:
-                del index_table[key]
+                self._index_table_del_unique(index_table, key, self._persistent)
             else:
-                index_table[key].remove(self._persistent)
-                if len(index_table[key]) == 0:
-                    del index_table[key]
+                self._index_table_del_multiple(index_table, key, self._persistent)
+
+    def _index_table_del_unique(self, index_table, key, value):
+        del index_table[key]
+
+    def _index_table_del_multiple(self, index_table, key, value):
+        index_table[key].remove(value)
+        if len(index_table[key]) == 0:
+            del index_table[key]
 
     def index_set(self, index, keys=None):
         """
@@ -435,13 +450,19 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         index_table = self.index_table(index_name=index.key)
 
         for key in keys:
-            if not index.unique:
-                index_list = index_table.setdefault(key, self.index_multiple_default())
-                index_list.append(self._persistent)
+            if index.unique:
+                self._index_table_set_unique(index_table, key, self._persistent)
             else:
-                if key in index_table:
-                    raise sheraf.exceptions.UniqueIndexException
-                index_table[key] = self._persistent
+                self._index_table_set_multiple(index_table, key, self._persistent)
+
+    def _index_table_set_unique(self, index_table, key, value):
+        if key in index_table:
+            raise sheraf.exceptions.UniqueIndexException
+        index_table[key] = value
+
+    def _index_table_set_multiple(self, index_table, key, value):
+        index_list = index_table.setdefault(key, self.index_multiple_default())
+        index_list.append(value)
 
     @property
     def identifier(self):
@@ -554,21 +575,13 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def index_table(cls, database_name=None, index_name=None):
-        database_name = (
-            database_name or cls.database_name or cls._current_database_name()
-        )
-        root = sheraf.Database.current_connection(database_name).root()
-
         if index_name in (None, cls.primary_key):
             mapping = cls._table_default
             index_name = cls.primary_key
         else:
             mapping = cls._indexes[index_name].mapping
 
-        try:
-            index_root = root[cls.table]
-        except KeyError:
-            index_root = root.setdefault(cls.table, sheraf.types.SmallDict())
+        index_root = cls.index_root(database_name)
 
         try:
             return index_root[index_name]
@@ -588,47 +601,53 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
         )
 
     @classmethod
-    def index_contains(cls, model_id, index_name=None):
-        return any(model_id in table for table in cls._index_tables(index_name))
+    def index_contains(cls, key, index_name=None):
+        return any(key in index_table for index_table in cls._index_tables(index_name))
 
     @classmethod
     def index_getitem(cls, key, index_name=None):
-        if cls.database_name:
+        last_exc = None
+        for index_table in cls._index_tables(index_name):
             try:
-                return cls.index_table(cls.database_name, index_name)[key]
-            except KeyError:
-                pass
-        return cls.index_table(cls._current_database_name(), index_name)[key]
+                return index_table[key]
+            except KeyError as exc:
+                last_exc = exc
+        raise last_exc
 
     @classmethod
-    def index_setitem(cls, key, value):
-        cls.index_table()[key] = value
+    def index_setitem(cls, key, value, index_name=None):
+        cls.index_table(index_name)[key] = value
 
     @classmethod
     def index_iterkeys(cls, reverse=False, index_name=None):
         return itertools.chain.from_iterable(
-            cls._table_iterkeys(table, reverse) for table in cls._index_tables(index_name)
+            cls._table_iterkeys(table, reverse)
+            for table in cls._index_tables(index_name)
         )
 
     @classmethod
     def index_delete(cls, key, index_name=None):
-        if cls.database_name:
+        for index_table in cls._index_tables():
             try:
-                del cls.index_table(cls.database_name, index_name)[key]
-                return
+                del index_table[key]
             except KeyError:
                 pass
-        del cls.index_table(sheraf.Database.current_name(), index_name)[key]
 
     @classmethod
     def index_root(cls, database_name=None):
-        database_name = database_name or cls.database_name or cls._current_database_name()
+        database_name = (
+            database_name or cls.database_name or cls._current_database_name()
+        )
         root = sheraf.Database.current_connection(database_name).root()
-        return root.get(cls.table)
+
+        try:
+            return root[cls.table]
+        except KeyError:
+            return root.setdefault(cls.table, sheraf.types.SmallDict())
 
     @classmethod
-    def index_root_del(cls, index_name):
-        del cls.index_root()[index_name]
+    def index_root_del(cls, index_name, database_name=None):
+        del cls.index_root(database_name)[index_name]
 
     @classmethod
     def create(cls, *args, **kwargs):
