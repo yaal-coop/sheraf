@@ -407,7 +407,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         if not keys:
             keys = index.values_func(index.attribute.read(self))
 
-        index_table = self._table(index_name=index.key)
+        index_table = self.index_table(index_name=index.key)
 
         for key in keys:
             if key not in index_table:
@@ -432,7 +432,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         if not keys:
             keys = index.values_func(index.attribute.read(self))
 
-        index_table = self._table(index_name=index.key)
+        index_table = self.index_table(index_name=index.key)
 
         for key in keys:
             if not index.unique:
@@ -553,7 +553,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
             return keys
 
     @classmethod
-    def _table(cls, database_name=None, index_name=None):
+    def index_table(cls, database_name=None, index_name=None):
         database_name = (
             database_name or cls.database_name or cls._current_database_name()
         )
@@ -582,7 +582,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     @classmethod
     def _tables(cls, index_name=None):
         return (
-            cls._table(db_name, index_name)
+            cls.index_table(db_name, index_name)
             for db_name in (cls.database_name, cls._current_database_name())
             if db_name
         )
@@ -595,14 +595,14 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     def index_getitem(cls, key, index_name=None):
         if cls.database_name:
             try:
-                return cls._table(cls.database_name, index_name)[key]
+                return cls.index_table(cls.database_name, index_name)[key]
             except KeyError:
                 pass
-        return cls._table(cls._current_database_name(), index_name)[key]
+        return cls.index_table(cls._current_database_name(), index_name)[key]
 
     @classmethod
     def index_setitem(cls, key, value):
-        cls._table()[key] = value
+        cls.index_table()[key] = value
 
     @classmethod
     def index_iterkeys(cls, reverse=False, index_name=None):
@@ -614,11 +614,11 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     def index_delete(cls, key, index_name=None):
         if cls.database_name:
             try:
-                del cls._table(cls.database_name, index_name)[key]
+                del cls.index_table(cls.database_name, index_name)[key]
                 return
             except KeyError:
                 pass
-        del cls._table(sheraf.Database.current_name(), index_name)[key]
+        del cls.index_table(sheraf.Database.current_name(), index_name)[key]
 
     @classmethod
     def index_root(cls, database_name=None):
