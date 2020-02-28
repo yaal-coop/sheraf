@@ -132,7 +132,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         model = super().create(*args, **kwargs)
         for index in model.indexes.values():
             if cls.count() == 0 or cls.index_table_initialized(index.key):
-                model.update_index(index)
+                model.index_set(index)
             else:
                 warnings.warn(
                     "New index in an already populated table. %s.%s will not be indexed. "
@@ -264,7 +264,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         for m in cls.all():
             for index in indexes:
                 if not index.primary:
-                    m.update_index(index)
+                    m.index_set(index)
 
     @classmethod
     def filter(cls, predicate=None, **kwargs):
@@ -360,7 +360,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             for index in attribute.indexes.values():
                 index_table_exists = self.index_table_initialized(index.key)
                 is_indexable = is_first_instance or index_table_exists
-                index.should_update_index = is_created and is_indexable and not index.primary
+                index.should_index_set = is_created and is_indexable and not index.primary
 
                 if not is_indexable:
                     warnings.warn(
@@ -371,7 +371,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                         stacklevel=4,
                     )
 
-                if not index.should_update_index:
+                if not index.should_index_set:
                     continue
 
                 old_values = index.values_func(index.attribute.read(self))
@@ -380,7 +380,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 add_values = new_values - old_values
 
                 self.index_del(index, del_values)
-                self.update_index(index, add_values)
+                self.index_set(index, add_values)
 
         super().__setattr__(name, value)
 
@@ -420,7 +420,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 if len(index_table[key]) == 0:
                     del index_table[key]
 
-    def update_index(self, index, keys=None):
+    def index_set(self, index, keys=None):
         """
         Sets model instances from a given index .
 
