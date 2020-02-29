@@ -120,9 +120,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         """
 
         model = super().create(*args, **kwargs)
-        is_first = cls.count() == 0
+        first_instance = not cls.index_root_initialized()
         for index in model.indexes.values():
-            if cls.index_table_initialized(index.key) or is_first:
+            if first_instance or cls.index_table_initialized(index.key):
                 model.index_set(index)
             else:
                 warnings.warn(
@@ -653,12 +653,15 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
                 pass
 
     @classmethod
-    def index_root(cls, database_name=None, setdefault=True):
+    def database_root(cls, database_name=None):
         database_name = (
             database_name or cls.database_name or cls._current_database_name()
         )
-        root = sheraf.Database.current_connection(database_name).root()
+        return sheraf.Database.current_connection(database_name).root()
 
+    @classmethod
+    def index_root(cls, database_name=None, setdefault=True):
+        root = cls.database_root(database_name)
         try:
             return root[cls.table]
         except KeyError:
@@ -669,6 +672,17 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     @classmethod
     def index_root_del(cls, index_name, database_name=None):
         del cls.index_root(database_name)[index_name]
+
+    @classmethod
+    def index_root_initialized(cls, database_name=None):
+        for db_name in (database_name, cls.database_name, cls._current_database_name()):
+            if not db_name:
+                continue
+
+            if cls.table in cls.database_root(db_name):
+                return True
+
+        return False
 
     @classmethod
     def index_table_initialized(cls, index_name, database_name=None):
