@@ -3,9 +3,9 @@
 Several models are availables.
 """
 
+import uuid
 import random
 import sys
-import uuid
 
 import BTrees
 

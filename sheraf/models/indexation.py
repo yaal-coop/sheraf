@@ -536,7 +536,22 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     """
     Top-level indexed models.
     Those models are stored at the root of the database. They must
-    have a 'table' parameter defined and an 'id' attribute.
+    have a **table** parameter defined and an **id** attribute.
+
+    They can have a **database_name** attribute. If it is set, then in a
+    default connection context:
+
+    - :func:`~sheraf.models.indexation.IndexedModel.create` will store the\
+    new model instances in this database;
+    - :func:`~sheraf.models.indexation.IndexedModel.read` and\
+    :func:`~sheraf.models.indexation.IndexedModel.all` (etc.) will read in\
+    priority in this database, and then in the default database.
+    - :func:`~sheraf.models.indexation.IndexedModel.delete` will try to delete\
+    the model from this database, and by default in the default database.
+
+    However, if a **database_name** is explicitly passed to
+    :func:`sheraf.databases.connection`, then every action will be
+    performed on this database, ignoring the model **database_name** attribute.
     """
 
     database_name = None
@@ -595,7 +610,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
             try:
                 tables.append(cls.index_table(db_name, index_name, False))
             except KeyError:
-                pass
+                continue
 
         return tables
 
