@@ -54,10 +54,12 @@ from .models import (
     AutoModel,
     IntAutoModel,
     IntIndexedIntAttributesModel,
+    IntIndexedModel,
     IntIndexedNamedAttributesModel,
     IntOrderedNamedAttributesModel,
     Model,
     UUIDIndexedDatedNamedAttributesModel,
+    UUIDIndexedModel,
     UUIDIndexedNamedAttributesModel,
 )
 from .models.attributes import (
@@ -69,8 +71,6 @@ from .models.base import BaseModel
 from .models.indexation import (
     BaseIndexedModel,
     IndexedModel,
-    IntIndexedModel,
-    UUIDIndexedModel,
 )
 from .models.inline import InlineModel
 from .queryset import QuerySet
