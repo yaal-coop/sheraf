@@ -3,13 +3,96 @@
 Several models are availables.
 """
 
+import random
+import sys
+import uuid
+
+import BTrees
+
 from .attributes import (
     DatedNamedAttributesModel,
     IntAttributesModel,
     NamedAttributesModel,
 )
-from sheraf.attributes.simples import IntegerAttribute
-from .indexation import BaseAutoModel, IndexedModel, IntIndexedModel, UUIDIndexedModel
+from .indexation import IndexedModel, IndexedModelMetaclass
+from sheraf.attributes.simples import IntegerAttribute, StringUUIDAttribute
+
+
+class UUIDIndexedModel:
+    """Model using uuid4 as ids. Ids are stored as strings.
+
+    >>> class MyUUIDModel(sheraf.IntIndexedModel):
+    ...     table = "my_uuid_model"
+    ...
+    >>> with sheraf.connection():  # doctest: +SKIP
+    ...     MyIntModel.create().id
+    "e4bb714e-b5a8-40d6-bb69-ab3b932fbfe0"
+    """
+
+    def make_unique_id(self):
+        identifier = str(uuid.uuid4())
+        while self.index_contains(identifier):
+            identifier = str(uuid.uuid4())
+
+        return identifier
+
+    id = StringUUIDAttribute(default=lambda m: m.make_unique_id()).index(primary=True)
+
+
+class IntIndexedModel:
+    """Model using integers as ids.
+
+    By default ids are 64bits integers.
+
+    >>> class MyIntModel(sheraf.IntIndexedModel):
+    ...     table = "my_int_model"
+    ...
+    >>> with sheraf.connection():  # doctest: +SKIP
+    ...     MyIntModel.create().id
+    383428472384721983
+    """
+
+    MAX_INT = sys.maxsize
+
+    def make_unique_id(self):
+        identifier = random.randint(0, self.MAX_INT)
+        while self.index_contains(identifier):
+            identifier = random.randint(0, self.MAX_INT)
+
+        return identifier
+
+    id = IntegerAttribute(default=lambda m: m.make_unique_id()).index(primary=True)
+
+    @classmethod
+    def index_table_default(cls):
+        return BTrees.LOBTree.LOBTree()
+
+
+class BaseAutoModelMetaclass(IndexedModelMetaclass):
+    @property
+    def table(self):
+        return self.__name__.lower()
+
+
+class BaseAutoModel(metaclass=BaseAutoModelMetaclass):
+    """
+    :class:`~sheraf.models.indexation.BaseAutoModel` are regular
+    models which 'table' parameter automatically takes the
+    lowercase class name.
+    It should only be used with unit tests.
+
+    >>> class MyWonderfulClass(sheraf.AutoModel):
+    ...    pass
+    ...
+    >>> assert MyWonderfulClass.table == "mywonderfulclass"
+    >>> with sheraf.connection():
+    ...     m = MyWonderfulClass.create()
+    ...     assert m.table == "mywonderfulclass"
+    """
+
+    @property
+    def table(self):
+        return self.__class__.__name__.lower()
 
 
 class IntIndexedNamedAttributesModel(
