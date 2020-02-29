@@ -120,8 +120,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         """
 
         model = super().create(*args, **kwargs)
+        is_first = cls.count() == 0
         for index in model.indexes.values():
-            if cls.index_table_initialized(index.key) or cls.count() == 0:
+            if cls.index_table_initialized(index.key) or is_first:
                 model.index_set(index)
             else:
                 warnings.warn(
