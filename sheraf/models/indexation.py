@@ -119,11 +119,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             )
 
     @classmethod
-    def index_table_initialized(cls, index_name):
-        index_root = cls.index_root()
-        return index_root and index_name in index_root
-
-    @classmethod
     def create(cls, *args, **kwargs):
         """
         :return: an instance of this model
@@ -131,7 +126,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
         model = super().create(*args, **kwargs)
         for index in model.indexes.values():
-            if cls.count() == 0 or cls.index_table_initialized(index.key):
+            if cls.index_table_initialized(index.key) or cls.count() == 0:
                 model.index_set(index)
             else:
                 warnings.warn(
@@ -588,7 +583,8 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
         except KeyError:
             if not setdefault:
                 raise
-            return index_root.setdefault(index_name, mapping())
+
+        return index_root.setdefault(index_name, mapping())
 
     @classmethod
     def index_table_default(cls):
@@ -596,11 +592,17 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def _index_tables(cls, index_name=None):
-        return (
-            cls.index_table(db_name, index_name)
-            for db_name in (cls.database_name, cls._current_database_name())
-            if db_name
-        )
+        tables = []
+        for db_name in (cls.database_name, cls._current_database_name()):
+            if not db_name:
+                continue
+
+            try:
+                tables.append(cls.index_table(db_name, index_name, False))
+            except KeyError:
+                pass
+
+        return tables
 
     @classmethod
     def index_contains(cls, key, index_name=None):
@@ -614,7 +616,11 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
                 return index_table[key]
             except KeyError as exc:
                 last_exc = exc
-        raise last_exc
+
+        if last_exc:
+            raise last_exc
+
+        raise KeyError
 
     @classmethod
     def index_setitem(cls, key, value, index_name=None):
@@ -652,6 +658,20 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     @classmethod
     def index_root_del(cls, index_name, database_name=None):
         del cls.index_root(database_name)[index_name]
+
+    @classmethod
+    def index_table_initialized(cls, index_name, database_name=None):
+        for db_name in (database_name, cls.database_name, cls._current_database_name()):
+            if not db_name:
+                continue
+
+            try:
+                if cls.index_root(db_name, False) and index_name in cls.index_root(db_name, False):
+                    return True
+            except KeyError:
+                pass
+
+        return False
 
     @classmethod
     def create(cls, *args, **kwargs):
