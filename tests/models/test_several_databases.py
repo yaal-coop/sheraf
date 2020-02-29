@@ -88,6 +88,9 @@ def test_database_retrocompatibility(sheraf_database, db2):
         root1 = connection.root()
         root2 = connection.get_connection("db2").root()
 
+        assert root1[MyModel.table] is not MyModel.index_root()
+        assert root2[MyModel.table] is MyModel.index_root()
+
         m2 = MyModel.create()
         assert root1[MyModel.table]["id"][m1.id] is m1._persistent
         assert m1.id not in root2[MyModel.table]["id"]
