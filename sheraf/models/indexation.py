@@ -367,7 +367,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
         return sheraf.types.LargeDict()
 
     @classmethod
-    def index_tables(cls, database_name=None):
+    def _index_tables(cls, database_name=None):
         tables = []
         for db_name in (database_name, cls.database_name, cls._current_database_name()):
             if not db_name:
@@ -382,7 +382,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def index_contains(cls, key):
-        return any(key in table for table in cls.index_tables())
+        return any(key in table for table in cls._index_tables())
 
     @classmethod
     def index_getitem(cls, key):
@@ -400,7 +400,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     @classmethod
     def index_iterkeys(cls, reverse=False):
         return itertools.chain.from_iterable(
-            cls._table_iterkeys(table, reverse=reverse) for table in cls.index_tables()
+            cls._table_iterkeys(table, reverse=reverse) for table in cls._index_tables()
         )
 
     @classmethod
@@ -431,7 +431,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
         Using this method is faster than using ``len(MyModel.all())``.
         """
-        return sum(len(table) for table in cls.index_tables())
+        return sum(len(table) for table in cls._index_tables())
 
 
 class UUIDIndexedModel:
