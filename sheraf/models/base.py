@@ -167,9 +167,11 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
                 raise
 
         try:
-            value = self.attributes[name].read(self)
+            attribute = self.attributes[name]
         except KeyError:
             raise AttributeError(name)
+
+        value = attribute.read(self)
 
         if self.attributes[name].read_memoization:
             super().__setattr__(name, value)
