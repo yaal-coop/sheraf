@@ -576,7 +576,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     @classmethod
     def index_table(cls, database_name=None, index_name=None, setdefault=True):
         if index_name in (None, cls.primary_key):
-            mapping = cls._table_default
+            mapping = cls.index_table_default
             index_name = cls.primary_key
         else:
             mapping = cls._indexes[index_name].mapping
@@ -591,7 +591,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
             return index_root.setdefault(index_name, mapping())
 
     @classmethod
-    def _table_default(cls):
+    def index_table_default(cls):
         return sheraf.types.LargeDict()
 
     @classmethod
@@ -724,7 +724,7 @@ class IntIndexedModel:
     ).index(primary=True)
 
     @classmethod
-    def _table_default(cls):
+    def index_table_default(cls):
         return BTrees.LOBTree.LOBTree()
 
 
