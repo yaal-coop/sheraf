@@ -574,18 +574,20 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
             return keys
 
     @classmethod
-    def index_table(cls, database_name=None, index_name=None):
+    def index_table(cls, database_name=None, index_name=None, setdefault=True):
         if index_name in (None, cls.primary_key):
             mapping = cls._table_default
             index_name = cls.primary_key
         else:
             mapping = cls._indexes[index_name].mapping
 
-        index_root = cls.index_root(database_name)
+        index_root = cls.index_root(database_name, setdefault)
 
         try:
             return index_root[index_name]
         except KeyError:
+            if not setdefault:
+                raise
             return index_root.setdefault(index_name, mapping())
 
     @classmethod
@@ -634,7 +636,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
                 pass
 
     @classmethod
-    def index_root(cls, database_name=None):
+    def index_root(cls, database_name=None, setdefault=True):
         database_name = (
             database_name or cls.database_name or cls._current_database_name()
         )
@@ -643,6 +645,8 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
         try:
             return root[cls.table]
         except KeyError:
+            if not setdefault:
+                raise
             return root.setdefault(cls.table, sheraf.types.SmallDict())
 
     @classmethod
