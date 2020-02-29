@@ -341,18 +341,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def index_table(cls, database_name=None, setdefault=True):
-        database_name = (
-            database_name or cls.database_name or cls._current_database_name()
-        )
-        root = sheraf.Database.current_connection(database_name).root()
-
-        try:
-            index_root = root[cls.table]
-        except KeyError:
-            if not setdefault:
-                raise
-
-            index_root = root.setdefault(cls.table, cls.index_root_default())
+        index_root = cls.index_root(database_name, setdefault)
 
         try:
             return index_root[cls.primary_key]
@@ -412,6 +401,20 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
             except KeyError:
                 pass
         del cls.index_table(sheraf.Database.current_name())[key]
+
+    @classmethod
+    def index_root(cls, database_name=None, setdefault=True):
+        database_name = (
+            database_name or cls.database_name or cls._current_database_name()
+        )
+        root = sheraf.Database.current_connection(database_name).root()
+
+        try:
+            return root[cls.table]
+        except KeyError:
+            if not setdefault:
+                raise
+            return root.setdefault(cls.table, sheraf.types.SmallDict())
 
     @classmethod
     def create(cls, *args, **kwargs):
