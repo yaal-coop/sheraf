@@ -181,8 +181,9 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
     def copy(self):
         """:return: a copy of this instance"""
         copy = self.__class__.create()
-        for attr in self.attributes:
-            setattr(copy, attr, getattr(self, attr))
+        for name, attr in self.attributes.items():
+            if attr.is_created(self):
+                setattr(copy, name, getattr(self, name))
         return copy
 
     def keys(self):
