@@ -347,9 +347,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
                         'Consider calling %s.index_table_rebuild(["%s"]) to initialize the indexation table.'
                         % (
                             self.__class__.__name__,
-                            name,
+                            index.key,
                             self.__class__.__name__,
-                            name,
+                            index.key,
                         ),
                         sheraf.exceptions.IndexationWarning,
                         stacklevel=4,
