@@ -380,11 +380,26 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         """
         return getattr(self, self.primary_key())
 
-    def copy(self):
-        copy = super().copy()
-        if copy.primary_key():
-            copy.reset(copy.primary_key())
-        return copy
+    def copy(self, **kwargs):
+        """
+        Copies a model.
+        The attributes carrying an unique index wont be copied, they will be
+        resetted instead.
+
+        :param **kwargs: Keywords arguments will be passed to
+        :func:`~sheraf.models.BaseModel.create` and thus wont be copied.
+
+        :return: a copy of this instance.
+        """
+
+        unique_attributes = (
+            index.index.attribute for index in self.indexes().values() if index.index.unique
+        )
+
+        for attribute in unique_attributes:
+            kwargs.setdefault(attribute.key(self), attribute.create(self))
+
+        return super().copy(**kwargs)
 
     def delete(self):
         """Delete the current model instance.
