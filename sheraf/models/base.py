@@ -178,11 +178,17 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
         return value
 
-    def copy(self):
-        """:return: a copy of this instance"""
-        copy = self.__class__.create()
-        for attr in self.attributes:
-            setattr(copy, attr, getattr(self, attr))
+    def copy(self, **kwargs):
+        """
+        :param **kwargs: Keywords arguments will be passed to
+        :func:`~sheraf.models.BaseModel.create` and thus wont be copied.
+
+        :return: a copy of this instance.
+        """
+        copy = self.__class__.create(**kwargs)
+        for name, attr in self.attributes.items():
+            if attr.is_created(self) and name not in kwargs:
+                setattr(copy, name, getattr(self, name))
         return copy
 
     def keys(self):
