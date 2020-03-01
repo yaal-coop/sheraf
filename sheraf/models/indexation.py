@@ -358,7 +358,10 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
                 if not is_created or not is_indexable or index.primary:
                     continue
 
-                index_manager.update_item(self, attribute.read(self), value)
+                if attribute.is_created(self):
+                    index_manager.update_item(self, attribute.read(self), value)
+                else:
+                    index_manager.add_item(self, index.values_func(value))
 
         super().__setattr__(name, value)
 
