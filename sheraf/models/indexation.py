@@ -351,9 +351,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
             for index in attribute.indexes.values():
                 index_table_exists = self.index_table_initialized(index.key)
                 is_indexable = is_first_instance or index_table_exists
-                index.should_index_set = (
-                    is_created and is_indexable and not index.primary
-                )
+                should_index_set = is_created and is_indexable and not index.primary
 
                 if not is_indexable:
                     warnings.warn(
@@ -369,10 +367,10 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
                         stacklevel=4,
                     )
 
-                if not index.should_index_set:
+                if not should_index_set:
                     continue
 
-                old_values = index.values_func(index.attribute.read(self))
+                old_values = index.values_func(attribute.read(self))
                 new_values = index.values_func(value)
                 del_values = old_values - new_values
                 add_values = new_values - old_values
