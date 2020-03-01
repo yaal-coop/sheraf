@@ -60,6 +60,13 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         :return: an instance of this model
         """
 
+        if cls.primary_key() not in cls.attributes:
+            raise sheraf.exceptions.SherafException(
+                "{} inherit from IndexedModel but has no {} attribute. Cannot create.".format(
+                    cls.__name__, cls.primary_key()
+                )
+            )
+
         first_instance = not cls.index_manager().root_initialized()
         model = super().create(*args, **kwargs)
         for index in model.indexes().values():
@@ -462,17 +469,6 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     table = None
 
     id = sheraf.attributes.simples.SimpleAttribute().index(primary=True)
-
-    @classmethod
-    def create(cls, *args, **kwargs):
-        if cls.primary_key() not in cls.attributes:
-            raise sheraf.exceptions.SherafException(
-                "{} inherit from IndexedModel but has no id attribute. Cannot create.".format(
-                    cls.__name__
-                )
-            )
-
-        return super().create(*args, **kwargs)
 
     @classmethod
     def index_manager(cls, index=None):
