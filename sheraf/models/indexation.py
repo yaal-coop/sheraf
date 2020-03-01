@@ -67,21 +67,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
                 )
             )
 
-        first_instance = not cls.index_manager().root_initialized()
-        model = super().create(*args, **kwargs)
-        for index in model.indexes().values():
-            if first_instance or index.table_initialized():
-                index.add_item(model)
-            else:
-                warnings.warn(
-                    "New index in an already populated table. %s.%s will not be indexed. "
-                    'Consider calling %s.index_table_rebuild(["%s"]) to initialize the indexation table.'
-                    % (cls.__name__, index.index.key, cls.__name__, index.index.key),
-                    sheraf.exceptions.IndexationWarning,
-                    stacklevel=2,
-                )
-
-        return model
+        return super().create(*args, **kwargs)
 
     @classmethod
     def read(cls, *args, **kwargs):
@@ -338,10 +324,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
     def __setattr__(self, name, value):
         attribute = self.attributes.get(name)
         if attribute:
-            is_first_instance = self.count() <= 1
-            is_created = (
-                self._persistent is not None and self.primary_key() in self._persistent
-            )
+            is_first_instance = self.count() == 0
 
             for index in attribute.indexes.values():
                 index_manager = self.indexes()[index.key]
@@ -361,8 +344,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
                         sheraf.exceptions.IndexationWarning,
                         stacklevel=4,
                     )
-
-                if not is_created or not is_indexable or index.primary:
                     continue
 
                 if attribute.is_created(self):

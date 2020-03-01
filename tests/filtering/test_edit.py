@@ -21,33 +21,6 @@ def test_edit_no_index(sheraf_database):
         assert "my_simple_attribute" not in conn.root()["mymodel"]
 
 
-def test_edit_single_instance_after_set_index(sheraf_database):
-    class MyModel(sheraf.AutoModel):
-        my_simple_attribute = sheraf.SimpleAttribute()
-
-    with sheraf.connection(commit=True):
-        m = MyModel.create(
-            my_simple_attribute="attribute_value_that_should_not_be_in_index_table"
-        )
-
-    class MyModel(sheraf.AutoModel):
-        my_simple_attribute = sheraf.SimpleAttribute().index()
-
-    with sheraf.connection() as conn:
-        assert "my_simple_attribute" not in conn.root()["mymodel"]
-
-    with sheraf.connection(commit=True):
-        m = MyModel.read(m.id)
-        with warnings.catch_warnings(record=True) as warning_messages:
-            m.my_simple_attribute = "bar_indexed"
-            assert not warning_messages
-
-    with sheraf.connection() as conn:
-        index_table = conn.root()["mymodel"]["my_simple_attribute"]
-        assert len(index_table) == 1
-        assert {"bar_indexed"} == set(index_table)
-
-
 def test_edit_a_not_single_instance_after_set_index(sheraf_database):
     class MyModel(sheraf.AutoModel):
         my_simple_attribute = sheraf.SimpleAttribute()

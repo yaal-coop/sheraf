@@ -231,20 +231,6 @@ def test_simple_edit(sheraf_database):
         assert "foobar" == m.foo
 
 
-def test_edit_model(sheraf_database):
-    class MyModel(sheraf.AutoModel):
-        foo = sheraf.SimpleAttribute()
-
-    with sheraf.connection(commit=True):
-        m = MyModel.create(foo="bar")
-        n = MyModel.create(foo="FOO-BAR")
-        m.edit(n)
-
-    with sheraf.connection():
-        m = MyModel.read(m.id)
-        assert "FOO-BAR" == m.foo
-
-
 def test_simple_update(sheraf_database):
     class MyModel(sheraf.AutoModel):
         foo = sheraf.SimpleAttribute()
