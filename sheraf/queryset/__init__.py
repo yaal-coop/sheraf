@@ -117,8 +117,8 @@ class QuerySet(object):
 
     def _model_has_expected_values(self, model):
         for filter_name, expected_value, filter_transformation in self.filters.values():
-            if filter_name in model.indexes:
-                index = model.indexes[filter_name]
+            if filter_name in model.indexes():
+                index = model.indexes()[filter_name]
                 if filter_transformation:
                     if index.values_func(expected_value) != index.get_values(model):
                         return False
@@ -215,7 +215,7 @@ class QuerySet(object):
         if not filter_transformation:
             self._iterator = self.model.read_these(**{filter_name: [filter_value]})
         else:
-            index_values = self.model.indexes[filter_name].values_func(filter_value)
+            index_values = self.model.indexes()[filter_name].values_func(filter_value)
             # TODO: Now only the first index is used. When filters matches several
             # indexes, we should maybe do something clever.
             for index_value in index_values:
@@ -229,7 +229,7 @@ class QuerySet(object):
                 filter_value,
                 filter_transformation,
             ) in self.filters.values():
-                if filter_name not in self.model.indexes:
+                if filter_name not in self.model.indexes():
                     continue
                 self._init_indexed_iterator(
                     filter_name, filter_value, filter_transformation
@@ -385,7 +385,7 @@ class QuerySet(object):
             for filter_name in kwargs.keys():
                 if (
                     filter_name not in self.model.attributes
-                    and filter_name not in self.model.indexes
+                    and filter_name not in self.model.indexes()
                 ):
                     raise sheraf.exceptions.InvalidFilterException(
                         "{} has no attribute {}".format(

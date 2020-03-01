@@ -7,20 +7,9 @@ from sheraf.models.base import BaseModel, BaseModelMetaclass
 
 class BaseIndexedModelMetaclass(BaseModelMetaclass):
     @property
-    def indexes(cls):
-        if cls._indexes is None:
-            cls._indexes = {}
-            for attribute_name, attribute in cls.attributes.items():
-                for index_key, index in attribute.indexes.items():
-                    index.key = index_key or attribute.key(cls)
-                    cls._indexes[index.key] = index
-
-        return cls._indexes
-
-    @property
     def primary_key(cls):
         if cls._primary_key is None:
-            for index_name, index in cls.indexes.items():
+            for index_name, index in cls.indexes().items():
                 if not index.primary:
                     continue
 
@@ -50,6 +39,17 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     _indexes = None
     _primary_key = None
+
+    @classmethod
+    def indexes(cls):
+        if cls._indexes is None:
+            cls._indexes = {}
+            for attribute_name, attribute in cls.attributes.items():
+                for index_key, index in attribute.indexes.items():
+                    index.key = index_key or attribute.key(cls)
+                    cls._indexes[index.key] = index
+
+        return cls._indexes
 
     @classmethod
     def all(cls):
@@ -99,7 +99,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             index_name, keys = list(kwargs.items())[0]
 
         try:
-            index = cls.indexes[index_name]
+            index = cls.indexes()[index_name]
         except KeyError:
             raise sheraf.exceptions.InvalidIndexException(
                 "{} is not a valid index".format(index_name)
@@ -121,7 +121,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
         model = super().create(*args, **kwargs)
         first_instance = not cls.index_root_initialized()
-        for index in model.indexes.values():
+        for index in model.indexes().values():
             if first_instance or cls.index_table_initialized(index.key):
                 model.index_set(index)
             else:
@@ -188,7 +188,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             index_name, key = list(kwargs.items())[0]
 
         try:
-            index = cls.indexes[index_name]
+            index = cls.indexes()[index_name]
         except KeyError:
             raise sheraf.exceptions.InvalidIndexException(
                 "{} is not a valid index".format(index_name)
@@ -235,11 +235,11 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                             resetted.
         """
         if not index_names:
-            indexes = cls.indexes.values()
+            indexes = cls.indexes().values()
         else:
             indexes = [
                 index
-                for index_name, index in cls.indexes.items()
+                for index_name, index in cls.indexes().items()
                 if index_name in index_names
             ]
 
@@ -385,10 +385,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         super().__setattr__(name, value)
 
     @property
-    def indexes(self):
-        return self.__class__.indexes
-
-    @property
     def primary_key(self):
         """
         The primary key is the primary index of the model. It is generally 'id'.
@@ -488,7 +484,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             ...
         sheraf.exceptions.ModelObjectNotFoundException: Id '...' not found in MyModel
         """
-        for index in self.indexes.values():
+        for index in self.indexes().values():
             self.index_del(index)
 
         for attr in self.attributes.values():
@@ -585,7 +581,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
             mapping = cls.index_table_default
             index_name = cls.primary_key
         else:
-            mapping = cls._indexes[index_name].mapping
+            mapping = cls.indexes()[index_name].mapping
 
         index_root = cls.index_root(database_name, setdefault)
 
