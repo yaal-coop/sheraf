@@ -120,10 +120,12 @@ class QuerySet(object):
             if filter_name in model.indexes():
                 index = model.indexes()[filter_name]
                 if filter_transformation:
-                    if index.values_func(expected_value) != index.get_values(model):
+                    if index.index.values_func(
+                        expected_value
+                    ) != index.index.get_values(model):
                         return False
                 else:
-                    if expected_value not in index.get_values(model):
+                    if expected_value not in index.index.get_values(model):
                         return False
 
             elif filter_name in model.attributes:
@@ -215,7 +217,9 @@ class QuerySet(object):
         if not filter_transformation:
             self._iterator = self.model.read_these(**{filter_name: [filter_value]})
         else:
-            index_values = self.model.indexes()[filter_name].values_func(filter_value)
+            index_values = self.model.indexes()[filter_name].index.values_func(
+                filter_value
+            )
             # TODO: Now only the first index is used. When filters matches several
             # indexes, we should maybe do something clever.
             for index_value in index_values:
@@ -239,7 +243,7 @@ class QuerySet(object):
 
             if not self._iterator:
                 # Iterator over ids
-                keys = self.model.index_iterkeys(reverse=reverse)
+                keys = self.model.indexes()[self.model.primary_key()].iterkeys(reverse)
                 self._iterator = self.model.read_these(keys)
 
         elif reverse:
@@ -270,7 +274,8 @@ class QuerySet(object):
         # So we successively sort the list from the less important
         # order to the most important order.
         if self._iterable is None:
-            self._iterable = self.model.read_these(self.model.index_iterkeys())
+            keys = self.model.indexes()[self.model.primary_key()].iterkeys()
+            self._iterable = self.model.read_these(keys)
 
         for attribute, order in reversed(self.orders.items()):
             self._iterable = sorted(
