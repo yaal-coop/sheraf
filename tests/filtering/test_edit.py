@@ -94,9 +94,7 @@ def test_edit_a_not_single_instance_after_set_index_with_key(sheraf_database):
         m = MyModel.read(m.id)
         with warnings.catch_warnings(record=True) as warning_messages:
             m.my_simple_attribute = "bar_still_not_indexed"
-            assert "new_key will not be indexed." in str(
-                warning_messages[0].message
-            )
+            assert "new_key will not be indexed." in str(warning_messages[0].message)
 
     with sheraf.connection() as conn:
         assert "my_simple_attribute" not in conn.root()["mymodel"]
@@ -150,9 +148,8 @@ def test_edit_a_not_single_instance_when_two_indexes_with_key_afterwards(
         m = MyModel.read(m.id)
         with warnings.catch_warnings(record=True) as warning_messages:
             m.my_simple_attribute = "bar_still_not_indexed"
-            assert "key1 will not be indexed." in str(
-                warning_messages[0].message
-            )
+            messages = [w.message for w in warning_messages]
+            assert "key1 will not be indexed." in messages
 
     with sheraf.connection() as conn:
         assert "key1" not in conn.root()["mymodel"]

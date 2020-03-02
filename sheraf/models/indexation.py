@@ -376,7 +376,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         """
 
         unique_attributes = (
-            index.index.attribute for index in self.indexes().values() if index.index.unique
+            index.index.attribute
+            for index in self.indexes().values()
+            if index.index.unique
         )
 
         for attribute in unique_attributes:
