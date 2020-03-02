@@ -326,7 +326,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         attribute = self.attributes.get(name)
         if attribute:
             if self._first_instance is None:
-                self._first_instance = not self.index_manager().root_initialized()
+                self._first_instance = not self.index_manager().initialized()
 
             for index in attribute.indexes.values():
                 index_manager = self.indexes()[index.key]

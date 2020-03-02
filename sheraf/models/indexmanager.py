@@ -155,7 +155,7 @@ class MultipleDatabaseIndexManager(IndexManager):
         except KeyError:
             pass
 
-    def root_initialized(self, database_name=None):
+    def initialized(self, database_name=None):
         for db_name in (database_name, current_database_name()):
             if not db_name:
                 continue
