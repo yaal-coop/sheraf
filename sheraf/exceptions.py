@@ -24,7 +24,7 @@ class ModelObjectNotFoundException(ObjectNotFoundException):
     def __init__(self, model_class, identifier, index_name=None):
         self.model_class = model_class
         self.identifier = identifier
-        index_name = index_name or model_class.primary_key
+        index_name = index_name or model_class.primary_key()
         try:
             model_name = self.model_class.__name__
         except AttributeError:

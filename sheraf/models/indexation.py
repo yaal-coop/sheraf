@@ -15,6 +15,10 @@ class BaseIndexedModel(BaseModel):
     index_root_default = sheraf.types.SmallDict
 
     @classmethod
+    def primary_key(cls):
+        return "id"
+
+    @classmethod
     def all(cls):
         """
         :return: A :class:`~sheraf.queryset.QuerySet` containing all the
@@ -54,7 +58,7 @@ class BaseIndexedModel(BaseModel):
                 "BaseIndexedModel.read_these takes only one positionnal or named parameter"
             )
 
-        identifiers = args[0] if args else kwargs.get(cls.primary_key)
+        identifiers = args[0] if args else kwargs.get(cls.primary_key())
 
         return (cls.read(identifier) for identifier in identifiers)
 
@@ -66,7 +70,7 @@ class BaseIndexedModel(BaseModel):
 
         if hasattr(cls, "make_id"):
             args = list(args)
-            identifier = args.pop() if args else kwargs.get(cls.primary_key)
+            identifier = args.pop() if args else kwargs.get(cls.primary_key())
             model = super().create(*args, **kwargs)
 
             warnings.warn(
@@ -114,7 +118,7 @@ class BaseIndexedModel(BaseModel):
             )
 
         args = list(args)
-        identifier = args.pop() if args else kwargs.get(cls.primary_key)
+        identifier = args.pop() if args else kwargs.get(cls.primary_key())
 
         try:
             mapping = cls.index_getitem(identifier)
@@ -182,11 +186,11 @@ class BaseIndexedModel(BaseModel):
     def __repr__(self):
         identifier = (
             self.identifier
-            if self._persistent is not None and self.primary_key in self._persistent
+            if self._persistent is not None and self.primary_key() in self._persistent
             else None
         )
         return "<{} {}={}>".format(
-            self.__class__.__name__, self.primary_key, identifier
+            self.__class__.__name__, self.primary_key(), identifier
         )
 
     def __hash__(self):
@@ -194,17 +198,10 @@ class BaseIndexedModel(BaseModel):
 
     def __eq__(self, other):
         return (
-            hasattr(self, self.primary_key)
-            and hasattr(other, self.primary_key)
+            hasattr(self, self.primary_key())
+            and hasattr(other, self.primary_key())
             and self.identifier == other.identifier
         )
-
-    @property
-    def primary_key(self):
-        """
-        The primary key is the primary index of the model. It is generally 'id'.
-        """
-        return self.__class__.primary_key
 
     @property
     def identifier(self):
@@ -212,11 +209,11 @@ class BaseIndexedModel(BaseModel):
         The identifier is the value of the primary_key for the current instance.
         If the primary_key is 'id', then the identifier might be an UUID.
         """
-        return getattr(self, self.primary_key)
+        return getattr(self, self.primary_key())
 
     @identifier.setter
     def identifier(self, value):
-        return setattr(self, self.primary_key, value)
+        return setattr(self, self.primary_key(), value)
 
     def copy(self):
         copy = super().copy()
@@ -229,8 +226,8 @@ class BaseIndexedModel(BaseModel):
             )
             copy.identifier = copy.make_id()
         else:
-            if self.primary_key:
-                self.reset(self.primary_key)
+            if self.primary_key():
+                self.reset(self.primary_key())
 
         return copy
 
@@ -265,7 +262,6 @@ class IndexedModelMetaclass(BaseModelMetaclass):
 
     def __new__(cls, name, bases, attrs):
         klass = super().__new__(cls, name, bases, attrs)
-        klass.primary_key = "id"
 
         if "table" in attrs:
             table_name = attrs["table"]
@@ -339,12 +335,12 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
         index_root = cls.index_root(database_name, setdefault)
 
         try:
-            return index_root[cls.primary_key]
+            return index_root[cls.primary_key()]
         except KeyError:
             if not setdefault:
                 raise
 
-        return index_root.setdefault(cls.primary_key, cls.index_table_default())
+        return index_root.setdefault(cls.primary_key(), cls.index_table_default())
 
     @classmethod
     def index_table_default(cls):
@@ -413,7 +409,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def create(cls, *args, **kwargs):
-        if cls.primary_key not in cls.attributes:
+        if cls.primary_key() not in cls.attributes:
             raise sheraf.exceptions.SherafException(
                 "{} inherit from IndexedModel but has no id attribute. Cannot create.".format(
                     cls.__name__

@@ -221,10 +221,10 @@ class QuerySet(object):
         if (
             self.model
             and len(self.orders) == 1
-            and self.model.primary_key in self.orders
+            and self.model.primary_key() in self.orders
         ):
             self._init_default_iterator(
-                self.orders[self.model.primary_key] == sheraf.constants.DESC
+                self.orders[self.model.primary_key()] == sheraf.constants.DESC
             )
             return
 
@@ -424,10 +424,10 @@ class QuerySet(object):
                     "Parameter id has an invalid order value {}".format(identifier)
                 )
 
-            if self.model.primary_key in qs.orders:
+            if self.model.primary_key() in qs.orders:
                 raise InvalidOrderException("Id order has been set twice")
 
-            qs.orders[self.model.primary_key] = identifier
+            qs.orders[self.model.primary_key()] = identifier
 
         common_attributes = set(qs.orders) & set(kwargs)
         if common_attributes:
