@@ -103,3 +103,6 @@ def test_invalid_order_call(sheraf_connection, m0, m1, m2, m3):
 
     with pytest.raises(InvalidOrderException):
         QuerySet([Cowboy.create()]).order(sheraf.ASC)
+
+    with pytest.raises(InvalidOrderException):
+        Cowboy.order(sheraf.ASC, sheraf.ASC)
