@@ -26,6 +26,7 @@ def check_blob(model, database, check_path):
     assert model.blob.file_extension == "png"
     assert model.blob["file_extension"] == "png"
     assert str(model.blob) == "image.png"
+    assert 1 == len(model.blob)
 
     f.close()
 
@@ -48,6 +49,8 @@ def check_blobs(model, database, check_path, nb_expected):
         assert blob["filename"] == f.name
         assert blob.file_extension == "png"
         assert blob["file_extension"] == "png"
+        assert str(blob) == "image.png"
+        assert 1 == len(blob)
 
         f.close()
 
