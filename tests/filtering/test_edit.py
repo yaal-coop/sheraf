@@ -148,8 +148,7 @@ def test_edit_a_not_single_instance_when_two_indexes_with_key_afterwards(
         m = MyModel.read(m.id)
         with warnings.catch_warnings(record=True) as warning_messages:
             m.my_simple_attribute = "bar_still_not_indexed"
-            messages = [w.message for w in warning_messages]
-            assert "key1 will not be indexed." in messages
+            assert any("key1 will not be indexed." in str(w.message) for w in warning_messages)
 
     with sheraf.connection() as conn:
         assert "key1" not in conn.root()["mymodel"]
