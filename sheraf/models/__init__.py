@@ -30,14 +30,6 @@ class UUIDIndexedModel:
     "e4bb714e-b5a8-40d6-bb69-ab3b932fbfe0"
     """
 
-    #    def make_unique_id(self):
-    #        identifier = str(uuid.uuid4())
-    #        while MultipleDatabaseIndexManager(self.database_name, self.table, self.identifier).contains(identifier):
-    #            identifier = str(uuid.uuid4())
-    #
-    #        return identifier
-
-    #    id = StringUUIDAttribute(default=lambda m: m.make_unique_id()).index(primary=True)
     id = StringUUIDAttribute(default=lambda: str(uuid.uuid4())).index(primary=True)
 
 
@@ -56,21 +48,9 @@ class IntIndexedModel:
 
     MAX_INT = sys.maxsize
 
-    #    def make_unique_id(self):
-    #        identifier = random.randint(0, self.MAX_INT)
-    #        while MultipleDatabaseIndexManager(self.database_name, self.table, self.identifier).contains(identifier):
-    #            identifier = random.randint(0, self.MAX_INT)
-    #
-    #        return identifier
-    #
-    #    id = IntegerAttribute(default=lambda m: m.make_unique_id()).index(primary=True)
-    id = IntegerAttribute(default=lambda m: random.randint(0, 1000000)).index(
+    id = IntegerAttribute(default=lambda m: random.randint(0, m.MAX_INT)).index(
         primary=True
     )
-
-    @classmethod
-    def index_table_default(cls):
-        return BTrees.LOBTree.LOBTree()
 
 
 class BaseAutoModelMetaclass(IndexedModelMetaclass):

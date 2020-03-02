@@ -14,7 +14,7 @@ import sheraf.exceptions
 @pytest.mark.parametrize(
     "instance, mapping",
     [
-        (sheraf.IntegerAttribute().index(unique=True), BTrees.IOBTree.IOBTree),
+        (sheraf.IntegerAttribute().index(unique=True), BTrees.LOBTree.LOBTree),
         # ( sheraf.IntegerAttribute().index(unique=True, key="my_int"), BTrees.IOBTree.IOBTree)
         (
             sheraf.SimpleAttribute(default=int).index(unique=True),
