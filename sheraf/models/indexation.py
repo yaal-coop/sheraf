@@ -15,6 +15,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
 
     _indexes = None
     _primary_key = None
+    _first_instance = None
 
     @classmethod
     def indexes(cls):
@@ -324,12 +325,13 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
     def __setattr__(self, name, value):
         attribute = self.attributes.get(name)
         if attribute:
-            is_first_instance = self.count() == 0
+            if self._first_instance is None:
+                self._first_instance = not self.index_manager().root_initialized()
 
             for index in attribute.indexes.values():
                 index_manager = self.indexes()[index.key]
                 index_table_exists = index_manager.table_initialized()
-                is_indexable = is_first_instance or index_table_exists
+                is_indexable = self._first_instance or index_table_exists
 
                 if not is_indexable:
                     warnings.warn(
