@@ -21,8 +21,7 @@ from .attributes.files import (
     FilesGarbageCollector,
     set_files_root_dir,
 )
-from .attributes.inlines import InlineModelAttribute
-from .attributes.models import ModelAttribute
+from .attributes.models import ModelAttribute, InlineModelAttribute
 from .attributes.simples import (
     BooleanAttribute,
     DateAttribute,

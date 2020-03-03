@@ -30,10 +30,6 @@ Collection attributes
 Model attributes
 ----------------
 
-.. automodule:: sheraf.attributes.inlines
-    :members:
-    :show-inheritance:
-
 .. automodule:: sheraf.attributes.models
     :members:
     :show-inheritance:
