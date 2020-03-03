@@ -93,35 +93,6 @@ class IndexManager:
         index_list = table.setdefault(key, self.index_multiple_default())
         index_list.append(value)
 
-    def contains(self, key):
-        return any(key in table for table in self.tables())
-
-    def get_item(self, key):
-        last_exc = None
-        for table in self.tables():
-            try:
-                return table[key]
-            except KeyError as exc:
-                last_exc = exc
-
-        if last_exc:
-            raise last_exc
-
-        raise KeyError
-
-    def iterkeys(self, reverse=False):
-        return itertools.chain.from_iterable(
-            table_iterkeys(table, reverse) for table in self.tables()
-        )
-
-    def count(self):
-        """
-        :return: the number of instances.
-
-        Using this method is faster than using ``len(MyModel.all())``.
-        """
-        return sum(len(table) for table in self.tables())
-
 
 class SimpleIndexManager(IndexManager):
     persistent = None
@@ -138,8 +109,23 @@ class SimpleIndexManager(IndexManager):
         except KeyError:
             return self.persistent.setdefault(self.index.key, self.index.mapping())
 
-    def tables(self):
-        return [self.table()]
+    def contains(self, key):
+        try:
+            return key in self.persistent[self.index.key]
+        except KeyError:
+            return False
+
+    def get_item(self, key):
+        return self.persistent[self.index.key][key]
+
+    def iterkeys(self, reverse=False):
+        return table_iterkeys(self.table(), reverse)
+
+    def count(self):
+        try:
+            return len(self.persistent[self.index.key])
+        except KeyError:
+            return 0
 
 
 def current_database_name():
@@ -217,8 +203,33 @@ class MultipleDatabaseIndexManager(IndexManager):
                 if self.root(db_name, False) and self.index.key in self.root(
                     db_name, False
                 ):
+
                     return True
             except KeyError:
                 pass
 
         return False
+
+    def contains(self, key):
+        return any(key in table for table in self.tables())
+
+    def get_item(self, key):
+        last_exc = None
+        for table in self.tables():
+            try:
+                return table[key]
+            except KeyError as exc:
+                last_exc = exc
+
+        if last_exc:
+            raise last_exc
+
+        raise KeyError
+
+    def iterkeys(self, reverse=False):
+        return itertools.chain.from_iterable(
+            table_iterkeys(table, reverse) for table in self.tables()
+        )
+
+    def count(self):
+        return sum(len(table) for table in self.tables())
