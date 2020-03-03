@@ -10,7 +10,7 @@ class InlineModel(NamedAttributesModel):
     - The ``table`` attribute is not needed.
     - The :func:`~sheraf.models.base.BaseModel.read` method is not available.
     :class:`~sheraf.models.inline.InlineModel` aims to be used in combination
-    with :class:`~sheraf.attributes.inlines.InlineModelAttribute`.
+    with :class:`~sheraf.attributes.models.InlineModelAttribute`.
 
     >>> class Gun(sheraf.InlineModel):
     ...     nb_bullets = sheraf.IntegerAttribute()
@@ -28,7 +28,7 @@ class InlineModel(NamedAttributesModel):
     ...     assert 5 == george.gun.nb_bullets
 
     You can manage your own indexation by combining
-    :class:`~sheraf.attributes.inlines.InlineModelAttribute` with a collection
+    :class:`~sheraf.attributes.models.InlineModelAttribute` with a collection
     attribute, like :class:`~sheraf.attributes.collections.DictAttribute`.
 
     >>> class Gun(sheraf.InlineModel):

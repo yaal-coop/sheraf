@@ -1,6 +1,6 @@
 import ZODB
 
-import sheraf.attributes.inlines
+import sheraf.attributes.models
 import sheraf.models
 import sheraf.models.inline
 import sheraf.types
@@ -87,7 +87,7 @@ class Blob(sheraf.models.inline.InlineModel):
         return value
 
 
-class BlobAttribute(sheraf.attributes.inlines.InlineModelAttribute):
+class BlobAttribute(sheraf.attributes.models.InlineModelAttribute):
     """Stores a file on disk.
 
     This attribute is compatible with commits and rollbacks.
