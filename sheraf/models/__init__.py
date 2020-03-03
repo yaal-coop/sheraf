@@ -7,16 +7,13 @@ import uuid
 import random
 import sys
 
-import BTrees
-
 from .attributes import (
     DatedNamedAttributesModel,
     IntAttributesModel,
     NamedAttributesModel,
 )
-from .indexation import IndexedModel, IndexedModelMetaclass
+from .indexation import SimpleIndexedModel, IndexedModel, IndexedModelMetaclass
 from sheraf.attributes.simples import IntegerAttribute, StringUUIDAttribute
-from sheraf.models.indexmanager import MultipleDatabaseIndexManager
 
 
 class UUIDIndexedModel:
@@ -117,6 +114,10 @@ class UUIDAutoModel(BaseAutoModel, UUIDIndexedDatedNamedAttributesModel):
 
 
 class IntAutoModel(BaseAutoModel, IntOrderedNamedAttributesModel):
+    pass
+
+
+class AttributeModel(NamedAttributesModel, SimpleIndexedModel):
     pass
 
 

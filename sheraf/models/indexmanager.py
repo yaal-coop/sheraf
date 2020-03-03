@@ -123,6 +123,25 @@ class IndexManager:
         return sum(len(table) for table in self.tables())
 
 
+class SimpleIndexManager(IndexManager):
+    persistent = None
+
+    def initialized(self):
+        return self.persistent is not None
+
+    def table_initialized(self):
+        return self.index.key in self.persistent
+
+    def table(self):
+        try:
+            return self.persistent[self.index.key]
+        except KeyError:
+            return self.persistent.setdefault(self.index.key, self.index.mapping())
+
+    def tables(self):
+        return [self.table()]
+
+
 def current_database_name():
     current_name = sheraf.Database.current_name()
     if not current_name:

@@ -21,7 +21,11 @@ from .attributes.files import (
     FilesGarbageCollector,
     set_files_root_dir,
 )
-from .attributes.models import ModelAttribute, InlineModelAttribute
+from .attributes.models import (
+    ModelAttribute,
+    InlineModelAttribute,
+    IndexedModelAttribute,
+)
 from .attributes.simples import (
     BooleanAttribute,
     DateAttribute,
@@ -47,10 +51,12 @@ from .exceptions import (
     InvalidOrderException,
     QuerySetUnpackException,
     EmptyQuerySetUnpackException,
+    PrimaryKeyException,
 )
 from .indexes import Index
 from .models import (
     AutoModel,
+    AttributeModel,
     IntAutoModel,
     IntIndexedIntAttributesModel,
     IntIndexedModel,

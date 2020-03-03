@@ -3,7 +3,7 @@ import warnings
 
 import sheraf.exceptions
 from sheraf.models.base import BaseModel, BaseModelMetaclass
-from sheraf.models.indexmanager import MultipleDatabaseIndexManager
+from sheraf.models.indexmanager import SimpleIndexManager, MultipleDatabaseIndexManager
 
 
 class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
@@ -488,3 +488,9 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
             )
 
         return super().create(*args, **kwargs)
+
+
+class SimpleIndexedModel(BaseIndexedModel):
+    @classmethod
+    def index_manager(cls, index=None):
+        return SimpleIndexManager(index)
