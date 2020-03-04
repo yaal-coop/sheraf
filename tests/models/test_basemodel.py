@@ -187,7 +187,7 @@ def test_model_as_simple_dict(sheraf_database):
             "id": mock.ANY,
         } == dict(m)
 
-        assert list(dict(m).items()) == list(m.items())
+        assert all(item in dict(m).items() for item in m.items())
 
 
 def test_model_as_nested_dicts(sheraf_database):
