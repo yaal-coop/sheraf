@@ -1,6 +1,6 @@
-try:
+try:  # pragma: no cover
     from tqdm import tqdm
-except ImportError:
+except ImportError:  # pragma: no cover
 
     def tqdm(x, *args, **kwargs):
         return x

@@ -248,9 +248,6 @@ class QuerySet(object):
                 keys = self.model.indexes()[self.model.primary_key()].iterkeys(reverse)
                 self._iterator = self.model.read_these(keys)
 
-        elif reverse:
-            self._iterator = reversed(self._iterable)
-
         else:
             self._iterator = iter(self._iterable)
 
