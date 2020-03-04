@@ -27,7 +27,9 @@ class ModelObjectNotFoundException(ObjectNotFoundException):
         index_name = index_name or model_class.primary_key()
 
         message = self.MESSAGE_TPL.format(
-            identifier=repr(identifier), model_name=self.model_class.__name__, index_name=index_name
+            identifier=repr(identifier),
+            model_name=self.model_class.__name__,
+            index_name=index_name,
         )
 
         super().__init__(message)
