@@ -530,12 +530,6 @@ class QuerySet(object):
         if common_attributes:
             raise InvalidOrderException("Some order parameters appeared twice")
 
-        for k, v in kwargs.items():
-            if v not in (sheraf.constants.ASC, sheraf.constants.DESC):
-                raise InvalidOrderException(
-                    "Parameter {} has an invalid order value {}".format(k, v)
-                )
-
         qs.orders.update(kwargs)
 
         return qs
