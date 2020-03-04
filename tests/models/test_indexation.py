@@ -345,27 +345,37 @@ def test_multiple_keys_index_update(sheraf_database):
 
 def test_custom_indexation_method(sheraf_database):
     class MyCustomModel(sheraf.IntAutoModel):
-        my_attribute = sheraf.SimpleAttribute().index(
+        foo = sheraf.SimpleAttribute().index(
             unique=True, values=lambda string: {string.lower()}
         )
+        bar = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
-        m = MyCustomModel.create(my_attribute="FOO")
+        m = MyCustomModel.create(foo="FOO", bar="BAR")
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["mycustommodel"]["my_attribute"]
+        index_table = conn.root()["mycustommodel"]["foo"]
         assert {"foo"} == set(index_table)
         assert m._persistent == index_table["foo"]
 
-        assert [m] == list(MyCustomModel.filter(my_attribute="foo"))
-        assert [] == list(MyCustomModel.filter(my_attribute="FOO"))
+        assert [m] == list(MyCustomModel.filter(foo="foo"))
+        assert [] == list(MyCustomModel.filter(foo="FOO"))
 
-        assert [m] == list(MyCustomModel.filter_raw(my_attribute="foo"))
-        assert [m] == list(MyCustomModel.filter_raw(my_attribute="FOO"))
+        assert [m] == list(MyCustomModel.filter(foo="foo", bar="BAR"))
+        assert [] == list(MyCustomModel.filter(foo="foo", bar="bar"))
+
+        assert [m] == list(MyCustomModel.filter_raw(foo="foo"))
+        assert [m] == list(MyCustomModel.filter_raw(foo="FOO"))
+
+        assert [m] == list(MyCustomModel.filter_raw(foo="foo", bar="BAR"))
+        assert [m] == list(MyCustomModel.filter_raw(foo="FOO", bar="BAR"))
+
+        assert [] == list(MyCustomModel.filter_raw(foo="foo", bar="bar"))
+        assert [] == list(MyCustomModel.filter_raw(foo="FOO", bar="bar"))
 
     with sheraf.connection():
         with pytest.raises(sheraf.exceptions.UniqueIndexException):
-            MyCustomModel.create(my_attribute="FOO")
+            MyCustomModel.create(foo="FOO")
 
 
 # ------------------------------------------------------------------------------------------------
@@ -387,10 +397,6 @@ def test_unique_indexation_and_filter_on_wrong_attribute(sheraf_database):
 
         with pytest.raises(sheraf.exceptions.InvalidFilterException):
             list(MyModel.filter(foobar="foo"))
-
-
-# TODO: les indexes auront besoin d'être initialisés si jamais quelqu'un veut passer d'une base non indexée à une base indexée.
-#  Tester qu'un attribut passé « indexé » mais non initialisé adopte toujours un comportement valide.
 
 
 def test_reset_index_table(sheraf_database):

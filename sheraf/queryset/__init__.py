@@ -143,6 +143,7 @@ class QuerySet(object):
                 model = next(self._iterator)
             except sheraf.exceptions.ModelObjectNotFoundException:
                 continue
+
             if self._model_has_expected_values(model) and (
                 not self._predicate or self._predicate(model)
             ):
@@ -362,10 +363,14 @@ class QuerySet(object):
         """
         Refine a copy of the current :class:`~sheraf.queryset.QuerySet` with further tests.
 
-        This method is very similar to :func:`~sheraf.queryset.QuerySet.filter` except the values it takes are transformed with the same way values are transformed at indexation.
+        This method is very similar to :func:`~sheraf.queryset.QuerySet.filter` except the
+        values it takes are transformed with the same way values are transformed at indexation.
         TODO: pas très clair
 
-        For instance, if an attribute indexes its values with a lowercase transformation, the :func:`~sheraf.queryset.QuerySet.filter_raw` attributes will go through the same transformation. Hence it allows to pass uppercase filter values, while :func:`~sheraf.queryset.QuerySet.filter` does not allow this.
+        For instance, if an attribute indexes its values with a lowercase transformation, the
+        :func:`~sheraf.queryset.QuerySet.filter_raw` attributes will go through the same
+        transformation. Hence it allows to pass uppercase filter values, while
+        :func:`~sheraf.queryset.QuerySet.filter` does not allow this.
 
         >>> class MyCustomModel(sheraf.IntAutoModel):
         ...     my_attribute = sheraf.SimpleAttribute().index(
