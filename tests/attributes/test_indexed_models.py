@@ -98,7 +98,7 @@ def test_all(sheraf_connection):
 
 
 def test_no_primary_key(sheraf_database):
-    class HorseWithNoName(sheraf.IndexedModel):
+    class HorseWithNoName(sheraf.AttributeModel):
         foo = sheraf.SimpleAttribute()
         bar = sheraf.SimpleAttribute()
 
