@@ -7,14 +7,14 @@ try:  # pragma: no cover
     import colored
 
     HAS_COLORED = True
-except ImportError:
+except ImportError:  # pragma: no cover
     HAS_COLORED = False
 
-try:
+try:  # pragma: no cover
     from tqdm import tqdm
 
     HAS_TQDM = True
-except ImportError:
+except ImportError:  # pragma: no cover
     HAS_TQDM = False
 
 
