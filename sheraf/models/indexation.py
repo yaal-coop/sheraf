@@ -57,10 +57,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
 
     @classmethod
     def create(cls, *args, **kwargs):
-        """
-        :return: an instance of this model
-        """
-
         if not cls.primary_key():
             raise sheraf.exceptions.PrimaryKeyException(
                 "{} inherit from IndexedModel but has no primary key. Cannot create.".format(
@@ -476,14 +472,10 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def create(cls, *args, **kwargs):
-        """
-        :return: an instance of this model
-        """
-
         if "id" not in cls.attributes:
             raise sheraf.exceptions.PrimaryKeyException(
                 "{} inherit from IndexedModel but has no id attribute. Cannot create.".format(
-                    cls.__name__,
+                    cls.__name__
                 )
             )
 
