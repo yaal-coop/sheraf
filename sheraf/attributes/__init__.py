@@ -1,5 +1,6 @@
 class ModelLoader(object):
-    """Internal class that loads models from the base in a cache.
+    """
+    Loads models from the base in a cache.
 
     Inherited by most model types
     (``Model[Attribute|List|Set|(Large)Dict]``)

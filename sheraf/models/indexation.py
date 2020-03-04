@@ -28,10 +28,6 @@ class BaseIndexedModel(BaseModel):
 
     @classmethod
     def create(cls, *args, **kwargs):
-        """
-        :return: an instance of this model
-        """
-
         if hasattr(cls, "make_id"):
             args = list(args)
             identifier = args.pop() if args else kwargs.get(cls.primary_key())
@@ -248,8 +244,7 @@ class BaseIndexedModel(BaseModel):
 
 
 class IndexedModelMetaclass(BaseModelMetaclass):
-    """Internal class.
-
+    """
     Contains the mapping of tables (name of models) to their
     corresponding model definitions
     """

@@ -16,8 +16,6 @@ class IntAttributesModel(BaseModel):
 
 
 class NamedAttributesModel(BaseModel):
-    """Internal class."""
-
     @classmethod
     def attribute_id(cls, name, attribute):
         return name
