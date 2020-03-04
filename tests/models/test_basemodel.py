@@ -187,6 +187,8 @@ def test_model_as_simple_dict(sheraf_database):
             "id": mock.ANY,
         } == dict(m)
 
+        assert list(dict(m).items()) == list(m.items())
+
 
 def test_model_as_nested_dicts(sheraf_database):
     class DummyModel(sheraf.AutoModel):
