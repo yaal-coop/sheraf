@@ -418,6 +418,13 @@ class QuerySet(object):
                         "{} has no attribute {}".format(self.model.__name__, attribute)
                     )
 
+                if value not in (sheraf.constants.ASC, sheraf.constants.DESC):
+                    raise sheraf.exceptions.InvalidOrderException(
+                        "Parameter {} has an invalid order value {}".format(
+                            attribute, value
+                        )
+                    )
+
         if len(args) > 0:
             identifier = args[0]
             if identifier not in (sheraf.constants.ASC, sheraf.constants.DESC):
@@ -433,12 +440,6 @@ class QuerySet(object):
         common_attributes = set(qs.orders) & set(kwargs)
         if common_attributes:
             raise InvalidOrderException("Some order parameters appeared twice")
-
-        for k, v in kwargs.items():
-            if v not in (sheraf.constants.ASC, sheraf.constants.DESC):
-                raise InvalidOrderException(
-                    "Parameter {} has an invalid order value {}".format(k, v)
-                )
 
         qs.orders.update(kwargs)
 
