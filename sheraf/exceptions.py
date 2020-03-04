@@ -24,14 +24,12 @@ class ModelObjectNotFoundException(ObjectNotFoundException):
     def __init__(self, model_class, identifier, index_name=None):
         self.model_class = model_class
         self.identifier = identifier
-        index_name = index_name or model_class.primary_key
-        try:
-            model_name = self.model_class.__name__
-        except AttributeError:
-            model_name = self.model_class.split(".")[-1]
+        index_name = index_name or model_class.primary_key()
 
         message = self.MESSAGE_TPL.format(
-            identifier=repr(identifier), model_name=model_name, index_name=index_name
+            identifier=repr(identifier),
+            model_name=self.model_class.__name__,
+            index_name=index_name,
         )
 
         super().__init__(message)
@@ -55,14 +53,9 @@ class IndexObjectNotFoundException(ObjectNotFoundException):
         self.model_class = model_class
         self.key = key
 
-        try:
-            model_name = self.model_class.__name__
-        except AttributeError:
-            model_name = self.model_class.split(".")[-1]
-
         _message = self.MESSAGE_TPL.format(
             key=self.key,
-            model_name=model_name,
+            model_name=self.model_class.__name__,
             index_name=self.index.__class__.__name__,
         )
         super().__init__(_message)
