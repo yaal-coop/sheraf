@@ -20,9 +20,6 @@ def load_database_kwargs(request, default=None):
 
     db_kwargs = default or {}
 
-    if hasattr(request.cls, "sheraf_database_kwargs"):
-        db_kwargs = request.cls.sheraf_database_kwargs
-
     if hasattr(request.cls, "sheraf_database_extra_kwargs"):
         db_kwargs.update(request.cls.sheraf_database_extra_kwargs)
 
@@ -92,26 +89,6 @@ def sheraf_connection(sheraf_database):
     finally:
         connection.transaction_manager.abort()
         sheraf_database.connection_close(connection)
-
-
-@pytest.fixture
-def sheraf_filestorage_database(request):
-    """This fixture creates a database using a
-    :class:`~ZODB.FileStorage.FileStorage`."""
-
-    temp_directory, old_files_root_dir = create_temp_directory()
-    db_kwargs = load_database_kwargs(
-        request, {"uri": "file:///{}/Data.fs".format(temp_directory)}
-    )
-
-    database = None
-    try:
-        database = create_database(db_kwargs)
-        yield database
-
-    finally:
-        close_database(database)
-        delete_temp_directory(temp_directory, old_files_root_dir)
 
 
 @pytest.fixture(scope="session")
