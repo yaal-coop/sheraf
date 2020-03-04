@@ -27,42 +27,6 @@ class BaseIndexedModel(BaseModel):
         return sheraf.queryset.QuerySet(model_class=cls)
 
     @classmethod
-    def read_these(cls, *args, **kwargs):
-        """
-        Get model instances from their identifiers. If an instance identifiers does not
-        exist, a :class:`~sheraf.exceptions.ModelObjectNotFoundException` is
-        raised.
-
-        The function takes only one parameter which key is the index where to
-        search, and which values are the index identifier.
-        By default the index used is the `id` index.
-
-        :return: A generator over the models matching the keys.
-
-        >>> class MyModel(sheraf.IntIndexedNamedAttributesModel):
-        ...     table = "my_model"
-        ...
-        >>> with sheraf.connection():
-        ...     m1 = MyModel.create(id=1)
-        ...     m2 = MyModel.create(id=2)
-        ...
-        ...     assert [m1, m2] == list(MyModel.read_these([m1.id, m2.id]))
-        ...     list(MyModel.read_these(["invalid"]))
-        Traceback (most recent call last):
-            ...
-        sheraf.exceptions.ModelObjectNotFoundException: Id 'invalid' not found in MyModel, 'id' index
-        """
-
-        if len(args) + len(kwargs) != 1:
-            raise TypeError(
-                "BaseIndexedModel.read_these takes only one positionnal or named parameter"
-            )
-
-        identifiers = args[0] if args else kwargs.get(cls.primary_key())
-
-        return (cls.read(identifier) for identifier in identifiers)
-
-    @classmethod
     def create(cls, *args, **kwargs):
         """
         :return: an instance of this model
@@ -126,6 +90,42 @@ class BaseIndexedModel(BaseModel):
             return model
         except (KeyError, TypeError):
             raise sheraf.exceptions.ModelObjectNotFoundException(cls, identifier)
+
+    @classmethod
+    def read_these(cls, *args, **kwargs):
+        """
+        Get model instances from their identifiers. If an instance identifiers does not
+        exist, a :class:`~sheraf.exceptions.ModelObjectNotFoundException` is
+        raised.
+
+        The function takes only one parameter which key is the index where to
+        search, and which values are the index identifier.
+        By default the index used is the `id` index.
+
+        :return: A generator over the models matching the keys.
+
+        >>> class MyModel(sheraf.IntIndexedNamedAttributesModel):
+        ...     table = "my_model"
+        ...
+        >>> with sheraf.connection():
+        ...     m1 = MyModel.create(id=1)
+        ...     m2 = MyModel.create(id=2)
+        ...
+        ...     assert [m1, m2] == list(MyModel.read_these([m1.id, m2.id]))
+        ...     list(MyModel.read_these(["invalid"]))
+        Traceback (most recent call last):
+            ...
+        sheraf.exceptions.ModelObjectNotFoundException: Id 'invalid' not found in MyModel, 'id' index
+        """
+
+        if len(args) + len(kwargs) != 1:
+            raise TypeError(
+                "BaseIndexedModel.read_these takes only one positionnal or named parameter"
+            )
+
+        identifiers = args[0] if args else kwargs.get(cls.primary_key())
+
+        return (cls.read(identifier) for identifier in identifiers)
 
     @classmethod
     def filter(cls, predicate=None, **kwargs):
@@ -211,10 +211,6 @@ class BaseIndexedModel(BaseModel):
         """
         return getattr(self, self.primary_key())
 
-    @identifier.setter
-    def identifier(self, value):
-        return setattr(self, self.primary_key(), value)
-
     def copy(self):
         copy = super().copy()
         if hasattr(self, "make_id"):
@@ -224,7 +220,7 @@ class BaseIndexedModel(BaseModel):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            copy.identifier = copy.make_id()
+            setattr(copy, self.primary_key(), copy.make_id())
         else:
             if self.primary_key():
                 self.reset(self.primary_key())
