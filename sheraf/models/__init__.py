@@ -1,8 +1,3 @@
-"""Models are important.
-
-Several models are availables.
-"""
-
 import uuid
 import random
 import sys
