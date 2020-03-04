@@ -21,28 +21,26 @@ def test_connection(sheraf_database):
         )
         m = AModel.create(field="foo")
 
-    @sheraf.connection
+    @sheraf.connection()
     def read(mid):
-        sheraf_database.connection.assert_called_with(
-            commit=False, cache_minimize=False, _trackeback_shift=2,
-        )
-
         m = AModel.read(mid)
         assert "foo" == m.field
 
     read(m.id)
+    sheraf_database.connection.assert_called_with(
+        commit=False, cache_minimize=False, _trackeback_shift=2,
+    )
 
     @sheraf.connection(commit=True, cache_minimize=True)
     def update(mid):
-        sheraf_database.connection.assert_called_with(
-            commit=True, cache_minimize=True, _trackeback_shift=2,
-        )
-
         m = AModel.read(mid)
         assert "foo" == m.field
         m.field = "bar"
 
     update(m.id)
+    sheraf_database.connection.assert_called_with(
+        commit=True, cache_minimize=True, _trackeback_shift=2,
+    )
 
     with sheraf.connection():
         sheraf_database.connection.assert_called_with(
