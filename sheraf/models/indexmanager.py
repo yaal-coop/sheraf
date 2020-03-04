@@ -86,7 +86,11 @@ class IndexManager:
 
     def _table_set_unique(self, table, key, value):
         if key in table:
-            raise sheraf.exceptions.UniqueIndexException
+            raise sheraf.exceptions.UniqueIndexException(
+                "The key '{}' is already present in the index '{}'".format(
+                    key, self.index.key
+                )
+            )
         table[key] = value
 
     def _table_set_multiple(self, table, key, value):

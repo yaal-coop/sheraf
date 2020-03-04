@@ -40,8 +40,8 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
 
                 else:
                     raise sheraf.exceptions.PrimaryKeyException(
-                        "A model can have only one primary key. {} has {} and {}".format(
-                            cls.__class__.name, cls._primary_key, index_name,
+                        "A model can have only one primary key. '{}' has '{}' and '{}'".format(
+                            cls.__class__.__name__, cls._primary_key, index_name,
                         )
                     )
 
@@ -126,12 +126,12 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
             index = cls.indexes()[index_name]
         except KeyError:
             raise sheraf.exceptions.InvalidIndexException(
-                "{} is not a valid index".format(index_name)
+                "'{}' is not a valid index".format(index_name)
             )
 
         if not index.index.unique:
             raise sheraf.exceptions.MultipleIndexException(
-                "{} is a multiple index and cannot be used with 'read'".format(
+                "'{}' is a multiple index and cannot be used with 'read'".format(
                     index_name
                 )
             )
@@ -181,7 +181,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
             index = cls.indexes()[index_name]
         except KeyError:
             raise sheraf.exceptions.InvalidIndexException(
-                "{} is not a valid index".format(index_name)
+                "'{}' is not a valid index".format(index_name)
             )
 
         if index.index.unique:
