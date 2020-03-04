@@ -5,7 +5,6 @@ import stat
 import subprocess
 import sys
 import tempfile
-import time
 import warnings
 
 import portpicker
@@ -145,74 +144,3 @@ def stop_zeo_server(zeo_process, silent=False):
     if stderr and not silent:  # pragma: no cover
         print("[runzeo STDERR]")
         sys.stdout.write(stderr.decode())
-
-
-def start_postgresql_server(persistent_dir):
-    AFTER_PSQL_SERVER_LAUNCH_SLEEP_TIME = 1
-    pg_user = os.getlogin()
-    pg_port = portpicker.pick_unused_port()
-    pg_dir = os.path.join(persistent_dir, "pgdata")
-    try:
-        exit_code = subprocess.call(
-            ("initdb", "--auth", "trust", "--pgdata", pg_dir, "--username", pg_user),
-            stdout=open("/dev/null"),
-        )
-    except IOError:  # pragma: no cover
-        warnings.warn(
-            "Postgresql seems to not be installed on this system. Be sure 'initdb' is in your $PATH"
-        )
-        return None, None, None, "Postgresql seems to not be installed on this system."
-
-    if exit_code == 1:  # pragma: no cover
-        return None, None, None, "Postgresql server initialization has failed."
-
-    try:
-        pg_process = subprocess.Popen(
-            (
-                "postgres",
-                "-D",
-                pg_dir,
-                "-p",
-                "{}".format(pg_port),
-                "-k",
-                persistent_dir,
-            ),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-    except IOError:  # pragma: no cover
-        warnings.warn(
-            "Postgresql seems to not be installed on this system. Be sure 'postgres' is in your $PATH"
-        )
-        return None, None, None, "Postgresql seems to not be installed on this system."
-
-    time.sleep(AFTER_PSQL_SERVER_LAUNCH_SLEEP_TIME)
-
-    try:
-        exit_code = subprocess.call(
-            ("createdb", "zodb", "--port", "{}".format(pg_port), "--host", "localhost"),
-            stdout=open("/dev/null"),
-        )
-    except IOError:  # pragma: no cover
-        warnings.warn(
-            "Postgresql seems to not be installed on this system. Be sure 'createdb' is in your $PATH"
-        )
-        return None, None, None, "Postgresql seems to not be installed on this system."
-
-    if exit_code == 1:  # pragma: no cover
-        return None, None, None, "Postgresql database creation has failed."
-
-    return pg_process, pg_user, pg_port, None
-
-
-def stop_postgresql_server(pg_process, silent=False):
-    pg_process.kill()
-    stdout, stderr = pg_process.communicate()
-
-    if stdout and not silent:  # pragma: no cover
-        print("[postgresql STDOUT]")
-        sys.stdout.write(stdout.decode(errors="ignore"))
-
-    if stderr and not silent:  # pragma: no cover
-        print("[postgresql STDERR]")
-        sys.stdout.write(stderr.decode(errors="ignore"))
