@@ -75,7 +75,7 @@ def close_database(database=None):
     if database:
         database.close()
 
-    for db_name, db in list(Database.all()):
+    for db_name, db in list(Database.all()):  # pragma: no cover
         last_context = LocalData.get().last_database_context.get(db.name)
         warnings.warn(
             "Database '{}' was not closed. It should be closed inside the test. It was opened on {} at {}".format(
