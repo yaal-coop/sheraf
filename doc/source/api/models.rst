@@ -1,8 +1,6 @@
 Models
 ======
 
-The UUID is the default one.
-
 .. automodule:: sheraf.models
     :members:
     :show-inheritance:
@@ -12,6 +10,10 @@ The UUID is the default one.
     :show-inheritance:
 
 .. automodule:: sheraf.models.indexation
+    :members:
+    :show-inheritance:
+
+.. automodule:: sheraf.models.indexmanager
     :members:
     :show-inheritance:
 

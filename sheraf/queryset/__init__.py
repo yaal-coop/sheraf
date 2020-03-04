@@ -12,9 +12,10 @@ from collections.abc import Iterable, Sized
 
 
 class QuerySet(object):
-    """Collection containing :class:`~sheraf.models.Model` instances. Like in a
-    regular set, objects are unique, but unlike regular sets,
-
+    """
+    A :class:`~sheraf.queryset.QuerySet` is a collection containing
+    :class:`~sheraf.models.Model` instances. Like in a regular :class:`set`,
+    objects are unique, but the main difference is that
     :class:`~sheraf.queryset.QuerySet` keeps the insertion order.
 
     :param iterable: A collection of models. If `iterable` is None, then
@@ -46,7 +47,7 @@ class QuerySet(object):
     ...     steven = Cowboy.create(name="Steven", age=30)
     ...     george = Cowboy.create(name="George Abitbol", age=50)
 
-    :class:`~sheraf.queryset.QuerySet` are mostly created by requesting on a
+    :class:`~sheraf.queryset.QuerySet` are mostly created by doing requests on a
     Model with :func:`~sheraf.models.indexation.IndexedModel.all`,
     :func:`~sheraf.models.indexation.IndexedModel.filter` or
     :func:`~sheraf.models.indexation.IndexedModel.order`, but can also be
