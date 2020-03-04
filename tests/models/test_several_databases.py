@@ -35,10 +35,6 @@ def test_model_create_in_default_connection(sheraf_database, db2):
         rootd = connection.root()
         root2 = connection.get_connection("db2").root()
 
-        # assert rootd[MyModel.table] is MyModel.index_root()
-        # assert rootd[MyDefaultModel.table] is MyDefaultModel.index_root()
-        # assert root2[MyDB2Model.table] is MyDB2Model.index_root()
-
         assert m.id in rootd[MyModel.table]["id"]
         assert md.id in rootd[MyDefaultModel.table]["id"]
         assert m2.id in root2[MyDB2Model.table]["id"]
