@@ -26,16 +26,25 @@ def test_read_invalid_parameters(sheraf_connection):
         M.read(foo=1, id=2)
 
 
-def test_read_these_invalid_index(sheraf_database):
-    with sheraf.connection():
-        with pytest.raises(sheraf.exceptions.ModelObjectNotFoundException):
-            list(MyModel.read_these(["invalid"]))
+def test_read_these_invalid_index(sheraf_connection):
+    with pytest.raises(sheraf.exceptions.ModelObjectNotFoundException):
+        list(MyModel.read_these(["invalid"]))
 
 
-def test_read_these_valid_index(sheraf_database):
-    with sheraf.connection():
-        m = MyModel.create()
-        assert [m] == list(MyModel.read_these([m.id]))
+def test_read_these_valid_index(sheraf_connection):
+    m = MyModel.create()
+    assert [m] == list(MyModel.read_these([m.id]))
+
+
+def test_read_these_invalid_calls(sheraf_connection):
+    with pytest.raises(TypeError):
+        MyModel.read_these()
+
+    with pytest.raises(TypeError):
+        MyModel.read_these(id=["foo"], inline_model=["bar"])
+
+    with pytest.raises(sheraf.exceptions.InvalidIndexException):
+        MyModel.read_these(yolo=["foo"])
 
 
 def test_count(sheraf_database):

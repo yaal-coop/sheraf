@@ -48,6 +48,7 @@ from .exceptions import (
     SameNameForTableException,
     NotConnectedException,
     InvalidFilterException,
+    InvalidIndexException,
     InvalidOrderException,
     QuerySetUnpackException,
     EmptyQuerySetUnpackException,
