@@ -1,7 +1,5 @@
 class Index:
     """
-    Index Class. Not intended to be directly instantiated
-
     :param attribute: The attribute being indexed
     :type attribute: class BaseAttribute
     :param key: The key the index will use. By default, just the attribute name is used.
@@ -39,6 +37,8 @@ class Index:
         self.primary = primary
 
     def __repr__(self):
+        if self.primary:
+            return "<Index key={} unique={} primary>".format(self.key, self.unique)
         return "<Index key={} unique={}>".format(self.key, self.unique)
 
     def get_values(self, model):
