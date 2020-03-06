@@ -13,7 +13,8 @@ def set_write_memoization(should_memoize_write):
 
 
 class BaseAttribute(object):
-    """Base type of all attributes of a base model.
+    """
+    Base type of all attributes of a base model.
 
     :param default: The value this attribute will be initialized with. If it is a callable object,
                     it will be called on initialization, else it will simply be copied. The callable

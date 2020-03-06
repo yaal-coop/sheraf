@@ -180,8 +180,9 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
     def copy(self, **kwargs):
         """
-        :param **kwargs: Keywords arguments will be passed to
-        :func:`~sheraf.models.BaseModel.create` and thus wont be copied.
+        :param \*\*kwargs: Keywords arguments will be passed to
+                           :func:`~sheraf.models.BaseModel.create` and thus
+                           wont be copied.
 
         :return: a copy of this instance.
         """

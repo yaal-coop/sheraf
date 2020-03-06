@@ -207,8 +207,18 @@ class BaseIndexedModel(BaseModel):
         """
         return getattr(self, self.primary_key())
 
-    def copy(self):
-        copy = super().copy()
+    def copy(self, **kwargs):
+        """
+        Copies a model.
+
+        :param \*\*kwargs: Keywords arguments will be passed to
+                         :func:`~sheraf.models.BaseModel.create` and thus
+                         wont be copied.
+
+        :return: a copy of this instance.
+        """
+
+        copy = super().copy(**kwargs)
         if hasattr(self, "make_id"):
             warnings.warn(
                 "BaseIndexedModel.make_id is deprecated and wont be supported with sheraf 0.2. "
