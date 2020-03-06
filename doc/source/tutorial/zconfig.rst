@@ -1,7 +1,8 @@
-Configuring a Database with a ZConfig file
-==========================================
+Database connection
+===================
 
-As ZODB databases and storages, sheraf :class:`~sheraf.databases.Database` can be configured using a configuration file. It is done through a `zodburi zconfig:// URI scheme <https://docs.pylonsproject.org/projects/zodburi/en/latest/#zconfig-uri-scheme>`_.
+As ZODB databases and storages, sheraf :class:`~sheraf.databases.Database` can be configured using a configuration file.
+It is done through a `zodburi <https://docs.pylonsproject.org/projects/zodburi/en/latest/#zconfig-uri-scheme>`_ ``zconfig://`` URI scheme.
 
 A simple example ZConfig file:
 
