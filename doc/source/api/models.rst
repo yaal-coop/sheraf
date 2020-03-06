@@ -13,10 +13,6 @@ Models
     :members:
     :show-inheritance:
 
-.. automodule:: sheraf.models.indexmanager
-    :members:
-    :show-inheritance:
-
 .. automodule:: sheraf.models.attributes
     :members:
     :show-inheritance:
