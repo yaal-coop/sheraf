@@ -1,10 +1,5 @@
-.. sheraf documentation master file, created by
-   sphinx-quickstart on Thu Mar 23 16:29:38 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 sheraf documentation
-===================
+====================
 
 sheraf is a wrapper library around `ZODB <http://www.zodb.org>`_. It aims to make the use of `ZODB` simple by providing ready-to-use tools and explicit tools. sheraf is currently compatible with `ZODB 5` and `python 3.5+`.
 
