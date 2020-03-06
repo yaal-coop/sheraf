@@ -253,7 +253,10 @@ class DictAttributeAccessor:
         return key in self._persistent
 
     def clear(self):
-        self._persistent.clear()
+        try:
+            self._persistent.clear()
+        except AssertionError:
+            pass
 
     def keys(self, *args, **kwargs):
         return self._persistent.keys(*args, **kwargs)
