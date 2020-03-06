@@ -1,5 +1,5 @@
-Model attribute indexation
-==========================
+Model indexation
+================
 
 .. contents::
    :local:
