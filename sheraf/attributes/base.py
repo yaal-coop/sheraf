@@ -17,7 +17,8 @@ def set_write_memoization(should_memoize_write):
 
 
 class BaseAttribute(object):
-    """Base type of all attributes of a base model.
+    """
+    Base type of all attributes of a base model.
 
     :param default: The value this attribute will be initialized with. If it is a callable object,
                     it will be called on initialization, else it will simply be copied. The callable
@@ -35,7 +36,7 @@ class BaseAttribute(object):
 
     When an attribute is memoized, its next reading will not result in a new database access.
     Attributes:
-        indexes    a dictionary of Indexes. The key with value None stands for this attribute's name. *Not intended for use*.
+    - indexes:    a dictionary of Indexes. The key with value None stands for this attribute's name.
     """
 
     default_index_mapping = OOBTree

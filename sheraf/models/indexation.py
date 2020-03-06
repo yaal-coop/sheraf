@@ -365,8 +365,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         The attributes carrying an unique index wont be copied, they will be
         resetted instead.
 
-        :param **kwargs: Keywords arguments will be passed to
-        :func:`~sheraf.models.BaseModel.create` and thus wont be copied.
+        :param \*\*kwargs: Keywords arguments will be passed to
+                         :func:`~sheraf.models.BaseModel.create` and thus
+                         wont be copied.
 
         :return: a copy of this instance.
         """
