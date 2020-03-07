@@ -411,6 +411,13 @@ class LargeDictAttribute(DictAttribute):
         super().__init__(*args, persistent_type=sheraf.types.LargeDict, **kwargs)
 
 
+class SmallDictAttribute(DictAttribute):
+    """Shortcut for ``DictAttribute(persistent_type=SmallDict)``"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, persistent_type=sheraf.types.SmallDict, **kwargs)
+
+
 class SetAttributeAccessor:
     def __init__(self, attribute, persistent, **kwargs):
         self._attribute = attribute

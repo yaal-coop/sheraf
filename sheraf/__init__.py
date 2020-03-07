@@ -12,6 +12,7 @@ from .attributes.collections import (
     LargeListAttribute,
     ListAttribute,
     SetAttribute,
+    SmallDictAttribute,
     SmallListAttribute,
 )
 from .attributes.counter import CounterAttribute
