@@ -1,5 +1,6 @@
 import sheraf.exceptions
 import sheraf.models
+import warnings
 
 
 class Index(sheraf.models.Model):
@@ -10,6 +11,15 @@ class Index(sheraf.models.Model):
         index_dict = sheraf.LargeDictAttribute(sheraf.ModelAttribute(User))
         key = lambda index, model: model.email
     """
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "sheraf.indexes.Index support will stop with sheraf 0.2."
+            "If you still want to use them, please copy the code in your projects.",
+            DeprecationWarning,
+            stacklevel=8,
+        )
+        super().__init__(*args, **kwargs)
 
     @classmethod
     def add(cls, model):

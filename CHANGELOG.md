@@ -5,6 +5,7 @@ Deprecated
 **********
 
 - :func:`sheraf.models.BaseIndexedAttribute.make_id`. Please use the 'default' parameter of your id :class:`~sheraf.attributes.base.BaseAttribute` instead.
+- :class:`~sheraf.indexes.Index`
 
 Added
 *****
