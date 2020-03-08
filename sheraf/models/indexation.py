@@ -1,5 +1,4 @@
 import itertools
-import warnings
 
 import sheraf.exceptions
 from sheraf.models.base import BaseModel, BaseModelMetaclass
@@ -28,23 +27,8 @@ class BaseIndexedModel(BaseModel):
 
     @classmethod
     def create(cls, *args, **kwargs):
-        if hasattr(cls, "make_id"):
-            args = list(args)
-            identifier = args.pop() if args else kwargs.get(cls.primary_key())
-            model = super().create(*args, **kwargs)
-
-            warnings.warn(
-                "BaseIndexedModel.make_id is deprecated and wont be supported with sheraf 0.2. "
-                "Please use your id attribute 'default' parameter instead.",
-                DeprecationWarning,
-                stacklevel=3,
-            )
-            identifier = identifier or model.make_id()
-            cls.index_setitem(identifier, model._persistent)
-            model.identifier = identifier
-        else:
-            model = super().create(*args, **kwargs)
-            cls.index_setitem(model.identifier, model._persistent)
+        model = super().create(*args, **kwargs)
+        cls.index_setitem(model.identifier, model._persistent)
 
         return model
 
@@ -219,17 +203,8 @@ class BaseIndexedModel(BaseModel):
         """
 
         copy = super().copy(**kwargs)
-        if hasattr(self, "make_id"):
-            warnings.warn(
-                "BaseIndexedModel.make_id is deprecated and wont be supported with sheraf 0.2. "
-                "Please use your id attribute 'default' parameter instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            setattr(copy, self.primary_key(), copy.make_id())
-        else:
-            if self.primary_key():
-                self.reset(self.primary_key())
+        if self.primary_key():
+            self.reset(self.primary_key())
 
         return copy
 
