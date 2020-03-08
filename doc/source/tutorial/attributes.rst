@@ -301,10 +301,34 @@ Note that you can define anonymous :class:`~sheraf.models.inline.InlineModel`:
 Files
 -----
 
+Sheraf offers two ways to store binary files in the database:
+:class:`~sheraf.attributes.blobs.BlobAttribute` and
+:class:`~sheraf.attributes.files.FileAttribute`.
+
 Blobs
 ~~~~~
 
-TODO
+:class:`~sheraf.attributes.blobs.BlobAttribute` makes use of ZODB
+:class:`~ZODB.zodb.Blob` objects to store binary files.
+
+.. code-block:: python
+
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "cowboy"
+    ...     name = sheraf.StringAttribute()
+    ...     fax = sheraf.BlobAttribute()
+    ...
+    >>> with sheraf.connection(commit=True): # doctest: +SKIP
+    ...     fax = sheraf.Blob(data=b"Hello George!", filename="fax.txt")
+    ...     george = Cowboy.create(name="George", fax=fax)
+    ...     george.fax.filename
+    ...     george.fax.data
+    'fax.txt'
+    b'Hello George!'
+
+The file content can either be passed to the :class:`~sheraf.attributes.blobs.Blob` object by the **data** or the **stream** parameter, depending on the format.
+
+As it uses ZODB :class:`~ZODB.zodb.Blob`, files will be removed from the filesystem after a database pack if :func:`~sheraf.attributes.blobs.Blob.delete` is called on the :class:`~sheraf.attributes.blobs.BlobAttribute`.
 
 Files
 ~~~~~
