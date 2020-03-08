@@ -45,7 +45,6 @@ from .exceptions import (
     SherafException,
     ObjectNotFoundException,
     ModelObjectNotFoundException,
-    IndexObjectNotFoundException,
     SameNameForTableException,
     NotConnectedException,
     InvalidFilterException,

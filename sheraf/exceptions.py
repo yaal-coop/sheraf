@@ -35,32 +35,6 @@ class ModelObjectNotFoundException(ObjectNotFoundException):
         super().__init__(message)
 
 
-class IndexObjectNotFoundException(ObjectNotFoundException):
-    """Raised when trying to read an unexisting :class:`IndexObject`.
-
-    :param index: Model Index of the unfound key
-    :type index: sheraf.indexes.Index
-    :param key: Unfound key
-    :type key: str
-    :param model_class: Model class of the indexed object
-    :type model_class: sheraf.models.BaseModelMetaclass
-    """
-
-    MESSAGE_TPL = "Key {key} not found on index {index_name} (model {model_name})"
-
-    def __init__(self, index, key, model_class):
-        self.index = index
-        self.model_class = model_class
-        self.key = key
-
-        _message = self.MESSAGE_TPL.format(
-            key=self.key,
-            model_name=self.model_class.__name__,
-            index_name=self.index.__class__.__name__,
-        )
-        super().__init__(_message)
-
-
 class SameNameForTableException(SherafException):
     """Raised when two models have the same "table" attribute.
 
