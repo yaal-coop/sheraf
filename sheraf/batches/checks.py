@@ -61,8 +61,9 @@ def check_conflict_resolution():
 
 def check_attributes_index(model_instance):
     """
-    Compute the values that should be indexed from the instance indexable attributes,
-    then checks if they are present in the index table.
+    For a given model instance compute all the values for all
+    the indexes, then checks the index table if the values
+    match the model instance.
     """
     root = sheraf.Database.current_connection().root()
     result = {}
@@ -81,7 +82,18 @@ def check_attributes_index(model_instance):
             result[index_name] = False
             continue
 
-        result[index_name] = all(value in index_table[index_name] for value in values)
+        if index.index.unique:
+            result[index_name] = all(
+                value in index_table[index_name]
+                and index_table[index_name][value] == model_instance._persistent
+                for value in values
+            )
+        else:
+            result[index_name] = all(
+                value in index_table[index_name]
+                and model_instance._persistent in index_table[index_name][value]
+                for value in values
+            )
     return result
 
 
