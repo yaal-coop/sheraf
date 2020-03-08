@@ -213,10 +213,8 @@ FileObject = FileObjectV2
 
 
 class FileAttribute(BaseAttribute):
-    """FileAttribute stores a file on disk.
-
-    prefer the use of :class:`~sheraf.attributes.blobs.BlobAttribute`
-    instead.
+    """
+    This attribute stores a file on disk.
     """
 
     def __init__(self, file_object_class=FileObject, **kwargs):

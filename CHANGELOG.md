@@ -1,10 +1,25 @@
-[Unreleased]
+[0.2.0]
 ============
+
+Removed
+*******
+
+- Old :class:`~sheraf.indexes.Index` class.
+- :func:`sheraf.models.BaseIndexedAttribute.make_id` support.
+
+[0.1.1 Unreleased]
+==================
 
 Deprecated
 **********
 
 - :func:`sheraf.models.BaseIndexedAttribute.make_id`. Please use the 'default' parameter of your id :class:`~sheraf.attributes.base.BaseAttribute` instead.
+- :class:`~sheraf.indexes.Index`
+
+Added
+*****
+
+- :class:`sheraf.attributes.collections.SmallDictAttribute`.
 
 [0.1.0] - 2020-02-11
 ====================

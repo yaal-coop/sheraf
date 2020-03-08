@@ -7,9 +7,10 @@ import sheraf.types
 
 
 class Blob(sheraf.models.inline.InlineModel):
-    """Blob objects wrap the raw data from regular files.
+    """
+    Blob objects wrap the raw data from regular files.
 
-    A :class:`ZODB.blob.Blob` is used to store the data.
+    ZODB :class:`ZODB.blob.Blob` are used to store the data.
     """
 
     @classmethod
@@ -36,7 +37,9 @@ class Blob(sheraf.models.inline.InlineModel):
 
     @property
     def data(self):
-        """The data contained in the blob."""
+        """
+        The file binary data.
+        """
         f = self._persistent["blob"].open()
         try:
             return f.read()
@@ -45,17 +48,23 @@ class Blob(sheraf.models.inline.InlineModel):
 
     @property
     def original_name(self):
-        """The original filename."""
+        """
+        The original filename.
+        """
         return self._persistent["original_name"]
 
     @property
     def file_extension(self):
-        """The original filename extension."""
+        """
+        The original filename extension.
+        """
         return self.original_name.split(".")[-1]
 
     @property
     def filename(self):
-        """The name of the blob file."""
+        """
+        The name of the blob file.
+        """
         f = self._persistent["blob"].open()
         try:
             return f.name
@@ -63,7 +72,9 @@ class Blob(sheraf.models.inline.InlineModel):
             f.close()
 
     def delete(self):
-        """Delete the object from the base."""
+        """
+        Delete the object from the base.
+        """
         self._persistent.clear()
 
     def __len__(self):
@@ -88,9 +99,9 @@ class Blob(sheraf.models.inline.InlineModel):
 
 
 class BlobAttribute(sheraf.attributes.models.InlineModelAttribute):
-    """Stores a file on disk.
-
-    This attribute is compatible with commits and rollbacks.
+    """
+    This attribute stores binary files.
+    It is mainly an interface that handles a :class:`~sheraf.attributes.blobs.Blob` object.
     """
 
     def __init__(self, model=Blob, **kwargs):

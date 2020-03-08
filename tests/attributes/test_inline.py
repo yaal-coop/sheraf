@@ -191,11 +191,13 @@ def test_anonymous_inline_model(sheraf_database):
     with sheraf.connection(commit=True):
         m = Model.create(inline={"name": "George Abitbol"})
         assert isinstance(m.inline, sheraf.InlineModel)
+        assert {"name": "George Abitbol"} == dict(m.inline._persistent)
         assert "George Abitbol" == m.inline.name
 
     with sheraf.connection():
         m = Model.read(m.id)
         assert isinstance(m.inline, sheraf.InlineModel)
+        assert {"name": "George Abitbol"} == dict(m.inline._persistent)
         assert "George Abitbol" == m.inline.name
 
 

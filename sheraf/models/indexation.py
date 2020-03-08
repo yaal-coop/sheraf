@@ -443,6 +443,7 @@ class IndexedModelMetaclass(BaseModelMetaclass):
 class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     """
     Top-level indexed models.
+
     Those models are stored at the root of the database. They must
     have a **table** parameter defined and an **id** attribute.
 
