@@ -1,6 +1,8 @@
 Model indexation
 ================
 
+Sheraf provides a way to quickly access your data matching some criterias. This section shows how to take advantage of sheraf indexes.
+
 .. contents::
    :local:
 
@@ -11,11 +13,11 @@ With large collections, searching for models with :func:`~sheraf.queryset.QueryS
 
 .. code-block:: python
 
-    >>> # The following statements have an equal complexity
+    >>> # The following statements have equal complexity
     >>> MyModel.filter(my_attribute="something") # doctest: +SKIP
     >>> (model for model in MyModel.all() if model.my_attribute == "something") # doctest: +SKIP
 
-Of course all the models are not loaded in memory at once due to the lazy behavior of :class:`~sheraf.queryset.QuerySet`, but the iteration still need to make numerous accesses to the database, thus severely degrading the performances.
+Of course all the models are not loaded in memory at once due to the lazy behavior of :class:`~sheraf.queryset.QuerySet`, but the iteration still need to make numerous accesses to the database, and test every model instance, thus severely degrading the performances.
 
 A solution to keep good performances is to use attribute indexation with :func:`~sheraf.attributes.base.BaseAttribute.index`. Indexing an attribute creates a new index table in the database. This table matches the model instances with their attribute values. Any piece of code that works with a non-indexed attribute will have the very same behavior, but faster.
 
