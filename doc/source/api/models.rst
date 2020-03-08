@@ -1,15 +1,27 @@
 Models
 ======
 
-.. automodule:: sheraf.models
-    :members:
-    :show-inheritance:
+.. contents::
+   :local:
+
+Base
+----
 
 .. automodule:: sheraf.models.base
     :members:
     :show-inheritance:
 
+Indexation mechanism
+--------------------
+
 .. automodule:: sheraf.models.indexation
+    :members:
+    :show-inheritance:
+
+Model flavors
+-------------
+
+.. automodule:: sheraf.models
     :members:
     :show-inheritance:
 
