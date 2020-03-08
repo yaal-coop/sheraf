@@ -49,7 +49,6 @@ from .exceptions import (
     QuerySetUnpackException,
     EmptyQuerySetUnpackException,
 )
-from .indexes import Index
 from .models import (
     AutoModel,
     IntAutoModel,
