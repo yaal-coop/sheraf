@@ -244,13 +244,13 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         )
 
     @classmethod
-    def filter_raw(cls, *args, **kwargs):
+    def search(cls, *args, **kwargs):
         """
-        Shortcut for :func:`sheraf.queryset.QuerySet.filter_raw`.
+        Shortcut for :func:`sheraf.queryset.QuerySet.search`.
 
         :return: :class:`sheraf.queryset.QuerySet`
         """
-        return sheraf.queryset.QuerySet(model_class=cls).filter_raw(*args, **kwargs)
+        return sheraf.queryset.QuerySet(model_class=cls).search(*args, **kwargs)
 
     @classmethod
     def order(cls, *args, **kwargs):

@@ -356,7 +356,7 @@ class QuerySet(object):
         """
         return self._filter(False, predicate=predicate, **kwargs)
 
-    def filter_raw(self, **kwargs):
+    def search(self, **kwargs):
         """
         Refine a copy of the current :class:`~sheraf.queryset.QuerySet` with further tests.
 
@@ -365,7 +365,7 @@ class QuerySet(object):
         TODO: pas très clair
 
         For instance, if an attribute indexes its values with a lowercase transformation, the
-        :func:`~sheraf.queryset.QuerySet.filter_raw` attributes will go through the same
+        :func:`~sheraf.queryset.QuerySet.search` attributes will go through the same
         transformation. Hence it allows to pass uppercase filter values, while
         :func:`~sheraf.queryset.QuerySet.filter` does not allow this.
 
@@ -378,10 +378,10 @@ class QuerySet(object):
         ...     m = MyCustomModel.create(my_attribute="FOO")
         ...
         >>> with sheraf.connection():
-        ...     assert [m] == MyCustomModel.filter_raw(my_attribute="foo")
+        ...     assert [m] == MyCustomModel.search(my_attribute="foo")
         ...     assert [m] == MyCustomModel.filter(my_attribute="foo")
         ...
-        ...     assert [m] == MyCustomModel.filter_raw(my_attribute="FOO")
+        ...     assert [m] == MyCustomModel.search(my_attribute="FOO")
         ...     assert [] == MyCustomModel.filter(my_attribute="FOO")
         """
 

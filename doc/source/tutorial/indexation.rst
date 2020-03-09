@@ -106,15 +106,15 @@ Here we pass the function ``lambda birth: {birth.year}`` that returns the birth 
     ...     # Search cowboy whose birth year matches a year
     ...     assert [peter] == Cowboy.filter(birth=1989)
 
-Note that the :func:`~sheraf.queryset.QuerySet.filter` **birth** parameter does not go through the same ``lambda birth: {birth.year}`` transformation, so passing a datetime to **birth** will not give any result. Of course searching for a date with another date is not very convenient nor meaningful here, but if you would, you could just use the :func:`~sheraf.queryset.QuerySet.filter_raw` method to do that.
+Note that the :func:`~sheraf.queryset.QuerySet.filter` **birth** parameter does not go through the same ``lambda birth: {birth.year}`` transformation, so passing a datetime to **birth** will not give any result. Of course searching for a date with another date is not very convenient nor meaningful here, but if you would, you could just use the :func:`~sheraf.queryset.QuerySet.search` method to do that.
 
 .. code-block:: python
 
     >>> with sheraf.connection():
-    ...     assert [peter] == Cowboy.filter_raw(birth=datetime(1989, 4, 13))
-    ...     assert [peter] == Cowboy.filter_raw(birth=datetime(1989, 6, 10))
+    ...     assert [peter] == Cowboy.search(birth=datetime(1989, 4, 13))
+    ...     assert [peter] == Cowboy.search(birth=datetime(1989, 6, 10))
 
-To summarize :func:`~sheraf.queryset.QuerySet.filter_raw` applies the values transformation to its parameters, and :func:`~sheraf.queryset.QuerySet.filter` does not.
+To summarize :func:`~sheraf.queryset.QuerySet.search` applies the values transformation to its parameters, and :func:`~sheraf.queryset.QuerySet.filter` does not.
 
 Multiple indexes
 ----------------
@@ -133,8 +133,8 @@ What if we want to index birth years and birth months? This is quite straightfor
     ...     peter = Cowboy.create(birth=datetime(1989, 4, 13))
     ...     assert [peter] == Cowboy.filter(year=1989)
     ...     assert [peter] == Cowboy.filter(month=4)
-    ...     assert [peter] == Cowboy.filter_raw(year=datetime(1989, 4, 13))
-    ...     assert [peter] == Cowboy.filter_raw(month=datetime(1989, 4, 13))
+    ...     assert [peter] == Cowboy.search(year=datetime(1989, 4, 13))
+    ...     assert [peter] == Cowboy.search(month=datetime(1989, 4, 13))
 
 Index several values at once
 ----------------------------

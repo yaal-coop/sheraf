@@ -364,14 +364,14 @@ def test_custom_indexation_method(sheraf_database):
         assert [m] == list(MyCustomModel.filter(foo="foo", bar="BAR"))
         assert [] == list(MyCustomModel.filter(foo="foo", bar="bar"))
 
-        assert [m] == list(MyCustomModel.filter_raw(foo="foo"))
-        assert [m] == list(MyCustomModel.filter_raw(foo="FOO"))
+        assert [m] == list(MyCustomModel.search(foo="foo"))
+        assert [m] == list(MyCustomModel.search(foo="FOO"))
 
-        assert [m] == list(MyCustomModel.filter_raw(foo="foo", bar="BAR"))
-        assert [m] == list(MyCustomModel.filter_raw(foo="FOO", bar="BAR"))
+        assert [m] == list(MyCustomModel.search(foo="foo", bar="BAR"))
+        assert [m] == list(MyCustomModel.search(foo="FOO", bar="BAR"))
 
-        assert [] == list(MyCustomModel.filter_raw(foo="foo", bar="bar"))
-        assert [] == list(MyCustomModel.filter_raw(foo="FOO", bar="bar"))
+        assert [] == list(MyCustomModel.search(foo="foo", bar="bar"))
+        assert [] == list(MyCustomModel.search(foo="FOO", bar="bar"))
 
     with sheraf.connection():
         with pytest.raises(sheraf.exceptions.UniqueIndexException):
