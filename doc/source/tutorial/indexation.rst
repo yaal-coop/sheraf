@@ -83,38 +83,58 @@ Note that when an attribute is unique, you can use the :func:`~sheraf.models.ind
 Custom values in the index
 --------------------------
 
-Sometimes you may want to transform a value before indexation. For instance, what if we would like to index cowboy not on their birth date, but on their birth year?
+Sometimes you may want to transform a value before indexation, or
+before querying the database.
 
-:func:`~sheraf.attributes.base.BaseAttribute.index` takes a `values` argument that is a function taking the attribute value, and returning a collection of values that should be indexed.
+Recording custom data
+`````````````````````
+
+For instance, what if we would like to index cowboy not its name, but on its initials?
+
+:func:`~sheraf.attributes.base.BaseAttribute.index` takes a `values` argument that is a function
+taking the attribute value, and returning a collection of values that should be indexed.
 
 .. code-block:: python
 
     >>> class Cowboy(sheraf.Model):
     ...     table = "valuable_cowboy"
-    ...     birth = sheraf.DateTimeAttribute().index(values=lambda birth: {birth.year})
+    ...     name = sheraf.StringAttribute().index(
+    ...         values=lambda name: {
+    ...             "".join(word[0] for word in name.split(" "))
+    ...         }
+    ...     )
     ...
     >>> from datetime import datetime
     >>> with sheraf.connection(commit=True):
-    ...     peter = Cowboy.create(birth=datetime(1989, 4, 13))
+    ...     george = Cowboy.create(name="George Abitbol")
 
 
-Here we pass the function ``lambda birth: {birth.year}`` that returns the birth year inside a python set. Now it is possible to search for someone only knowing its birth year with ``.filter(birth=1989)``.
+Here we pass the function *lambda* function that returns the initials inside a python set.
+Now it is possible to search for someone only knowing its initials.
 
 .. code-block:: python
 
     >>> with sheraf.connection():
     ...     # Search cowboy whose birth year matches a year
-    ...     assert [peter] == Cowboy.filter(birth=1989)
+    ...     assert [george] == Cowboy.filter(name="GA")
 
-Note that the :func:`~sheraf.queryset.QuerySet.filter` **birth** parameter does not go through the same ``lambda birth: {birth.year}`` transformation, so passing a datetime to **birth** will not give any result. Of course searching for a date with another date is not very convenient nor meaningful here, but if you would, you could just use the :func:`~sheraf.queryset.QuerySet.search` method to do that.
+Note that the :func:`~sheraf.queryset.QuerySet.filter` **name** parameter does not go through the same
+*lambda* transformation. It search for the exact data in the index.
+
+Reading custom data
+```````````````````
+
+Now what if you need to search for the initials of a cowboy based on another cowboy's name?
+You could just use the :func:`~sheraf.queryset.QuerySet.search` method to do that.
 
 .. code-block:: python
 
     >>> with sheraf.connection():
-    ...     assert [peter] == Cowboy.search(birth=datetime(1989, 4, 13))
-    ...     assert [peter] == Cowboy.search(birth=datetime(1989, 6, 10))
+    ...     assert [george] == Cowboy.search(name="Gerard Amsterdam")
+    ...     assert [george] == Cowboy.search(name="Geoffrey Abitbol")
 
-To summarize :func:`~sheraf.queryset.QuerySet.search` applies the values transformation to its parameters, and :func:`~sheraf.queryset.QuerySet.filter` does not.
+To summarize :func:`~sheraf.queryset.QuerySet.search` applies the values transformation to its parameters,
+and :func:`~sheraf.queryset.QuerySet.filter` does not.
 
 Multiple indexes
 ----------------
