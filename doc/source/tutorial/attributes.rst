@@ -309,8 +309,8 @@ more advanced indexation behavior, like with first-level models.
 model indexation machine. It handles a :class:`~sheraf.models.AttributeModel` and allows you to use
 the :func:`~sheraf.models.indexation.BaseIndexedModel.create`
 and :func:`~sheraf.models.indexation.BaseIndexedModel.read` methods from
-:class:`~sheraf.models.indexation.BaseIndexedModel`, and take advantages of the :func:`~sheraf.querysets.QuerySet.filter`
-and :func:`~sheraf.querysets.QuerySet.order` methods from :class:`~sheraf.querysets.QuerySet`.
+:class:`~sheraf.models.indexation.BaseIndexedModel`, and take advantages of the :func:`~sheraf.queryset.QuerySet.filter`
+and :func:`~sheraf.queryset.QuerySet.order` methods from :class:`~sheraf.queryset.QuerySet`.
 
 .. code-block:: python
 
