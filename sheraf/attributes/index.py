@@ -14,6 +14,9 @@ class Index:
                         indexed each time this attribute is edited. It may take time if
                         the generated collection is large. By default, the current
                         attribute raw value is used.
+    :param search_func: A callable that takes some raw data and returns a collection
+                        of values to search in the index. By default, *values_func*
+                        is used.
     :param mapping: The mapping object to be used to store the indexed values. OOBTree by
                     default.
     """
@@ -21,11 +24,14 @@ class Index:
     unique = False
     key = None
     values_func = None
+    search_func = None
     attribute = None
     mapping = None
     primary = False
 
-    def __init__(self, attribute, unique, key, values_func, mapping, primary):
+    def __init__(
+        self, attribute, unique, key, values_func, search_func, mapping, primary
+    ):
         def default_values_func(value):
             return {value}
 
@@ -33,6 +39,7 @@ class Index:
         self.unique = unique or primary
         self.key = key
         self.values_func = values_func or default_values_func
+        self.search_func = search_func or self.values_func
         self.mapping = mapping
         self.primary = primary
 

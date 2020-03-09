@@ -29,9 +29,9 @@ def test_set_write_memoization_to_false(sheraf_connection):
 
 
 def test_index():
-    primary = Index(None, True, "primary", None, None, True)
-    unique = Index(None, True, "unique", None, None, False)
-    multiple = Index(None, False, "multiple", None, None, False)
+    primary = Index(None, True, "primary", None, None, None, True)
+    unique = Index(None, True, "unique", None, None, None, False)
+    multiple = Index(None, False, "multiple", None, None, None, False)
 
     assert "<Index key=primary unique=True primary>" == repr(primary)
     assert "<Index key=unique unique=True>" == repr(unique)

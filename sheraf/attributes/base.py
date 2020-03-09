@@ -185,7 +185,15 @@ class BaseAttribute(object):
     def delete(self, parent):
         pass
 
-    def index(self, unique=False, key=None, values=None, mapping=None, primary=False):
+    def index(
+        self,
+        unique=False,
+        key=None,
+        values=None,
+        search=None,
+        mapping=None,
+        primary=False,
+    ):
         """
         Indexing an attribute allows very fast reading with :func:`~sheraf.queryset.QuerySet.filter` calls.
 
@@ -223,7 +231,13 @@ class BaseAttribute(object):
         UniqueIndexException
         """
         self.indexes[key] = Index(
-            self, unique, key, values, mapping or self.default_index_mapping, primary
+            self,
+            unique,
+            key,
+            values,
+            search,
+            mapping or self.default_index_mapping,
+            primary,
         )
         self.lazy_creation = False
 

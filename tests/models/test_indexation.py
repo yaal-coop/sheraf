@@ -378,6 +378,39 @@ def test_custom_indexation_method(sheraf_database):
             MyCustomModel.create(foo="FOO")
 
 
+def test_custom_query_method(sheraf_database):
+    class MyCustomModel(sheraf.IntAutoModel):
+        foo = sheraf.SimpleAttribute().index(
+            unique=True,
+            values=lambda string: {string.lower()},
+            search=lambda string: {string.lower()[::-1]},
+        )
+        bar = sheraf.SimpleAttribute().index()
+
+    with sheraf.connection(commit=True):
+        m = MyCustomModel.create(foo="FOO", bar="BAR")
+
+    with sheraf.connection() as conn:
+        index_table = conn.root()["mycustommodel"]["foo"]
+        assert {"foo"} == set(index_table)
+        assert m._persistent == index_table["foo"]
+
+        assert [m] == list(MyCustomModel.search(foo="oof"))
+        assert [] == list(MyCustomModel.search(foo="foo"))
+        assert [m] == list(MyCustomModel.search(foo="OOF"))
+        assert [] == list(MyCustomModel.search(foo="FOO"))
+
+        assert [m] == list(MyCustomModel.search(foo="oof", bar="BAR"))
+        assert [m] == list(MyCustomModel.search(foo="OOF", bar="BAR"))
+
+        assert [] == list(MyCustomModel.search(foo="oof", bar="bar"))
+        assert [] == list(MyCustomModel.search(foo="OOF", bar="bar"))
+
+    with sheraf.connection():
+        with pytest.raises(sheraf.exceptions.UniqueIndexException):
+            MyCustomModel.create(foo="FOO")
+
+
 # ------------------------------------------------------------------------------------------------
 # Cases that must fail
 # ------------------------------------------------------------------------------------------------
