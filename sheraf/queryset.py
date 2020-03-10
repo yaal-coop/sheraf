@@ -234,17 +234,14 @@ class QuerySet(object):
             self._iterator = iter(self._iterable)
             return
 
-        for (
-            filter_name,
-            filter_value,
-            filter_transformation,
-        ) in self.filters.values():
-            if filter_name not in self.model.indexes():
-                continue
+        indexed_filters = (
+            (name, value, transformation)
+            for (name, value, transformation) in self.filters.values()
+            if name in self.model.indexes()
+        )
 
-            self._init_indexed_iterator(
-                filter_name, filter_value, filter_transformation
-            )
+        for name, value, transformation in indexed_filters:
+            self._init_indexed_iterator(name, value, transformation)
 
             if self._iterator:
                 return
