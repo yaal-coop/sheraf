@@ -45,7 +45,9 @@ class IndexDetails:
 
     def __repr__(self):
         if self.primary:
-            return "<IndexDetails key={} unique={} primary>".format(self.key, self.unique)
+            return "<IndexDetails key={} unique={} primary>".format(
+                self.key, self.unique
+            )
         return "<IndexDetails key={} unique={}>".format(self.key, self.unique)
 
     def get_values(self, model):

@@ -121,9 +121,9 @@ class QuerySet(object):
             if filter_name in model.indexes():
                 index = model.indexes()[filter_name]
                 if filter_transformation:
-                    if not set(index.details.search_func(
-                        expected_value
-                    )) & set(index.details.get_values(model)):
+                    if not set(index.details.search_func(expected_value)) & set(
+                        index.details.get_values(model)
+                    ):
                         return False
                 else:
                     if expected_value not in index.details.get_values(model):
@@ -218,38 +218,41 @@ class QuerySet(object):
     def _init_indexed_iterator(self, filter_name, filter_value, filter_transformation):
         if not filter_transformation:
             self._iterator = self.model.read_these(**{filter_name: [filter_value]})
-        else:
-            index_values = self.model.indexes()[filter_name].details.search_func(
-                filter_value
-            )
-            # TODO: Now only the first index is used. When filters matches several
-            # indexes, we should maybe do something clever.
-            for index_value in index_values:
-                self._iterator = self.model.read_these(**{filter_name: [index_value]})
-                return
+            return
+
+        index_values = self.model.indexes()[filter_name].details.search_func(
+            filter_value
+        )
+        # TODO: Now only the first index is used. When filters matches several
+        # indexes, we should maybe do something clever.
+        for index_value in index_values:
+            self._iterator = self.model.read_these(**{filter_name: [index_value]})
+            return
 
     def _init_default_iterator(self, reverse=False):
-        if self.model:
-            for (
-                filter_name,
-                filter_value,
-                filter_transformation,
-            ) in self.filters.values():
-                if filter_name not in self.model.indexes():
-                    continue
-                self._init_indexed_iterator(
-                    filter_name, filter_value, filter_transformation
-                )
-                if self._iterator:
-                    return
-
-            if not self._iterator:
-                # Iterator over ids
-                keys = self.model.indexes()[self.model.primary_key()].iterkeys(reverse)
-                self._iterator = self.model.read_these(keys)
-
-        else:
+        if not self.model:
             self._iterator = iter(self._iterable)
+            return
+
+        for (
+            filter_name,
+            filter_value,
+            filter_transformation,
+        ) in self.filters.values():
+            if filter_name not in self.model.indexes():
+                continue
+
+            self._init_indexed_iterator(
+                filter_name, filter_value, filter_transformation
+            )
+
+            if self._iterator:
+                return
+
+        if not self._iterator:
+            # Iterator over ids
+            keys = self.model.indexes()[self.model.primary_key()].iterkeys(reverse)
+            self._iterator = self.model.read_these(keys)
 
     def _init_iterator(self):
         # The default sort order is by ascending identifier
