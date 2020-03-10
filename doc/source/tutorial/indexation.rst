@@ -19,7 +19,7 @@ With large collections, searching for models with :func:`~sheraf.queryset.QueryS
 
 Of course all the models are not loaded in memory at once due to the lazy behavior of :class:`~sheraf.queryset.QuerySet`, but the iteration still need to make numerous accesses to the database, and test every model instance, thus severely degrading the performances.
 
-A solution to keep good performances is to use attribute indexation with :func:`~sheraf.attributes.base.BaseAttribute.index`. Indexing an attribute creates a new index table in the database. This table matches the model instances with their attribute values. Any piece of code that works with a non-indexed attribute will have the very same behavior, but faster.
+A solution to keep good performances is to use attribute indexation with :func:`~sheraf.attributes.base.BaseAttribute.index`. Indexing an attribute creates a new index table in the database. This table matches the model instances with their attribute values. Any piece of code that works with a non-indexed attribute will have the very same behavior, but faster. So migrations are painless.
 
 .. code-block:: python
 
@@ -96,27 +96,27 @@ taking the attribute value, and returning a collection of values that should be 
 
 .. code-block:: python
 
+    >>> def initials(name):
+    ...     return "".join(word[0] for word in name.split(" "))
+    ...
     >>> class Cowboy(sheraf.Model):
     ...     table = "valuable_cowboy"
     ...     name = sheraf.StringAttribute().index(
-    ...         values=lambda name: {
-    ...             "".join(word[0] for word in name.split(" "))
-    ...         }
+    ...          values=lambda name: {initials(name)},
     ...     )
     ...
-    >>> from datetime import datetime
     >>> with sheraf.connection(commit=True):
     ...     george = Cowboy.create(name="George Abitbol")
 
 
-Here we pass the function *lambda* function that returns the initials inside a python set.
+Here we pass the a *lambda* function that returns the initials of a name inside a python set.
 Now it is possible to search for someone only knowing its initials.
 
 .. code-block:: python
 
     >>> with sheraf.connection():
-    ...     # Search cowboy whose birth year matches a year
     ...     assert [george] == Cowboy.filter(name="GA")
+    ...     assert [] == Cowboy.filter(name="George Abitbol")
 
 Note that the :func:`~sheraf.queryset.QuerySet.filter` **name** parameter does not go through the same
 *lambda* transformation. It search for the exact data in the index.
@@ -133,8 +133,35 @@ You could just use the :func:`~sheraf.queryset.QuerySet.search` method to do tha
     ...     assert [george] == Cowboy.search(name="Gerard Amsterdam")
     ...     assert [george] == Cowboy.search(name="Geoffrey Abitbol")
 
-To summarize :func:`~sheraf.queryset.QuerySet.search` applies the values transformation to its parameters,
-and :func:`~sheraf.queryset.QuerySet.filter` does not.
+You may want to be able to edit the values you pass to *name*. For instance, you may want
+your users to be able to search for initials in whatever order they have been passed.
+
+:func:`~sheraf.attributes.base.BaseAttribute.index` takes a `search` argument that is a function
+taking the data you want to search, and return a collection of keys to search in the index.
+:func:`~sheraf.queryset.QuerySet.search` will search for all the keys in the index, and will
+return the matching model instances.
+By default the `search` argument takes the same argument than the
+:func:`~sheraf.attributes.base.BaseAttribute.index` *values* argument.
+
+.. code-block:: python
+
+    >>> from itertools import permutations
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "invaluable_cowboy"
+    ...     name = sheraf.StringAttribute().index(
+    ...         values=lambda name: {initials(name)},
+    ...         search=lambda name: {
+    ...             "".join(p) for p in permutations(initials(name))
+    ...         },
+    ...     )
+    ...
+    >>> with sheraf.connection(commit=True):
+    ...     george = Cowboy.create(name="George Abitbol")
+    ...
+    ...     assert [george] == Cowboy.search(name="Amsterdam Gerard")
+
+Now we index the initials of cowboys, but we search for all the combinations of initials
+with the words that are passed to the *search* argument.
 
 Multiple indexes
 ----------------
@@ -149,31 +176,13 @@ What if we want to index birth years and birth months? This is quite straightfor
     ...         .index(key="year", values=lambda birth: {birth.year}) \
     ...         .index(key="month", values=lambda birth: {birth.month})
     ...
+    >>> from datetime import datetime
     >>> with sheraf.connection():
     ...     peter = Cowboy.create(birth=datetime(1989, 4, 13))
     ...     assert [peter] == Cowboy.filter(year=1989)
     ...     assert [peter] == Cowboy.filter(month=4)
     ...     assert [peter] == Cowboy.search(year=datetime(1989, 4, 13))
     ...     assert [peter] == Cowboy.search(month=datetime(1989, 4, 13))
-
-Index several values at once
-----------------------------
-
-The value transformation function must return a collection of values, and every values in the collection will be indexed. So based on his full name, we can index a person first and last name. The idea is that we want to be able to find a person knowing only his first name, or only his last name. For instance, we want to be able to find *George Abitbol* even if we only know his name is *Abitbol*.
-
-.. code-block:: python
-
-    >>> class Cowboy(sheraf.Model):
-    ...     table = "numerous_cowboy"
-    ...     name = sheraf.SimpleAttribute().index(values=lambda name: set(name.split(" ")))
-    ...
-    >>> with sheraf.connection():
-    ...     george = Cowboy.create(name="George Abitbol")
-    ...     # here the values function produces {'George', 'Abitbol'} and indexes this object
-    ...     # for 'George' and 'Abitbol'
-    ...
-    ...     assert [george] == Cowboy.filter(name="George")
-    ...     assert [george] == Cowboy.filter(name="Abitbol")
 
 Dig a bit deeper
 ````````````````
@@ -246,7 +255,7 @@ Sheraf provides tools to check the health of your model tables. So now, let us c
             |___/_| |_|\___|_|  \__,_|_|    \___|_| |_|\___|\___|_|\_\___/
     ===============================================================================
     Analyzing your models, this operation can be very long...
-    ================================================================================
+    ===============================================================================
     index                                                         OK       KO
     - __main__.Cowboy_____________________________________ TOTAL: 0_______ 3_______
       - name_____________________________________________________ 0_______ 3_______
