@@ -32,7 +32,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
     def primary_key(cls):
         if cls._primary_key is None:
             for index_name, index in cls.indexes().items():
-                if not index.index.primary:
+                if not index.details.primary:
                     continue
 
                 if cls._primary_key is None:
@@ -125,7 +125,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
                 "'{}' is not a valid index".format(index_name)
             )
 
-        if not index.index.unique:
+        if not index.details.unique:
             raise sheraf.exceptions.MultipleIndexException(
                 "'{}' is a multiple index and cannot be used with 'read'".format(
                     index_name
@@ -180,7 +180,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
                 "'{}' is not a valid index".format(index_name)
             )
 
-        if index.index.unique:
+        if index.details.unique:
             return (cls._decorate(cls._read_model_index(key, index)) for key in keys)
 
         else:
@@ -198,7 +198,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
             return index.get_item(key)
         except KeyError:
             raise sheraf.exceptions.ModelObjectNotFoundException(
-                cls, key, index.index.key
+                cls, key, index.details.key
             )
 
     @classmethod
@@ -223,14 +223,14 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
             ]
 
         for index in indexes:
-            if index.index.primary:
+            if index.details.primary:
                 continue
 
             index.delete()
 
         for m in cls.all():
             for index in indexes:
-                if not index.index.primary:
+                if not index.details.primary:
                     index.add_item(m)
 
     @classmethod
@@ -373,9 +373,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         """
 
         unique_attributes = (
-            index.index.attribute
+            index.details.attribute
             for index in self.indexes().values()
-            if index.index.unique
+            if index.details.unique
         )
 
         for attribute in unique_attributes:

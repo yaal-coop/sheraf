@@ -73,16 +73,16 @@ def check_attributes_index(model_instance):
         return result
 
     for index_name, index in model_instance.indexes().items():
-        if index.index.primary:
+        if index.details.primary:
             continue
 
-        values = index.index.get_values(model_instance)
+        values = index.details.get_values(model_instance)
 
         if values and index_name not in index_table:
             result[index_name] = False
             continue
 
-        if index.index.unique:
+        if index.details.unique:
             result[index_name] = all(
                 value in index_table[index_name]
                 and index_table[index_name][value] == model_instance._persistent
@@ -117,12 +117,12 @@ def check_model_index(model):
     for attribute_index_key, attribute_index_table in index_table.items():
         index = model.indexes()[attribute_index_key]
 
-        if index.index.primary:
+        if index.details.primary:
             continue
 
         for m_persistent in attribute_index_table.values():
             try:
-                if index.index.unique:
+                if index.details.unique:
                     model.read(model._decorate(m_persistent).identifier)
                 else:
                     [

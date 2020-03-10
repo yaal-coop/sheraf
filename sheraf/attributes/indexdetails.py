@@ -1,4 +1,4 @@
-class Index:
+class IndexDetails:
     """
     :param attribute: The attribute being indexed
     :type attribute: class BaseAttribute

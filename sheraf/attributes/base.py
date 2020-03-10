@@ -1,5 +1,5 @@
 from BTrees.OOBTree import OOBTree
-from sheraf.attributes.index import Index
+from sheraf.attributes.indexdetails import IndexDetails
 
 
 READ_MEMOIZATION = False
@@ -230,7 +230,7 @@ class BaseAttribute(object):
             ...
         UniqueIndexException
         """
-        self.indexes[key] = Index(
+        self.indexes[key] = IndexDetails(
             self,
             unique,
             key,

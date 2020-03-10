@@ -21,8 +21,8 @@ class IndexManager:
     root_default = sheraf.types.SmallDict
     index_multiple_default = sheraf.types.LargeList
 
-    def __init__(self, index):
-        self.index = index
+    def __init__(self, details):
+        self.details = details
 
     def add_item(self, model, keys=None):
         """
@@ -34,12 +34,12 @@ class IndexManager:
                      are set.
         """
         if not keys:
-            keys = self.index.values_func(self.index.attribute.read(model))
+            keys = self.details.values_func(self.details.attribute.read(model))
 
         table = self.table()
 
         for key in keys:
-            if self.index.unique:
+            if self.details.unique:
                 self._table_set_unique(table, key, model._persistent)
             else:
                 self._table_set_multiple(table, key, model._persistent)
@@ -54,7 +54,7 @@ class IndexManager:
                      are removed.
         """
         if not keys:
-            keys = self.index.values_func(self.index.attribute.read(model))
+            keys = self.details.values_func(self.details.attribute.read(model))
 
         table = self.table()
 
@@ -62,14 +62,14 @@ class IndexManager:
             if key not in table:
                 continue
 
-            if self.index.unique:
+            if self.details.unique:
                 self._table_del_unique(table, key, model._persistent)
             else:
                 self._table_del_multiple(table, key, model._persistent)
 
     def update_item(self, item, old_keys, new_keys):
-        old_values = self.index.values_func(old_keys)
-        new_values = self.index.values_func(new_keys)
+        old_values = self.details.values_func(old_keys)
+        new_values = self.details.values_func(new_keys)
         del_values = old_values - new_values
         add_values = new_values - old_values
 
@@ -88,7 +88,7 @@ class IndexManager:
         if key in table:
             raise sheraf.exceptions.UniqueIndexException(
                 "The key '{}' is already present in the index '{}'".format(
-                    key, self.index.key
+                    key, self.details.key
                 )
             )
         table[key] = value
@@ -105,23 +105,23 @@ class SimpleIndexManager(IndexManager):
         return self.persistent is not None
 
     def table_initialized(self):
-        return self.index.key in self.persistent
+        return self.details.key in self.persistent
 
     def table(self):
         try:
-            return self.persistent[self.index.key]
+            return self.persistent[self.details.key]
         except KeyError:
-            return self.persistent.setdefault(self.index.key, self.index.mapping())
+            return self.persistent.setdefault(self.details.key, self.details.mapping())
 
     def get_item(self, key):
-        return self.persistent[self.index.key][key]
+        return self.persistent[self.details.key][key]
 
     def iterkeys(self, reverse=False):
         return table_iterkeys(self.table(), reverse)
 
     def count(self):
         try:
-            return len(self.persistent[self.index.key])
+            return len(self.persistent[self.details.key])
         except KeyError:
             return 0
 
@@ -154,7 +154,7 @@ class MultipleDatabaseIndexManager(IndexManager):
 
     def delete(self):
         try:
-            del self.root()[self.index.key]
+            del self.root()[self.details.key]
         except KeyError:
             pass
 
@@ -172,12 +172,12 @@ class MultipleDatabaseIndexManager(IndexManager):
         root = self.root(database_name, setdefault)
 
         try:
-            return root[self.index.key]
+            return root[self.details.key]
         except KeyError:
             if not setdefault:
                 raise
 
-        return root.setdefault(self.index.key, self.index.mapping())
+        return root.setdefault(self.details.key, self.details.mapping())
 
     def tables(self):
         tables = []
@@ -198,7 +198,7 @@ class MultipleDatabaseIndexManager(IndexManager):
                 continue
 
             try:
-                if self.root(db_name, False) and self.index.key in self.root(
+                if self.root(db_name, False) and self.details.key in self.root(
                     db_name, False
                 ):
 

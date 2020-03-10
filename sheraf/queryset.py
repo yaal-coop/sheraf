@@ -121,12 +121,12 @@ class QuerySet(object):
             if filter_name in model.indexes():
                 index = model.indexes()[filter_name]
                 if filter_transformation:
-                    if index.index.search_func(
+                    if index.details.search_func(
                         expected_value
-                    ) != index.index.get_values(model):
+                    ) != index.details.get_values(model):
                         return False
                 else:
-                    if expected_value not in index.index.get_values(model):
+                    if expected_value not in index.details.get_values(model):
                         return False
 
             elif filter_name in model.attributes:
@@ -219,7 +219,7 @@ class QuerySet(object):
         if not filter_transformation:
             self._iterator = self.model.read_these(**{filter_name: [filter_value]})
         else:
-            index_values = self.model.indexes()[filter_name].index.search_func(
+            index_values = self.model.indexes()[filter_name].details.search_func(
                 filter_value
             )
             # TODO: Now only the first index is used. When filters matches several
