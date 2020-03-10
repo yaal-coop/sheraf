@@ -383,7 +383,7 @@ def test_custom_query_method(sheraf_database):
         foo = sheraf.SimpleAttribute().index(
             unique=True,
             values=lambda string: {string.lower()},
-            search=lambda string: {string.lower()[::-1]},
+            search=lambda string: {string.lower(), string.lower()[::-1]},
         )
         bar = sheraf.SimpleAttribute().index()
 
@@ -396,9 +396,9 @@ def test_custom_query_method(sheraf_database):
         assert m._persistent == index_table["foo"]
 
         assert [m] == list(MyCustomModel.search(foo="oof"))
-        assert [] == list(MyCustomModel.search(foo="foo"))
+        assert [m] == list(MyCustomModel.search(foo="foo"))
         assert [m] == list(MyCustomModel.search(foo="OOF"))
-        assert [] == list(MyCustomModel.search(foo="FOO"))
+        assert [m] == list(MyCustomModel.search(foo="FOO"))
 
         assert [m] == list(MyCustomModel.search(foo="oof", bar="BAR"))
         assert [m] == list(MyCustomModel.search(foo="OOF", bar="BAR"))

@@ -121,9 +121,9 @@ class QuerySet(object):
             if filter_name in model.indexes():
                 index = model.indexes()[filter_name]
                 if filter_transformation:
-                    if index.details.search_func(
+                    if not set(index.details.search_func(
                         expected_value
-                    ) != index.details.get_values(model):
+                    )) & set(index.details.get_values(model)):
                         return False
                 else:
                     if expected_value not in index.details.get_values(model):
