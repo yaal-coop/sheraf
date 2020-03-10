@@ -1,5 +1,5 @@
 import sheraf
-from sheraf.attributes.index import Index
+from sheraf.attributes.indexdetails import IndexDetails
 
 
 def test_default_read_and_write_memoization_attribute(sheraf_connection):
@@ -29,10 +29,10 @@ def test_set_write_memoization_to_false(sheraf_connection):
 
 
 def test_index():
-    primary = Index(None, True, "primary", None, None, None, True)
-    unique = Index(None, True, "unique", None, None, None, False)
-    multiple = Index(None, False, "multiple", None, None, None, False)
+    primary = IndexDetails(None, True, "primary", None, None, None, True)
+    unique = IndexDetails(None, True, "unique", None, None, None, False)
+    multiple = IndexDetails(None, False, "multiple", None, None, None, False)
 
-    assert "<Index key=primary unique=True primary>" == repr(primary)
-    assert "<Index key=unique unique=True>" == repr(unique)
-    assert "<Index key=multiple unique=False>" == repr(multiple)
+    assert "<IndexDetails key=primary unique=True primary>" == repr(primary)
+    assert "<IndexDetails key=unique unique=True>" == repr(unique)
+    assert "<IndexDetails key=multiple unique=False>" == repr(multiple)
