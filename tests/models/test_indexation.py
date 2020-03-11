@@ -383,7 +383,7 @@ def test_custom_query_method(sheraf_database):
         foo = sheraf.SimpleAttribute().index(
             unique=True,
             values=lambda string: {string.lower()},
-            search=lambda string: {string.lower(), string.lower()[::-1]},
+            search=lambda string: [string.lower()[::-1], string.lower()],
         )
         bar = sheraf.SimpleAttribute().index()
 
