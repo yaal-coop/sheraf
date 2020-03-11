@@ -193,6 +193,41 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
             )
 
     @classmethod
+    def read_these_valid(cls, *args, **kwargs):
+        if len(args) + len(kwargs) != 1:
+            raise TypeError(
+                "BaseIndexedModel.read_these_valid takes only one positionnal or named parameter"
+            )
+
+        if args:
+            index_name = cls.primary_key()
+            keys = args[0]
+
+        else:
+            index_name, keys = list(kwargs.items())[0]
+
+        try:
+            index = cls.indexes()[index_name]
+        except KeyError:
+            raise sheraf.exceptions.InvalidIndexException(
+                "'{}' is not a valid index".format(index_name)
+            )
+
+        if index.details.unique:
+            return (
+                cls._decorate(index.get_item(key))
+                for key in keys
+                if index.has_item(key)
+            )
+
+        else:
+            return itertools.chain.from_iterable(
+                (cls._decorate(mapping) for mapping in index.get_item(key))
+                for key in keys
+                if index.has_item(key)
+            )
+
+    @classmethod
     def _read_model_index(cls, key, index):
         try:
             return index.get_item(key)

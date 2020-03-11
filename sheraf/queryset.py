@@ -9,6 +9,7 @@ import sheraf.constants
 from sheraf.exceptions import InvalidFilterException, InvalidOrderException
 
 from collections.abc import Iterable, Sized
+from sheraf.tools.more_itertools import unique_everseen
 
 
 class QuerySet(object):
@@ -216,18 +217,17 @@ class QuerySet(object):
         return QuerySet(itertools.islice(self._iterator, start, stop, step))
 
     def _init_indexed_iterator(self, filter_name, filter_value, filter_transformation):
-        if not filter_transformation:
-            self._iterator = self.model.read_these(**{filter_name: [filter_value]})
-            return
-
-        index_values = self.model.indexes()[filter_name].details.search_func(
-            filter_value
+        index = self.model.indexes()[filter_name]
+        index_values = (
+            index.details.search_func(filter_value)
+            if filter_transformation
+            else [filter_value]
         )
-        # TODO: Now only the first index is used. When filters matches several
-        # indexes, we should maybe do something clever.
-        for index_value in index_values:
-            self._iterator = self.model.read_these(**{filter_name: [index_value]})
-            return
+
+        self._iterator = self.model.read_these_valid(**{filter_name: index_values})
+
+        if not index.details.unique:
+            self._iterator = unique_everseen(self._iterator, lambda m: m.identifier)
 
     def _init_default_iterator(self, reverse=False):
         if not self.model:
@@ -247,8 +247,8 @@ class QuerySet(object):
                 return
 
         if not self._iterator:
-            # Iterator over ids
-            keys = self.model.indexes()[self.model.primary_key()].iterkeys(reverse)
+            identifier_index = self.model.indexes()[self.model.primary_key()]
+            keys = identifier_index.iterkeys(reverse)
             self._iterator = self.model.read_these(keys)
 
     def _init_iterator(self):

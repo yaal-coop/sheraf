@@ -116,6 +116,9 @@ class SimpleIndexManager(IndexManager):
     def get_item(self, key):
         return self.persistent[self.details.key][key]
 
+    def has_item(self, key):
+        return self.persistent[self.details.key].has_key(key)
+
     def iterkeys(self, reverse=False):
         return table_iterkeys(self.table(), reverse)
 
@@ -220,6 +223,13 @@ class MultipleDatabaseIndexManager(IndexManager):
             raise last_exc
 
         raise KeyError
+
+    def has_item(self, key):
+        for table in self.tables():
+            if table.has_key(key):
+                return True
+
+        return False
 
     def iterkeys(self, reverse=False):
         return itertools.chain.from_iterable(

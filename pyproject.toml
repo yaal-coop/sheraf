@@ -47,7 +47,6 @@ relstorage = {version = "*", optional=true}
 
 colored = {version = "*", optional=true}
 tqdm = {version = "*", optional=true}
-pytest-cov = "*"
 
 [tool.poetry.extras]
 all = [
@@ -87,6 +86,7 @@ pytest-xdist = "*"
 werkzeug = "*"
 wtforms = "*"
 tox = "*"
+unidecode = "*"
 
 
 [tool.coverage.run]
