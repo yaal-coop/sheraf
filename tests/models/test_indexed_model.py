@@ -98,10 +98,10 @@ def test_single_database(sheraf_database):
         m = MyModel.create()
 
     with sheraf.connection() as connection:
-        assert connection.root()[MyModel.table]["id"][m.id] is m._persistent
+        assert connection.root()[MyModel.table]["id"][m.id] is m.mapping
 
 
-def test_id_in_persistent_uuid_model(sheraf_database):
+def test_id_inmapping_uuid_model(sheraf_database):
     mid = uuid.uuid4()
 
     class M(sheraf.Model):
@@ -112,10 +112,10 @@ def test_id_in_persistent_uuid_model(sheraf_database):
 
     with sheraf.connection():
         m = M.create()
-        assert mid.int == m._persistent["id"]
+        assert mid.int == m.mapping["id"]
 
 
-def test_id_in_persistent_int_model(sheraf_database):
+def test_id_inmapping_int_model(sheraf_database):
     mid = 15
 
     class M(sheraf.IntIndexedNamedAttributesModel):
@@ -126,10 +126,10 @@ def test_id_in_persistent_int_model(sheraf_database):
 
     with sheraf.connection():
         m = M.create()
-        assert mid == m._persistent["id"]
+        assert mid == m.mapping["id"]
 
 
-def test_id_in_persistent_automodel(sheraf_database):
+def test_id_inmapping_automodel(sheraf_database):
     mid = str(uuid.uuid4())
 
     class M(sheraf.AutoModel):
@@ -139,4 +139,4 @@ def test_id_in_persistent_automodel(sheraf_database):
 
     with sheraf.connection():
         m = M.create()
-        assert mid == str(uuid.UUID(int=m._persistent["id"]))
+        assert mid == str(uuid.UUID(int=m.mapping["id"]))

@@ -8,7 +8,7 @@ Let us see how sheraf cowboys behave in parallelize contexts.
     :hide:
 
     >>> from tests import utils
-    >>> persistent_dir, old_persistent_dir = utils.create_temp_directory()
+    >>> persistent_dir, oldmapping_dir = utils.create_temp_directory()
     >>> zeo_process, zeo_port = utils.start_zeo_server(persistent_dir)
     >>> try:
     ...     sheraf.Database.get().close()
@@ -97,4 +97,4 @@ The connection context in the ``practice_gun`` function has raised a :class:`Key
 
     >>> db.close()
     >>> utils.stop_zeo_server(zeo_process, silent=True)
-    >>> utils.delete_temp_directory(persistent_dir, old_persistent_dir)
+    >>> utils.delete_temp_directory(persistent_dir, oldmapping_dir)

@@ -29,7 +29,7 @@ def test_inline_model_dict(sheraf_connection):
     for _key in _model.inlines:
         _count += 1
     assert 1 == _count
-    assert isinstance(_model._persistent["inlines"], sheraf.types.LargeDict)
+    assert isinstance(_model.mapping["inlines"], sheraf.types.LargeDict)
 
     assert _inline == _model.inlines.get("a")
     assert _model.inlines.get("b") is None
@@ -57,15 +57,15 @@ def test_create(sheraf_database):
 
     with sheraf.connection(commit=True):
         model = ModelForTest.create(inlines={"a": {"name": "A"}, "b": {"name": "B"}})
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
-        assert isinstance(model._persistent["inlines"]["a"], sheraf.types.SmallDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"]["a"], sheraf.types.SmallDict)
         assert isinstance(model.inlines["a"], DictInlineModel)
         assert "A" == model.inlines["a"].name
 
     with sheraf.connection():
         model = ModelForTest.read(model.id)
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
-        assert isinstance(model._persistent["inlines"]["a"], sheraf.types.SmallDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"]["a"], sheraf.types.SmallDict)
         assert isinstance(model.inlines["a"], DictInlineModel)
         assert "A" == model.inlines["a"].name
 
@@ -78,7 +78,7 @@ def test_default_parameter(sheraf_connection):
 
     model = Model.create()
     model.inlines[0] = DictInlineModel.create()
-    assert isinstance(model._persistent["inlines"], IOBTree)
+    assert isinstance(model.mapping["inlines"], IOBTree)
 
 
 def test_clear(sheraf_connection):
@@ -172,28 +172,28 @@ def test_update_edition(sheraf_database):
         model = Model.create(inlines={"a": {"name": "c"}, "b": {"name": "c"}})
 
     with sheraf.connection(commit=True):
-        old_sub_persistent = model.inlines["a"]._persistent
+        old_submapping = model.inlines["a"].mapping
         model.edit(
             value={"inlines": {"a": {"name": "a"}, "b": {"name": "b"}}}, edition=True
         )
-        new_sub_persistent = model.inlines["a"]._persistent
+        new_submapping = model.inlines["a"].mapping
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert isinstance(model.inlines["a"], DictInlineModel)
-        assert isinstance(new_sub_persistent, sheraf.types.SmallDict)
+        assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "a" == model.inlines["a"].name
         assert "b" == model.inlines["b"].name
-        assert old_sub_persistent is new_sub_persistent
+        assert old_submapping is new_submapping
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert isinstance(model.inlines["a"], DictInlineModel)
-        assert isinstance(new_sub_persistent, sheraf.types.SmallDict)
+        assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "a" == model.inlines["a"].name
         assert "b" == model.inlines["b"].name
-        assert old_sub_persistent is new_sub_persistent
+        assert old_submapping is new_submapping
 
 
 def test_update_no_edition(sheraf_database):
@@ -206,28 +206,28 @@ def test_update_no_edition(sheraf_database):
         model = Model.create(inlines={"a": {"name": "c"}, "b": {"name": "c"}})
 
     with sheraf.connection(commit=True):
-        old_sub_persistent = model.inlines["a"]._persistent
+        old_submapping = model.inlines["a"].mapping
         model.edit(
             value={"inlines": {"a": {"name": "a"}, "b": {"name": "b"}}}, edition=False
         )
-        new_sub_persistent = model.inlines["a"]._persistent
+        new_submapping = model.inlines["a"].mapping
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert isinstance(model.inlines["a"], DictInlineModel)
-        assert isinstance(new_sub_persistent, sheraf.types.SmallDict)
+        assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "c" == model.inlines["a"].name
         assert "c" == model.inlines["b"].name
-        assert old_sub_persistent is new_sub_persistent
+        assert old_submapping is new_submapping
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert isinstance(model.inlines["a"], DictInlineModel)
-        assert isinstance(new_sub_persistent, sheraf.types.SmallDict)
+        assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "c" == model.inlines["a"].name
         assert "c" == model.inlines["b"].name
-        assert old_sub_persistent is new_sub_persistent
+        assert old_submapping is new_submapping
 
 
 def test_update_replacement(sheraf_database):
@@ -240,30 +240,30 @@ def test_update_replacement(sheraf_database):
         model = Model.create(inlines={"a": {"name": "c"}, "b": {"name": "c"}})
 
     with sheraf.connection(commit=True):
-        old_sub_persistent = model.inlines["a"]._persistent
+        old_submapping = model.inlines["a"].mapping
         model.edit(
             value={"inlines": {"a": {"name": "a"}, "b": {"name": "b"}}},
             edition=True,
             replacement=True,
         )
-        new_sub_persistent = model.inlines["a"]._persistent
+        new_submapping = model.inlines["a"].mapping
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert isinstance(model.inlines["a"], DictInlineModel)
-        assert isinstance(new_sub_persistent, sheraf.types.SmallDict)
+        assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "a" == model.inlines["a"].name
         assert "b" == model.inlines["b"].name
-        assert old_sub_persistent is not new_sub_persistent
+        assert old_submapping is not new_submapping
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert isinstance(model.inlines["a"], DictInlineModel)
-        assert isinstance(new_sub_persistent, sheraf.types.SmallDict)
+        assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "a" == model.inlines["a"].name
         assert "b" == model.inlines["b"].name
-        assert old_sub_persistent is not new_sub_persistent
+        assert old_submapping is not new_submapping
 
 
 def test_update_addition(sheraf_database):
@@ -278,13 +278,13 @@ def test_update_addition(sheraf_database):
     with sheraf.connection(commit=True):
         model.edit(value={"inlines": {"b": {"name": "b"}}}, addition=False)
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert "b" not in model.inlines
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert "b" not in model.inlines
 
 
@@ -300,18 +300,18 @@ def test_update_no_addition(sheraf_database):
     with sheraf.connection(commit=True):
         model.edit(value={"inlines": {"b": {"name": "b"}}}, addition=True)
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert isinstance(model.inlines["b"], DictInlineModel)
-        assert isinstance(model.inlines["b"]._persistent, sheraf.types.SmallDict)
+        assert isinstance(model.inlines["b"].mapping, sheraf.types.SmallDict)
         assert "a" == model.inlines["a"].name
         assert "b" == model.inlines["b"].name
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert isinstance(model.inlines["b"], DictInlineModel)
-        assert isinstance(model.inlines["b"]._persistent, sheraf.types.SmallDict)
+        assert isinstance(model.inlines["b"].mapping, sheraf.types.SmallDict)
         assert "a" == model.inlines["a"].name
         assert "b" == model.inlines["b"].name
 
@@ -328,13 +328,13 @@ def test_update_deletion(sheraf_database):
     with sheraf.connection(commit=True):
         model.edit(value={"inlines": {}}, deletion=True)
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert "a" not in model.inlines
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert "a" not in model.inlines
 
 
@@ -350,11 +350,11 @@ def test_update_no_deletion(sheraf_database):
     with sheraf.connection(commit=True):
         model.edit(value={"inlines": {}}, deletion=False)
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert "a" in model.inlines
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert "a" in model.inlines

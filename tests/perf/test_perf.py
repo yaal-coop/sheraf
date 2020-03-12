@@ -74,7 +74,7 @@ class PerfSherafCaseHugeWrite:
             "--- Ecriture sheraf inline en %s secondes ---" % (time.time() - start_time)
         )
 
-    def zodb_perf_persistent_mapping(self, sheraf_database):
+    def zodb_perfmapping_mapping(self, sheraf_database):
         start_time = time.time()
         with sheraf.connection() as c:
             c.root()["parents"] = sheraf.types.LargeDict()
@@ -92,7 +92,7 @@ class PerfSherafCaseHugeWrite:
             % (time.time() - start_time)
         )
 
-    def zodb_perf_persistent(self, sheraf_database):
+    def zodb_perfmapping(self, sheraf_database):
         start_time = time.time()
         with sheraf.connection() as c:
             c.root()["parents"] = sheraf.types.LargeDict()
@@ -110,7 +110,7 @@ class PerfSherafCaseHugeWrite:
             % (time.time() - start_time)
         )
 
-    def zodb_perf_persistent_with_one(self, sheraf_database):
+    def zodb_perfmapping_with_one(self, sheraf_database):
         for num_object in [1, 2, 10, 100, 1000, 10000, 100000]:
             start_time = time.time()
             with sheraf.connection() as c:
@@ -129,7 +129,7 @@ class PerfSherafCaseHugeWrite:
                 % (time.time() - start_time, num_object)
             )
 
-    def zodb_perf_persistent_mapping_read_time(self, sheraf_database):
+    def zodb_perfmapping_mapping_read_time(self, sheraf_database):
         start_time = time.time()
         with sheraf.connection() as c:
             c.root()["parents"] = sheraf.types.LargeDict()
@@ -172,7 +172,7 @@ class PerfSherafCaseHugeWrite:
             % (time.time() - start_time)
         )
 
-    def zodb_perf_persistent_read_time(self, sheraf_database):
+    def zodb_perfmapping_read_time(self, sheraf_database):
         start_time = time.time()
         with sheraf.connection() as c:
             c.root()["parents"] = sheraf.types.LargeDict()
@@ -241,7 +241,7 @@ class PerfSherafCaseHugeWrite:
             rep = next(Test_sheraf_rep_3.all())
             for index, tel_obj in rep.tels:
                 # data.append(tel_obj.number)
-                data.append(tel_obj._persistent["number"])
+                data.append(tel_obj.mapping["number"])
         print(
             "--- Lecture sheraf inline 1 attr en %s secondes ---"
             % (time.time() - start_time)
@@ -263,9 +263,9 @@ class PerfSherafCaseHugeWrite:
         with sheraf.connection():
             rep = next(Test_sheraf_rep_3.all())
             for index, tel_obj in rep.tels:
-                data.append(tel_obj._persistent["number"])
-                data.append(tel_obj._persistent["msisdn"])
-                data.append(tel_obj._persistent["msisdn2"])
+                data.append(tel_obj.mapping["number"])
+                data.append(tel_obj.mapping["msisdn"])
+                data.append(tel_obj.mapping["msisdn2"])
                 # data.append(tel_obj.number)
                 # data.append(tel_obj.msisdn)
                 # data.append(tel_obj.msisdn2)

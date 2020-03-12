@@ -61,7 +61,7 @@ def test_create(sheraf_connection):
 
     model = ModelForTest.create(submodel={"name": "A"})
     assert isinstance(model.submodel, Submodel)
-    assert isinstance(model.submodel._persistent, sheraf.types.SmallDict)
+    assert isinstance(model.submodel.mapping, sheraf.types.SmallDict)
     assert "A" == model.submodel.name
 
 

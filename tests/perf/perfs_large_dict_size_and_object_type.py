@@ -56,7 +56,7 @@ class PerfSherafCaseHugeWrite:
                 rep.tels[i] = tel_obj
             transaction.commit()
 
-    def est_zodb_perf_persistent_mapping(self):
+    def est_zodb_perfmapping_mapping(self):
         with sheraf.connection() as c:
             c.root()["parents"] = sheraf.LargeDict()
             for i in range(0, OBJECTS_NUMBERS):
@@ -69,7 +69,7 @@ class PerfSherafCaseHugeWrite:
                 c.root()["parents"][i] = tel_obj
             transaction.commit()
 
-    def est_zodb_perf_persistent(self):
+    def est_zodb_perfmapping(self):
         with sheraf.connection() as c:
             c.root()["parents"] = sheraf.LargeDict()
             for i in range(0, OBJECTS_NUMBERS):

@@ -40,11 +40,11 @@ class BaseIndexedModel(BaseModel):
                 stacklevel=3,
             )
             identifier = identifier or model.make_id()
-            cls.index_setitem(identifier, model._persistent)
+            cls.index_setitem(identifier, model.mapping)
             model.identifier = identifier
         else:
             model = super().create(*args, **kwargs)
-            cls.index_setitem(model.identifier, model._persistent)
+            cls.index_setitem(model.identifier, model.mapping)
 
         return model
 
@@ -182,7 +182,7 @@ class BaseIndexedModel(BaseModel):
     def __repr__(self):
         identifier = (
             self.identifier
-            if self._persistent is not None and self.primary_key() in self._persistent
+            if self.mapping is not None and self.primary_key() in self.mapping
             else None
         )
         return "<{} {}={}>".format(

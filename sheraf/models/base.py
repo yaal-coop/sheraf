@@ -1,4 +1,5 @@
 import sheraf.types
+import warnings
 
 
 class BaseModelMetaclass(type):
@@ -60,7 +61,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
     """
 
     attributes = {}
-    _persistent = None
+    mapping = None
     default_mapping = sheraf.types.SmallDict
 
     @classmethod
@@ -124,12 +125,22 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
     @classmethod
     def _decorate(cls, mapping):
         model = cls()
-        model._persistent = mapping
+        model.mapping = mapping
         return model
 
     @classmethod
     def attribute_id(cls, name, attribute):
         raise NotImplementedError
+
+    @property
+    def _persistent(self):
+        warnings.warn(
+            "'_persistent' attribute has been renamed 'mapping'. "
+            "The use of '_persistent' will stop working with sheraf 0.2",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.mapping
 
     def __setattr__(self, name, value):
         if name not in self.attributes:
@@ -309,9 +320,9 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
     def __eq__(self, other):
         return (
-            hasattr(self, "_persistent")
-            and hasattr(other, "_persistent")
-            and self._persistent == other._persistent
+            hasattr(self, "mapping")
+            and hasattr(other, "mapping")
+            and self.mapping == other.mapping
         )
 
     def __getitem__(self, key):

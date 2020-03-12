@@ -166,7 +166,7 @@ class FileObjectV2(FileObjectV1):
 
     @classmethod
     def read(cls, model, attribute_name):
-        persisted_file_path = model._persistent.get(attribute_name)
+        persisted_file_path = model.mapping.get(attribute_name)
         if not persisted_file_path:
             return super().read(model, attribute_name)
 
@@ -176,13 +176,13 @@ class FileObjectV2(FileObjectV1):
         return file_instance
 
     def _is_new_model(self):
-        return self.model is not None and self.attribute_name in self.model._persistent
+        return self.model is not None and self.attribute_name in self.model.mapping
 
     def relative_path(self):
         if not self._is_new_model():
             return super().relative_path()
 
-        return self.model._persistent[self.attribute_name]
+        return self.model.mapping[self.attribute_name]
 
     def absolute_path(self):
         if not self._is_new_model():
@@ -192,16 +192,16 @@ class FileObjectV2(FileObjectV1):
 
     def write(self):
         super().write()
-        self.model._persistent[self.attribute_name] = self.relative_path()
+        self.model.mapping[self.attribute_name] = self.relative_path()
 
     def delete(self):
         if not self._is_new_model():
             super().delete()
         else:
             FilesGarbageCollector.instance().add(
-                self.model._persistent[self.attribute_name]
+                self.model.mapping[self.attribute_name]
             )
-            del self.model._persistent[self.attribute_name]
+            del self.model.mapping[self.attribute_name]
 
     def __repr__(self):
         return "<FileObjectV2 model='{}' attribute_name='{}'>".format(

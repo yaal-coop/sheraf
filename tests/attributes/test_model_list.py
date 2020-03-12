@@ -129,16 +129,16 @@ def test_create(sheraf_database, attribute, list_type):
 
     with sheraf.connection(commit=True):
         model = ModelForTest.create(models=[{"name": "A"}, {"name": "B"}])
-        assert isinstance(model._persistent["models"], list_type)
+        assert isinstance(model.mapping["models"], list_type)
         assert isinstance(model.models[0], AModelForTest)
-        assert isinstance(model.models[0]._persistent, sheraf.types.SmallDict)
+        assert isinstance(model.models[0].mapping, sheraf.types.SmallDict)
         assert "A" == model.models[0].name
 
     with sheraf.connection():
         model = ModelForTest.read(model.id)
-        assert isinstance(model._persistent["models"], list_type)
+        assert isinstance(model.mapping["models"], list_type)
         assert isinstance(model.models[0], AModelForTest)
-        assert isinstance(model.models[0]._persistent, sheraf.types.SmallDict)
+        assert isinstance(model.models[0].mapping, sheraf.types.SmallDict)
         assert "A" == model.models[0].name
 
 
@@ -267,18 +267,18 @@ def test_update_addition(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"models": [{"name": "a"}, {"name": "b"}]}, addition=True)
 
-        assert isinstance(model._persistent["models"], list_type)
+        assert isinstance(model.mapping["models"], list_type)
         assert isinstance(model.models[1], AModelForTest)
-        assert isinstance(model.models[1]._persistent, sheraf.types.SmallDict)
+        assert isinstance(model.models[1].mapping, sheraf.types.SmallDict)
         assert "a" == model.models[0].name
         assert "b" == model.models[1].name
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["models"], list_type)
+        assert isinstance(model.mapping["models"], list_type)
         assert isinstance(model.models[1], AModelForTest)
-        assert isinstance(model.models[1]._persistent, sheraf.types.SmallDict)
+        assert isinstance(model.models[1].mapping, sheraf.types.SmallDict)
         assert "a" == model.models[0].name
         assert "b" == model.models[1].name
 
@@ -300,14 +300,14 @@ def test_update_no_addition(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"models": [{"name": "a"}, {"name": "b"}]}, addition=False)
 
-        assert isinstance(model._persistent["models"], list_type)
+        assert isinstance(model.mapping["models"], list_type)
         assert "a" == model.models[0].name
         assert len(model.models) == 1
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["models"], list_type)
+        assert isinstance(model.mapping["models"], list_type)
         assert "a" == model.models[0].name
         assert len(model.models) == 1
 
@@ -329,13 +329,13 @@ def test_update_deletion(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"models": []}, deletion=True)
 
-        assert isinstance(model._persistent["models"], list_type)
+        assert isinstance(model.mapping["models"], list_type)
         assert 0 == len(model.models)
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["models"], list_type)
+        assert isinstance(model.mapping["models"], list_type)
         assert 0 == len(model.models)
 
 
@@ -356,11 +356,11 @@ def test_update_no_deletion(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"models": []}, deletion=False)
 
-        assert isinstance(model._persistent["models"], list_type)
+        assert isinstance(model.mapping["models"], list_type)
         assert 1 == len(model.models)
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["models"], list_type)
+        assert isinstance(model.mapping["models"], list_type)
         assert 1 == len(model.models)
