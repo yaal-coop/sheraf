@@ -71,7 +71,7 @@ def test_not_store_deault_value(sheraf_connection):
 
     model = MyModel.create()
     model.my_attr
-    assert "my_attr" not in model._persistent
+    assert "my_attr" not in model.mapping
 
 
 def test_define_keyname(sheraf_connection):
@@ -124,8 +124,8 @@ def test_define_keyname_list(sheraf_connection):
         b = sheraf.SimpleAttribute(key=[0, "b"])
 
     m = ModelForTest.create()
-    m._persistent["old_a"] = "a_value"
-    m._persistent["b"] = "b_value"
+    m.mapping["old_a"] = "a_value"
+    m.mapping["b"] = "b_value"
 
     m = ModelForTest.read(m.id)
     assert "a_value" == m.a
@@ -134,8 +134,8 @@ def test_define_keyname_list(sheraf_connection):
     m = ModelForTest.create()
     m.a = 1
     m.b = 2
-    assert 1 == m._persistent["a"]
-    assert 2 == m._persistent[0]
+    assert 1 == m.mapping["a"]
+    assert 2 == m.mapping[0]
 
 
 def test_del(sheraf_connection):
@@ -146,7 +146,7 @@ def test_del(sheraf_connection):
     m.attr = "yolo"
     del m.attr
 
-    assert "attr" not in m._persistent
+    assert "attr" not in m.mapping
     assert m.attr == "default"
 
 
@@ -159,7 +159,7 @@ def test_del_after_read(sheraf_connection):
     m = ModelForTest.read(m.id)
     del m.attr
 
-    assert "attr" not in m._persistent
+    assert "attr" not in m.mapping
     assert m.attr == "default"
 
 
@@ -170,7 +170,7 @@ def test_del_on_unsetted_attr(sheraf_connection):
     m = ModelForTest.create()
     del m.attr
 
-    assert "attr" not in m._persistent
+    assert "attr" not in m.mapping
     assert m.attr == "default"
 
 
@@ -182,5 +182,5 @@ def test_del_on_specifed_key_attr(sheraf_connection):
     m.attr = "yolo"
     del m.attr
 
-    assert "other_key" not in m._persistent
+    assert "other_key" not in m.mapping
     assert m.attr == "default"

@@ -60,7 +60,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
     """
 
     attributes = {}
-    _persistent = None
+    mapping = None
     default_mapping = sheraf.types.SmallDict
 
     @classmethod
@@ -124,7 +124,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
     @classmethod
     def _decorate(cls, mapping):
         model = cls()
-        model._persistent = mapping
+        model.mapping = mapping
         return model
 
     @classmethod
@@ -309,9 +309,9 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
     def __eq__(self, other):
         return (
-            hasattr(self, "_persistent")
-            and hasattr(other, "_persistent")
-            and self._persistent == other._persistent
+            hasattr(self, "mapping")
+            and hasattr(other, "mapping")
+            and self.mapping == other.mapping
         )
 
     def __getitem__(self, key):

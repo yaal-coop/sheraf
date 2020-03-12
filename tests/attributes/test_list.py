@@ -66,14 +66,14 @@ def test_primitive_type(sheraf_connection, persistent_type, subattribute):
 
     m = ModelTest.create()
     m._list = list()
-    assert isinstance(m._persistent["_list"], persistent_type)
+    assert isinstance(m.mapping["_list"], persistent_type)
 
 
 @pytest.mark.parametrize(
     "persistent_type", [sheraf.types.SmallList, sheraf.types.LargeList, list]
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.SimpleAttribute()])
-def test_sheraf_persistent_type(sheraf_connection, persistent_type, subattribute):
+def test_sherafmapping_type(sheraf_connection, persistent_type, subattribute):
     class ModelTest(sheraf.AutoModel):
         _list = sheraf.ListAttribute(
             attribute=subattribute, persistent_type=persistent_type
@@ -81,7 +81,7 @@ def test_sheraf_persistent_type(sheraf_connection, persistent_type, subattribute
 
     m = ModelTest.create()
     m._list = persistent_type([1, 2])
-    assert isinstance(m._persistent["_list"], persistent_type)
+    assert isinstance(m.mapping["_list"], persistent_type)
 
 
 @pytest.mark.parametrize(
@@ -127,8 +127,8 @@ def test_nested(sheraf_database, persistent_type, subattribute):
         assert 1 == m.list[0][1]
         assert 2 == m.list[1][0]
         assert 3 == m.list[1][1]
-        assert isinstance(m._persistent["list"], persistent_type)
-        assert isinstance(m._persistent["list"][0], persistent_type)
+        assert isinstance(m.mapping["list"], persistent_type)
+        assert isinstance(m.mapping["list"][0], persistent_type)
         assert [0, 1] == list(m.list[0])
 
     with sheraf.connection(commit=True):
@@ -138,6 +138,6 @@ def test_nested(sheraf_database, persistent_type, subattribute):
         assert 1 == m.list[0][1]
         assert 2 == m.list[1][0]
         assert 3 == m.list[1][1]
-        assert isinstance(m._persistent["list"], persistent_type)
-        assert isinstance(m._persistent["list"][0], persistent_type)
+        assert isinstance(m.mapping["list"], persistent_type)
+        assert isinstance(m.mapping["list"][0], persistent_type)
         assert [0, 1] == list(m.list[0])

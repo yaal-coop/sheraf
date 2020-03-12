@@ -93,13 +93,13 @@ def test_create(sheraf_database):
 
     with sheraf.connection(commit=True):
         model = ModelForTest.create(inline={"name": "A"})
-        assert isinstance(model._persistent["inline"], sheraf.types.SmallDict)
+        assert isinstance(model.mapping["inline"], sheraf.types.SmallDict)
         assert isinstance(model.inline, InlineModel)
         assert "A" == model.inline.name
 
     with sheraf.connection():
         model = ModelForTest.read(model.id)
-        assert isinstance(model._persistent["inline"], sheraf.types.SmallDict)
+        assert isinstance(model.mapping["inline"], sheraf.types.SmallDict)
         assert isinstance(model.inline, InlineModel)
         assert "A" == model.inline.name
 
@@ -112,22 +112,22 @@ def test_update_edition(sheraf_database):
         model = AModel.create()
 
     with sheraf.connection(commit=True):
-        old_persistent = model.inline._persistent
+        oldmapping = model.inline.mapping
         model.edit(value={"inline": {"name": "YEAH"}}, edition=True)
-        new_persistent = model.inline._persistent
+        newmapping = model.inline.mapping
 
-        assert isinstance(model._persistent["inline"], sheraf.types.SmallDict)
+        assert isinstance(model.mapping["inline"], sheraf.types.SmallDict)
         assert isinstance(AModel.read(model.id).inline, InlineModel)
         assert "YEAH" == AModel.read(model.id).inline.name
-        assert old_persistent is new_persistent
+        assert oldmapping is newmapping
 
     with sheraf.connection():
         model = AModel.read(model.id)
 
-        assert isinstance(model._persistent["inline"], sheraf.types.SmallDict)
+        assert isinstance(model.mapping["inline"], sheraf.types.SmallDict)
         assert isinstance(AModel.read(model.id).inline, InlineModel)
         assert "YEAH" == AModel.read(model.id).inline.name
-        assert old_persistent is new_persistent
+        assert oldmapping is newmapping
 
 
 def test_update_no_edition(sheraf_database):
@@ -138,22 +138,22 @@ def test_update_no_edition(sheraf_database):
         model = AModel.create(inline={"name": "foobar"})
 
     with sheraf.connection(commit=True):
-        old_persistent = model.inline._persistent
+        oldmapping = model.inline.mapping
         model.edit(value={"inline": {"name": "YEAH"}}, edition=False)
-        new_persistent = model.inline._persistent
+        newmapping = model.inline.mapping
 
-        assert isinstance(model._persistent["inline"], sheraf.types.SmallDict)
+        assert isinstance(model.mapping["inline"], sheraf.types.SmallDict)
         assert isinstance(AModel.read(model.id).inline, InlineModel)
         assert "foobar" == AModel.read(model.id).inline.name
-        assert old_persistent is new_persistent
+        assert oldmapping is newmapping
 
     with sheraf.connection():
         model = AModel.read(model.id)
 
-        assert isinstance(model._persistent["inline"], sheraf.types.SmallDict)
+        assert isinstance(model.mapping["inline"], sheraf.types.SmallDict)
         assert isinstance(AModel.read(model.id).inline, InlineModel)
         assert "foobar" == AModel.read(model.id).inline.name
-        assert old_persistent is new_persistent
+        assert oldmapping is newmapping
 
 
 def test_update_replacement(sheraf_database):
@@ -164,22 +164,22 @@ def test_update_replacement(sheraf_database):
         model = AModel.create()
 
     with sheraf.connection(commit=True):
-        old_persistent = model.inline._persistent
+        oldmapping = model.inline.mapping
         model.edit(value={"inline": {"name": "YEAH"}}, replacement=True)
-        new_persistent = model.inline._persistent
+        newmapping = model.inline.mapping
 
-        assert isinstance(model._persistent["inline"], sheraf.types.SmallDict)
+        assert isinstance(model.mapping["inline"], sheraf.types.SmallDict)
         assert isinstance(AModel.read(model.id).inline, InlineModel)
         assert "YEAH" == AModel.read(model.id).inline.name
-        assert old_persistent is not new_persistent
+        assert oldmapping is not newmapping
 
     with sheraf.connection():
         model = AModel.read(model.id)
 
-        assert isinstance(model._persistent["inline"], sheraf.types.SmallDict)
+        assert isinstance(model.mapping["inline"], sheraf.types.SmallDict)
         assert isinstance(AModel.read(model.id).inline, InlineModel)
         assert "YEAH" == AModel.read(model.id).inline.name
-        assert old_persistent is not new_persistent
+        assert oldmapping is not newmapping
 
 
 def test_anonymous_inline_model(sheraf_database):
@@ -191,13 +191,13 @@ def test_anonymous_inline_model(sheraf_database):
     with sheraf.connection(commit=True):
         m = Model.create(inline={"name": "George Abitbol"})
         assert isinstance(m.inline, sheraf.InlineModel)
-        assert {"name": "George Abitbol"} == dict(m.inline._persistent)
+        assert {"name": "George Abitbol"} == dict(m.inline.mapping)
         assert "George Abitbol" == m.inline.name
 
     with sheraf.connection():
         m = Model.read(m.id)
         assert isinstance(m.inline, sheraf.InlineModel)
-        assert {"name": "George Abitbol"} == dict(m.inline._persistent)
+        assert {"name": "George Abitbol"} == dict(m.inline.mapping)
         assert "George Abitbol" == m.inline.name
 
 

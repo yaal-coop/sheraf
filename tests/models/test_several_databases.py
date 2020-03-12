@@ -55,7 +55,7 @@ def test_model_with_database_name_specified(sheraf_database, db2):
         assert m.id not in connection.root().get(Db2Model.table, {})
 
         connection_2 = connection.get_connection("db2")
-        assert connection_2.root()[Db2Model.table]["id"][m.id] is m._persistent
+        assert connection_2.root()[Db2Model.table]["id"][m.id] is m.mapping
         assert Db2Model.read(m.id) == m
         assert Db2Model.count() == 1
         assert Db2Model.all() == [m]
@@ -85,9 +85,9 @@ def test_database_retrocompatibility(sheraf_database, db2):
         root2 = connection.get_connection("db2").root()
 
         m2 = MyModel.create()
-        assert root1[MyModel.table]["id"][m1.id] is m1._persistent
+        assert root1[MyModel.table]["id"][m1.id] is m1.mapping
         assert m1.id not in root2[MyModel.table]["id"]
-        assert m1._persistent == MyModel.read(m1.id)._persistent
+        assert m1.mapping == MyModel.read(m1.id).mapping
         assert MyModel.count() == 2
         assert set(MyModel.all()) == {m1, m2}
 
@@ -126,5 +126,5 @@ def test_make_id(sheraf_database, db2):
         assert m2.id == 2
         assert m3.id == 3
 
-        assert root1["modelwithproposeid"]["id"][m1.id] is m1._persistent
-        assert root2["modelwithproposeid"]["id"][m2.id] is m2._persistent
+        assert root1["modelwithproposeid"]["id"][m1.id] is m1.mapping
+        assert root2["modelwithproposeid"]["id"][m2.id] is m2.mapping

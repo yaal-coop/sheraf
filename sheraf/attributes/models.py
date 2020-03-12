@@ -103,10 +103,10 @@ class InlineModelAttribute(ModelLoader, BaseAttribute):
             return None
 
         elif isinstance(value, sheraf.InlineModel):
-            return value._persistent
+            return value.mapping
 
         elif isinstance(value, dict):
-            return self.model.create(**value)._persistent
+            return self.model.create(**value).mapping
 
         else:
             return self._default_value(value)

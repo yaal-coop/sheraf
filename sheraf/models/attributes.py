@@ -44,7 +44,7 @@ class DatedNamedAttributesModel(NamedAttributesModel):
         """
         # TODO: The creation datetime should have the transaction commit datetime and not the object creation one
 
-        if not self._persistent._p_oid:
+        if not self.mapping._p_oid:
             return None
 
         return self._deserialize_date(self._creation)
@@ -56,8 +56,8 @@ class DatedNamedAttributesModel(NamedAttributesModel):
         :return: :class:`datetime.datetime` or None if the object has not been committed yet.
         """
         return (
-            self._deserialize_date(self._persistent._p_mtime)
-            if self._persistent._p_mtime
+            self._deserialize_date(self.mapping._p_mtime)
+            if self.mapping._p_mtime
             else None
         )
 
@@ -77,5 +77,5 @@ class DatedNamedAttributesModel(NamedAttributesModel):
         :func:`~sheraf.models.DatedNamedAttributesModel.last_update_datetime`
         value and saves all the model attributes."""
 
-        self._persistent._p_changed = True
+        self.mapping._p_changed = True
         return super().save()

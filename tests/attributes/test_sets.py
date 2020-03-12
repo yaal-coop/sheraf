@@ -58,7 +58,7 @@ def test_primitive_type(sheraf_connection, persistent_type, subattribute):
 
     m = ModelTest.create()
     m.set = set([1, 2])
-    assert isinstance(m._persistent["set"], persistent_type)
+    assert isinstance(m.mapping["set"], persistent_type)
 
 
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
@@ -69,7 +69,7 @@ def test_sheraf_typeset(sheraf_connection, persistent_type, subattribute):
 
     m = ModelTest.create()
     m.set = sheraf.types.Set([1, 2])
-    assert isinstance(m._persistent["set"], persistent_type)
+    assert isinstance(m.mapping["set"], persistent_type)
 
 
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
@@ -86,7 +86,7 @@ def test_enum_type(sheraf_connection, persistent_type, subattribute):
     m = ModelTest.create()
     m.set = sheraf.types.Set([E.CONST])
 
-    assert isinstance(m._persistent["set"], persistent_type)
+    assert isinstance(m.mapping["set"], persistent_type)
 
 
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])

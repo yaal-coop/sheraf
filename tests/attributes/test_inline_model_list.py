@@ -159,16 +159,16 @@ def test_create(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model = ModelForTest.create(inlines=[{"name": "A"}, {"name": "B"}])
 
-        assert isinstance(model._persistent["inlines"], list_type)
-        assert isinstance(model._persistent["inlines"][0], sheraf.types.SmallDict)
+        assert isinstance(model.mapping["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"][0], sheraf.types.SmallDict)
         assert isinstance(model.inlines[0], ListInlineModel)
         assert "A" == model.inlines[0].name
 
     with sheraf.connection():
         model = ModelForTest.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], list_type)
-        assert isinstance(model._persistent["inlines"][0], sheraf.types.SmallDict)
+        assert isinstance(model.mapping["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"][0], sheraf.types.SmallDict)
         assert isinstance(model.inlines[0], ListInlineModel)
         assert "A" == model.inlines[0].name
 
@@ -190,7 +190,7 @@ def test_update_edition(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"inlines": [{"name": "a"}, {"name": "b"}]}, edition=True)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert isinstance(model.inlines[0], ListInlineModel)
         assert isinstance(model.inlines[1], ListInlineModel)
         x, y = list(model.inlines)
@@ -200,7 +200,7 @@ def test_update_edition(sheraf_database, attribute, list_type):
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert isinstance(model.inlines[0], ListInlineModel)
         assert isinstance(model.inlines[1], ListInlineModel)
         x, y = list(model.inlines)
@@ -225,7 +225,7 @@ def test_update_no_edition(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"inlines": [{"name": "a"}, {"name": "b"}]}, edition=False)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert isinstance(model.inlines[0], ListInlineModel)
         assert isinstance(model.inlines[1], ListInlineModel)
         x, y = list(model.inlines)
@@ -235,7 +235,7 @@ def test_update_no_edition(sheraf_database, attribute, list_type):
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert isinstance(model.inlines[0], ListInlineModel)
         assert isinstance(model.inlines[1], ListInlineModel)
         x, y = list(model.inlines)
@@ -258,30 +258,30 @@ def test_update_replacement(sheraf_database, attribute, list_type):
         model = Model.create(inlines=[{"name": "c"}, {"name": "c"}])
 
     with sheraf.connection(commit=True):
-        old_sub_persistent = model.inlines[0]._persistent
+        old_submapping = model.inlines[0].mapping
         model.edit(
             value={"inlines": [{"name": "a"}, {"name": "b"}]},
             edition=True,
             replacement=True,
         )
-        new_sub_persistent = model.inlines[0]._persistent
+        new_submapping = model.inlines[0].mapping
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert isinstance(model.inlines[0], ListInlineModel)
-        assert isinstance(new_sub_persistent, sheraf.types.SmallDict)
+        assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "a" == model.inlines[0].name
         assert "b" == model.inlines[1].name
-        assert old_sub_persistent is not new_sub_persistent
+        assert old_submapping is not new_submapping
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert isinstance(model.inlines[0], ListInlineModel)
-        assert isinstance(new_sub_persistent, sheraf.types.SmallDict)
+        assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "a" == model.inlines[0].name
         assert "b" == model.inlines[1].name
-        assert old_sub_persistent is not new_sub_persistent
+        assert old_submapping is not new_submapping
 
 
 @pytest.mark.parametrize(
@@ -301,18 +301,18 @@ def test_update_addition(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"inlines": [{"name": "a"}, {"name": "b"}]}, addition=True)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert isinstance(model.inlines[1], ListInlineModel)
-        assert isinstance(model.inlines[1]._persistent, sheraf.types.SmallDict)
+        assert isinstance(model.inlines[1].mapping, sheraf.types.SmallDict)
         assert "a" == model.inlines[0].name
         assert "b" == model.inlines[1].name
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert isinstance(model.inlines[1], ListInlineModel)
-        assert isinstance(model.inlines[1]._persistent, sheraf.types.SmallDict)
+        assert isinstance(model.inlines[1].mapping, sheraf.types.SmallDict)
         assert "a" == model.inlines[0].name
         assert "b" == model.inlines[1].name
 
@@ -334,14 +334,14 @@ def test_update_no_addition(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"inlines": [{"name": "a"}, {"name": "b"}]}, addition=False)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert "a" == model.inlines[0].name
         assert len(model.inlines) == 1
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert "a" == model.inlines[0].name
         assert len(model.inlines) == 1
 
@@ -363,13 +363,13 @@ def test_update_deletion(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"inlines": []}, deletion=True)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert 0 == len(model.inlines)
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert 0 == len(model.inlines)
 
 
@@ -390,11 +390,11 @@ def test_update_no_deletion(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"inlines": []}, deletion=False)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert 1 == len(model.inlines)
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["inlines"], list_type)
+        assert isinstance(model.mapping["inlines"], list_type)
         assert 1 == len(model.inlines)

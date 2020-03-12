@@ -18,7 +18,7 @@ def test_datetime_timestamp(sheraf_connection):
     test_date = datetime.datetime(2014, 8, 16, 10, 10, 1, 1)
     m.date = test_date
     assert test_date == m.date
-    assert (test_date - datetime.datetime(1970, 1, 1)).total_seconds() == m._persistent[
+    assert (test_date - datetime.datetime(1970, 1, 1)).total_seconds() == m.mapping[
         "date"
     ]
 
@@ -52,7 +52,7 @@ def test_datetime_timezoned_timestamp(sheraf_connection):
     assert sanitized_test_date == m.date
     assert (
         sanitized_test_date - datetime.datetime(1970, 1, 1)
-    ).total_seconds() == m._persistent["date"]
+    ).total_seconds() == m.mapping["date"]
 
 
 def test_datetime_default(sheraf_connection):
@@ -208,14 +208,14 @@ def test_time_attribute(sheraf_database):
         assert m.time is None
 
         m.time = datetime.time(12, 13, 14)
-        assert m._persistent["time"] == 43994000000
+        assert m.mapping["time"] == 43994000000
         assert m.time == datetime.time(12, 13, 14)
 
     with sheraf.connection():
         m = Model.read(m.id)
 
         m.time = datetime.time(12, 13, 14)
-        assert m._persistent["time"] == 43994000000
+        assert m.mapping["time"] == 43994000000
         assert m.time == datetime.time(12, 13, 14)
 
     with sheraf.connection(commit=True):
@@ -223,13 +223,13 @@ def test_time_attribute(sheraf_database):
         m.time = None
 
         assert m.time is None
-        assert m._persistent["time"] == -1
+        assert m.mapping["time"] == -1
 
     with sheraf.connection():
         m = Model.read(m.id)
 
         assert m.time is None
-        assert m._persistent["time"] == -1
+        assert m.mapping["time"] == -1
 
 
 def test_date_attribute(sheraf_database):
@@ -241,14 +241,14 @@ def test_date_attribute(sheraf_database):
         assert m.date is None
 
         m.date = datetime.date(1971, 1, 1)
-        assert m._persistent["date"] == 365
+        assert m.mapping["date"] == 365
         assert m.date == datetime.date(1971, 1, 1)
 
     with sheraf.connection():
         m = Model.read(m.id)
 
         m.date = datetime.date(1971, 1, 1)
-        assert m._persistent["date"] == 365
+        assert m.mapping["date"] == 365
         assert m.date == datetime.date(1971, 1, 1)
 
     with sheraf.connection(commit=True):
@@ -256,10 +256,10 @@ def test_date_attribute(sheraf_database):
         m.date = None
 
         assert m.date is None
-        assert m._persistent["date"] == -1
+        assert m.mapping["date"] == -1
 
     with sheraf.connection():
         m = Model.read(m.id)
 
         assert m.date is None
-        assert m._persistent["date"] == -1
+        assert m.mapping["date"] == -1
