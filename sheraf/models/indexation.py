@@ -67,6 +67,29 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         return super().create(*args, **kwargs)
 
     @classmethod
+    def _check_args(cls, *args, **kwargs):
+        if len(args) + len(kwargs) != 1:
+            raise TypeError(
+                "BaseIndexedModel.read (and variants) take only one positionnal or named parameter"
+            )
+
+        if args:
+            index_name = cls.primary_key()
+            key = args[0]
+
+        else:
+            index_name, key = list(kwargs.items())[0]
+
+        try:
+            index = cls.indexes()[index_name]
+        except KeyError:
+            raise sheraf.exceptions.InvalidIndexException(
+                "'{}' is not a valid index".format(index_name)
+            )
+
+        return index, key
+
+    @classmethod
     def read(cls, *args, **kwargs):
         """
         Get a model instance from its identifier. If the model identifier is not valid, a
@@ -106,29 +129,12 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         MultipleIndexException
         """
 
-        if len(args) + len(kwargs) != 1:
-            raise TypeError(
-                "BaseIndexedModel.read takes only one positionnal or named parameter"
-            )
-
-        if args:
-            index_name = cls.primary_key()
-            key = args[0]
-
-        else:
-            index_name, key = list(kwargs.items())[0]
-
-        try:
-            index = cls.indexes()[index_name]
-        except KeyError:
-            raise sheraf.exceptions.InvalidIndexException(
-                "'{}' is not a valid index".format(index_name)
-            )
+        index, key = cls._check_args(*args, **kwargs)
 
         if not index.details.unique:
             raise sheraf.exceptions.MultipleIndexException(
                 "'{}' is a multiple index and cannot be used with 'read'".format(
-                    index_name
+                    index.details.key
                 )
             )
 
@@ -137,9 +143,10 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
     @classmethod
     def read_these(cls, *args, **kwargs):
         """
-        Get model instances from their identifiers. If an instance identifiers does not
-        exist, a :class:`~sheraf.exceptions.ModelObjectNotFoundException` is
-        raised.
+        Get model instances from their identifiers. Unlike
+        :func:`~sheraf.models.indexation.BaseModel.read_these`,If an instance
+        identifiers does not exist, a :class:`~sheraf.exceptions.ModelObjectNotFoundException`
+        is raised.
 
         The function takes only one parameter which key is the index where to
         search, and which values are the index identifier.
@@ -161,24 +168,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         sheraf.exceptions.ModelObjectNotFoundException: Id 'invalid' not found in MyModel, 'id' index
         """
 
-        if len(args) + len(kwargs) != 1:
-            raise TypeError(
-                "BaseIndexedModel.read_these takes only one positionnal or named parameter"
-            )
-
-        if args:
-            index_name = cls.primary_key()
-            keys = args[0]
-
-        else:
-            index_name, keys = list(kwargs.items())[0]
-
-        try:
-            index = cls.indexes()[index_name]
-        except KeyError:
-            raise sheraf.exceptions.InvalidIndexException(
-                "'{}' is not a valid index".format(index_name)
-            )
+        index, keys = cls._check_args(*args, **kwargs)
 
         if index.details.unique:
             return (cls._decorate(cls._read_model_index(key, index)) for key in keys)
@@ -194,24 +184,28 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
 
     @classmethod
     def read_these_valid(cls, *args, **kwargs):
-        if len(args) + len(kwargs) != 1:
-            raise TypeError(
-                "BaseIndexedModel.read_these_valid takes only one positionnal or named parameter"
-            )
+        """
+        Return model instances from an index. Unlike :func:`~sheraf.models.indexation.BaseModel.read_these`,
+        invalid index values are ignored.
 
-        if args:
-            index_name = cls.primary_key()
-            keys = args[0]
+        The function takes only one parameter which key is the index where to
+        search, and which values are the index identifier.
+        By default the index used is the `id` index.
 
-        else:
-            index_name, keys = list(kwargs.items())[0]
+        :return: A generator over the models matching the keys.
 
-        try:
-            index = cls.indexes()[index_name]
-        except KeyError:
-            raise sheraf.exceptions.InvalidIndexException(
-                "'{}' is not a valid index".format(index_name)
-            )
+        >>> class MyModel(sheraf.IntIndexedNamedAttributesModel):
+        ...     table = "my_model"
+        ...
+        >>> with sheraf.connection():
+        ...     m1 = MyModel.create(id=1)
+        ...     m2 = MyModel.create(id=2)
+        ...
+        ...     assert [m1, m2] == list(MyModel.read_these_valid([m1.id, m2.id]))
+        ...     assert [m1, m2] == list(MyModel.read_these_valid([m1.id, 42, m2.id]))
+        """
+
+        index, keys = cls._check_args(*args, **kwargs)
 
         if index.details.unique:
             return (
