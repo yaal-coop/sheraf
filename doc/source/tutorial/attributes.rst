@@ -72,10 +72,10 @@ Default attributes values are lazy. This means they are not stored in the databa
     ...
     >>> with sheraf.connection(commit=True):
     ...     john = Cowboy.create()
-    ...     "age" in john._persistent
-    ...     "name" in john._persistent
+    ...     "age" in john.mapping
+    ...     "name" in john.mapping
     ...     john.name
-    ...     "name" in john._persistent
+    ...     "name" in john.mapping
     True
     False
     'John Doe'

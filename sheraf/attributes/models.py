@@ -103,10 +103,10 @@ class InlineModelAttribute(ModelLoader, BaseAttribute):
             return None
 
         elif isinstance(value, sheraf.InlineModel):
-            return value._persistent
+            return value.mapping
 
         elif isinstance(value, dict):
-            return self.model.create(**value)._persistent
+            return self.model.create(**value).mapping
 
         else:
             return self._default_value(value)
@@ -133,9 +133,9 @@ class IndexedModelAttribute(ModelLoader, BaseAttribute):
     def read(self, parent):
         for index in self.model.indexes().values():
             key = self.key(parent)
-            if key not in parent._persistent:
-                parent._persistent[key] = sheraf.types.SmallDict()
-            index.persistent = parent._persistent[key]
+            if key not in parent.mapping:
+                parent.mapping[key] = sheraf.types.SmallDict()
+            index.persistent = parent.mapping[key]
 
         return self.model
 

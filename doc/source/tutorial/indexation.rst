@@ -31,7 +31,7 @@ A solution to keep good performances is to use attribute indexation with :func:`
     ...     george = Cowboy.create(name="George Abitbol")
     ...
     ...     # A dedicated table has been created for the 'name' index
-    ...     assert george._persistent in conn.root()["simple_cowboy"]["name"]["George Abitbol"]
+    ...     assert george.mapping in conn.root()["simple_cowboy"]["name"]["George Abitbol"]
     ...
     ...     # Filtering over names is a lot faster!
     ...     assert [george] == Cowboy.filter(name="George Abitbol")

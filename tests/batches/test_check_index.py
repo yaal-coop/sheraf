@@ -17,10 +17,10 @@ def test_healthcheck_attributes_index_when_instance_deleted(sheraf_database, cap
         Model2unique.create(simple="simple1", str_indexed="str1")
         Model2unique.create(simple="simple1", str_indexed="str2")
         m = Model2unique.create(simple="simple2", str_indexed="str3")
-        m_persistent = sheraf.types.SmallDict(m._persistent)
+        mmapping = sheraf.types.SmallDict(m.mapping)
         m.delete()
         index_table = conn.root()["model2unique_table"]["str_indexed"]
-        index_table["str3"] = m_persistent
+        index_table["str3"] = mmapping
 
     with sheraf.connection() as conn:
         kwargs = dict(model_checks=["index"], instance_checks=[], attribute_checks=[])
@@ -49,10 +49,10 @@ def test_healthcheck_attributes_index_with_key_when_instance_deleted(
         Model2kunique.create(simple="simple1", str_indexed="str1")
         Model2kunique.create(simple="simple1", str_indexed="str2")
         m = Model2kunique.create(simple="simple2", str_indexed="str3")
-        m_persistent = sheraf.types.SmallDict(m._persistent)
+        mmapping = sheraf.types.SmallDict(m.mapping)
         m.delete()
         index_table = conn.root()["model2kunique_table"]["str"]
-        index_table["str3"] = m_persistent
+        index_table["str3"] = mmapping
 
     with sheraf.connection() as conn:
         kwargs = dict(model_checks=["index"], instance_checks=[], attribute_checks=[])
@@ -78,10 +78,10 @@ def test_multiple_healthcheck_attributes_index_when_instance_deleted(
         index_table = conn.root()["model2_table"]["str_indexed"]
         m21 = Model2.create(simple="simple21", str_indexed="str2")
         m22 = Model2.create(simple="simple22", str_indexed="str2")
-        m21_deleted_persistent = sheraf.types.SmallDict(m21._persistent)
-        assert index_table["str2"] == [m21._persistent, m22._persistent]
+        m21_deletedmapping = sheraf.types.SmallDict(m21.mapping)
+        assert index_table["str2"] == [m21.mapping, m22.mapping]
         m21.delete()
-        index_table["str2"] = [m21_deleted_persistent, m22._persistent]
+        index_table["str2"] = [m21_deletedmapping, m22.mapping]
 
     with sheraf.connection() as conn:
         kwargs = dict(model_checks=["index"], instance_checks=[], attribute_checks=[])
@@ -107,10 +107,10 @@ def test_multiple_healthcheck_attributes_index_with_key_when_instance_deleted(
         index_table = conn.root()["model2k_table"]["str"]
         m21 = Model2k.create(simple="simple21", str_indexed="str2")
         m22 = Model2k.create(simple="simple22", str_indexed="str2")
-        m21_deleted_persistent = sheraf.types.SmallDict(m21._persistent)
-        assert index_table["str2"] == [m21._persistent, m22._persistent]
+        m21_deletedmapping = sheraf.types.SmallDict(m21.mapping)
+        assert index_table["str2"] == [m21.mapping, m22.mapping]
         m21.delete()
-        index_table["str2"] = [m21_deleted_persistent, m22._persistent]
+        index_table["str2"] = [m21_deletedmapping, m22.mapping]
 
     with sheraf.connection() as conn:
         kwargs = dict(model_checks=["index"], instance_checks=[], attribute_checks=[])

@@ -17,7 +17,7 @@ def test_create(sheraf_connection):
     jolly = george.horses.create(name="Jolly Jumper")
 
     assert "Jolly Jumper" == jolly.name
-    assert jolly._persistent == george._persistent["horses"]["name"]["Jolly Jumper"]
+    assert jolly.mapping == george.mapping["horses"]["name"]["Jolly Jumper"]
 
 
 def test_read(sheraf_database):
@@ -61,8 +61,8 @@ def test_create_dict(sheraf_connection):
     jolly = george.horses.read("Jolly Jumper")
     polly = george.horses.read("Polly Pumper")
 
-    assert jolly._persistent == george._persistent["horses"]["name"]["Jolly Jumper"]
-    assert polly._persistent == george._persistent["horses"]["name"]["Polly Pumper"]
+    assert jolly.mapping == george.mapping["horses"]["name"]["Jolly Jumper"]
+    assert polly.mapping == george.mapping["horses"]["name"]["Polly Pumper"]
 
 
 def test_string_model(sheraf_database):

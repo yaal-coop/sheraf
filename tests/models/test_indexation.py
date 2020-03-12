@@ -32,7 +32,7 @@ def test_integer_unique_index_creation(sheraf_database, instance, mapping):
     with sheraf.connection() as conn:
         index_table = conn.root()["myuniquemodel"]["my_attribute"]
         assert {22} == set(index_table)
-        assert mfoo._persistent == index_table[22]
+        assert mfoo.mapping == index_table[22]
 
         assert isinstance(index_table, mapping)
 
@@ -53,8 +53,8 @@ def test_unique_index_creation(sheraf_database):
     with sheraf.connection() as conn:
         index_table = conn.root()["myuniquemodel"]["my_attribute"]
         assert {"foo", "bar"} == set(index_table)
-        assert mfoo._persistent == index_table["foo"]
-        assert mbar._persistent == index_table["bar"]
+        assert mfoo.mapping == index_table["foo"]
+        assert mbar.mapping == index_table["bar"]
 
         assert mbar == MyUniqueModel.read(my_attribute="bar")
         assert [mbar] == list(MyUniqueModel.read_these(my_attribute=["bar"]))
@@ -86,8 +86,8 @@ def test_unique_index_creation_and_edition(sheraf_database):
     with sheraf.connection() as conn:
         index_table = conn.root()["myuniquemodel"]["my_attribute"]
         assert {"foo", "bar"} == set(index_table)
-        assert mfoo._persistent == index_table["foo"]
-        assert mbar._persistent == index_table["bar"]
+        assert mfoo.mapping == index_table["foo"]
+        assert mbar.mapping == index_table["bar"]
 
         assert mbar == MyUniqueModel.read(my_attribute="bar")
         assert [mbar] == list(MyUniqueModel.read_these(my_attribute=["bar"]))
@@ -171,8 +171,8 @@ def test_multiple_index_creation(sheraf_database):
     with sheraf.connection() as conn:
         index_table = conn.root()["mymultiplemodel"]["my_attribute"]
         assert {"foo", "bar"} == set(index_table)
-        assert [mfoo._persistent] == list(index_table["foo"])
-        assert [mbar1._persistent, mbar2._persistent] == list(index_table["bar"])
+        assert [mfoo.mapping] == list(index_table["foo"])
+        assert [mbar1.mapping, mbar2.mapping] == list(index_table["bar"])
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
             MyMultipleModel.read(my_attribute="bar")
@@ -250,7 +250,7 @@ def test_index_key(sheraf_database):
     with sheraf.connection() as conn:
         index_table = conn.root()["myindexkeymodel"]["another_index_key"]
         assert {"foo"} == set(index_table)
-        assert [mfoo._persistent] == list(index_table["foo"])
+        assert [mfoo.mapping] == list(index_table["foo"])
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
             MyIndexKeyModel.read(another_index_key="foo")
@@ -276,9 +276,9 @@ def test_multiple_keys_index_create(sheraf_database):
         index_table_key_1 = conn.root()["mymultiplekeysindexmodel"]["key_1"]
         index_table_key_2 = conn.root()["mymultiplekeysindexmodel"]["key_2"]
         assert {"foo"} == set(index_table_key_1)
-        assert [mfoo._persistent] == list(index_table_key_1["foo"])
+        assert [mfoo.mapping] == list(index_table_key_1["foo"])
         assert {"foo"} == set(index_table_key_2)
-        assert [mfoo._persistent] == list(index_table_key_2["foo"])
+        assert [mfoo.mapping] == list(index_table_key_2["foo"])
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
             MyMultipleKeysIndexModel.read(key_1="foo")
@@ -317,9 +317,9 @@ def test_multiple_keys_index_update(sheraf_database):
         index_table_key_1 = conn.root()["mymultiplekeysindexmodel"]["key_1"]
         index_table_key_2 = conn.root()["mymultiplekeysindexmodel"]["key_2"]
         assert {"foo"} == set(index_table_key_1)
-        assert [mfoo._persistent] == list(index_table_key_1["foo"])
+        assert [mfoo.mapping] == list(index_table_key_1["foo"])
         assert {"foo"} == set(index_table_key_2)
-        assert [mfoo._persistent] == list(index_table_key_2["foo"])
+        assert [mfoo.mapping] == list(index_table_key_2["foo"])
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
             MyMultipleKeysIndexModel.read(key_1="foo")
@@ -356,7 +356,7 @@ def test_custom_indexation_method(sheraf_database):
     with sheraf.connection() as conn:
         index_table = conn.root()["mycustommodel"]["foo"]
         assert {"foo"} == set(index_table)
-        assert m._persistent == index_table["foo"]
+        assert m.mapping == index_table["foo"]
 
         assert [m] == list(MyCustomModel.filter(foo="foo"))
         assert [] == list(MyCustomModel.filter(foo="FOO"))
@@ -393,7 +393,7 @@ def test_custom_query_method(sheraf_database):
     with sheraf.connection() as conn:
         index_table = conn.root()["mycustommodel"]["foo"]
         assert {"foo"} == set(index_table)
-        assert m._persistent == index_table["foo"]
+        assert m.mapping == index_table["foo"]
 
         assert [m] == list(MyCustomModel.search(foo="oof"))
         assert [m] == list(MyCustomModel.search(foo="foo"))
@@ -426,7 +426,7 @@ def test_unique_indexation_and_filter_on_wrong_attribute(sheraf_database):
     with sheraf.connection() as conn:
         index_table = conn.root()["mymodel"]["an_attribute"]
         assert {"foo"} == set(index_table)
-        assert m._persistent == index_table["foo"]
+        assert m.mapping == index_table["foo"]
 
         with pytest.raises(sheraf.exceptions.InvalidFilterException):
             list(MyModel.filter(foobar="foo"))

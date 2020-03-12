@@ -78,46 +78,46 @@ import sheraf.types
 class ListAttributeAccessor:
     def __init__(self, attribute, persistent):
         self._attribute = attribute
-        self._persistent = persistent
+        self.mapping = persistent
 
     def __iter__(self):
-        return (self._attribute.deserialize(item) for item in self._persistent)
+        return (self._attribute.deserialize(item) for item in self.mapping)
 
     def __len__(self):
-        return len(self._persistent)
+        return len(self.mapping)
 
     def __bool__(self):
-        return bool(self._persistent)
+        return bool(self.mapping)
 
     def __setitem__(self, key, value):
-        if key >= len(self._persistent) or key < 0:
+        if key >= len(self.mapping) or key < 0:
             raise IndexError("list index out of range")
 
-        self._persistent[key] = self._attribute.serialize(value)
+        self.mapping[key] = self._attribute.serialize(value)
 
     def __getitem__(self, key):
         if not isinstance(key, slice):
-            return self._attribute.deserialize(self._persistent[key])
+            return self._attribute.deserialize(self.mapping[key])
 
         return (
             self._attribute.deserialize(item)
-            for item in self._persistent.__getitem__(key)
+            for item in self.mapping.__getitem__(key)
         )
 
     def append(self, item):
-        self._persistent.append(self._attribute.serialize(item))
+        self.mapping.append(self._attribute.serialize(item))
 
     def clear(self):
-        self._persistent.clear()
+        self.mapping.clear()
 
     def extend(self, iterable):
-        self._persistent.extend(self._attribute.serialize(item) for item in iterable)
+        self.mapping.extend(self._attribute.serialize(item) for item in iterable)
 
     def pop(self):
-        return self._attribute.deserialize(self._persistent.pop())
+        return self._attribute.deserialize(self.mapping.pop())
 
     def remove(self, item):
-        self._persistent.remove(self._attribute.serialize(item))
+        self.mapping.remove(self._attribute.serialize(item))
 
 
 class ListAttribute(sheraf.attributes.base.BaseAttribute):
@@ -229,79 +229,79 @@ class LargeListAttribute(ListAttribute):
 class DictAttributeAccessor:
     def __init__(self, attribute, persistent, **kwargs):
         self._attribute = attribute
-        self._persistent = persistent
+        self.mapping = persistent
 
     def __setitem__(self, key, value):
-        self._persistent[key] = self._attribute.serialize(value)
+        self.mapping[key] = self._attribute.serialize(value)
 
     def __getitem__(self, key):
-        return self._attribute.deserialize(self._persistent[key])
+        return self._attribute.deserialize(self.mapping[key])
 
     def __delitem__(self, key):
-        del self._persistent[key]
+        del self.mapping[key]
 
     def __iter__(self):
-        return (k for k in self._persistent.keys())
+        return (k for k in self.mapping.keys())
 
     def __bool__(self):
-        return bool(self._persistent)
+        return bool(self.mapping)
 
     def __len__(self):
-        return len(self._persistent)
+        return len(self.mapping)
 
     def __contains__(self, key):
-        return key in self._persistent
+        return key in self.mapping
 
     def clear(self):
         try:
-            self._persistent.clear()
+            self.mapping.clear()
         except AssertionError:
             pass
 
     def keys(self, *args, **kwargs):
-        return self._persistent.keys(*args, **kwargs)
+        return self.mapping.keys(*args, **kwargs)
 
     def items(self, *args, **kwargs):
-        if not hasattr(self._persistent, "iteritems"):
+        if not hasattr(self.mapping, "iteritems"):
             return (
                 (k, self._attribute.deserialize(v))
-                for k, v in iter(self._persistent.items())
+                for k, v in iter(self.mapping.items())
             )
 
         return (
             (k, self._attribute.deserialize(v))
-            for k, v in self._persistent.iteritems(*args, **kwargs)
+            for k, v in self.mapping.iteritems(*args, **kwargs)
         )
 
     def values(self, *args, **kwargs):
-        if not hasattr(self._persistent, "iteritems"):
+        if not hasattr(self.mapping, "iteritems"):
             return (
                 self._attribute.deserialize(v)
-                for k, v in iter(self._persistent.items())
+                for k, v in iter(self.mapping.items())
             )
 
         return (
             self._attribute.deserialize(v)
-            for k, v in self._persistent.iteritems(*args, **kwargs)
+            for k, v in self.mapping.iteritems(*args, **kwargs)
         )
 
     def get(self, value, default=None):
-        value = self._persistent.get(value)
+        value = self.mapping.get(value)
         if value is None:
             return default
         return self._attribute.deserialize(value)
 
     def maxKey(self):
         try:
-            return self._persistent.maxKey()
+            return self.mapping.maxKey()
         except AttributeError:
-            return max(self._persistent.keys())
+            return max(self.mapping.keys())
 
     def minKey(self):
         try:
-            return self._persistent.minKey()
+            return self.mapping.minKey()
         except AttributeError:
-            return min(self._persistent.keys())
+            return min(self.mapping.keys())
 
     def update(self, other):
         for k, v in other.items():
@@ -421,13 +421,13 @@ class SmallDictAttribute(DictAttribute):
 class SetAttributeAccessor:
     def __init__(self, attribute, persistent, **kwargs):
         self._attribute = attribute
-        self._persistent = persistent
+        self.mapping = persistent
 
     def add(self, item):
-        self._persistent.add(self._attribute.serialize(item))
+        self.mapping.add(self._attribute.serialize(item))
 
     def remove(self, item):
-        self._persistent.remove(self._attribute.serialize(item))
+        self.mapping.remove(self._attribute.serialize(item))
 
     def __and__(self, item):
         return set(item) & set(self)
@@ -448,16 +448,16 @@ class SetAttributeAccessor:
         return set(item) ^ set(self)
 
     def __iter__(self):
-        return (self._attribute.deserialize(item) for item in self._persistent)
+        return (self._attribute.deserialize(item) for item in self.mapping)
 
     def __len__(self):
-        return len(self._persistent)
+        return len(self.mapping)
 
     def __contains__(self, item):
         return item in iter(self)
 
     def clear(self):
-        self._persistent.clear()
+        self.mapping.clear()
 
 
 class SetAttribute(sheraf.attributes.simples.TypedAttribute):

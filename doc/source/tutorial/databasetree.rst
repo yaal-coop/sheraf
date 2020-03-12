@@ -41,12 +41,12 @@ The database tree will look like this:
         "table_saloon" [label="OOBTree"];
         "root" -> "table_saloon" [label=" saloon"];
         "saloon_index_id" [label="OOBTree"];
-        "saloon_persistent" [label="SmallDict
+        "saloonmapping" [label="SmallDict
     id: '62a29766-3ccc'
     location: 'heaven'"];
 
         "table_saloon" -> "saloon_index_id" [label="id"];
-        "saloon_index_id" -> "saloon_persistent" [label="62a29766-3ccc"];
+        "saloon_index_id" -> "saloonmapping" [label="62a29766-3ccc"];
      }
 
 Note that for the sake of readability, the :class:`~uuid.UUID` have been shortened in the graphs.
@@ -106,12 +106,12 @@ be added in the *Cowboy* table near *id*.
 
         subgraph saloon {
             "saloon_index_id" [label="OOBTree"];
-            "saloon_persistent" [label="SmallDict
+            "saloonmapping" [label="SmallDict
     id: '62a29766-3ccc'
     location: 'heaven'"];
 
             "table_saloon" -> "saloon_index_id" [label="id"];
-            "saloon_index_id" -> "saloon_persistent" [label="62a29766-3ccc"];
+            "saloon_index_id" -> "saloonmapping" [label="62a29766-3ccc"];
          }
      }
 
@@ -181,12 +181,12 @@ a :class:`~sheraf.types.LargeList` are used.
 
         subgraph saloon {
             "saloon_index_id" [label="OOBTree"];
-            "saloon_persistent" [label="SmallDict
+            "saloonmapping" [label="SmallDict
     id: '62a29766-3ccc'
     location: 'heaven'"];
 
             "table_saloon" -> "saloon_index_id" [label="id"];
-            "saloon_index_id" -> "saloon_persistent" [label="62a29766-3ccc"];
+            "saloon_index_id" -> "saloonmapping" [label="62a29766-3ccc"];
          }
      }
 
@@ -255,12 +255,12 @@ As external references are not real ZODB references, just the *Saloon* id is sto
 
         subgraph saloon {
             "saloon_index_id" [label="OOBTree"];
-            "saloon_persistent" [label="SmallDict
+            "saloonmapping" [label="SmallDict
     id: '62a29766-3ccc'
     location: 'heaven'"];
 
             "table_saloon" -> "saloon_index_id" [label="id"];
-            "saloon_index_id" -> "saloon_persistent" [label="62a29766-3ccc"];
+            "saloon_index_id" -> "saloonmapping" [label="62a29766-3ccc"];
          }
      }
 
@@ -344,10 +344,10 @@ the horses :class:`~sheraf.types.SmallDict` are indexed by their names.
     name: 'steven'"];
                 "persistent_horses" [label="OOBTree"];
                 "horse_name_index" [label="OOBTree"];
-                "jolly_persistent" [label="SmallDict
+                "jollymapping" [label="SmallDict
     name: 'jolly'
     breed: 'mustang'"];
-                "polly_persistent" [label="SmallDict
+                "pollymapping" [label="SmallDict
     name: 'polly'
     breed: 'shetland'"];
 
@@ -356,19 +356,19 @@ the horses :class:`~sheraf.types.SmallDict` are indexed by their names.
 
                 "persistent_steven" -> "persistent_horses" [label=" horses"];
                 "persistent_horses" -> "horse_name_index" [label=" name"];
-                "horse_name_index" -> "jolly_persistent" [label=" jolly"];
-                "horse_name_index" -> "polly_persistent" [label=" polly"];
+                "horse_name_index" -> "jollymapping" [label=" jolly"];
+                "horse_name_index" -> "pollymapping" [label=" polly"];
             }
         }
 
         subgraph saloon {
             "saloon_index_id" [label="OOBTree"];
-            "saloon_persistent" [label="SmallDict
+            "saloonmapping" [label="SmallDict
     id: '62a29766-3ccc'
     location: 'heaven'"];
 
             "table_saloon" -> "saloon_index_id" [label="id"];
-            "saloon_index_id" -> "saloon_persistent" [label="62a29766-3ccc"];
+            "saloon_index_id" -> "saloonmapping" [label="62a29766-3ccc"];
          }
      }
 

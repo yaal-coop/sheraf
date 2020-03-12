@@ -332,16 +332,16 @@ def test_recursion(sheraf_temp_dir, sheraf_connection, file_object_class):
 
 
 @pytest.mark.parametrize("file_object_class", [sheraf.attributes.files.FileObjectV2])
-def test_save_persistent_mapping(sheraf_temp_dir, sheraf_connection, file_object_class):
+def test_savemapping_mapping(sheraf_temp_dir, sheraf_connection, file_object_class):
     FileStorable = get_file_storable(sheraf.FileAttribute(file_object_class))
     s = FileStorable.create()
     s.file = sheraf.FileObject(stream=b"content", extension="txt")
     s.save()
-    assert s._persistent["file"] == s.file.relative_path()
+    assert s.mapping["file"] == s.file.relative_path()
 
 
 @pytest.mark.parametrize("file_object_class", [sheraf.attributes.files.FileObjectV2])
-def test_read_persistent_mapping(sheraf_temp_dir, sheraf_connection, file_object_class):
+def test_readmapping_mapping(sheraf_temp_dir, sheraf_connection, file_object_class):
     FileStorable = get_file_storable(sheraf.FileAttribute(file_object_class))
     s = FileStorable.create()
     directory = os.path.join(
@@ -351,7 +351,7 @@ def test_read_persistent_mapping(sheraf_temp_dir, sheraf_connection, file_object
     file_path = os.path.join(directory, "file.txt")
     with open(file_path, "wb") as f:
         f.write(b"content")
-    s._persistent["file"] = os.path.relpath(
+    s.mapping["file"] = os.path.relpath(
         file_path, sheraf.attributes.files.FILES_ROOT_DIR
     )
     assert s.file.stream == b"content"
@@ -365,7 +365,7 @@ def test_path_in_db_but_file_not_exists(
     FileStorable = get_file_storable(sheraf.FileAttribute(file_object_class))
     s = FileStorable.create()
     file_path = os.path.join(FileStorable.table, "file", "file.txt")
-    s._persistent["file"] = file_path
+    s.mapping["file"] = file_path
     assert s.file.relative_path() == file_path
     assert s.file.extension == "txt"
     assert not s.file.exists()
@@ -385,14 +385,14 @@ def test_copy_deprecated(sheraf_temp_dir, sheraf_connection, file_object_class):
     s1 = FileStorable.create()
     s1.logo = sheraf.attributes.files.FileObjectV1(extension="EXT", stream=b"STREAM")
     s1.save()
-    assert "logo" not in s1._persistent
+    assert "logo" not in s1.mapping
     s2 = FileStorable.create()
     s2.logo = s1.logo
     s2.save()
 
     assert s1.logo.stream == s2.logo.stream
     assert s1.logo.relative_path() != s2.logo.relative_path()
-    assert "logo" in s2._persistent
+    assert "logo" in s2.mapping
 
 
 # ----------------------------------------------------------------------------------------------------------------------

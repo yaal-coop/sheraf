@@ -26,21 +26,21 @@ class Blob(sheraf.models.inline.InlineModel):
 
         stream_data = stream.read() if stream else None
         if data or filename or stream_data:
-            m._persistent["blob"] = ZODB.blob.Blob(data or stream_data)
-            m._persistent["original_name"] = filename
+            m.mapping["blob"] = ZODB.blob.Blob(data or stream_data)
+            m.mapping["original_name"] = filename
 
         return m
 
     def open(self):
         """Opens the stored blob file."""
-        return self._persistent["blob"].open()
+        return self.mapping["blob"].open()
 
     @property
     def data(self):
         """
         The file binary data.
         """
-        f = self._persistent["blob"].open()
+        f = self.mapping["blob"].open()
         try:
             return f.read()
         finally:
@@ -51,7 +51,7 @@ class Blob(sheraf.models.inline.InlineModel):
         """
         The original filename.
         """
-        return self._persistent["original_name"]
+        return self.mapping["original_name"]
 
     @property
     def file_extension(self):
@@ -65,7 +65,7 @@ class Blob(sheraf.models.inline.InlineModel):
         """
         The name of the blob file.
         """
-        f = self._persistent["blob"].open()
+        f = self.mapping["blob"].open()
         try:
             return f.name
         finally:
@@ -75,19 +75,19 @@ class Blob(sheraf.models.inline.InlineModel):
         """
         Delete the object from the base.
         """
-        self._persistent.clear()
+        self.mapping.clear()
 
     def __len__(self):
-        return 1 if self._persistent else 0
+        return 1 if self.mapping else 0
 
     def __str__(self):
-        return self._persistent.get("original_name")
+        return self.mapping.get("original_name")
 
     def __repr__(self):
-        return '<Blob filename="{}">'.format(self._persistent.get("original_name"))
+        return '<Blob filename="{}">'.format(self.mapping.get("original_name"))
 
     def __bool__(self):
-        return bool(self._persistent)
+        return bool(self.mapping)
 
     def __getitem__(self, key):
         return getattr(self, key)

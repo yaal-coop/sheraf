@@ -85,13 +85,13 @@ def check_attributes_index(model_instance):
         if index.details.unique:
             result[index_name] = all(
                 value in index_table[index_name]
-                and index_table[index_name][value] == model_instance._persistent
+                and index_table[index_name][value] == model_instance.mapping
                 for value in values
             )
         else:
             result[index_name] = all(
                 value in index_table[index_name]
-                and model_instance._persistent in index_table[index_name][value]
+                and model_instance.mapping in index_table[index_name][value]
                 for value in values
             )
     return result
@@ -120,14 +120,14 @@ def check_model_index(model):
         if index.details.primary:
             continue
 
-        for m_persistent in attribute_index_table.values():
+        for mmapping in attribute_index_table.values():
             try:
                 if index.details.unique:
-                    model.read(model._decorate(m_persistent).identifier)
+                    model.read(model._decorate(mmapping).identifier)
                 else:
                     [
                         model.read(model._decorate(persistent).identifier)
-                        for persistent in m_persistent
+                        for persistent in mmapping
                     ]
                 result.setdefault(attribute_index_key, {"ok": 0, "ko": 0})["ok"] += 1
 

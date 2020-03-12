@@ -79,16 +79,16 @@ def test_create(sheraf_database):
 
     with sheraf.connection(commit=True):
         model = ModelForTest.create(models={"a": {"name": "A"}, "b": {"name": "B"}})
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert isinstance(model.models["a"], AModelForTest)
-        assert isinstance(model.models["a"]._persistent, sheraf.types.SmallDict)
+        assert isinstance(model.models["a"].mapping, sheraf.types.SmallDict)
         assert "A" == model.models["a"].name
 
     with sheraf.connection():
         model = ModelForTest.read(model.id)
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert isinstance(model.models["a"], AModelForTest)
-        assert isinstance(model.models["a"]._persistent, sheraf.types.SmallDict)
+        assert isinstance(model.models["a"].mapping, sheraf.types.SmallDict)
         assert "A" == model.models["a"].name
 
 
@@ -128,29 +128,29 @@ def test_update_no_edition(sheraf_database):
         last_sub_id = model.models["a"].id
 
     with sheraf.connection(commit=True):
-        old_sub_persistent = model.models["a"]._persistent
+        old_submapping = model.models["a"].mapping
         model.edit(
             value={"models": {"a": {"name": "a"}, "b": {"name": "b"}}}, edition=False
         )
-        new_sub_persistent = model.models["a"]._persistent
+        new_submapping = model.models["a"].mapping
 
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert isinstance(model.models["a"], AModelForTest)
-        assert isinstance(new_sub_persistent, sheraf.types.SmallDict)
+        assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "c" == model.models["a"].name
         assert "c" == model.models["b"].name
-        assert old_sub_persistent is new_sub_persistent
+        assert old_submapping is new_submapping
         assert last_sub_id == model.models["a"].id
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert isinstance(model.models["a"], AModelForTest)
-        assert isinstance(new_sub_persistent, sheraf.types.SmallDict)
+        assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "c" == model.models["a"].name
         assert "c" == model.models["b"].name
-        assert old_sub_persistent is new_sub_persistent
+        assert old_submapping is new_submapping
         assert last_sub_id == model.models["a"].id
 
 
@@ -163,31 +163,31 @@ def test_update_replacement(sheraf_database):
         last_sub_id = model.models["a"].id
 
     with sheraf.connection(commit=True):
-        old_sub_persistent = model.models["a"]._persistent
+        old_submapping = model.models["a"].mapping
         model.edit(
             value={"models": {"a": {"name": "a"}, "b": {"name": "b"}}},
             edition=True,
             replacement=True,
         )
-        new_sub_persistent = model.models["a"]._persistent
+        new_submapping = model.models["a"].mapping
 
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert isinstance(model.models["a"], AModelForTest)
-        assert isinstance(new_sub_persistent, sheraf.types.SmallDict)
+        assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "a" == model.models["a"].name
         assert "b" == model.models["b"].name
-        assert old_sub_persistent is not new_sub_persistent
+        assert old_submapping is not new_submapping
         assert last_sub_id != model.models["a"].id
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert isinstance(model.models["a"], AModelForTest)
-        assert isinstance(new_sub_persistent, sheraf.types.SmallDict)
+        assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "a" == model.models["a"].name
         assert "b" == model.models["b"].name
-        assert old_sub_persistent is not new_sub_persistent
+        assert old_submapping is not new_submapping
         assert last_sub_id != model.models["a"].id
 
 
@@ -201,13 +201,13 @@ def test_update_addition(sheraf_database):
     with sheraf.connection(commit=True):
         model.edit(value={"models": {"b": {"name": "b"}}}, addition=False)
 
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert "b" not in model.models
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert "b" not in model.models
 
 
@@ -221,18 +221,18 @@ def test_update_no_addition(sheraf_database):
     with sheraf.connection(commit=True):
         model.edit(value={"models": {"b": {"name": "b"}}}, addition=True)
 
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert isinstance(model.models["b"], AModelForTest)
-        assert isinstance(model.models["b"]._persistent, sheraf.types.SmallDict)
+        assert isinstance(model.models["b"].mapping, sheraf.types.SmallDict)
         assert "a" == model.models["a"].name
         assert "b" == model.models["b"].name
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert isinstance(model.models["b"], AModelForTest)
-        assert isinstance(model.models["b"]._persistent, sheraf.types.SmallDict)
+        assert isinstance(model.models["b"].mapping, sheraf.types.SmallDict)
         assert "a" == model.models["a"].name
         assert "b" == model.models["b"].name
 
@@ -247,13 +247,13 @@ def test_update_deletion(sheraf_database):
     with sheraf.connection(commit=True):
         model.edit(value={"models": {}}, deletion=True)
 
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert "a" not in model.models
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert "a" not in model.models
 
 
@@ -267,11 +267,11 @@ def test_update_no_deletion(sheraf_database):
     with sheraf.connection(commit=True):
         model.edit(value={"models": {}}, deletion=False)
 
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert "a" in model.models
 
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model._persistent["models"], sheraf.types.LargeDict)
+        assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
         assert "a" in model.models

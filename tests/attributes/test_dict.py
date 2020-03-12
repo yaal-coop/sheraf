@@ -72,7 +72,7 @@ def test_primitive_type(sheraf_connection, persistent_type, subattribute):
 
     m = ModelTest.create()
     m._dict = dict()
-    assert isinstance(m._persistent["_dict"], persistent_type)
+    assert isinstance(m.mapping["_dict"], persistent_type)
 
 
 @pytest.mark.parametrize(
@@ -87,7 +87,7 @@ def test_sheraf_type_dict(sheraf_connection, persistent_type, subattribute):
 
     m = ModelTest.create()
     m._dict = sheraf.types.LargeDict({})
-    assert isinstance(m._persistent["_dict"], persistent_type)
+    assert isinstance(m.mapping["_dict"], persistent_type)
 
 
 @pytest.mark.parametrize(
@@ -131,8 +131,8 @@ def test_nested(sheraf_database, persistent_type, subattribute):
 
         assert 0 == m.dict["foo"]["bar"]
         assert 1 == m.dict["foo"]["baz"]
-        assert isinstance(m._persistent["dict"], persistent_type)
-        assert isinstance(m._persistent["dict"]["foo"], persistent_type)
+        assert isinstance(m.mapping["dict"], persistent_type)
+        assert isinstance(m.mapping["dict"]["foo"], persistent_type)
         assert {"bar", "baz"} == set(m.dict["foo"].keys())
         assert {0, 1} == set(m.dict["foo"].values())
 
@@ -141,7 +141,7 @@ def test_nested(sheraf_database, persistent_type, subattribute):
 
         assert 0 == m.dict["foo"]["bar"]
         assert 1 == m.dict["foo"]["baz"]
-        assert isinstance(m._persistent["dict"], persistent_type)
-        assert isinstance(m._persistent["dict"]["foo"], persistent_type)
+        assert isinstance(m.mapping["dict"], persistent_type)
+        assert isinstance(m.mapping["dict"]["foo"], persistent_type)
         assert {"bar", "baz"} == set(m.dict["foo"].keys())
         assert {0, 1} == set(m.dict["foo"].values())

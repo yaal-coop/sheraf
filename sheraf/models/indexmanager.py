@@ -40,9 +40,9 @@ class IndexManager:
 
         for key in keys:
             if self.details.unique:
-                self._table_set_unique(table, key, model._persistent)
+                self._table_set_unique(table, key, model.mapping)
             else:
-                self._table_set_multiple(table, key, model._persistent)
+                self._table_set_multiple(table, key, model.mapping)
 
     def delete_item(self, model, keys=None):
         """
@@ -63,9 +63,9 @@ class IndexManager:
                 continue
 
             if self.details.unique:
-                self._table_del_unique(table, key, model._persistent)
+                self._table_del_unique(table, key, model.mapping)
             else:
-                self._table_del_multiple(table, key, model._persistent)
+                self._table_del_multiple(table, key, model.mapping)
 
     def update_item(self, item, old_keys, new_keys):
         old_values = self.details.values_func(old_keys)

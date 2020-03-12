@@ -45,7 +45,7 @@ def test_create_with_an_existing_uuid(sheraf_database):
 
     with sheraf.connection():
         m = UUIDModel.create(my_uuid=uuid.uuid4())
-        assert isinstance(m._persistent["my_uuid"], numbers.Number)
+        assert isinstance(m.mapping["my_uuid"], numbers.Number)
         assert isinstance(m.my_uuid, uuid.UUID)
 
 
@@ -55,7 +55,7 @@ def test_create_with_an_existing_uuid_str(sheraf_database):
 
     with sheraf.connection():
         m = UUIDModel.create(my_uuid=str(uuid.uuid4()))
-        assert isinstance(m._persistent["my_uuid"], numbers.Number)
+        assert isinstance(m.mapping["my_uuid"], numbers.Number)
         assert isinstance(m.my_uuid, uuid.UUID)
 
 
@@ -65,7 +65,7 @@ def test_create_with_an_existing_uuid_int(sheraf_database):
 
     with sheraf.connection():
         m = UUIDModel.create(my_uuid=uuid.uuid4().int)
-        assert isinstance(m._persistent["my_uuid"], numbers.Number)
+        assert isinstance(m.mapping["my_uuid"], numbers.Number)
         assert isinstance(m.my_uuid, uuid.UUID)
 
 
@@ -75,7 +75,7 @@ def test_string_uuid_attribute(sheraf_database):
 
     with sheraf.connection():
         m = UUIDModel.create(my_uuid=uuid.uuid4().int)
-        assert isinstance(m._persistent["my_uuid"], numbers.Number)
+        assert isinstance(m.mapping["my_uuid"], numbers.Number)
         assert isinstance(m.my_uuid, str)
 
 

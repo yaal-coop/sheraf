@@ -83,7 +83,7 @@ class BaseAttribute(object):
         """
         :param parent: The owner of this attribute
         :return: true if the object is effectively created"""
-        return self.key(parent) in parent._persistent
+        return self.key(parent) in parent.mapping
 
     def key(self, parent):
         """:return: the key that identifies this attribute in its owner object"""
@@ -92,7 +92,7 @@ class BaseAttribute(object):
 
         if isinstance(self._key, (list, tuple)):
             for key in self._key:
-                if key in parent._persistent:
+                if key in parent.mapping:
                     return key
             return self._key[0]
 
@@ -103,11 +103,11 @@ class BaseAttribute(object):
         # :param parent: The owner of this attribute
         # :return: the raw representation of this attribute (ie as stored in ZODB)
         try:
-            return parent._persistent[self.key(parent)]
+            return parent.mapping[self.key(parent)]
         except KeyError:
             default_value = self.serialize(self.create(parent))
             if self.store_default_value:
-                parent._persistent[self.key(parent)] = default_value
+                parent.mapping[self.key(parent)] = default_value
             return default_value
 
     def write_raw(self, parent, value):
@@ -115,7 +115,7 @@ class BaseAttribute(object):
         # :param parent: The owner of this attribute
         # :param value: The value assigned to this attribute
         # assigns the value parameter to this attribute
-        parent._persistent[self.key(parent)] = value
+        parent.mapping[self.key(parent)] = value
         return value
 
     def serialize(self, value):
@@ -177,7 +177,7 @@ class BaseAttribute(object):
 
     def delattr(self, parent):
         # Internal. delete attribute from its owner
-        del parent._persistent[self.key(parent)]
+        del parent.mapping[self.key(parent)]
 
     def save(self, parent):
         pass
