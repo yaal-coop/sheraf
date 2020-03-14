@@ -86,7 +86,6 @@ pytest-xdist = "*"
 werkzeug = "*"
 wtforms = "*"
 tox = "*"
-unidecode = "*"
 
 
 [tool.coverage.run]
