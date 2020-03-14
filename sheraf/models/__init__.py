@@ -113,7 +113,9 @@ class IntAutoModel(BaseAutoModel, IntOrderedNamedAttributesModel):
 
 
 class AttributeModel(NamedAttributesModel, SimpleIndexedModel):
-    pass
+    """
+    This model is expected to be used with :class:`~sheraf.attributes.models.IndexedModelAttribute`.
+    """
 
 
 AutoModel = UUIDAutoModel
