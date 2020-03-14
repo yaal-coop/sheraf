@@ -253,10 +253,7 @@ class DictAttributeAccessor:
         return key in self.mapping
 
     def clear(self):
-        try:
-            self.mapping.clear()
-        except AssertionError:
-            pass
+        self.mapping.clear()
 
     def keys(self, *args, **kwargs):
         return self.mapping.keys(*args, **kwargs)
