@@ -100,8 +100,7 @@ class ListAttributeAccessor:
             return self._attribute.deserialize(self.mapping[key])
 
         return (
-            self._attribute.deserialize(item)
-            for item in self.mapping.__getitem__(key)
+            self._attribute.deserialize(item) for item in self.mapping.__getitem__(key)
         )
 
     def append(self, item):
@@ -273,8 +272,7 @@ class DictAttributeAccessor:
     def values(self, *args, **kwargs):
         if not hasattr(self.mapping, "iteritems"):
             return (
-                self._attribute.deserialize(v)
-                for k, v in iter(self.mapping.items())
+                self._attribute.deserialize(v) for k, v in iter(self.mapping.items())
             )
 
         return (
