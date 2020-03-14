@@ -27,14 +27,7 @@ class UUIDIndexedModel:
     "e4bb714e-b5a8-40d6-bb69-ab3b932fbfe0"
     """
 
-    def make_unique_id(self):
-        identifier = str(uuid.uuid4())
-        while self.index_contains(identifier):
-            identifier = str(uuid.uuid4())
-
-        return identifier
-
-    id = StringUUIDAttribute(default=lambda m: m.make_unique_id())
+    id = StringUUIDAttribute(default=lambda: str(uuid.uuid4()))
 
 
 class IntIndexedModel:
@@ -52,14 +45,7 @@ class IntIndexedModel:
 
     MAX_INT = sys.maxsize
 
-    def make_unique_id(self):
-        identifier = random.randint(0, self.MAX_INT)
-        while self.index_contains(identifier):
-            identifier = random.randint(0, self.MAX_INT)
-
-        return identifier
-
-    id = IntegerAttribute(default=lambda m: m.make_unique_id())
+    id = IntegerAttribute(default=lambda m: random.randint(0, m.MAX_INT))
 
     @classmethod
     def index_table_default(cls):
