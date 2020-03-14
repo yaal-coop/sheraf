@@ -12,10 +12,6 @@ Roadmap
 - Fix TODO comments in the code;
 - Add a check that tests if the blob configuration is OK.
 - 100% coverage.
-
-During later versions
-=====================
-
 - Attributes typing & Mypy.
 
 sheraf 0 versions
