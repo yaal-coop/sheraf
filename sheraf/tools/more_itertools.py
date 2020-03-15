@@ -2,9 +2,14 @@ from itertools import filterfalse
 
 
 def unique_everseen(iterable, key=None):
-    "List unique elements, preserving order. Remember all elements ever seen."
-    # unique_everseen('AAAABBBCCDAABBB') --> A B C D
-    # unique_everseen('ABBCcAD', str.lower) --> A B C D
+    """
+    List unique elements, preserving order. Remember all elements ever seen.
+    >>> from sheraf.tools.more_itertools import unique_everseen
+    >>> list(unique_everseen('AAAABBBCCDAABBB'))
+    ['A', 'B', 'C', 'D']
+    >>> list(unique_everseen('ABBCcAD', str.lower))
+    ['A', 'B', 'C', 'D']
+    """
     seen = set()
     seen_add = seen.add
     if key is None:
