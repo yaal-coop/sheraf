@@ -123,13 +123,13 @@ What if we want to remember the favorite guns of the cowboys.
 .. code-block:: python
 
    >>> class Cowboy(sheraf.Model):
-   ...     table = "cowboy"
+   ...     table = "multiple_cowboy"
    ...     name = sheraf.StringAttribute().index(unique=True)
    ...     age = sheraf.IntegerAttribute()
    ...     gun = sheraf.StringAttribute().index()
    ...
    >>> with sheraf.connection(commit=True):
-   ...     peter = Cowboy.read(name="peter")
+   ...     peter = Cowboy.create(name="peter", age=30)
    ...     peter.gun = "remington"
 
 We edited *Cowboy* to add a *gun* index. Indices are multiple by default,
@@ -199,14 +199,14 @@ We just forgot to link the cowboys and the saloons.
 .. code-block:: python
 
    >>> class Cowboy(sheraf.Model):
-   ...     table = "cowboy"
+   ...     table = "external_cowboy"
    ...     name = sheraf.StringAttribute().index(unique=True)
    ...     age = sheraf.IntegerAttribute()
    ...     gun = sheraf.StringAttribute().index()
    ...     saloon = sheraf.ModelAttribute(Saloon)
    ...
    >>> with sheraf.connection(commit=True):
-   ...     peter = Cowboy.read(name="peter")
+   ...     peter = Cowboy.create(name="peter", age=30, gun="remington")
    ...     peter.saloon = saloon
 
 We edited *Cowboy* to add an external reference to the *Saloon* model we
@@ -276,7 +276,7 @@ Now we should consider some horses so cowboys can actually go in the saloon.
    ...     breed = sheraf.StringAttribute()
    ...
    >>> class Cowboy(sheraf.Model):
-   ...     table = "cowboy"
+   ...     table = "indexed_cowboy"
    ...     name = sheraf.StringAttribute().index()
    ...     age = sheraf.IntegerAttribute()
    ...     gun = sheraf.StringAttribute().index()
