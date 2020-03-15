@@ -262,57 +262,59 @@ def test_multiprocessing_database_connection(sheraf_zeo_database):
         assert ["main", "process"] == list(c.root.list)
 
 
-class TestMultipleConnections:
-    sheraf_database_extra_kwargs = {"nestable": True}
+def test_data_reading(sheraf_database):
+    sheraf_database.nestable = True
 
-    def test_data_reading(self, sheraf_database):
-        with sheraf.connection(commit=True) as c:
-            c.root()["data"] = True
+    with sheraf.connection(commit=True) as c:
+        c.root()["data"] = True
 
-        with sheraf.connection() as c1:
-            assert c1.root()["data"]
+    with sheraf.connection() as c1:
+        assert c1.root()["data"]
+
+        with sheraf.connection(commit=True) as c2:
+            c2.root()["data"] = False
+
+        assert c1.root()["data"]
+
+    with sheraf.connection() as c3:
+        assert not c3.root()["data"]
+
+
+def test_transaction_managers(sheraf_database):
+    sheraf_database.nestable = True
+
+    with sheraf.connection() as c1:
+        with sheraf.connection() as c2:
+            assert c1.transaction_manager != c2.transaction_manager
+
+
+def test_conflict(sheraf_database):
+    sheraf_database.nestable = True
+
+    with sheraf.connection(commit=True) as c:
+        c.root()["data"] = sheraf.types.SmallList()
+
+    with pytest.raises(ConflictError):
+        with sheraf.connection(commit=True) as c1:
+            c1.root()["data"].append("connection1")
 
             with sheraf.connection(commit=True) as c2:
-                c2.root()["data"] = False
+                c2.root()["data"].append("connection2")
 
-            assert c1.root()["data"]
 
-        with sheraf.connection() as c3:
-            assert not c3.root()["data"]
+def test_get_current_connection_nested(sheraf_database, other_nested_database):
+    sheraf_database.nestable = True
 
-    def test_transaction_managers(self, sheraf_database):
-        with sheraf.connection() as c1:
-            with sheraf.connection() as c2:
-                assert c1.transaction_manager != c2.transaction_manager
+    with sheraf.connection(sheraf.Database.DEFAULT_DATABASE_NAME) as conn_default:
+        assert sheraf.Database.DEFAULT_DATABASE_NAME == sheraf.Database.current_name()
+        assert conn_default == sheraf.Database.current_connection()
 
-    def test_conflict(self, sheraf_database):
-        with sheraf.connection(commit=True) as c:
-            c.root()["data"] = sheraf.types.SmallList()
+        with sheraf.connection("other_nested_database") as conn_other:
+            assert "other_nested_database" == sheraf.Database.current_name()
+            assert conn_other == sheraf.Database.current_connection()
 
-        with pytest.raises(ConflictError):
-            with sheraf.connection(commit=True) as c1:
-                c1.root()["data"].append("connection1")
-
-                with sheraf.connection(commit=True) as c2:
-                    c2.root()["data"].append("connection2")
-
-    def test_get_current_connection_nested(
-        self, sheraf_database, other_nested_database
-    ):
-        with sheraf.connection(sheraf.Database.DEFAULT_DATABASE_NAME) as conn_default:
-            assert (
-                sheraf.Database.DEFAULT_DATABASE_NAME == sheraf.Database.current_name()
-            )
-            assert conn_default == sheraf.Database.current_connection()
-
-            with sheraf.connection("other_nested_database") as conn_other:
-                assert "other_nested_database" == sheraf.Database.current_name()
-                assert conn_other == sheraf.Database.current_connection()
-
-            assert (
-                sheraf.Database.DEFAULT_DATABASE_NAME == sheraf.Database.current_name()
-            )
-            assert conn_default == sheraf.Database.current_connection()
+        assert sheraf.Database.DEFAULT_DATABASE_NAME == sheraf.Database.current_name()
+        assert conn_default == sheraf.Database.current_connection()
 
 
 def test_last_connection(sheraf_database):

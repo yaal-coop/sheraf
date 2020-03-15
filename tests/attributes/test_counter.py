@@ -62,56 +62,58 @@ def test_assignment(sheraf_database):
         assert 200 == m.counter
 
 
-class TestMonoprocessConflict:
-    sheraf_database_extra_kwargs = {"nestable": True}
+def test_monoprocess_double_increment_no_conflict(sheraf_database):
+    sheraf_database.nestable = True
 
-    class MyModel(sheraf.AutoModel):
-        counter = sheraf.CounterAttribute(default=0)
+    with sheraf.connection(commit=True):
+        m = MyModel.create()
 
-    def test_double_increment_no_conflict(self, sheraf_database):
+    with sheraf.connection(commit=True):
+        m1 = MyModel.read(m.id)
+
         with sheraf.connection(commit=True):
-            m = self.MyModel.create()
+            m2 = MyModel.read(m.id)
+            m2.counter.decrement(10)
 
+        m1.counter.increment(100)
+
+    with sheraf.connection():
+        m3 = MyModel.read(m.id)
+        assert 90 == m3.counter
+
+
+def test_monoprocess_double_assignment_conflict(sheraf_database):
+    sheraf_database.nestable = True
+
+    with sheraf.connection(commit=True):
+        m = MyModel.create()
+
+    with pytest.raises(ZODB.POSException.ConflictError):
         with sheraf.connection(commit=True):
-            m1 = self.MyModel.read(m.id)
+            m1 = MyModel.read(m.id)
 
             with sheraf.connection(commit=True):
-                m2 = self.MyModel.read(m.id)
-                m2.counter.decrement(10)
+                m2 = MyModel.read(m.id)
+                m2.counter = 10
+
+            m1.counter = 20
+
+
+def test_monoprocess_assignment_increment_conflict(sheraf_database):
+    sheraf_database.nestable = True
+
+    with sheraf.connection(commit=True):
+        m = MyModel.create()
+
+    with pytest.raises(ZODB.POSException.ConflictError):
+        with sheraf.connection(commit=True):
+            m1 = MyModel.read(m.id)
+
+            with sheraf.connection(commit=True):
+                m2 = MyModel.read(m.id)
+                m2.counter = 10
 
             m1.counter.increment(100)
-
-        with sheraf.connection():
-            m3 = self.MyModel.read(m.id)
-            assert 90 == m3.counter
-
-    def test_double_assignment_conflict(self, sheraf_database):
-        with sheraf.connection(commit=True):
-            m = self.MyModel.create()
-
-        with pytest.raises(ZODB.POSException.ConflictError):
-            with sheraf.connection(commit=True):
-                m1 = self.MyModel.read(m.id)
-
-                with sheraf.connection(commit=True):
-                    m2 = self.MyModel.read(m.id)
-                    m2.counter = 10
-
-                m1.counter = 20
-
-    def test_assignment_increment_conflict(self, sheraf_database):
-        with sheraf.connection(commit=True):
-            m = self.MyModel.create()
-
-        with pytest.raises(ZODB.POSException.ConflictError):
-            with sheraf.connection(commit=True):
-                m1 = self.MyModel.read(m.id)
-
-                with sheraf.connection(commit=True):
-                    m2 = self.MyModel.read(m.id)
-                    m2.counter = 10
-
-                m1.counter.increment(100)
 
 
 @pytest.mark.skip
