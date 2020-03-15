@@ -9,6 +9,12 @@ import sheraf
 
 class MyModel(sheraf.AutoModel):
     counter = sheraf.CounterAttribute(default=0)
+    useless = sheraf.InlineModelAttribute(
+        sheraf.InlineModel(
+            foo=sheraf.SimpleAttribute(default="bar", lazy_creation=False),
+        ),
+        lazy_creation=False,
+    )
 
 
 def test_increment_decrement(sheraf_database):

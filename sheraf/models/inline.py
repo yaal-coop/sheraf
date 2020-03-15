@@ -71,7 +71,11 @@ class InlineModel(NamedAttributesModel):
     """
 
     def __init__(self, **kwargs):
+        if kwargs:
+            self.__class__.attributes = {}
+
         super().__init__()
+
         for k, v in kwargs.items():
             if isinstance(v, BaseAttribute):
                 v._default_key = k
