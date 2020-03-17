@@ -211,6 +211,8 @@ We could easilly use this to create a simple full-text search engine on a model 
 
 The ``substrings`` function extracts all the possible substring from all the words in a string. Now you can find a cowboy by searching for any piece of word in his biography.
 
+To see how indexes can be used to build a full-text search engine, you can check the :ref:`fts` section.
+
 Migration and checks
 --------------------
 

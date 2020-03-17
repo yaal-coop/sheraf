@@ -12,3 +12,4 @@ Tutorial
     indexation
     databasetree
     parallelism
+    fts
