@@ -292,20 +292,6 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
             raise sheraf.exceptions.NotConnectedException()
         return current_name
 
-    @staticmethod
-    def _table_iterkeys(table, reverse=False):
-        try:
-            return table.iterkeys(reverse=reverse)
-        # TODO: Remove this guard (or just keep it and remove the first lines of this function)
-        # on the next compatibility breaking release.
-        except TypeError:
-            # Some previous stored data may have been OOBTree instead of LargeDict,
-            # so the 'reverse' parameter was not available
-            keys = table.iterkeys()
-            if reverse:
-                keys = reversed(list(keys))
-            return keys
-
     @classmethod
     def index_table(cls, database_name=None, setdefault=True):
         index_root = cls.index_root(database_name, setdefault)
@@ -355,9 +341,12 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def index_iterkeys(cls, reverse=False):
-        return itertools.chain.from_iterable(
-            cls._table_iterkeys(table, reverse=reverse) for table in cls._index_tables()
+        iterator = itertools.chain.from_iterable(
+            table.iterkeys() for table in cls._index_tables()
         )
+        if reverse:
+            iterator = reversed(list(iterator))
+        return iterator
 
     @classmethod
     def index_delete(cls, key):

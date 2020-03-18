@@ -31,9 +31,6 @@ def test_large_dict(sheraf_database):
 
         assert list(c.root.dict[90:94:2]) == ["90", "92", "94"]
 
-        assert [0, 1, 2] == list(c.root.dict.iterkeys(0, 2, False))
-        assert [2, 1, 0] == list(c.root.dict.iterkeys(0, 2, True))
-
 
 def test_alphabetic_keys(sheraf_database):
     alphabet = sorted(string.ascii_letters)

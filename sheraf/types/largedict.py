@@ -60,17 +60,3 @@ class LargeDict(OOBTree):
             OOBTree.__getitem__(self, keys[i])
             for i in range(0, len(keys), item.step or 1)
         )
-
-    def iterkeys(self, min=None, max=None, reverse=False):
-        """Iter over the keys.
-
-        Performances when `reverse` is `True` may be a bit slower.
-
-        :param min: The first key to search.
-        :param max: The last key to search.
-        :param reverse: If `True`, key order is backward.
-        """
-        if not reverse:
-            return OOBTree.iterkeys(self, min, max)
-
-        return reversed(OOBTree.keys(self, min, max))
