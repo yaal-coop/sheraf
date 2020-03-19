@@ -3,20 +3,6 @@ import itertools
 import sheraf.types
 
 
-def table_iterkeys(table, reverse=False):
-    try:
-        return table.iterkeys(reverse=reverse)
-    # TODO: Remove this guard (or just keep it and remove the first lines of this function)
-    # on the next compatibility breaking release.
-    except TypeError:
-        # Some previous stored data may have been OOBTree instead of LargeDict,
-        # so the 'reverse' parameter was not available
-        keys = table.iterkeys()
-        if reverse:
-            keys = reversed(list(keys))
-        return keys
-
-
 class IndexManager:
     root_default = sheraf.types.SmallDict
     index_multiple_default = sheraf.types.LargeList
@@ -120,7 +106,9 @@ class SimpleIndexManager(IndexManager):
         return self.persistent[self.details.key].has_key(key)
 
     def iterkeys(self, reverse=False):
-        return table_iterkeys(self.table(), reverse)
+        if reverse:
+            return reversed(list(self.table().iterkeys()))
+        return self.table().iterkeys()
 
     def count(self):
         try:
@@ -232,8 +220,13 @@ class MultipleDatabaseIndexManager(IndexManager):
         return False
 
     def iterkeys(self, reverse=False):
+        if reverse:
+            return itertools.chain.from_iterable(
+                reversed(list(table.iterkeys())) for table in self.tables()
+            )
+
         return itertools.chain.from_iterable(
-            table_iterkeys(table, reverse) for table in self.tables()
+            table.iterkeys() for table in self.tables()
         )
 
     def count(self):
