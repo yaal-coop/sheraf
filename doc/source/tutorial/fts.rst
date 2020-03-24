@@ -84,6 +84,14 @@ Another complementary approach is to check words against dictionnaries and then 
 `pyenchant <https://pyenchant.github.io/pyenchant/>`_, based on tools like `aspell <http://aspell.net/>`_. Note
 that pyenchant allows you to define your own dictionnary.
 
+Restricting user input
+~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes the better solution to a problem is actually to not having to deal with it. When it is possible,
+restricting the user inputs to a valid set of data prevent you to deal with data imprecisions.
+This is generally implemented by user interface tricks, such as *suggestions as you type*. However, that
+may be difficult to instore when the valid data set is very large or motley.
+
 Pertinence matching
 -------------------
 
@@ -100,22 +108,96 @@ does not return good enough results.
 Some libraries like `Whoosh <https://whoosh.readthedocs.io/>`_ implement almost all the previous concepts,
 and it also manages the storing of indexes.
 
-Let us see what we can do with those concepts in sheraf. The idea is not to pretend we can replace tools like Whoosh,
-but to experiment the flexibility sheraf offers.
-
 Use cases
 =========
+
+Let us see what we can do with those concepts in sheraf. Wo do not pretend sheraf can replace tools like Whoosh,
+but to experiment the flexibility sheraf offers.
 
 Name completion
 ---------------
 
-TBD.
+Imagine we have a cowboy database, and we would like to be able to find cowboys by their names. We have a
+input field, and we would like to suggest valid cowboy names as the user is typing. Then we can enforce
+the user to choose one of the valid names to the search. The idea is to find cowboy names that are prefixed
+by the user input. For instance, if we have a cowboy name *George Abitbol*, then he would appear in the
+suggestion box if we type *Geor* or *abit*.
+
+.. note::
+
+   This is just an example. In a real situation, querying the database each time an user
+   presses a key does not seem to be a good idea. Periodically generating and caching the valid data
+   you want to suggest sounds a better way to achieve this.
+
+- We do not have to understand a whole natural language like English, because proper nouns won't appear in a dictionnary.
+  Also each name stands for a unique person, and there is no name synonyms. In that case it seems useless to deal with
+  **stemming or lemmatization**.
+- We can consider our search queries will be indexed maximum once for each cowboy. Thus, we can avoid using **pertinence
+  algorithms**.
+- We just want to find approximate matches, so case and accents won't matter. Thus, we can use **alphabet reduction
+  techniques**.
+- We can provide useful data to users before they can make a typo, so **typo correction algorithms** are
+  not needed here.
+
+.. code-block:: python
+
+    >>> import unidecode
+    >>> import itertools
+    >>> def cowboy_indexation(string):
+    ...     lowercase = string.lower()
+    ...     unaccented = unidecode.unidecode(lowercase)
+    ...     names = unaccented.split(" ")
+    ...     permutations = {
+    ...         " ".join(perm)
+    ...         for perm in itertools.permutations(names, len(names))
+    ...     }
+    ...     return {
+    ...         name[:x]
+    ...         for name in permutations
+    ...         for x in range(len(name))
+    ...         if name[:x]
+    ...     }
+    ...
+    >>> def cowboy_query(string):
+    ...     lowercase = string.lower()
+    ...     return {unidecode.unidecode(lowercase)}
+    ...
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "cowboys_prefixes"
+    ...     name = sheraf.StringAttribute().index(
+    ...         values=cowboy_indexation,
+    ...         search=cowboy_query,
+    ...     )
+
+The indexation method sets the names in lowercase, remove the accents, then build all the possible combinations
+of words in the name (because we want the user to be able to type *George Abitbol* or *Abitbol George*), and then
+build all the possible prefixes for those combinations.
+
+.. code-block:: python
+
+   >>> with sheraf.connection(commit=True):
+   ...    george = Cowboy.create(name="George Abitbol")
+   ...
+   ...    assert [george] == Cowboy.search(name="George")
+   ...    assert [george] == Cowboy.search(name="gEoRgE")
+   ...    assert [george] == Cowboy.search(name="Abitbol")
+   ...    assert [george] == Cowboy.search(name="geo")
+   ...    assert [george] == Cowboy.search(name="abi")
+   ...    assert [george] == Cowboy.search(name="George Abi")
+   ...    assert [george] == Cowboy.search(name="Abitbol Geo")
+   ...
+   ...    assert [] == Cowboy.search(name="Peter")
+   ...    assert [] == Cowboy.search(name="eorge")
+
+We can see that any prefix of any words in the name is enough to find back a cowboy.
+
+.. todo:: Order the results by the number of occurences.
 
 Name search
 -----------
 
-Consider a simple problem: we have a cowboy database, and we need to be able to search
-in their names:
+Consider a simple problem: we have a cowboy database, and we need to be able to find them by their names
+(and we have control on the user input):
 
 - We do not have to understand a whole natural language like English, because proper nouns won't appear in a dictionnary.
   Also each name stands for a unique person, and there is no name synonyms. In that case it seems useless to deal with
