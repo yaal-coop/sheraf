@@ -6,6 +6,7 @@ Deprecated
 
 - :func:`sheraf.models.BaseIndexedAttribute.make_id`. Please use the 'default' parameter of your id :class:`~sheraf.attributes.base.BaseAttribute` instead.
 - :class:`~sheraf.indexes.Index`
+- :class:`~sheral.attributes.base.BaseIndexedAttribute` *lazy_creation* parameter has been deprecated, and has been renamed *lazy*.
 
 Added
 *****

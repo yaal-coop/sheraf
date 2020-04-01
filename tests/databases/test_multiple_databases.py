@@ -64,7 +64,7 @@ def test_abort(sheraf_database, other_nested_database):
 
 def test_default_database(sheraf_database, other_nested_database):
     class MyModel(sheraf.AutoModel):
-        anything = sheraf.SimpleAttribute(lazy_creation=False)
+        anything = sheraf.SimpleAttribute(lazy=False)
 
     with sheraf.connection(sheraf.Database.DEFAULT_DATABASE_NAME, commit=True):
         m1 = MyModel.create()
@@ -85,7 +85,7 @@ def test_default_database(sheraf_database, other_nested_database):
 
 def test_successive_connections(sheraf_database, other_nested_database):
     class MyModel(sheraf.AutoModel):
-        anything = sheraf.SimpleAttribute(lazy_creation=False)
+        anything = sheraf.SimpleAttribute(lazy=False)
 
     with sheraf.connection(commit=True):
         campaign = MyModel.create()

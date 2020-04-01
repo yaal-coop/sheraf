@@ -192,7 +192,7 @@ def test_datetime_auto_initialization(sheraf_database):
 
     class MyModel(sheraf.AutoModel):
         dta = sheraf.DateTimeAttribute(
-            lazy_creation=False, default=datetime.datetime.now
+            lazy=False, default=datetime.datetime.now
         )
 
     with sheraf.connection():

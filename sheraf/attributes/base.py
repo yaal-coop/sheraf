@@ -1,3 +1,6 @@
+import warnings
+
+
 READ_MEMOIZATION = False
 WRITE_MEMOIZATION = True
 
@@ -21,10 +24,11 @@ class BaseAttribute(object):
                     object can take either no argument, or one argument that will be the parent model.
     :type default: a callable object or a simple object
     :param key: The key to identify the attribute in its parent persistent mapping.
-    :param lazy_creation: If True, the objet carried by the attribute is created on the first
+    :param lazy: If True, the objet carried by the attribute is created on the first
                           read or write access. If False, it is created when the model object
                           is created. Default is True.
-    :type lazy_creation: :class:`bool`
+    :type lazy: :class:`bool`
+    :param lazy_creation: Deprecated in favor of **lazy**.
     :param read_memoization: Whether this attribute should be memoized on read. ``False`` by default.
     :type read_memoization: :class:`bool`
     :param write_memoization: Whether this attribute should be memoized on write. ``True`` by default.
@@ -37,10 +41,11 @@ class BaseAttribute(object):
         self,
         default=None,
         key=None,
-        lazy_creation=True,
+        lazy_creation=None,
         read_memoization=None,
         write_memoization=None,
         store_default_value=True,
+        lazy=True,
     ):
         self._default_value = default
         self._default_key = None
@@ -51,7 +56,18 @@ class BaseAttribute(object):
         self.write_memoization = (
             WRITE_MEMOIZATION if write_memoization is None else write_memoization
         )
-        self.lazy_creation = lazy_creation
+
+        if lazy_creation is not None:
+            self.lazy = lazy_creation
+            warnings.warn(
+                "The 'lazy_creation' argument has been deprecated and will be removed in sheraf 0.2. "
+                "Please use 'lazy' instead",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+        else:
+            self.lazy = lazy
         self.store_default_value = store_default_value
 
     def set_default_key(self, key):
