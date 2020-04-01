@@ -86,7 +86,7 @@ class CounterAttribute(IntegerAttribute):
         """
         :param default: The counter default value. 0 if unset.
         """
-        kwargs["lazy_creation"] = False
+        kwargs["lazy"] = False
         super().__init__(
             default=lambda: sheraf.types.counter.Counter(default), **kwargs
         )

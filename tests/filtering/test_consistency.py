@@ -66,7 +66,7 @@ def test_de_indexed_and_lazify_one_attr_and_do_not_recreate_instance(sheraf_data
 
     class Cowboy(sheraf.AutoModel):
         # TODO: This should be forbidden....Check it?
-        boot_brand = sheraf.SimpleAttribute(lazy_creation=True)
+        boot_brand = sheraf.SimpleAttribute(lazy=True)
 
     with sheraf.connection():
         qs = Cowboy.filter(boot_brand="booboot")

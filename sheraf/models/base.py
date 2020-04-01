@@ -116,7 +116,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
             model.__setattr__(attribute, value)
 
         for name, attribute in model.attributes.items():
-            if not attribute.lazy_creation and name not in kwargs:
+            if not attribute.lazy and name not in kwargs:
                 model.__setattr__(name, attribute.create(model))
 
         return model

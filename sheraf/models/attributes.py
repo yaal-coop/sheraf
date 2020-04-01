@@ -32,7 +32,7 @@ class DatedNamedAttributesModel(NamedAttributesModel):
     """
 
     _creation = sheraf.attributes.simples.SimpleAttribute(
-        default=time.time, lazy_creation=False,
+        default=time.time, lazy=False,
     )
 
     def creation_datetime(self):

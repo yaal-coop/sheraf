@@ -137,11 +137,11 @@ def test_unique_index_double_value(sheraf_database):
 def test_unique_indexation_on_model_attribute(sheraf_database):
     class DummyModel(sheraf.Model):
         table = "dummymodel_table"
-        v = sheraf.SimpleAttribute(lazy_creation=False, default=str)
+        v = sheraf.SimpleAttribute(lazy=False, default=str)
 
     class MyModel(sheraf.Model):
         table = "mymodel_table"
-        dummy_attribute = sheraf.ModelAttribute(DummyModel, lazy_creation=False).index(
+        dummy_attribute = sheraf.ModelAttribute(DummyModel, lazy=False).index(
             unique=True, values=lambda x: {x.v}
         )
 

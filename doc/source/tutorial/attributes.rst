@@ -61,14 +61,14 @@ If the default value is callable, then it will be called. The callable can have 
 Lazyness
 ~~~~~~~~
 
-Default attributes values are lazy. This means they are not stored in the database until the first read or write access on the attribute. It allows to save some space in the database, and some calculations at the model instance creation. However, this behavior can be disable with the **lazy_creation** parameter:
+Default attributes values are lazy. This means they are not stored in the database until the first read or write access on the attribute. It allows to save some space in the database, and some calculations at the model instance creation. However, this behavior can be disable with the **lazy** parameter:
 
 .. code-block:: python
 
     >>> class Cowboy(sheraf.Model):
     ...     table = "cowboy"
     ...     name = sheraf.SimpleAttribute(default="John Doe")
-    ...     age = sheraf.SimpleAttribute(default=30, lazy_creation=False)
+    ...     age = sheraf.SimpleAttribute(default=30, lazy=False)
     ...
     >>> with sheraf.connection(commit=True):
     ...     john = Cowboy.create()
