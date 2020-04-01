@@ -112,7 +112,7 @@ def test_create_parameters(sheraf_database):
 
 def test_lazy_create_parameters(sheraf_database):
     class FoobarModel(sheraf.AutoModel):
-        my_attribute = sheraf.SimpleAttribute(default="hell yeah", lazy_creation=False)
+        my_attribute = sheraf.SimpleAttribute(default="hell yeah", lazy=False)
 
     with sheraf.connection(commit=True):
         m = FoobarModel.create()
@@ -127,7 +127,7 @@ def test_lazy_create_parameters(sheraf_database):
             FoobarModel.create(toto=True)
 
 
-def test_lazy_creation(sheraf_database):
+def test_lazy(sheraf_database):
     class MyModel(sheraf.AutoModel):
         myattribute = sheraf.attributes.simples.SimpleAttribute()
 
@@ -138,9 +138,9 @@ def test_lazy_creation(sheraf_database):
         assert not m.attributes["myattribute"].is_created(m)
 
 
-def test_not_lazy_creation(sheraf_database):
+def test_not_lazy(sheraf_database):
     class MyModel(sheraf.AutoModel):
-        myattribute = sheraf.attributes.simples.SimpleAttribute(lazy_creation=False)
+        myattribute = sheraf.attributes.simples.SimpleAttribute(lazy=False)
 
     with sheraf.connection(commit=True):
         m = MyModel.create()
