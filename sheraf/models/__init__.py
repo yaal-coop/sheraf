@@ -2,18 +2,13 @@ import uuid
 import random
 import sys
 
-import BTrees
-
 from .attributes import (
     DatedNamedAttributesModel,
     IntAttributesModel,
     NamedAttributesModel,
 )
-from .indexation import IndexedModel, IndexedModelMetaclass
-from sheraf.attributes.simples import (
-    IntegerAttribute,
-    StringUUIDAttribute,
-)
+from .indexation import SimpleIndexedModel, IndexedModel, IndexedModelMetaclass
+from sheraf.attributes.simples import IntegerAttribute, StringUUIDAttribute
 
 
 class UUIDIndexedModel:
@@ -27,7 +22,7 @@ class UUIDIndexedModel:
     "e4bb714e-b5a8-40d6-bb69-ab3b932fbfe0"
     """
 
-    id = StringUUIDAttribute(default=lambda: str(uuid.uuid4()))
+    id = StringUUIDAttribute(default=lambda: str(uuid.uuid4())).index(primary=True)
 
 
 class IntIndexedModel:
@@ -45,11 +40,9 @@ class IntIndexedModel:
 
     MAX_INT = sys.maxsize
 
-    id = IntegerAttribute(default=lambda m: random.randint(0, m.MAX_INT))
-
-    @classmethod
-    def index_table_default(cls):
-        return BTrees.LOBTree.LOBTree()
+    id = IntegerAttribute(default=lambda m: random.randint(0, m.MAX_INT)).index(
+        primary=True
+    )
 
 
 class BaseAutoModelMetaclass(IndexedModelMetaclass):
@@ -90,7 +83,7 @@ class IntOrderedNamedAttributesModel(
 ):
     """The ids are 64bits integers, distributed ascendently starting at 0."""
 
-    id = IntegerAttribute(default=lambda m: m.count())
+    id = IntegerAttribute(default=lambda m: m.count()).index(primary=True)
 
 
 class UUIDIndexedNamedAttributesModel(
@@ -117,6 +110,12 @@ class UUIDAutoModel(BaseAutoModel, UUIDIndexedDatedNamedAttributesModel):
 
 class IntAutoModel(BaseAutoModel, IntOrderedNamedAttributesModel):
     pass
+
+
+class AttributeModel(NamedAttributesModel, SimpleIndexedModel):
+    """
+    This model is expected to be used with :class:`~sheraf.attributes.models.IndexedModelAttribute`.
+    """
 
 
 AutoModel = UUIDAutoModel

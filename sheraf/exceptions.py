@@ -148,3 +148,88 @@ class EmptyQuerySetUnpackException(QuerySetUnpackException):
     ...
     sheraf.exceptions.EmptyQuerySetUnpackException: Trying to unpack an empty QuerySet
     """
+
+
+class InvalidIndexException(SherafException):
+    """
+    This exception is raised by :func:`~sheraf.models.BaseModel.read` and
+    :func:`~sheraf.models.BaseModel.read_these` when a parameter is passed
+    and is not a valid index.
+
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "cowboy"
+    ...     age = sheraf.IntegerAttribute().index()
+    ...
+    >>> with sheraf.connection():
+    ...     Cowboy.read(size=4)
+    Traceback (most recent call last):
+    ...
+    sheraf.exceptions.InvalidIndexException: 'size' is not a valid index
+    """
+
+
+class UniqueIndexException(InvalidIndexException):
+    """
+    This exception is raised when a value is set twice in an unique index.
+
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "cowboy"
+    ...     name = sheraf.StringAttribute().index(unique=True)
+    ...
+    >>> with sheraf.connection():
+    ...     Cowboy.create(name="George Abitbol")
+    ...     Cowboy.create(name="George Abitbol")
+    Traceback (most recent call last):
+    ...
+    sheraf.exceptions.UniqueIndexException: The key 'George Abitbol' is already present in the index 'name'
+    """
+
+
+class MultipleIndexException(InvalidIndexException):
+    """
+    This exception is raised by :func:`~sheraf.models.BaseModel.read` when a
+    multiple index is passed as a positionnal argument.
+
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "cowboy"
+    ...     name = sheraf.StringAttribute()
+    ...     hobby = sheraf.StringAttribute().index()
+    ...
+    >>> with sheraf.connection():
+    ...     Cowboy.create(name="George", hobby="nice hats")
+    ...     Cowboy.create(name="Peter", hobby="nice hats")
+    ...     Cowboy.read(hobby="nice hats")
+    Traceback (most recent call last):
+    ...
+    sheraf.exceptions.MultipleIndexException: 'hobby' is a multiple index and cannot be used with 'read'
+    """
+
+
+class IndexationWarning(UserWarning):
+    """
+    This warning is emitted when you edit or create a model instance which has an outdated
+    indexation table.
+    """
+
+
+class PrimaryKeyException(SherafException):
+    """
+    This exception is raised when issues happens with index primary keys.
+
+    When creating a model with zero, or several primary indexes.
+
+    >>> class Horse(sheraf.AttributeModel):
+    ...     name = sheraf.StringAttribute().index(primary=True)
+    ...     breed = sheraf.StringAttribute().index(primary=True)
+    ...
+    >>> class Cowboy(sheraf.Model):
+    ...     name = sheraf.StringAttribute()
+    ...     horses = sheraf.IndexedModelAttribute(Horse)
+    ...
+    >>> with sheraf.connection():
+    ...     george = Cowboy.create(name="George Abitbol")
+    ...     george.horses.create(name="Jolly Jumper", breed="shetland")
+    Traceback (most recent call last):
+    ...
+    sheraf.exceptions.PrimaryKeyException: "A model can have only one primary key. 'Horse' has 'name' and 'breed'"
+    """

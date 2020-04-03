@@ -18,6 +18,10 @@ Indexation mechanism
     :members:
     :show-inheritance:
 
+.. automodule:: sheraf.models.indexmanager
+    :members:
+    :show-inheritance:
+
 Model flavors
 -------------
 

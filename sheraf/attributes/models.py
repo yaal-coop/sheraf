@@ -124,3 +124,23 @@ class InlineModelAttribute(ModelLoader, BaseAttribute):
             return self.serialize(new_value)
 
         return old_value.edit(new_value, addition, edition, deletion, replacement)
+
+
+class IndexedModelAttribute(ModelLoader, BaseAttribute):
+    """
+    """
+
+    def read(self, parent):
+        for index in self.model.indexes().values():
+            key = self.key(parent)
+            if key not in parent.mapping:
+                parent.mapping[key] = sheraf.types.SmallDict()
+            index.persistent = parent.mapping[key]
+
+        return self.model
+
+    def write(self, parent, value):
+        model = self.read(parent)
+        for values_dict in value:
+            model.create(**values_dict)
+        return model

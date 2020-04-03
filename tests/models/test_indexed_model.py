@@ -36,6 +36,17 @@ def test_read_these_valid_index(sheraf_connection):
     assert [m] == list(MyModel.read_these([m.id]))
 
 
+def test_read_these_invalid_calls(sheraf_connection):
+    with pytest.raises(TypeError):
+        MyModel.read_these()
+
+    with pytest.raises(TypeError):
+        MyModel.read_these(id=["foo"], inline_model=["bar"])
+
+    with pytest.raises(sheraf.exceptions.InvalidIndexException):
+        MyModel.read_these(yolo=["foo"])
+
+
 def test_count(sheraf_database):
     class M(sheraf.AutoModel):
         pass
@@ -49,7 +60,7 @@ def test_count(sheraf_database):
 
 def test_default_id(sheraf_database):
     class M(sheraf.AutoModel):
-        id = sheraf.IntegerAttribute(default=lambda m: m.count())
+        id = sheraf.IntegerAttribute(default=lambda m: m.count()).index(primary=True)
 
     with sheraf.connection():
         assert 0 == M.create().id
@@ -106,7 +117,9 @@ def test_id_inmapping_uuid_model(sheraf_database):
 
     class M(sheraf.Model):
         table = "test_uuid_model"
-        id = sheraf.StringUUIDAttribute(default=lambda: "{}".format(str(mid)))
+        id = sheraf.StringUUIDAttribute(default=lambda: "{}".format(str(mid))).index(
+            primary=True
+        )
 
     assert isinstance(M.attributes["id"], sheraf.attributes.simples.StringUUIDAttribute)
 
@@ -120,7 +133,7 @@ def test_id_inmapping_int_model(sheraf_database):
 
     class M(sheraf.IntIndexedNamedAttributesModel):
         table = "test_int_model"
-        id = sheraf.IntegerAttribute(default=mid)
+        id = sheraf.IntegerAttribute(default=mid).index(primary=True)
 
     assert isinstance(M.attributes["id"], sheraf.attributes.simples.IntegerAttribute)
 
@@ -133,7 +146,7 @@ def test_id_inmapping_automodel(sheraf_database):
     mid = str(uuid.uuid4())
 
     class M(sheraf.AutoModel):
-        id = sheraf.StringUUIDAttribute(default=mid)
+        id = sheraf.StringUUIDAttribute(default=mid).index(primary=True)
 
     assert isinstance(M.attributes["id"], sheraf.attributes.simples.StringUUIDAttribute)
 

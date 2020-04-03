@@ -841,6 +841,14 @@ test = ["mock"]
 testing = ["nose", "coverage", "mock"]
 
 [[package]]
+category = "dev"
+description = "ASCII transliterations of Unicode text"
+name = "unidecode"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "1.1.1"
+
+[[package]]
 category = "main"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 name = "urllib3"
@@ -1070,7 +1078,7 @@ relstorage_pg = ["psycopg2", "psycopg2cffi", "relstorage"]
 zeo = ["zeo"]
 
 [metadata]
-content-hash = "a7baf736c3f7f0659c8e0ca0c3734b77b9375f85918b6f30d765ed69dbba3414"
+content-hash = "e18f35fa7ae8dd4e7147c241c70cd3aa4e9e77cfb2518daa84e39ed0003ac578"
 python-versions = ">=3.5, <4"
 
 [metadata.files]
@@ -1560,6 +1568,10 @@ tqdm = [
 transaction = [
     {file = "transaction-3.0.0-py2.py3-none-any.whl", hash = "sha256:e0397e7733124e23a670cd3eee4096c197b48f1e14730d7cc7da868389f016b7"},
     {file = "transaction-3.0.0.tar.gz", hash = "sha256:3b0ad400cb7fa25f95d1516756c4c4557bb78890510f69393ad0bd15869eaa2d"},
+]
+unidecode = [
+    {file = "Unidecode-1.1.1-py2.py3-none-any.whl", hash = "sha256:1d7a042116536098d05d599ef2b8616759f02985c85b4fef50c78a5aaf10822a"},
+    {file = "Unidecode-1.1.1.tar.gz", hash = "sha256:2b6aab710c2a1647e928e36d69c21e76b453cd455f4e2621000e54b2a9b8cce8"},
 ]
 urllib3 = [
     {file = "urllib3-1.25.8-py2.py3-none-any.whl", hash = "sha256:2f3db8b19923a873b3e5256dc9c2dedfa883e33d87c690d9c7913e1f40673cdc"},

@@ -298,6 +298,46 @@ Note that you can define anonymous :class:`~sheraf.models.inline.InlineModel`:
     ...     george.horse.name
     'Jolly Jumper'
 
+Indexed models
+~~~~~~~~~~~~~~
+
+:class:`~sheraf.attributes.models.InlineModelAttribute` are great, and using them in combination with
+collection attributes gives a good way to handle several of them. However sometimes you may need
+more advanced indexation behavior, like with first-level models.
+
+:class:`~sheraf.attributes.models.IndexedModelAttribute` does not store just one model, but a whole
+model indexation machine. It handles a :class:`~sheraf.models.AttributeModel` and allows you to use
+the :func:`~sheraf.models.indexation.BaseIndexedModel.create`
+and :func:`~sheraf.models.indexation.BaseIndexedModel.read` methods from
+:class:`~sheraf.models.indexation.BaseIndexedModel`, and take advantages of the :func:`~sheraf.queryset.QuerySet.filter`
+and :func:`~sheraf.queryset.QuerySet.order` methods from :class:`~sheraf.queryset.QuerySet`.
+
+.. code-block:: python
+
+    >>> class Horse(sheraf.AttributeModel):
+    ...     name = sheraf.StringAttribute().index(primary=True)
+    ...     age = sheraf.IntegerAttribute().index(unique=True)
+    ...     breed = sheraf.StringAttribute()
+    ...
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "cowboy"
+    ...     name = sheraf.StringAttribute()
+    ...     horses = sheraf.IndexedModelAttribute(Horse)
+    ...
+    >>> with sheraf.connection(commit=True):
+    ...     george = Cowboy.create(name="George Abitbol")
+    ...     jolly = george.horses.create(name="Jolly Jumper", breed="mustang", age=15)
+    ...     polly = george.horses.create(name="Polly Pumper", breed="shetland", age=20)
+    ...
+    ...     george.horses.read("Jolly Jumper").breed
+    ...     george.horses.get(age=20).name
+    ...     george.horses.count()
+    'mustang'
+    'Polly Pumper'
+    2
+
+Note that the :class:`~sheraf.models.AttributeModel` must have one primary index.
+
 Files
 -----
 

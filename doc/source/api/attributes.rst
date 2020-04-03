@@ -44,3 +44,10 @@ File attributes
 .. automodule:: sheraf.attributes.files
     :members:
     :show-inheritance:
+
+Index
+-----
+
+.. automodule:: sheraf.attributes.indexdetails
+    :members:
+    :show-inheritance:

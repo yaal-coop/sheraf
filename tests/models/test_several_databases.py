@@ -102,7 +102,7 @@ def test_make_id(sheraf_database, db2):
 
     class ModelWithProposeId(MyModel):
         table = "modelwithproposeid"
-        id = sheraf.IntegerAttribute(default=lambda m: m.count())
+        id = sheraf.IntegerAttribute(default=lambda m: m.count()).index(primary=True)
 
     with sheraf.connection(commit=True):
         m0 = ModelWithProposeId.create()
@@ -115,7 +115,7 @@ def test_make_id(sheraf_database, db2):
 
     class ModelWithProposeId(MyModel):
         table = "modelwithproposeid"
-        id = sheraf.IntegerAttribute(default=lambda m: m.count())
+        id = sheraf.IntegerAttribute(default=lambda m: m.count()).index(primary=True)
 
     with sheraf.connection() as conn:
         root1 = conn.root()

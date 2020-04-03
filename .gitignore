@@ -21,3 +21,4 @@ build
 .eggs
 *@neomake*
 .coverage.*
+.mypy_cache

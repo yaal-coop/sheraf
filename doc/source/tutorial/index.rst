@@ -9,4 +9,7 @@ Tutorial
     attributes
     models
     zconfig
+    indexation
+    databasetree
     parallelism
+    fts
