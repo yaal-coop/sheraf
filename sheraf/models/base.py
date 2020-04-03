@@ -142,10 +142,10 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
     def __delattr__(self, name):
         if name in self.attributes:
+            self.attributes[name].delattr(self)
             try:
-                self.attributes[name].delattr(self)
                 super().__delattr__(name)
-            except (KeyError, AttributeError):
+            except AttributeError:
                 return
         else:
             super().__delattr__(name)

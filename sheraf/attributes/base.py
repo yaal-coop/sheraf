@@ -177,7 +177,11 @@ class BaseAttribute(object):
 
     def delattr(self, parent):
         # Internal. delete attribute from its owner
-        del parent.mapping[self.key(parent)]
+        # TODO: We should remove this try/except
+        try:
+            del parent.mapping[self.key(parent)]
+        except KeyError:
+            pass
 
     def save(self, parent):
         pass
