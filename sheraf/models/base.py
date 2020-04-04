@@ -67,10 +67,10 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
     def create(cls, default=None, *args, **kwargs):
         """Create a model instance.
 
-        :param default: The data structure that will be used to store the model state.
+        :param default: The data structure that will be used to store the instance state.
         :param \\*\\*kwargs: Any model attribute can be initialized with the matching keyword.
 
-        :return: The newly created model.
+        :return: The newly created instance.
 
         >>> class Cowboy(sheraf.Model):
         ...    table = "cowboy"
@@ -88,7 +88,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
             ...
         TypeError: TypeError: create() got an unexpected keyword argument 'this_attribute_does_not_exist'
 
-        The function can also create sub-models recursively:
+        The function can also create sub-instances recursively:
 
         >>> class Horse(sheraf.InlineModel):
         ...     name = sheraf.SimpleAttribute()
@@ -104,28 +104,28 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         'Jolly Jumper'
         """
         mapping = (default or cls.default_mapping)()
-        model = cls._decorate(mapping)
+        instance = cls._decorate(mapping)
 
         for attribute, value in kwargs.items():
-            if attribute not in model.attributes:
+            if attribute not in instance.attributes:
                 raise TypeError(
                     "TypeError: create() got an unexpected keyword argument '{}'".format(
                         attribute
                     )
                 )
-            model.__setattr__(attribute, value)
+            instance.__setattr__(attribute, value)
 
-        for name, attribute in model.attributes.items():
+        for name, attribute in instance.attributes.items():
             if not attribute.lazy and name not in kwargs:
-                model.__setattr__(name, attribute.create(model))
+                instance.__setattr__(name, attribute.create(instance))
 
-        return model
+        return instance
 
     @classmethod
     def _decorate(cls, mapping):
-        model = cls()
-        model.mapping = mapping
-        return model
+        instance = cls()
+        instance.mapping = mapping
+        return instance
 
     @classmethod
     def attribute_id(cls, name, attribute):
@@ -194,7 +194,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
     def keys(self):
         """
-        :return: The model attribute names.
+        :return: The instance attribute names.
         """
         return self.attributes.keys()
 
@@ -205,7 +205,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
     def update(self, **kwargs):
         """Takes an arbitrary number of keywords arguments, and updates the
-        model attributes matching the arguments.
+        instance attributes matching the arguments.
 
         This functions recursively calls :func:`sheraf.attributes.base.BaseAttribute.edit` with `addition` and `edition` to `True`.
 
@@ -226,7 +226,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         ...     george.horse.name
         'Jolly Jumper'
 
-        Note that sub-models are also edited.
+        Note that sub-instances are also edited.
         """
         self.edit(
             kwargs, addition=True, edition=True, deletion=False, replacement=False
@@ -234,7 +234,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
     def assign(self, **kwargs):
         """Takes an arbitrary number of keywords arguments, and updates the
-        model attributes matching the arguments.
+        instance attributes matching the arguments.
 
         This functions recursively calls :func:`sheraf.attributes.base.BaseAttribute.edit` with `addition`, `edition` and `deletion` to `True`.
 
@@ -262,7 +262,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         ...     george.arms[0].name
         'Superarm 1'
 
-        George passed from 3 arms to only 2 because *assign* does remove sub models. If we had called :func:`~sheraf.models.base.BaseModel.update` instead,
+        George passed from 3 arms to only 2 because *assign* does remove sub instances. If we had called :func:`~sheraf.models.base.BaseModel.update` instead,
         George would have his two first arms be renamed *superarms* but, the third one would not have been removed.
         """
         self.edit(kwargs, addition=True, edition=True, deletion=True, replacement=False)
@@ -271,13 +271,13 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         self, value, addition=True, edition=True, deletion=False, replacement=False
     ):
         """Take a dictionary and a set of options, and try to applies the
-        dictionary values to the model structure.
+        dictionary values to the instance structure.
 
         :param value: The dictionary containing the values. The dictionary elements that
-                      do not match the model attributes will be ignored.
-        :param addition: If *True*, elements present in *value* and absent from the model attributes will be added.
-        :param edition: If *True*, elements present in both *value* and the model will be updated.
-        :param deletion: If *True*, elements present in the model and absent from *value* will be deleted.
+                      do not match the instance attributes will be ignored.
+        :param addition: If *True*, elements present in *value* and absent from the instance attributes will be added.
+        :param edition: If *True*, elements present in both *value* and the instance will be updated.
+        :param deletion: If *True*, elements present in the instance and absent from *value* will be deleted.
         :param replacement: Like *edition*, but create a new element instead of updating one.
         """
         try:
