@@ -105,21 +105,22 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         """
         mapping = (default or cls.default_mapping)()
         instance = cls._decorate(mapping)
+        instance.initialize(*args, **kwargs)
+        return instance
 
+    def initialize(self, *args, **kwargs):
         for attribute, value in kwargs.items():
-            if attribute not in instance.attributes:
+            if attribute not in self.attributes:
                 raise TypeError(
                     "TypeError: create() got an unexpected keyword argument '{}'".format(
                         attribute
                     )
                 )
-            instance.__setattr__(attribute, value)
+            self.__setattr__(attribute, value)
 
-        for name, attribute in instance.attributes.items():
+        for name, attribute in self.attributes.items():
             if not attribute.lazy and name not in kwargs:
-                instance.__setattr__(name, attribute.create(instance))
-
-        return instance
+                self.__setattr__(name, attribute.create(self))
 
     @classmethod
     def _decorate(cls, mapping):
