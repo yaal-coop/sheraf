@@ -29,19 +29,34 @@ class ModelLoader(object):
 
         return getattr(_module, _class)
 
+    def read(self, parent):
+        self.check_model(parent)
+        return super().read(parent)
+
+    def write(self, parent, value):
+        self.check_model(parent)
+        return super().write(parent, value)
+
     @property
     def model(self):
-        if not isinstance(self._model, (str, bytes)):
-            return self._model
-
-        try:
-            self._model = ModelLoader.cache[self._model]
-        except KeyError:
-            try:
-                ModelLoader.cache[self._model] = self.load_model(self._model)
-            except ValueError:
-                raise ImportError
-
-            self._model = ModelLoader.cache[self._model]
-
+        self.check_model()
         return self._model
+
+    def check_model(self, parent=None):
+        if isinstance(self._model, (str, bytes)):
+            try:
+                self._model = ModelLoader.cache[self._model]
+            except KeyError:
+                try:
+                    ModelLoader.cache[self._model] = self.load_model(self._model)
+                except ValueError:
+                    raise ImportError
+
+                self._model = ModelLoader.cache[self._model]
+
+        elif parent and not isinstance(self._model, type):
+            self._model = type(
+                "{}.{}".format(parent.__class__.__name__, self.key(parent)),
+                (self._model.__class__,),
+                self._model.attributes,
+            )
