@@ -6,12 +6,13 @@
 
 Added
 *****
-- A new :class:`~sheraf.attributes.models.IndexedModelAttribute` attribute, that holds a whole model indexation table.
-- A new :class:`~shera.models.AttributeMode`l class, to be used with :class:`~sheraf.attributes.models.IndexedModelAttribute`.
-- Method :meth:`~sheraf.attributes.base.BaseAttribute.index` method on :class:`~sheraf.attributes.base.BaseAttribute` to describe indexes.
-- Two check methods :func:`sheraf.batches.checks.check_attributes_index` and :func:`sheraf.batches.checks.check_model_index` to check the index tables integrity.
-- Method :meth:`~sheraf.models.indexation.BaseIndexedModel.index_table_rebuild` to rebuild an index table.
-- filter and order methods on QuerySet are faster on indexed attributes.
+A whole indexation mechanism. :pr:`1`
+  - A new :class:`~sheraf.attributes.models.IndexedModelAttribute` attribute, that holds a whole model indexation table.
+  - A new :class:`~shera.models.AttributeMode`l class, to be used with :class:`~sheraf.attributes.models.IndexedModelAttribute`.
+  - Method :meth:`~sheraf.attributes.base.BaseAttribute.index` method on :class:`~sheraf.attributes.base.BaseAttribute` to describe indexes.
+  - Two check methods :func:`sheraf.batches.checks.check_attributes_index` and :func:`sheraf.batches.checks.check_model_index` to check the index tables integrity.
+  - Method :meth:`~sheraf.models.indexation.BaseIndexedModel.index_table_rebuild` to rebuild an index table.
+  - filter and order methods on QuerySet are faster on indexed attributes.
 
 Removed
 *******

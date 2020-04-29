@@ -40,6 +40,7 @@ zeo = {version = "*", optional=true}
 recommonmark = {version = "*", optional=true}
 sphinx = {version = "*", optional=true}
 sphinx-rtd-theme = {version = "*", optional=true}
+sphinx-issues = {version = "*", optional=true}
 
 psycopg2 = {version = "*", optional=true}
 psycopg2cffi = {version = "*", optional=true}
@@ -69,6 +70,7 @@ doc = [
     "recommonmark",
     "sphinx",
     "sphinx-rtd-theme",
+    "sphinx-issues",
 ]
 
 [tool.poetry.dev-dependencies]
