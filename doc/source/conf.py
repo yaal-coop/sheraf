@@ -169,9 +169,9 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "persistent": ("https://persistent.readthedocs.io/en/latest/", None),
     "relstorage": ("https://relstorage.readthedocs.io/en/latest/", None),
-    "werkzeug": ("https://werkzeug.palletsprojects.com/en/0.16.x/", None),
+    "werkzeug": ("https://werkzeug.palletsprojects.com/en/master/", None),
     "wtforms": ("https://wtforms.readthedocs.io/en/stable/", None),
-    "ZODB": ("http://www.zodb.org/en/latest/", None),
+    "ZODB": ("https://zodb-docs.readthedocs.io/en/latest/", None),
     "zodburi": ("https://docs.pylonsproject.org/projects/zodburi/en/latest/", None),
 }
 
