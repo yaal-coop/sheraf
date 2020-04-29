@@ -18,7 +18,7 @@ Here is a quick example of sheraf usage:
     >>> # Create a model instance and store it in the database
     ... with sheraf.connection(commit=True):
     ...     Cowboy.create(name="George Abitbol", age=51)
-    ...
+    <Cowboy id=...>
     >>> # Find the model based on its indexed parameters
     ... with sheraf.connection():
     ...     george = Cowboy.read(name="George Abitbol")
@@ -48,7 +48,8 @@ Who are we?
 -----------
 
 `Yaal`_ is a company based in Bordeaux, France. We are specialized in python development,
-FOSS lovers, and we have been using sheraf in production for years.
+FOSS lovers. We have been using sheraf in production for years, and in 2020 we have cleaned
+the code and opened the sourcecode.
 
 .. _SQLAlchemy: https://docs.sqlalchemy.org/
 .. _Django: https://docs.djangoproject.com

@@ -57,3 +57,7 @@ How to contribute?
 - Use `black` to format your code.
 - Use `docformatter` to format the documentation.
 - Check that `tox` agrees with your modifications.
+
+.. _black: https://black.readthedocs.io
+.. _docformatter: https://github.com/myint/docformatter
+.. _tox: https://tox.readthedocs.io
