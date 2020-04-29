@@ -25,11 +25,11 @@ def merge(c, a, b):
 
     # convert all the dict items into sets
     set_a, set_b, set_c = (
-        set((k, pickle.dumps(v)) for k, v in d.items()) for d in (a, b, c)
+        {(k, pickle.dumps(v)) for k, v in d.items()} for d in (a, b, c)
     )
 
     # intersect keys from the symmetric set differences to c to find conflicts
-    for k in set(k for k, _ in set_a ^ set_c) & set(k for k, _ in set_b ^ set_c):
+    for k in {k for k, _ in set_a ^ set_c} & {k for k, _ in set_b ^ set_c}:
         # it isn't really a conflict if the new values of a and b are the same
         if a.get(k) != b.get(k) or (k in a) ^ (k in b):
             raise DictConflictException("Conflict found in key %s" % k)

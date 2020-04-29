@@ -68,7 +68,7 @@ class TestIterations:
         [r.start() for r in readers]
 
         [r.join() for r in readers]
-        assert not any((r.failed for r in readers))
+        assert not any(r.failed for r in readers)
 
 
 class TestZip:
@@ -97,4 +97,4 @@ class TestZip:
         [r.start() for r in readers]
 
         [r.join() for r in readers]
-        assert not any((r.failed for r in readers))
+        assert not any(r.failed for r in readers)

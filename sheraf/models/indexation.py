@@ -389,7 +389,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         return getattr(self, self.primary_key())
 
     def copy(self, **kwargs):
-        """
+        r"""
         Copies a model.
         The attributes carrying an unique index wont be copied, they will be
         resetted instead.

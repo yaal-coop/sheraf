@@ -63,7 +63,7 @@ class FileObjectV1(object):
             return None
 
         _dir = self.directory()
-        _file_name = "%s.%s" % (self.model.identifier, self.extension)
+        _file_name = "{}.{}".format(self.model.identifier, self.extension)
         return os.path.join(_dir, _file_name)
 
     def directory(self):

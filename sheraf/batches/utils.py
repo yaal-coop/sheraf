@@ -43,11 +43,11 @@ def discover_models(*args):
     """
 
     modules = import_submodules(*args)
-    result = set(
+    result = {
         (path, model)
         for path, model in IndexedModelMetaclass.tables.values()
         if model.__module__ in modules.keys()
-    )
+    }
 
     for model in args:
         if isinstance(model, IndexedModelMetaclass):

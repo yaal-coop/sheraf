@@ -57,7 +57,7 @@ def test_primitive_type(sheraf_connection, persistent_type, subattribute):
         set = sheraf.SetAttribute(subattribute, persistent_type=persistent_type)
 
     m = ModelTest.create()
-    m.set = set([1, 2])
+    m.set = {1, 2}
     assert isinstance(m.mapping["set"], persistent_type)
 
 

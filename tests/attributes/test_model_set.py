@@ -48,9 +48,9 @@ def test_set_attribute(sheraf_connection, model):
     _another.a_set_for_test.clear()
     assert set() == set(_another.a_set_for_test)
 
-    another.a_set_for_test = set([a, b])
+    another.a_set_for_test = {a, b}
     _another = AnotherModelForTest.read(another.id)
-    assert set([a, b]) == set(_another.a_set_for_test)
+    assert {a, b} == set(_another.a_set_for_test)
 
 
 @pytest.mark.skip

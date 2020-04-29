@@ -32,7 +32,7 @@ def test_iteration(sheraf_connection, m0, m1, m2, m3):
 def test_comparison(sheraf_connection, m0, m1, m2):
     assert QuerySet() != None
     assert QuerySet([m0]) == QuerySet([m0])
-    assert QuerySet([m0]) == QuerySet((m for m in [m0]))
+    assert QuerySet([m0]) == QuerySet(m for m in [m0])
     assert QuerySet([m0]) == QuerySet(orderedset.OrderedSet([m0]))
     assert QuerySet([m0, m1, m2]) == QuerySet(orderedset.OrderedSet([m0, m1, m2]))
 
