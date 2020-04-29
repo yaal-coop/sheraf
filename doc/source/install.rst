@@ -1,16 +1,26 @@
 Installation, upgrades
 ######################
 
+.. note :: Until version `1.0.0`, sheraf is considered as beta, and while we do all we can
+   to make upgrades as smooth as possible, bugs and breaking changes still have a chance
+   to occur.
+
 How to install?
 ===============
 
 ``pip install sheraf``
 
-If you need ZEO, relstorage or the test suite you can use ``pip install sheraf[zeo]``, ``pip install sheraf[relstorage]`` or ``pip install sheraf[test]``. If you need all of this, you can use ``pip install sheraf[all]``.
+There are several variants of the sheraf package:
 
+- ``sheraf[zeo]`` installs the dependencies to work with `ZEO`_.
+- ``sheraf[relstorage]`` installs the dependencies to work with `relstorage`_.
+- ``sheraf[all]`` installs all those dependencies.
 
-How to upgrade?
-===============
+.. _ZEO: https://zeo.readthedocs.io
+.. _relstorage: https://relstorage.readthedocs.io
+
+Versioning policy
+=================
 
 Bugfix versions
 ---------------
@@ -47,8 +57,3 @@ How to contribute?
 - Use `black` to format your code.
 - Use `docformatter` to format the documentation.
 - Check that `tox` agrees with your modifications.
-- Extra-notes for relstorage related tests:
-    - install postgresql to make relstorage sheraf tests successful.
-    - run `systemctl enable postgresql`
-    - export PATH=/usr/lib/postgresql/10/bin/:$PATH (adapt to your postgresql version)
-
