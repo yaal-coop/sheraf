@@ -195,13 +195,13 @@ class FileObjectV2(FileObjectV1):
         self.model.mapping[self.attribute_name] = self.relative_path()
 
     def delete(self):
-        if not self._is_new_model():
-            super().delete()
-        else:
+        if self._is_new_model():
             FilesGarbageCollector.instance().add(
                 self.model.mapping[self.attribute_name]
             )
             del self.model.mapping[self.attribute_name]
+        elif self.model.mapping._p_status != "unsaved":
+            super().delete()
 
     def __repr__(self):
         return "<FileObjectV2 model='{}' attribute_name='{}'>".format(

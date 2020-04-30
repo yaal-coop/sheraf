@@ -3,7 +3,7 @@ import shutil
 
 import BTrees.OOBTree
 import pytest
-from mock import sentinel
+from mock import sentinel, patch
 
 import sheraf
 import sheraf.attributes.files
@@ -393,6 +393,21 @@ def test_copy_deprecated(sheraf_temp_dir, sheraf_connection, file_object_class):
     assert s1.logo.stream == s2.logo.stream
     assert s1.logo.relative_path() != s2.logo.relative_path()
     assert "logo" in s2.mapping
+
+
+@pytest.mark.parametrize("file_object_class", [sheraf.attributes.files.FileObjectV2])
+@patch("sheraf.attributes.files.FileObjectV1._iter_match_file_paths")
+def test_save(
+    iter_match_file_paths, file_object_class, sheraf_temp_dir, sheraf_connection
+):
+    class FileStorable(sheraf.AutoModel):
+        my_file = sheraf.FileAttribute(file_object_class)
+
+    m = FileStorable.create()
+    m.my_file = sheraf.FileObject(stream=b"", extension="txt")
+    m.save()
+
+    iter_match_file_paths.assert_not_called()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
