@@ -37,29 +37,19 @@ def test_default_values(sheraf_temp_dir, sheraf_connection):
     assert 0 == len(_s.d)
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_repr(sheraf_temp_dir, sheraf_connection, file_object_class):
+def test_repr(sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
-        logo = sheraf.FileAttribute(file_object_class)
+        logo = sheraf.FileAttribute()
 
     s = FileStorable.create()
     s.logo = {"extension": "EXT", "stream": b"STREAM"}
     s.save()
-    assert "<{} model='FileStorable' attribute_name='logo'>".format(
-        file_object_class.__name__
-    ) == str(s.logo)
+    assert "<FileObjectV2 model='FileStorable' attribute_name='logo'>" == str(s.logo)
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_dict(sheraf_temp_dir, sheraf_connection, file_object_class):
+def test_dict(sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
-        logo = sheraf.FileAttribute(file_object_class)
+        logo = sheraf.FileAttribute()
 
     s = FileStorable.create()
     s.logo = {"extension": "EXT", "stream": b"STREAM"}
@@ -67,13 +57,9 @@ def test_dict(sheraf_temp_dir, sheraf_connection, file_object_class):
     assert {"extension": "EXT", "stream": b"STREAM"} == dict(s.logo)
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_attr_dir_not_exists(sheraf_temp_dir, sheraf_connection, file_object_class):
+def test_attr_dir_not_exists(sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
-        logo = sheraf.FileAttribute(file_object_class)
+        logo = sheraf.FileAttribute()
 
     s = FileStorable.create()
     s.logo = {"extension": "EXT", "stream": b"STREAM"}
@@ -84,13 +70,9 @@ def test_attr_dir_not_exists(sheraf_temp_dir, sheraf_connection, file_object_cla
     FileStorable.read(s.id)
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_model_dir_not_exists(sheraf_temp_dir, sheraf_connection, file_object_class):
+def test_model_dir_not_exists(sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
-        attr = sheraf.FileAttribute(file_object_class)
+        attr = sheraf.FileAttribute()
 
     s = FileStorable.create()
     s.save()
@@ -98,15 +80,9 @@ def test_model_dir_not_exists(sheraf_temp_dir, sheraf_connection, file_object_cl
     FileStorable.read(s.id)
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_files_saved_if_file_exists(
-    sheraf_temp_dir, sheraf_connection, file_object_class
-):
+def test_files_saved_if_file_exists(sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
-        logo = sheraf.FileAttribute(file_object_class)
+        logo = sheraf.FileAttribute()
 
     _files_dir = sheraf.attributes.files.FILES_ROOT_DIR + FileStorable.table + "/logo/"
     _first_content = {"extension": "1", "stream": b"STREAM"}
@@ -146,13 +122,9 @@ def test_files_saved_if_file_exists(
     )
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_optional_files(sheraf_temp_dir, sheraf_connection, file_object_class):
+def test_optional_files(sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
-        logo = sheraf.FileAttribute(file_object_class)
+        logo = sheraf.FileAttribute()
 
     _files_dir = sheraf.attributes.files.FILES_ROOT_DIR + FileStorable.table + "/logo/"
     s = FileStorable.create()
@@ -161,7 +133,7 @@ def test_optional_files(sheraf_temp_dir, sheraf_connection, file_object_class):
     s.save()
 
     _s = FileStorable.read(s.id)
-    assert _s.logo == file_object_class(extension="EXT", stream=b"OPT_STREAM")
+    assert _s.logo == sheraf.FileObject(extension="EXT", stream=b"OPT_STREAM")
     logo_path = _files_dir + s.id + ".EXT"
     assert os.path.exists(logo_path)
     with open(logo_path, "rb") as f:
@@ -169,15 +141,9 @@ def test_optional_files(sheraf_temp_dir, sheraf_connection, file_object_class):
         assert b"OPT_STREAM" == _content
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_optional_files_not_filled(
-    sheraf_temp_dir, sheraf_connection, file_object_class
-):
+def test_optional_files_not_filled(sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
-        logo = sheraf.FileAttribute(file_object_class)
+        logo = sheraf.FileAttribute()
 
     _files_dir = sheraf.attributes.files.FILES_ROOT_DIR + FileStorable.table + "/logo/"
     s = FileStorable.create()
@@ -189,16 +155,10 @@ def test_optional_files_not_filled(
     assert not os.path.exists(_files_dir)
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_delete_model_with_file_attribute(
-    sheraf_temp_dir, sheraf_connection, file_object_class
-):
+def test_delete_model_with_file_attribute(sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
-        logo = sheraf.FileAttribute(file_object_class)
-        other = sheraf.FileAttribute(file_object_class)
+        logo = sheraf.FileAttribute()
+        other = sheraf.FileAttribute()
 
     s = FileStorable.create()
     s.logo = {"extension": "EXT", "stream": b"STREAM"}
@@ -219,18 +179,14 @@ def test_delete_model_with_file_attribute(
     )
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
 def test_delete_model_with_file_attribute_and_relative_root_file_dir(
-    sheraf_temp_dir, sheraf_connection, file_object_class
+    sheraf_temp_dir, sheraf_connection
 ):
     class FileStorable(sheraf.AutoModel):
-        my_file = sheraf.FileAttribute(file_object_class)
+        my_file = sheraf.FileAttribute()
 
     s = FileStorable.create()
-    s.my_file = file_object_class(stream=b"yolo", extension="txt")
+    s.my_file = sheraf.FileObject(stream=b"yolo", extension="txt")
     s.save()
     s.delete()
 
@@ -248,16 +204,10 @@ def test_delete_model_with_file_attribute_and_relative_root_file_dir(
     shutil.rmtree(sheraf.attributes.files.FILES_ROOT_DIR)
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_delete_a_previously_saved_file(
-    sheraf_temp_dir, sheraf_connection, file_object_class
-):
+def test_delete_a_previously_saved_file(sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
-        logo = sheraf.FileAttribute(file_object_class)
-        other = sheraf.FileAttribute(file_object_class)
+        logo = sheraf.FileAttribute()
+        other = sheraf.FileAttribute()
 
     _files_dir = sheraf.attributes.files.FILES_ROOT_DIR + FileStorable.table + "/logo/"
     s = FileStorable.create()
@@ -283,16 +233,12 @@ def test_delete_a_previously_saved_file(
     assert rel_path in sheraf.FilesGarbageCollector.instance()
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_copy(sheraf_temp_dir, sheraf_connection, file_object_class):
+def test_copy(sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
-        logo = sheraf.FileAttribute(file_object_class)
+        logo = sheraf.FileAttribute()
 
     s1 = FileStorable.create()
-    s1.logo = file_object_class(extension="EXT", stream=b"STREAM")
+    s1.logo = sheraf.FileObject(extension="EXT", stream=b"STREAM")
     s1.save()
     s2 = FileStorable.create()
     s2.logo = s1.logo
@@ -302,13 +248,9 @@ def test_copy(sheraf_temp_dir, sheraf_connection, file_object_class):
     assert s1.logo.relative_path() != s2.logo.relative_path()
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_recursion(sheraf_temp_dir, sheraf_connection, file_object_class):
+def test_recursion(sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
-        my_file = sheraf.FileAttribute(file_object_class)
+        my_file = sheraf.FileAttribute()
 
     m = FileStorable.create()
     m.my_file = sheraf.FileObject(stream=b"", extension="txt")
@@ -317,18 +259,16 @@ def test_recursion(sheraf_temp_dir, sheraf_connection, file_object_class):
     m.delete()  # il ne faut pas de recursion
 
 
-@pytest.mark.parametrize("file_object_class", [sheraf.attributes.files.FileObjectV2])
-def test_savemapping_mapping(sheraf_temp_dir, sheraf_connection, file_object_class):
-    FileStorable = get_file_storable(sheraf.FileAttribute(file_object_class))
+def test_savemapping_mapping(sheraf_temp_dir, sheraf_connection):
+    FileStorable = get_file_storable(sheraf.FileAttribute())
     s = FileStorable.create()
     s.file = sheraf.FileObject(stream=b"content", extension="txt")
     s.save()
     assert s.mapping["file"] == s.file.relative_path()
 
 
-@pytest.mark.parametrize("file_object_class", [sheraf.attributes.files.FileObjectV2])
-def test_readmapping_mapping(sheraf_temp_dir, sheraf_connection, file_object_class):
-    FileStorable = get_file_storable(sheraf.FileAttribute(file_object_class))
+def test_readmapping_mapping(sheraf_temp_dir, sheraf_connection):
+    FileStorable = get_file_storable(sheraf.FileAttribute())
     s = FileStorable.create()
     directory = os.path.join(
         sheraf.attributes.files.FILES_ROOT_DIR, FileStorable.table, "file"
@@ -344,11 +284,8 @@ def test_readmapping_mapping(sheraf_temp_dir, sheraf_connection, file_object_cla
     assert s.file.extension == "txt"
 
 
-@pytest.mark.parametrize("file_object_class", [sheraf.attributes.files.FileObjectV2])
-def test_path_in_db_but_file_not_exists(
-    sheraf_temp_dir, sheraf_connection, file_object_class
-):
-    FileStorable = get_file_storable(sheraf.FileAttribute(file_object_class))
+def test_path_in_db_but_file_not_exists(sheraf_temp_dir, sheraf_connection):
+    FileStorable = get_file_storable(sheraf.FileAttribute())
     s = FileStorable.create()
     file_path = os.path.join(FileStorable.table, "file", "file.txt")
     s.mapping["file"] = file_path
@@ -362,31 +299,10 @@ def test_path_in_db_but_file_not_exists(
         s2.file = s.file
 
 
-@pytest.mark.parametrize("file_object_class", [sheraf.attributes.files.FileObjectV2])
-def test_copy_deprecated(sheraf_temp_dir, sheraf_connection, file_object_class):
+@patch("sheraf.attributes.files.FileObject._iter_match_file_paths")
+def test_save_optim(iter_match_file_paths, sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
-        logo = sheraf.FileAttribute(file_object_class)
-
-    s1 = FileStorable.create()
-    s1.logo = sheraf.attributes.files.FileObjectV1(extension="EXT", stream=b"STREAM")
-    s1.save()
-    assert "logo" not in s1.mapping
-    s2 = FileStorable.create()
-    s2.logo = s1.logo
-    s2.save()
-
-    assert s1.logo.stream == s2.logo.stream
-    assert s1.logo.relative_path() != s2.logo.relative_path()
-    assert "logo" in s2.mapping
-
-
-@pytest.mark.parametrize("file_object_class", [sheraf.attributes.files.FileObjectV2])
-@patch("sheraf.attributes.files.FileObjectV1._iter_match_file_paths")
-def test_save_optim(
-    iter_match_file_paths, file_object_class, sheraf_temp_dir, sheraf_connection
-):
-    class FileStorable(sheraf.AutoModel):
-        my_file = sheraf.FileAttribute(file_object_class)
+        my_file = sheraf.FileAttribute()
 
     m = FileStorable.create()
     m.my_file = sheraf.FileObject(stream=b"", extension="txt")
@@ -396,26 +312,18 @@ def test_save_optim(
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_attributes(sheraf_temp_dir, sheraf_connection, file_object_class):
-    _file = file_object_class(stream=b"STREAM", extension="txt")
+def test_attributes(sheraf_temp_dir, sheraf_connection):
+    _file = sheraf.FileObject(stream=b"STREAM", extension="txt")
 
     assert b"STREAM" == _file.stream
     assert "txt" == _file.extension
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_save_file(sheraf_temp_dir, sheraf_connection, file_object_class):
-    FileStorable = get_file_storable(sheraf.FileAttribute(file_object_class))
+def test_save_file(sheraf_temp_dir, sheraf_connection):
+    FileStorable = get_file_storable(sheraf.FileAttribute())
 
     _model = FileStorable.create()
-    _model.file = file_object_class(stream=b"STREAM", extension="txt")
+    _model.file = sheraf.FileObject(stream=b"STREAM", extension="txt")
 
     _model.save()
 
@@ -423,19 +331,15 @@ def test_save_file(sheraf_temp_dir, sheraf_connection, file_object_class):
     assert _model.file == _model_from_base.file
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_retrocompatibility(sheraf_temp_dir, sheraf_connection, file_object_class):
-    FileStorable = get_file_storable(sheraf.FileAttribute(file_object_class))
+def test_retrocompatibility(sheraf_temp_dir, sheraf_connection):
+    FileStorable = get_file_storable(sheraf.FileAttribute())
 
     _model = FileStorable.create()
     _model.file = {"stream": b"STREAM", "extension": "txt"}
 
     _model.save()
 
-    assert file_object_class(stream=b"STREAM", extension="txt") == _model.file
+    assert sheraf.FileObject(stream=b"STREAM", extension="txt") == _model.file
     _model.file["extension"] = "png"
     _model.file["stream"] = b"STREAM2"
     assert "png" == _model.file["extension"]
@@ -443,12 +347,8 @@ def test_retrocompatibility(sheraf_temp_dir, sheraf_connection, file_object_clas
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_save(sheraf_temp_dir, sheraf_connection, file_object_class):
-    FileStorable = get_file_storable(sheraf.FileAttribute(file_object_class))
+def test_save(sheraf_temp_dir, sheraf_connection):
+    FileStorable = get_file_storable(sheraf.FileAttribute())
 
     _model = FileStorable.create()
     _model.file = {"stream": b"STREAM", "extension": "txt"}
@@ -457,17 +357,13 @@ def test_save(sheraf_temp_dir, sheraf_connection, file_object_class):
     _path = _model.file.relative_path()
 
     assert "file_storable_{}/file/{}.txt".format(
-        sheraf.FileAttribute(file_object_class),
+        sheraf.FileAttribute(),
         _model.id == _path,
     )
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_read(sheraf_temp_dir, sheraf_connection, file_object_class):
-    FileStorable = get_file_storable(sheraf.FileAttribute(file_object_class))
+def test_read(sheraf_temp_dir, sheraf_connection):
+    FileStorable = get_file_storable(sheraf.FileAttribute())
 
     _model = FileStorable.create()
     _model.file = {"stream": b"STREAM", "extension": "txt"}
@@ -477,49 +373,27 @@ def test_read(sheraf_temp_dir, sheraf_connection, file_object_class):
     _path = _model.file.relative_path()
 
     assert "file_storable_{}/file/{}.txt".format(
-        sheraf.FileAttribute(file_object_class),
+        sheraf.FileAttribute(),
         _model.id == _path,
     )
 
 
-# n'est plus pertinent a priori ?
-#
-# @pytest.mark.parametrize("file_object_class", [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2])
-# def test_not_saved_model(sheraf_temp_dir, sheraf_connection, file_object_class):
-#      _model = FileStorable.create()
-#      _model.file = {"stream": "STREAM", "extension": "txt"}
-
-#      _path = _model.file.relative_path()
-
-#      assert _path is None
-
-
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_not_model(sheraf_temp_dir, sheraf_connection, file_object_class):
-    file = file_object_class(stream=b"STREAM", extension="txt")
+def test_not_model(sheraf_temp_dir, sheraf_connection):
+    file = sheraf.FileObject(stream=b"STREAM", extension="txt")
 
     assert file.relative_path() is None
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_cler_files_garbage_collector_mixin(
-    sheraf_temp_dir, sheraf_connection, file_object_class
-):
-    FileStorable = get_file_storable(sheraf.FileAttribute(file_object_class))
+def test_cler_files_garbage_collector_mixin(sheraf_temp_dir, sheraf_connection):
+    FileStorable = get_file_storable(sheraf.FileAttribute())
 
     model = FileStorable.create()
     model.file = sheraf.FileObject(stream=b"hello", extension="txt")
     model.save()
     model.file.delete()
     other = FileStorable.create()
-    other.file = file_object_class(stream=b"world", extension="txt")
+    other.file = sheraf.FileObject(stream=b"world", extension="txt")
     other.save()
 
     sheraf.FilesGarbageCollector.instance().clear()
@@ -531,15 +405,11 @@ def test_cler_files_garbage_collector_mixin(
     assert not sheraf.FilesGarbageCollector.instance()
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_already_removed(sheraf_temp_dir, sheraf_connection, file_object_class):
-    FileStorable = get_file_storable(sheraf.FileAttribute(file_object_class))
+def test_already_removed(sheraf_temp_dir, sheraf_connection):
+    FileStorable = get_file_storable(sheraf.FileAttribute())
 
     model = FileStorable.create()
-    model.file = file_object_class(stream=b"hello", extension="txt")
+    model.file = sheraf.FileObject(stream=b"hello", extension="txt")
     model.save()
     model.file.delete()
     os.remove(model.file.absolute_path())
@@ -547,17 +417,13 @@ def test_already_removed(sheraf_temp_dir, sheraf_connection, file_object_class):
     sheraf.FilesGarbageCollector.instance().clear()
 
 
-@pytest.mark.parametrize(
-    "file_object_class",
-    [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
-)
-def test_directory_removed(sheraf_temp_dir, sheraf_connection, file_object_class):
+def test_directory_removed(sheraf_temp_dir, sheraf_connection):
     class FileStorable(sheraf.AutoModel):
         attr = sheraf.SimpleAttribute()
-        file = sheraf.FileAttribute(file_object_class)
+        file = sheraf.FileAttribute()
 
     model = FileStorable.create()
-    model.file = file_object_class(stream=b"hello", extension="txt")
+    model.file = sheraf.FileObject(stream=b"hello", extension="txt")
     model.save()
     os.remove(model.file.absolute_path())
     os.rmdir(os.path.dirname(model.file.absolute_path()))
