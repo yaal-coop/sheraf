@@ -1,3 +1,11 @@
+[0.3.0] - Unreleased
+====================
+
+Removed
+*******
+- :class:`~sheraf.attributes.files.FileObjectV1` has been removed.
+
+
 [0.2.1] - Unreleased
 ====================
 

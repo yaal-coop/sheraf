@@ -1,4 +1,3 @@
-import io
 import os
 import warnings
 import sheraf
@@ -11,28 +10,15 @@ FILES_ROOT_DIR = "files/"
 
 def set_files_root_dir(path):
     global FILES_ROOT_DIR
-    FILES_ROOT_DIR = path
+    FILES_ROOT_DIR = path  # pragma: no cover
 
 
-class FileObjectV1(object):
-    def __init__(self, stream="", extension=""):
-        warnings.warn(
-            "FileObjectV1 is deprecated and will be removed in sheraf 0.3.0. "
-            "Please stop using them.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-        # TODO rename stream to content
+class FileObject:
+    def __init__(self, stream=None, extension=""):
         self.model = None
         self.attribute_name = None
-        self.stream = stream
         self.extension = extension
-
-    def __repr__(self):
-        return "<FileObjectV1 model='{}' attribute_name='{}'>".format(
-            self.model.__class__.__name__, self.attribute_name
-        )
+        self._content = stream
 
     def __getitem__(self, name):
         return getattr(self, name)
@@ -42,119 +28,17 @@ class FileObjectV1(object):
 
     def __eq__(self, other):
         return (
-            isinstance(other, FileObjectV1)
+            isinstance(other, FileObject)
             and self.stream == other.stream
             and self.extension == other.extension
         )
 
-    def keys(self):
-        return ["stream", "extension"]
-
-    def associate(self, model, attribute_name):
-        self.model = model
-        self.attribute_name = attribute_name
-
-    def relative_path(self):
-        path = self.absolute_path()
-        if not path:
-            return None
-
-        return self.relative_path_of(path)
-
-    @staticmethod
-    def relative_path_of(path):
-        return os.path.relpath(path, FILES_ROOT_DIR)
-
-    def absolute_path(self):
-        if not self.model or not self.model.identifier:
-            return None
-
-        _dir = self.directory()
-        _file_name = "{}.{}".format(self.model.identifier, self.extension)
-        return os.path.join(_dir, _file_name)
-
-    def directory(self):
-        return self._directory_of(self.model, self.attribute_name)
-
-    @classmethod
-    def _directory_of(cls, model, attribute_name):
-        return os.path.join(FILES_ROOT_DIR, model.table, attribute_name)
+    def __repr__(self):
+        return "<FileObject model='{}' attribute_name='{}'>".format(
+            self.model.__class__.__name__, self.attribute_name
+        )
 
     def exists(self):
-        try:
-            next(
-                self._iter_match_file_paths(
-                    self.model, self.attribute_name, ignore_collected_to_remove=True
-                )
-            )
-            return True
-        except StopIteration:
-            return False
-
-    @classmethod
-    def read(cls, model, attribute_name):
-        try:
-            file_path = next(
-                cls._iter_match_file_paths(
-                    model, attribute_name, ignore_collected_to_remove=True
-                )
-            )
-            extension = os.path.splitext(file_path)[1].lstrip(".")
-            with io.open(file_path, "rb") as f:
-                file_instance = cls(extension=extension, stream=f.read())
-                file_instance.associate(model, attribute_name)
-                return file_instance
-        except (StopIteration, OSError):
-            pass
-
-    @classmethod
-    def _iter_match_file_paths(
-        cls, model, attribute_name, ignore_collected_to_remove=False
-    ):
-        directory = cls._directory_of(model, attribute_name)
-        if not os.path.isdir(directory):
-            return
-
-        for file_name in os.listdir(directory):
-            root = os.path.splitext(file_name)[0]
-            if root != model.identifier:
-                continue
-
-            path = os.path.join(directory, file_name)
-            if ignore_collected_to_remove and path in FilesGarbageCollector.instance():
-                continue
-
-            yield path
-
-    def write(self):
-        self.delete()
-        _path = self.absolute_path()
-        _dir = os.path.dirname(_path)
-        if not os.path.exists(_dir):
-            os.makedirs(_dir)
-        with io.open(_path, "wb") as f:
-            f.write(self.stream)
-            try:
-                FilesGarbageCollector.instance().remove(self.relative_path())
-            except KeyError:
-                pass
-
-    def delete(self):
-        for path in self._iter_match_file_paths(self.model, self.attribute_name):
-            FilesGarbageCollector.instance().add(path)
-
-
-class FileObjectV2(FileObjectV1):
-    def __init__(self, stream=None, extension=""):
-        self.model = None
-        self.attribute_name = None
-        self.extension = extension
-        self._content = stream
-
-    def exists(self):
-        if not self._is_new_model():
-            return super().exists()
-
         return os.path.exists(self.absolute_path())
 
     @property
@@ -162,7 +46,7 @@ class FileObjectV2(FileObjectV1):
         if self._content is None:
             path = self.absolute_path()
             if path not in FilesGarbageCollector.instance():
-                with io.open(self.absolute_path(), "rb") as f:
+                with open(self.absolute_path(), "rb") as f:
                     self._content = f.read()
 
         return self._content
@@ -175,48 +59,65 @@ class FileObjectV2(FileObjectV1):
     def read(cls, model, attribute_name):
         persisted_file_path = model.mapping.get(attribute_name)
         if not persisted_file_path:
-            return super().read(model, attribute_name)
+            return None
 
         extension = os.path.splitext(persisted_file_path)[1].lstrip(".")
         file_instance = cls(extension=extension)
         file_instance.associate(model, attribute_name)
         return file_instance
 
-    def _is_new_model(self):
-        return self.model is not None and self.attribute_name in self.model.mapping
-
     def relative_path(self):
-        if not self._is_new_model():
-            return super().relative_path()
+        if not self.model:
+            return None
 
-        return self.model.mapping[self.attribute_name]
+        if self.attribute_name in self.model.mapping:
+            return self.model.mapping[self.attribute_name]
+
+        file_name = "{}.{}".format(self.model.identifier, self.extension)
+        path = os.path.join(self.directory(), file_name)
+
+        return os.path.relpath(path, FILES_ROOT_DIR)
 
     def absolute_path(self):
-        if not self._is_new_model():
-            return super().absolute_path()
-
         return os.path.join(FILES_ROOT_DIR, self.relative_path())
 
+    def keys(self):
+        return ["stream", "extension"]
+
+    def associate(self, model, attribute_name):
+        self.model = model
+        self.attribute_name = attribute_name
+
+    def directory(self):
+        return os.path.join(FILES_ROOT_DIR, self.model.table, self.attribute_name)
+
     def write(self):
-        super().write()
+        if self.attribute_name in self.model.mapping:
+            self.delete()
+
+        path = self.absolute_path()
+        directory = os.path.dirname(path)
+
+        try:
+            os.makedirs(directory)
+        except OSError:
+            pass
+
+        with open(path, "wb") as f:
+            f.write(self.stream)
+            try:
+                FilesGarbageCollector.instance().remove(self.relative_path())
+            except KeyError:
+                pass
+
         self.model.mapping[self.attribute_name] = self.relative_path()
 
     def delete(self):
-        if self._is_new_model():
-            FilesGarbageCollector.instance().add(
-                self.model.mapping[self.attribute_name]
-            )
-            del self.model.mapping[self.attribute_name]
-        elif self.model.mapping._p_status != "unsaved":
-            super().delete()
+        if not self.model or not self.attribute_name in self.model.mapping:
+            return
 
-    def __repr__(self):
-        return "<FileObjectV2 model='{}' attribute_name='{}'>".format(
-            self.model.__class__.__name__, self.attribute_name
-        )
-
-
-FileObject = FileObjectV2
+        FilesGarbageCollector.instance().add(self.model.mapping[self.attribute_name])
+        del self.model.mapping[self.attribute_name]
 
 
 class FileAttribute(BaseAttribute):

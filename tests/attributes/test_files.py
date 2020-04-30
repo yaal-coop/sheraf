@@ -44,7 +44,7 @@ def test_repr(sheraf_temp_dir, sheraf_connection):
     s = FileStorable.create()
     s.logo = {"extension": "EXT", "stream": b"STREAM"}
     s.save()
-    assert "<FileObjectV2 model='FileStorable' attribute_name='logo'>" == str(s.logo)
+    assert "<FileObject model='FileStorable' attribute_name='logo'>" == str(s.logo)
 
 
 def test_dict(sheraf_temp_dir, sheraf_connection):
@@ -297,18 +297,6 @@ def test_path_in_db_but_file_not_exists(sheraf_temp_dir, sheraf_connection):
     s2 = FileStorable.create()
     with pytest.raises(IOError):
         s2.file = s.file
-
-
-@patch("sheraf.attributes.files.FileObject._iter_match_file_paths")
-def test_save_optim(iter_match_file_paths, sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
-        my_file = sheraf.FileAttribute()
-
-    m = FileStorable.create()
-    m.my_file = sheraf.FileObject(stream=b"", extension="txt")
-    m.save()
-
-    iter_match_file_paths.assert_not_called()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
