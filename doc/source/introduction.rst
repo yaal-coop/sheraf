@@ -34,7 +34,7 @@ is taking care of by sheraf, allowing you to avoid boilerplate and focus
 on the valuable parts of your application.
 
 - **Models**: ZODB does not provide a *model* layer. Its usage is mainly about storing
-  :class:`persistent.Persistent` objects, and it is up to you to choose which
+  :class:`~persistent.Persistent` objects, and it is up to you to choose which
   parts of your object you want to save. Sheraf propose a unique - but flexible - way
   to define models, and take care of the saving mechanism for you.
 - **Indexation**: ZODB does not provide an *indexation* layer. Instead it provides you
@@ -48,8 +48,8 @@ Who are we?
 -----------
 
 `Yaal`_ is a company based in Bordeaux, France. We are specialized in python development,
-FOSS lovers. We have been using sheraf in production for years, and in 2020 we have cleaned
-the code and opened the sourcecode.
+and we are FOSS lovers. We have been using sheraf in production for years, and in 2020 we
+have cleaned the code and opened the sourcecode.
 
 .. _SQLAlchemy: https://docs.sqlalchemy.org/
 .. _Django: https://docs.djangoproject.com
