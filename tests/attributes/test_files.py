@@ -193,7 +193,7 @@ def test_optional_files_not_filled(
     "file_object_class",
     [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
 )
-def test_delete_model_with_file_attribure(
+def test_delete_model_with_file_attribute(
     sheraf_temp_dir, sheraf_connection, file_object_class
 ):
     class FileStorable(sheraf.AutoModel):
@@ -223,7 +223,7 @@ def test_delete_model_with_file_attribure(
     "file_object_class",
     [sheraf.attributes.files.FileObjectV1, sheraf.attributes.files.FileObjectV2],
 )
-def test_delete_model_with_file_attribure_and_relative_root_file_dir(
+def test_delete_model_with_file_attribute_and_relative_root_file_dir(
     sheraf_temp_dir, sheraf_connection, file_object_class
 ):
     class FileStorable(sheraf.AutoModel):
