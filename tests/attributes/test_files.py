@@ -382,7 +382,7 @@ def test_copy_deprecated(sheraf_temp_dir, sheraf_connection, file_object_class):
 
 @pytest.mark.parametrize("file_object_class", [sheraf.attributes.files.FileObjectV2])
 @patch("sheraf.attributes.files.FileObjectV1._iter_match_file_paths")
-def test_save(
+def test_save_optim(
     iter_match_file_paths, file_object_class, sheraf_temp_dir, sheraf_connection
 ):
     class FileStorable(sheraf.AutoModel):
