@@ -1,5 +1,10 @@
-[Unreleased]
-============
+[0.2.1] - Unreleased
+====================
+
+Deprecated
+**********
+
+- :class:`~sheraf.attributes.files.FileObjectV1` is deprecated and will be removed in sheraf ``0.3.0``.
 
 [0.2.0] - 2020-04-03
 ====================

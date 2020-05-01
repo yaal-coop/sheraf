@@ -1,6 +1,6 @@
 import io
 import os
-
+import warnings
 import sheraf
 import sheraf.types
 from sheraf.attributes.base import BaseAttribute
@@ -16,6 +16,13 @@ def set_files_root_dir(path):
 
 class FileObjectV1(object):
     def __init__(self, stream="", extension=""):
+        warnings.warn(
+            "FileObjectV1 is deprecated and will be removed in sheraf 0.3.0. "
+            "Please stop using them.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         # TODO rename stream to content
         self.model = None
         self.attribute_name = None
