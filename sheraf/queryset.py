@@ -369,7 +369,8 @@ class QuerySet(object):
         transformation. Hence it allows to pass uppercase filter values, while
         :func:`~sheraf.queryset.QuerySet.filter` does not allow this.
 
-        >>> class MyCustomModel(sheraf.IntAutoModel):
+        >>> class MyCustomModel(sheraf.Model):
+        ...     table = "my_custom_model"
         ...     my_attribute = sheraf.SimpleAttribute().index(
         ...        values=lambda string: {string.lower()}
         ...     )
