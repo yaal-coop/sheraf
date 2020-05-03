@@ -57,14 +57,14 @@ class QuerySet(object):
     >>> with sheraf.connection():
     ...    a = Cowboy.all() # returns a QuerySet with all Cowboy
     ...    b = QuerySet([peter, steven, george]) # This is an equivalent custom QuerySet
-    ...    assert set(a) == set(b)
+    ...    assert list(a) == list(b)
 
     :class:`~sheraf.queryset.QuerySet` behave like iterators, and can only be
     consumed once.
 
     >>> with sheraf.connection():
     ...    everybody = Cowboy.all()
-    ...    assert {peter, steven, george} == set(everybody)
+    ...    assert [peter, steven, george] == list(everybody)
     ...    assert [] == everybody
 
     .. note :: :class:`~sheraf.queryset.QuerySet` can be compared against

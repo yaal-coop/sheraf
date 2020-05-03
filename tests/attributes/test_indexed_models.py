@@ -48,7 +48,7 @@ def test_read_these(sheraf_database):
     with sheraf.connection():
         george = Cowboy.read(george.id)
 
-        assert {jolly, polly} == set(
+        assert [jolly, polly] == list(
             george.horses.read_these(("Jolly Jumper", "Polly Pumper"))
         )
 
@@ -134,7 +134,7 @@ def test_filter(sheraf_connection):
     polly = george.horses.create(name="Polly Pumper", size=5)
     george.horses.create(name="Loosy Lumper", size=4)
 
-    assert {jolly, polly} == set(george.horses.filter(size=5))
+    assert [jolly, polly] == list(george.horses.filter(size=5))
     assert [] == george.horses.filter(size=90000)
 
 

@@ -89,7 +89,7 @@ def test_database_retrocompatibility(sheraf_database, db2):
         assert m1.id not in root2[MyModel.table]["id"]
         assert m1.mapping == MyModel.read(m1.id).mapping
         assert MyModel.count() == 2
-        assert set(MyModel.all()) == {m1, m2}
+        assert list(MyModel.all()) == [m2, m1]
 
         m1.delete()
         assert m1.id not in root1[MyModel.table]["id"]
