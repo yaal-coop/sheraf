@@ -3,7 +3,7 @@ import operator
 import sys
 from collections import OrderedDict
 
-from orderedset import OrderedSet
+from BTrees.OOBTree import OOTreeSet, union, intersection, difference
 
 import sheraf.constants
 from sheraf.exceptions import InvalidFilterException, InvalidOrderException
@@ -83,13 +83,6 @@ class QuerySet(object):
     ...     assert QuerySet([george]) == Cowboy.all()[-1]
     ...     assert QuerySet([peter, steven]) == Cowboy.all()[0:2]
     ...     assert QuerySet([peter, steven, george]) == Cowboy.all()[0:]
-
-    :class:`~sheraf.queryset.QuerySet` supports bitwise operations **and**,
-    **or** and **xor**. All those operations consume the internal iterator.
-
-    >>> assert QuerySet([peter]) | QuerySet([steven]) == QuerySet([peter, steven])
-    >>> assert QuerySet([peter, steven]) & QuerySet([steven]) == QuerySet([steven])
-    >>> assert QuerySet([peter, steven]) ^ QuerySet([steven]) == QuerySet([peter])
     """
 
     def __init__(self, iterable=None, model_class=None, predicate=None, **kwargs):
@@ -161,13 +154,13 @@ class QuerySet(object):
         return super().__eq__(other)
 
     def __and__(self, other):
-        return QuerySet(OrderedSet(self) & OrderedSet(other))
+        return QuerySet(intersection(OOTreeSet(self), OOTreeSet(other)))
 
     def __or__(self, other):
-        return QuerySet(OrderedSet(self) | OrderedSet(other))
+        return QuerySet(union(OOTreeSet(self), OOTreeSet(other)))
 
     def __xor__(self, other):
-        return QuerySet(OrderedSet(self) ^ OrderedSet(other))
+        return QuerySet(difference(OOTreeSet(self), OOTreeSet(other)))
 
     def count(self):
         """

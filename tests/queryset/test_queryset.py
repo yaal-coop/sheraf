@@ -1,10 +1,10 @@
 import itertools
 
-import orderedset
 import pytest
 
 import sheraf
 import sheraf.models
+from BTrees.OOBTree import OOTreeSet
 from sheraf.exceptions import InvalidFilterException, NotConnectedException
 from sheraf.queryset import QuerySet
 
@@ -33,8 +33,8 @@ def test_comparison(sheraf_connection, m0, m1, m2):
     assert QuerySet() != None
     assert QuerySet([m0]) == QuerySet([m0])
     assert QuerySet([m0]) == QuerySet(m for m in [m0])
-    assert QuerySet([m0]) == QuerySet(orderedset.OrderedSet([m0]))
-    assert QuerySet([m0, m1, m2]) == QuerySet(orderedset.OrderedSet([m0, m1, m2]))
+    assert QuerySet([m0]) == QuerySet(OOTreeSet([m0]))
+    # assert QuerySet([m0, m1, m2]) == QuerySet(OOTreeSet([m0, m1, m2]))
 
 
 def test_create(sheraf_connection, m0):

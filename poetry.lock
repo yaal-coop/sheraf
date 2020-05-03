@@ -328,14 +328,6 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
-name = "orderedset"
-version = "2.0.3"
-description = "An Ordered Set implementation in Cython."
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "packaging"
 version = "20.4"
 description = "Core utilities for Python packages"
@@ -1209,7 +1201,7 @@ doc = ["recommonmark", "sphinx", "sphinx-rtd-theme", "sphinx-issues"]
 [metadata]
 lock-version = "1.0"
 python-versions = ">=3.5, <4"
-content-hash = "39e8d29ad9918d9f918b5a8049b759bf44ea4f7d2dec092836eaeffa524f63ea"
+content-hash = "78ef32549e079a04561284e3b35c467e7a01c7d3fcb0d8b8cca09f6856a59a76"
 
 [metadata.files]
 alabaster = [
@@ -1463,9 +1455,6 @@ mock = [
 more-itertools = [
     {file = "more-itertools-8.5.0.tar.gz", hash = "sha256:6f83822ae94818eae2612063a5101a7311e68ae8002005b5e05f03fd74a86a20"},
     {file = "more_itertools-8.5.0-py3-none-any.whl", hash = "sha256:9b30f12df9393f0d28af9210ff8efe48d10c94f73e5daf886f10c4b0b0b4f03c"},
-]
-orderedset = [
-    {file = "orderedset-2.0.3.tar.gz", hash = "sha256:b2f5ccfb5a86e7b3b3ddf18b29779cc18b24653abf9d6da4bebecf33780a6e29"},
 ]
 packaging = [
     {file = "packaging-20.4-py2.py3-none-any.whl", hash = "sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181"},

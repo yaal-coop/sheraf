@@ -31,7 +31,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.5, <4"
-orderedset = "*"
 zodb = ">=5"
 zodburi = "*"
 
