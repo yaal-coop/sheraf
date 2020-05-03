@@ -211,7 +211,9 @@ class BaseAttribute(object):
 
         When indexes are used, **lazy** is disabled.
 
-        >>> class People(sheraf.AutoModel):
+        >>> class People(sheraf.Model):
+        ...     table = "index_people"
+        ...
         ...     # Simple indexing
         ...     name = sheraf.SimpleAttribute().index()
         ...
