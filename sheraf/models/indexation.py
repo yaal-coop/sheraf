@@ -17,6 +17,10 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
     _primary_key = None
     _first_instance = None
 
+    def __init__(self, *args, **kwargs):
+        self._identifier = None
+        super().__init__(*args, **kwargs)
+
     @classmethod
     def indexes(cls):
         if cls._indexes is None:
@@ -388,7 +392,10 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         The identifier is the value of the primary_key for the current instance.
         If the primary_key is 'id', then the identifier might be an UUID.
         """
-        return getattr(self, self.primary_key())
+        if not self._identifier:
+            self._identifier = getattr(self, self.primary_key())
+
+        return self._identifier
 
     def copy(self, **kwargs):
         r"""
