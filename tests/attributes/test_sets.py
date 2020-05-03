@@ -1,12 +1,13 @@
 import pytest
 
 import sheraf
+import tests
 
 
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_set_attribute(sheraf_connection, persistent_type, subattribute):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(subattribute, persistent_type=persistent_type)
 
     a = ModelForTest.create()
@@ -53,7 +54,7 @@ def test_set_attribute(sheraf_connection, persistent_type, subattribute):
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_primitive_type(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(sheraf.AutoModel):
+    class ModelTest(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(subattribute, persistent_type=persistent_type)
 
     m = ModelTest.create()
@@ -64,7 +65,7 @@ def test_primitive_type(sheraf_connection, persistent_type, subattribute):
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_sheraf_typeset(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(sheraf.AutoModel):
+    class ModelTest(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(subattribute, persistent_type=persistent_type)
 
     m = ModelTest.create()
@@ -77,7 +78,7 @@ def test_sheraf_typeset(sheraf_connection, persistent_type, subattribute):
 def test_enum_type(sheraf_connection, persistent_type, subattribute):
     import enum
 
-    class ModelTest(sheraf.AutoModel):
+    class ModelTest(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(subattribute, persistent_type=persistent_type)
 
     class E(enum.IntEnum):
@@ -91,7 +92,7 @@ def test_enum_type(sheraf_connection, persistent_type, subattribute):
 
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
 def test_set_attribute_update(sheraf_connection, persistent_type):
-    class ModelTest(sheraf.AutoModel):
+    class ModelTest(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(
             attribute=sheraf.IntegerAttribute(), persistent_type=persistent_type
         )

@@ -1,11 +1,11 @@
 import mock
 import pytest
-
 import sheraf
+import tests
 
 
 def test_delete_attributes(sheraf_connection):
-    class M(sheraf.AutoModel):
+    class M(tests.UUIDAutoModel):
         foo = sheraf.StringAttribute()
 
     m = M.create()
@@ -28,12 +28,12 @@ class MyInlineModel(sheraf.InlineModel):
     pass
 
 
-class MyModel(sheraf.AutoModel):
+class MyModel(tests.UUIDAutoModel):
     inline_model = sheraf.InlineModelAttribute(MyInlineModel)
 
 
 def test_attribute_error_attribute(sheraf_database):
-    class MyBadModel(sheraf.AutoModel):
+    class MyBadModel(tests.UUIDAutoModel):
         @property
         def my_bad_attribute(self):
             raise AttributeError("it is too bad")
@@ -46,7 +46,7 @@ def test_attribute_error_attribute(sheraf_database):
 
 
 def test_attribute_error_attribute_with_nasty_message(sheraf_database):
-    class MyBadModel(sheraf.AutoModel):
+    class MyBadModel(tests.UUIDAutoModel):
         @property
         def my_bad_attribute(self):
             raise AttributeError("object has no attribute NIARK NIARK")
@@ -64,7 +64,7 @@ def test_attribute_error_attribute_with_nasty_message(sheraf_database):
 def test_attribute_error_attribute_with_very_nasty_message(
     sheraf_database,
 ):  # pragma: no cover
-    class MyBadModel(sheraf.AutoModel):
+    class MyBadModel(tests.UUIDAutoModel):
         @property
         def my_bad_attribute(self):
             raise AttributeError(
@@ -82,7 +82,7 @@ def test_attribute_error_attribute_with_very_nasty_message(
 
 
 def test_create_nominal_case(sheraf_database):
-    class FooModel(sheraf.AutoModel):
+    class FooModel(tests.UUIDAutoModel):
         pass
 
     with sheraf.connection(commit=True):
@@ -94,7 +94,7 @@ def test_create_nominal_case(sheraf_database):
 
 
 def test_create_parameters(sheraf_database):
-    class BarModel(sheraf.AutoModel):
+    class BarModel(tests.UUIDAutoModel):
         my_attribute = sheraf.SimpleAttribute(default="hell yeah")
 
     with sheraf.connection(commit=True):
@@ -111,7 +111,7 @@ def test_create_parameters(sheraf_database):
 
 
 def test_lazy_create_parameters(sheraf_database):
-    class FoobarModel(sheraf.AutoModel):
+    class FoobarModel(tests.UUIDAutoModel):
         my_attribute = sheraf.SimpleAttribute(default="hell yeah", lazy=False)
 
     with sheraf.connection(commit=True):
@@ -128,7 +128,7 @@ def test_lazy_create_parameters(sheraf_database):
 
 
 def test_lazy(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         myattribute = sheraf.attributes.simples.SimpleAttribute()
 
     with sheraf.connection(commit=True):
@@ -139,7 +139,7 @@ def test_lazy(sheraf_database):
 
 
 def test_not_lazy(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         myattribute = sheraf.attributes.simples.SimpleAttribute(lazy=False)
 
     with sheraf.connection(commit=True):
@@ -150,7 +150,7 @@ def test_not_lazy(sheraf_database):
 
 
 def test_dict_interface(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute()
 
     with sheraf.connection():
@@ -173,7 +173,7 @@ def test_dict_interface(sheraf_database):
 
 
 def test_model_as_simple_dict(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute()
         mylist = sheraf.LargeListAttribute()
 
@@ -191,10 +191,10 @@ def test_model_as_simple_dict(sheraf_database):
 
 
 def test_model_as_nested_dicts(sheraf_database):
-    class DummyModel(sheraf.AutoModel):
+    class DummyModel(tests.UUIDAutoModel):
         pass
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         other = sheraf.ModelAttribute(DummyModel)
 
     with sheraf.connection():
@@ -210,7 +210,7 @@ def test_model_as_nested_inline_dicts(sheraf_database):
     class DummyModel(sheraf.InlineModel):
         pass
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         other = sheraf.InlineModelAttribute(DummyModel)
 
     with sheraf.connection():
@@ -221,7 +221,7 @@ def test_model_as_nested_inline_dicts(sheraf_database):
 
 
 def test_simple_edit(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
@@ -234,7 +234,7 @@ def test_simple_edit(sheraf_database):
 
 
 def test_simple_update(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
@@ -247,7 +247,7 @@ def test_simple_update(sheraf_database):
 
 
 def test_simple_update_wrong_attribute(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         pass
 
     with sheraf.connection(commit=True):
@@ -258,7 +258,7 @@ def test_simple_update_wrong_attribute(sheraf_database):
 
 
 def test_list_update(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         foo = sheraf.SmallListAttribute()
 
     with sheraf.connection(commit=True):
@@ -274,7 +274,7 @@ def test_list_update(sheraf_database):
 
 
 def test_attribute_inheritance(sheraf_connection):
-    class A(sheraf.AutoModel):
+    class A(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute(default="foo_A")
         bar = sheraf.SimpleAttribute(default="bar_A")
 
@@ -299,7 +299,7 @@ def test_abstract_inheritance(sheraf_connection):
 
 
 def test_copy(sheraf_connection):
-    class A(sheraf.AutoModel):
+    class A(tests.UUIDAutoModel):
         foo = sheraf.StringAttribute()
 
     a1 = A.create(foo="YEAH")
@@ -311,7 +311,7 @@ def test_copy(sheraf_connection):
 
 
 def test_reset_simple_value(sheraf_database):
-    class M(sheraf.AutoModel):
+    class M(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute(default=None)
 
     with sheraf.connection(commit=True):
@@ -327,7 +327,7 @@ def test_reset_simple_value(sheraf_database):
 
 
 def test_reset_callable(sheraf_database):
-    class M(sheraf.AutoModel):
+    class M(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute(default=lambda: None)
 
     with sheraf.connection(commit=True):

@@ -1,6 +1,6 @@
-import mock
 import pytest
 import sheraf
+import tests
 
 
 @pytest.fixture
@@ -16,13 +16,13 @@ def db2(request):
 
 
 def test_model_create_in_default_connection(sheraf_database, db2):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         pass
 
-    class MyDefaultModel(sheraf.AutoModel):
+    class MyDefaultModel(tests.UUIDAutoModel):
         database_name = "unnamed"
 
-    class MyDB2Model(sheraf.AutoModel):
+    class MyDB2Model(tests.UUIDAutoModel):
         database_name = "db2"
 
     with sheraf.connection(commit=True) as connection:
@@ -45,7 +45,7 @@ def test_model_create_in_default_connection(sheraf_database, db2):
 
 
 def test_model_with_database_name_specified(sheraf_database, db2):
-    class Db2Model(sheraf.AutoModel):
+    class Db2Model(tests.UUIDAutoModel):
         database_name = "db2"
 
     with sheraf.connection(commit=True):
@@ -71,13 +71,13 @@ def test_database_retrocompatibility(sheraf_database, db2):
     be able to delete instances created in the old database.
     """
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         pass
 
     with sheraf.connection(commit=True):
         m1 = MyModel.create()
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         database_name = "db2"
 
     with sheraf.connection() as connection:
@@ -97,7 +97,7 @@ def test_database_retrocompatibility(sheraf_database, db2):
 
 
 def test_make_id(sheraf_database, db2):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         pass
 
     class ModelWithProposeId(MyModel):
@@ -110,7 +110,7 @@ def test_make_id(sheraf_database, db2):
         assert m0.id == 0
         assert m1.id == 1
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         database_name = "db2"
 
     class ModelWithProposeId(MyModel):

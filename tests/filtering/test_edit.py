@@ -2,12 +2,13 @@ import warnings
 from unittest import mock
 
 import sheraf
+import tests
 
 warnings.simplefilter("always")
 
 
 def test_edit_no_index(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
@@ -22,7 +23,7 @@ def test_edit_no_index(sheraf_database):
 
 
 def test_edit_a_not_single_instance_after_set_index(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
@@ -30,7 +31,7 @@ def test_edit_a_not_single_instance_after_set_index(sheraf_database):
         # Having more than one instance must prevent indexation
         MyModel.create(my_simple_attribute="foo_not_indexed2")
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
@@ -48,7 +49,7 @@ def test_edit_a_not_single_instance_after_set_index(sheraf_database):
 def test_edit_a_not_single_instance_after_set_index_in_one_of_two_attributes(
     sheraf_database,
 ):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute()
         my_other_attribute = sheraf.SimpleAttribute()
 
@@ -61,7 +62,7 @@ def test_edit_a_not_single_instance_after_set_index_in_one_of_two_attributes(
             my_simple_attribute="foo_not_indexed2", my_other_attribute="other2"
         )
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
@@ -79,14 +80,14 @@ def test_edit_a_not_single_instance_after_set_index_in_one_of_two_attributes(
 
 
 def test_edit_a_not_single_instance_after_set_index_with_key(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
         m = MyModel.create(my_simple_attribute="foo_not_indexed")
         MyModel.create(my_simple_attribute="foo_not_indexed2")
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute().index(key="new_key")
         my_other_attribute = sheraf.SimpleAttribute()
 
@@ -106,7 +107,7 @@ def test_edit_a_not_single_instance_after_set_index_with_key(sheraf_database):
 
 
 def test_edit_a_not_single_instance_when_two_indexes_with_key(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = (
             sheraf.SimpleAttribute().index(key="key1").index(key="key2")
         )
@@ -130,14 +131,14 @@ def test_edit_a_not_single_instance_when_two_indexes_with_key(sheraf_database):
 def test_edit_a_not_single_instance_when_two_indexes_with_key_afterwards(
     sheraf_database,
 ):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
         m = MyModel.create(my_simple_attribute="foo_not_indexed")
         MyModel.create(my_simple_attribute="foo_not_indexed2")
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = (
             sheraf.SimpleAttribute()
             .index(key="key1")
@@ -163,7 +164,7 @@ def test_edit_a_not_single_instance_when_two_indexes_with_key_afterwards(
 
 
 def test_edit_one_with_attribute_key_index(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute(key="attr_key").index()
 
     with sheraf.connection(commit=True):
@@ -178,7 +179,7 @@ def test_edit_one_with_attribute_key_index(sheraf_database):
 
 
 def test_edit_one_with_attribute_key_index_with_key(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute(key="attr_key").index(
             key="index_key"
         )

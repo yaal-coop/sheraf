@@ -55,9 +55,7 @@ from .exceptions import (
     PrimaryKeyException,
 )
 from .models import (
-    AutoModel,
     AttributeModel,
-    IntAutoModel,
     IntIndexedIntAttributesModel,
     IntIndexedModel,
     IntIndexedNamedAttributesModel,

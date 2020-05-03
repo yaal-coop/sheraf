@@ -1,11 +1,12 @@
 import sheraf
+import tests
 
 
 def test_inline_model_list_update(sheraf_database):
     class MyInline(sheraf.InlineModel):
         foo = sheraf.SimpleAttribute()
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         models = sheraf.SmallListAttribute(sheraf.InlineModelAttribute(MyInline))
 
     with sheraf.connection(commit=True):
@@ -45,7 +46,7 @@ def test_inline_model_dict_update(sheraf_database):
     class MyInline(sheraf.InlineModel):
         foo = sheraf.SimpleAttribute()
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         models = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(MyInline))
 
     with sheraf.connection(commit=True):
@@ -87,7 +88,7 @@ def test_inline_model_list_assign(sheraf_database):
     class MyInline(sheraf.InlineModel):
         foo = sheraf.SimpleAttribute()
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         models = sheraf.SmallListAttribute(sheraf.InlineModelAttribute(MyInline))
 
     with sheraf.connection(commit=True):
@@ -126,7 +127,7 @@ def test_inline_model_dict_assign(sheraf_database):
     class MyInline(sheraf.InlineModel):
         foo = sheraf.SimpleAttribute()
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         models = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(MyInline))
 
     with sheraf.connection(commit=True):

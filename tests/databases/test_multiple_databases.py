@@ -3,6 +3,7 @@ import pytest
 
 import sheraf
 from sheraf.exceptions import ObjectNotFoundException
+import tests
 
 
 def test_connection_returned_by_context_manager_connection(
@@ -63,7 +64,7 @@ def test_abort(sheraf_database, other_nested_database):
 
 
 def test_default_database(sheraf_database, other_nested_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         anything = sheraf.SimpleAttribute(lazy=False)
 
     with sheraf.connection(sheraf.Database.DEFAULT_DATABASE_NAME, commit=True):
@@ -84,7 +85,7 @@ def test_default_database(sheraf_database, other_nested_database):
 
 
 def test_successive_connections(sheraf_database, other_nested_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         anything = sheraf.SimpleAttribute(lazy=False)
 
     with sheraf.connection(commit=True):

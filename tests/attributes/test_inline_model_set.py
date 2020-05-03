@@ -1,6 +1,6 @@
 import pytest
-
 import sheraf
+import tests
 
 
 class SetInlineModel(sheraf.InlineModel):
@@ -8,7 +8,7 @@ class SetInlineModel(sheraf.InlineModel):
 
 
 def test_inline_model_set(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inlines = sheraf.SetAttribute(sheraf.InlineModelAttribute(SetInlineModel))
 
     _model = ModelForTest.create()
@@ -35,7 +35,7 @@ def test_inline_model_set(sheraf_connection):
 
 
 def test_model_absolute_string(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inline = sheraf.SetAttribute(
             sheraf.InlineModelAttribute(
                 "tests.attributes.test_inline_model_set.SetInlineModel"
@@ -49,7 +49,7 @@ def test_model_absolute_string(sheraf_connection):
 
 
 def test_model_invalid_string(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inline = sheraf.SetAttribute(
             sheraf.InlineModelAttribute("anticonstitutionnellement")
         )
@@ -62,7 +62,7 @@ def test_model_invalid_string(sheraf_connection):
 
 @pytest.mark.skip
 def test_update_edition(sheraf_connection):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.SetAttribute(sheraf.InlineModelAttribute(SetInlineModel))
 
     model = Model.create()

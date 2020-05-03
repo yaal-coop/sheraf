@@ -1,6 +1,6 @@
 import pytest
-
 import sheraf
+import tests
 
 
 class ListInlineModel(sheraf.InlineModel):
@@ -15,7 +15,7 @@ class ListInlineModel(sheraf.InlineModel):
     ],
 )
 def test_inline_model_list(sheraf_connection, attribute, list_type):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
     _model = ModelForTest.create()
@@ -58,7 +58,7 @@ def test_inline_model_list(sheraf_connection, attribute, list_type):
     ],
 )
 def test_model_absolute_string(sheraf_connection, attribute, list_type):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inline = attribute(
             sheraf.InlineModelAttribute(
                 "{}.{}".format(ListInlineModel.__module__, ListInlineModel.__name__)
@@ -79,7 +79,7 @@ def test_model_absolute_string(sheraf_connection, attribute, list_type):
     ],
 )
 def test_model_invalid_string(sheraf_connection, attribute, list_type):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inline = attribute(sheraf.InlineModelAttribute("anticonstitutionnellement"))
 
     model = ModelForTest.create()
@@ -95,7 +95,7 @@ def test_model_invalid_string(sheraf_connection, attribute, list_type):
     ],
 )
 def test_extend(sheraf_connection, attribute, list_type):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
     model = MyModel.create()
@@ -117,7 +117,7 @@ def test_extend(sheraf_connection, attribute, list_type):
     ],
 )
 def test_indices(sheraf_connection, attribute, list_type):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
     model = MyModel.create()
@@ -153,7 +153,7 @@ def test_indices(sheraf_connection, attribute, list_type):
     ],
 )
 def test_create(sheraf_database, attribute, list_type):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
     with sheraf.connection(commit=True):
@@ -181,7 +181,7 @@ def test_create(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_edition(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
     with sheraf.connection(commit=True):
@@ -216,7 +216,7 @@ def test_update_edition(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_no_edition(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
     with sheraf.connection(commit=True):
@@ -251,7 +251,7 @@ def test_update_no_edition(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_replacement(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
     with sheraf.connection(commit=True):
@@ -292,7 +292,7 @@ def test_update_replacement(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_addition(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
     with sheraf.connection(commit=True):
@@ -325,7 +325,7 @@ def test_update_addition(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_no_addition(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
     with sheraf.connection(commit=True):
@@ -354,7 +354,7 @@ def test_update_no_addition(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_deletion(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
     with sheraf.connection(commit=True):
@@ -381,7 +381,7 @@ def test_update_deletion(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_no_deletion(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
     with sheraf.connection(commit=True):

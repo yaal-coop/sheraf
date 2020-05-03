@@ -1,9 +1,10 @@
 import pytest
 
 import sheraf
+import tests
 
 
-class AModelForTest(sheraf.AutoModel):
+class AModelForTest(tests.UUIDAutoModel):
     name = sheraf.SimpleAttribute()
 
 
@@ -18,7 +19,7 @@ class AModelForTest(sheraf.AutoModel):
     ],
 )
 def test_set_attribute(sheraf_connection, model):
-    class AnotherModelForTest(sheraf.AutoModel):
+    class AnotherModelForTest(tests.UUIDAutoModel):
         a_set_for_test = sheraf.SetAttribute(sheraf.ModelAttribute(model))
 
     a = AModelForTest.create()
@@ -55,7 +56,7 @@ def test_set_attribute(sheraf_connection, model):
 
 @pytest.mark.skip
 def test_update_edition(sheraf_connection):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = sheraf.SetAttribute(sheraf.ModelAttribute(AModelForTest))
 
     model = Model.create(models={{"name": "c"}, {"name": "c"}})

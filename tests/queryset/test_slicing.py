@@ -1,6 +1,6 @@
 import pytest
 
-import sheraf
+import tests
 from sheraf.queryset import QuerySet
 
 from .conftest import Cowboy
@@ -31,7 +31,7 @@ def test_slicing_models(sheraf_connection, m0, m1, m2):
 
 
 def test_slicing_regular_models(sheraf_connection):
-    class Cowboy(sheraf.AutoModel):
+    class Cowboy(tests.UUIDAutoModel):
         pass
 
     m0 = Cowboy.create(id="ac61941e-170f-492a-b049-0d9565985e6a")

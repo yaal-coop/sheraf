@@ -1,12 +1,13 @@
 import warnings
 
 import sheraf
+import tests
 
 warnings.simplefilter("always")
 
 
 def test_create_indexed(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
@@ -18,7 +19,7 @@ def test_create_indexed(sheraf_database):
 
 
 def test_create_not_indexed(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
@@ -29,13 +30,13 @@ def test_create_not_indexed(sheraf_database):
 
 
 def test_create_indexed_one_recreated_instance(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
         m = MyModel.create(my_simple_attribute="foo_indexed")
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute(default="").index()
 
     with sheraf.connection(commit=True):
@@ -57,13 +58,13 @@ def test_create_indexed_one_recreated_instance(sheraf_database):
 
 
 def test_create_already_one_instance(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
         MyModel.create(my_simple_attribute="foo_not_indexed")
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
@@ -78,13 +79,13 @@ def test_create_already_one_instance(sheraf_database):
 
 
 def test_create_already_one_instance_with_index_key(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
         MyModel.create(my_simple_attribute="foo_not_indexed")
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute().index(key="key1")
 
     with sheraf.connection(commit=True):
@@ -97,7 +98,7 @@ def test_create_already_one_instance_with_index_key(sheraf_database):
 
 
 def test_create_one_new_indexed(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute()
         my_simple_attribute2 = sheraf.SimpleAttribute().index()
 
@@ -106,7 +107,7 @@ def test_create_one_new_indexed(sheraf_database):
             my_simple_attribute="foo_not_indexed", my_simple_attribute2="foo_indexed"
         )
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute().index()
         my_simple_attribute2 = sheraf.SimpleAttribute().index()
 
@@ -128,7 +129,7 @@ def test_create_one_new_indexed(sheraf_database):
 
 
 def test_create_one_with_attribute_key_index(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute(key="attr_key").index()
 
     with sheraf.connection(commit=True):
@@ -139,7 +140,7 @@ def test_create_one_with_attribute_key_index(sheraf_database):
 
 
 def test_create_one_with_attribute_key_index_with_key(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute(key="attr_key").index(
             key="index_key"
         )

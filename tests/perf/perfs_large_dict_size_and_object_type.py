@@ -9,13 +9,14 @@ import persistent
 import transaction
 
 import sheraf
+import tests
 
 
 class Test_tel(persistent.Persistent):
     number = ""
 
 
-class Test_sheraf_tel(sheraf.AutoModel):
+class Test_sheraf_tel(tests.UUIDAutoModel):
     number = sheraf.SimpleAttribute()
 
 
@@ -23,7 +24,7 @@ class Test_sheraf_tel_in(sheraf.InlineModel):
     number = sheraf.SimpleAttribute()
 
 
-class Test_sheraf_rep(sheraf.AutoModel):
+class Test_sheraf_rep(tests.UUIDAutoModel):
     tels = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(Test_sheraf_tel_in))
 
 

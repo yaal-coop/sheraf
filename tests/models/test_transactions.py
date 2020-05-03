@@ -6,6 +6,7 @@ import ZODB.POSException
 
 import sheraf
 import sheraf.transactions
+import tests
 
 from tests.utils import conflict
 
@@ -22,7 +23,7 @@ def test_initial_value():
     assert _queue.get(timeout=0.1) is None
 
 
-class Book(sheraf.AutoModel):
+class Book(tests.UUIDAutoModel):
     name = sheraf.SimpleAttribute()
 
 

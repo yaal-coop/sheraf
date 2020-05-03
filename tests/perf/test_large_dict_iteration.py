@@ -1,6 +1,7 @@
 import time
 
 import sheraf
+import tests
 
 DICT_SIZE = 10 ** 5
 
@@ -52,7 +53,7 @@ class TestLargeDict(sheraf.testing.TestCase):
         assert abs(duration_enhanced) - abs(duration_classical) < 1
 
     def test_model(self):
-        class FoobarModel(sheraf.AutoModel):
+        class FoobarModel(tests.UUIDAutoModel):
             lorem = sheraf.SimpleAttribute()
 
         with sheraf.connection(commit=True):

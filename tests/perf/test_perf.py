@@ -20,7 +20,7 @@ class Test_tel_3(persistent.Persistent):
     msisdn2 = ""
 
 
-class Test_sheraf_tel(sheraf.AutoModel):
+class Test_sheraf_tel(tests.UUIDAutoModel):
     number = sheraf.SimpleAttribute()
 
 
@@ -34,11 +34,11 @@ class Test_sheraf_tel_in_3(sheraf.InlineModel):
     msisdn2 = sheraf.SimpleAttribute()
 
 
-class Test_sheraf_rep(sheraf.AutoModel):
+class Test_sheraf_rep(tests.UUIDAutoModel):
     tels = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(Test_sheraf_tel_in))
 
 
-class Test_sheraf_rep_3(sheraf.AutoModel):
+class Test_sheraf_rep_3(tests.UUIDAutoModel):
     tels = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(Test_sheraf_tel_in_3))
 
 

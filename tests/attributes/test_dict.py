@@ -1,6 +1,6 @@
 import pytest
-
 import sheraf
+import tests
 
 
 @pytest.mark.parametrize(
@@ -8,7 +8,7 @@ import sheraf
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_dict_attribute(sheraf_connection, persistent_type, subattribute):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         dict = sheraf.DictAttribute(
             attribute=subattribute, persistent_type=persistent_type
         )
@@ -65,7 +65,7 @@ def test_dict_attribute(sheraf_connection, persistent_type, subattribute):
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_primitive_type(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(sheraf.AutoModel):
+    class ModelTest(tests.UUIDAutoModel):
         _dict = sheraf.DictAttribute(
             attribute=subattribute, persistent_type=persistent_type
         )
@@ -80,7 +80,7 @@ def test_primitive_type(sheraf_connection, persistent_type, subattribute):
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_sheraf_type_dict(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(sheraf.AutoModel):
+    class ModelTest(tests.UUIDAutoModel):
         _dict = sheraf.DictAttribute(
             attribute=subattribute, persistent_type=persistent_type
         )
@@ -95,7 +95,7 @@ def test_sheraf_type_dict(sheraf_connection, persistent_type, subattribute):
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_dict_attribute_update(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(sheraf.AutoModel):
+    class ModelTest(tests.UUIDAutoModel):
         dict = sheraf.DictAttribute(
             attribute=subattribute, persistent_type=persistent_type
         )
@@ -118,7 +118,7 @@ def test_dict_attribute_update(sheraf_connection, persistent_type, subattribute)
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_nested(sheraf_database, persistent_type, subattribute):
-    class ModelTest(sheraf.AutoModel):
+    class ModelTest(tests.UUIDAutoModel):
         dict = sheraf.DictAttribute(
             attribute=sheraf.DictAttribute(
                 attribute=subattribute, persistent_type=persistent_type

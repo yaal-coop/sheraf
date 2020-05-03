@@ -4,6 +4,7 @@ import pytest
 import ZODB
 
 import sheraf
+import tests
 
 
 @pytest.mark.parametrize(
@@ -17,7 +18,7 @@ import sheraf
 def test_empty_model_no_conflict(database):
     database.nestable = True
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         pass
 
     with sheraf.connection(commit=True):
@@ -44,7 +45,7 @@ def test_empty_model_no_conflict(database):
 def test_same_simple_attribute_same_modification_no_conflict(database):
     database.nestable = True
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         something = sheraf.attributes.simples.SimpleAttribute()
 
     with sheraf.connection(commit=True):
@@ -71,7 +72,7 @@ def test_same_simple_attribute_same_modification_no_conflict(database):
 def test_different_simple_attribute_modification_no_conflict(database):
     database.nestable = True
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         something = sheraf.attributes.simples.SimpleAttribute()
         something_else = sheraf.attributes.simples.SimpleAttribute()
 
@@ -99,7 +100,7 @@ def test_different_simple_attribute_modification_no_conflict(database):
 def test_same_simple_attribute_different_modification_conflict(database):
     database.nestable = True
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         something = sheraf.attributes.simples.SimpleAttribute()
 
     with sheraf.connection(commit=True):
@@ -129,7 +130,7 @@ def test_same_simple_attribute_different_modification_conflict(database):
     ],
 )
 def test_empty_model_no_conflict_mp(database):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         pass
 
     def process(uri, model_id, barrier):
@@ -169,7 +170,7 @@ def test_empty_model_no_conflict_mp(database):
     ],
 )
 def test_same_simple_attribute_same_modification_conflict_mp(database):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         order = sheraf.SimpleAttribute()
 
     def process(uri, model_id, barrier):
@@ -209,7 +210,7 @@ def test_same_simple_attribute_same_modification_conflict_mp(database):
     ],
 )
 def test_different_simple_attribute_modification_no_conflict_mp(database):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         something = sheraf.SimpleAttribute()
         something_else = sheraf.SimpleAttribute()
 
@@ -262,7 +263,7 @@ def test_different_simple_attribute_modification_no_conflict_mp(database):
     ],
 )
 def test_same_simple_attribute_different_modification_conflict_mp(database):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         order = sheraf.SimpleAttribute()
 
     def process(uri, model_id, barrier, queue, lock):

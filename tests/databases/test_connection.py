@@ -6,9 +6,10 @@ import pytest
 from ZODB.POSException import ConflictError
 
 import sheraf
+import tests
 
 
-class AModel(sheraf.AutoModel):
+class AModel(tests.UUIDAutoModel):
     field = sheraf.SimpleAttribute()
 
 

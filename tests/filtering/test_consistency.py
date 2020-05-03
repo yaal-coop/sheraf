@@ -2,6 +2,7 @@ import sheraf
 import sys
 
 from unittest.mock import patch
+import tests
 
 
 def assert_filter_queryset(qs, is_indexed=False):
@@ -16,7 +17,7 @@ def assert_filter_queryset(qs, is_indexed=False):
 
 
 def test_temp_canonic_index(sheraf_database):
-    class Cowboy(sheraf.AutoModel):
+    class Cowboy(tests.UUIDAutoModel):
         boot_brand = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
@@ -28,7 +29,7 @@ def test_temp_canonic_index(sheraf_database):
 
 
 def test_temp_canonic_no_index(sheraf_database):
-    class Cowboy(sheraf.AutoModel):
+    class Cowboy(tests.UUIDAutoModel):
         boot_brand = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
@@ -40,14 +41,14 @@ def test_temp_canonic_no_index(sheraf_database):
 
 
 def test_de_indexed_one_attr_and_do_not_recreate_instance(sheraf_database):
-    class Cowboy(sheraf.AutoModel):
+    class Cowboy(tests.UUIDAutoModel):
         boot_brand = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
         Cowboy.create(boot_brand="cowboot")
         Cowboy.create(boot_brand="booboot")
 
-    class Cowboy(sheraf.AutoModel):
+    class Cowboy(tests.UUIDAutoModel):
         boot_brand = sheraf.SimpleAttribute()
 
     with sheraf.connection() as conn:
@@ -57,14 +58,14 @@ def test_de_indexed_one_attr_and_do_not_recreate_instance(sheraf_database):
 
 
 def test_de_indexed_and_lazify_one_attr_and_do_not_recreate_instance(sheraf_database):
-    class Cowboy(sheraf.AutoModel):
+    class Cowboy(tests.UUIDAutoModel):
         boot_brand = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
         Cowboy.create(boot_brand="cowboot")
         Cowboy.create(boot_brand="booboot")
 
-    class Cowboy(sheraf.AutoModel):
+    class Cowboy(tests.UUIDAutoModel):
         # TODO: This should be forbidden....Check it?
         boot_brand = sheraf.SimpleAttribute(lazy=True)
 
@@ -74,14 +75,14 @@ def test_de_indexed_and_lazify_one_attr_and_do_not_recreate_instance(sheraf_data
 
 
 def test_de_indexed_one_attr_and_recreate_instance(sheraf_database):
-    class Cowboy(sheraf.AutoModel):
+    class Cowboy(tests.UUIDAutoModel):
         boot_brand = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
         Cowboy.create(boot_brand="cowboot")
         Cowboy.create(boot_brand="booboot")
 
-    class Cowboy(sheraf.AutoModel):
+    class Cowboy(tests.UUIDAutoModel):
         boot_brand = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
@@ -96,7 +97,7 @@ def test_de_indexed_one_attr_and_recreate_instance(sheraf_database):
 
 
 def test_de_indexed_one_of_two_attr(sheraf_database):
-    class Cowboy(sheraf.AutoModel):
+    class Cowboy(tests.UUIDAutoModel):
         boot_brand = sheraf.SimpleAttribute().index()
         # TODO: ask Eloi about usability of index() with values/filter without lambda
         sock_brand = sheraf.SimpleAttribute().index()
@@ -106,7 +107,7 @@ def test_de_indexed_one_of_two_attr(sheraf_database):
         Cowboy.create(boot_brand="booboot", sock_brand="one")
         Cowboy.create(boot_brand="reboot", sock_brand="two")
 
-    class Cowboy(sheraf.AutoModel):
+    class Cowboy(tests.UUIDAutoModel):
         boot_brand = sheraf.SimpleAttribute()
         sock_brand = sheraf.SimpleAttribute().index()
 

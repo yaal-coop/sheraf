@@ -6,6 +6,7 @@ import transaction
 
 import sheraf
 import sheraf.types
+import tests
 
 OBJECTS_NUMBERS = 100_000
 
@@ -14,7 +15,7 @@ class ZODBPersistent(persistent.Persistent):
     number = ""
 
 
-class Y_ZODBModel(sheraf.AutoModel):
+class Y_ZODBModel(tests.UUIDAutoModel):
     number = sheraf.SimpleAttribute()
 
 
@@ -22,7 +23,7 @@ class Y_ZODBInlineModel(sheraf.InlineModel):
     number = sheraf.SimpleAttribute()
 
 
-class Y_ZODBModelWithInlineAttribute(sheraf.AutoModel):
+class Y_ZODBModelWithInlineAttribute(tests.UUIDAutoModel):
     tels = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(Y_ZODBInlineModel))
 
 

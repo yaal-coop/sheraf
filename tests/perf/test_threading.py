@@ -3,6 +3,7 @@ import threading
 import transaction
 
 import sheraf
+import tests
 
 
 class Child(sheraf.InlineModel):
@@ -33,7 +34,7 @@ class Child(sheraf.InlineModel):
         )
 
 
-class Parent(sheraf.AutoModel):
+class Parent(tests.UUIDAutoModel):
     sons = sheraf.LargeDictAttribute(sheraf.InlineModelAttribute(Child))
     daughters = sheraf.SmallListAttribute(sheraf.InlineModelAttribute(Child))
 

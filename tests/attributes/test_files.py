@@ -3,14 +3,15 @@ import shutil
 
 import BTrees.OOBTree
 import pytest
-from mock import sentinel, patch
+from mock import sentinel
 
 import sheraf
 import sheraf.attributes.files
+import tests
 
 
 def get_file_storable(file_attribute):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         attr = sheraf.SimpleAttribute()
         file = file_attribute
 
@@ -19,7 +20,7 @@ def get_file_storable(file_attribute):
 
 def test_default_values(sheraf_temp_dir, sheraf_connection):
     # TODO déplacer ce test ?
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         a = sheraf.SimpleAttribute()
         b = sheraf.SimpleAttribute()
         c = sheraf.SmallListAttribute()
@@ -38,7 +39,7 @@ def test_default_values(sheraf_temp_dir, sheraf_connection):
 
 
 def test_repr(sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         logo = sheraf.FileAttribute()
 
     s = FileStorable.create()
@@ -48,7 +49,7 @@ def test_repr(sheraf_temp_dir, sheraf_connection):
 
 
 def test_dict(sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         logo = sheraf.FileAttribute()
 
     s = FileStorable.create()
@@ -58,7 +59,7 @@ def test_dict(sheraf_temp_dir, sheraf_connection):
 
 
 def test_attr_dir_not_exists(sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         logo = sheraf.FileAttribute()
 
     s = FileStorable.create()
@@ -71,7 +72,7 @@ def test_attr_dir_not_exists(sheraf_temp_dir, sheraf_connection):
 
 
 def test_model_dir_not_exists(sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         attr = sheraf.FileAttribute()
 
     s = FileStorable.create()
@@ -81,7 +82,7 @@ def test_model_dir_not_exists(sheraf_temp_dir, sheraf_connection):
 
 
 def test_files_saved_if_file_exists(sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         logo = sheraf.FileAttribute()
 
     _files_dir = sheraf.attributes.files.FILES_ROOT_DIR + FileStorable.table + "/logo/"
@@ -123,7 +124,7 @@ def test_files_saved_if_file_exists(sheraf_temp_dir, sheraf_connection):
 
 
 def test_optional_files(sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         logo = sheraf.FileAttribute()
 
     _files_dir = sheraf.attributes.files.FILES_ROOT_DIR + FileStorable.table + "/logo/"
@@ -142,7 +143,7 @@ def test_optional_files(sheraf_temp_dir, sheraf_connection):
 
 
 def test_optional_files_not_filled(sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         logo = sheraf.FileAttribute()
 
     _files_dir = sheraf.attributes.files.FILES_ROOT_DIR + FileStorable.table + "/logo/"
@@ -156,7 +157,7 @@ def test_optional_files_not_filled(sheraf_temp_dir, sheraf_connection):
 
 
 def test_delete_model_with_file_attribute(sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         logo = sheraf.FileAttribute()
         other = sheraf.FileAttribute()
 
@@ -182,7 +183,7 @@ def test_delete_model_with_file_attribute(sheraf_temp_dir, sheraf_connection):
 def test_delete_model_with_file_attribute_and_relative_root_file_dir(
     sheraf_temp_dir, sheraf_connection
 ):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         my_file = sheraf.FileAttribute()
 
     s = FileStorable.create()
@@ -205,7 +206,7 @@ def test_delete_model_with_file_attribute_and_relative_root_file_dir(
 
 
 def test_delete_a_previously_saved_file(sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         logo = sheraf.FileAttribute()
         other = sheraf.FileAttribute()
 
@@ -234,7 +235,7 @@ def test_delete_a_previously_saved_file(sheraf_temp_dir, sheraf_connection):
 
 
 def test_copy(sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         logo = sheraf.FileAttribute()
 
     s1 = FileStorable.create()
@@ -249,7 +250,7 @@ def test_copy(sheraf_temp_dir, sheraf_connection):
 
 
 def test_recursion(sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         my_file = sheraf.FileAttribute()
 
     m = FileStorable.create()
@@ -406,7 +407,7 @@ def test_already_removed(sheraf_temp_dir, sheraf_connection):
 
 
 def test_directory_removed(sheraf_temp_dir, sheraf_connection):
-    class FileStorable(sheraf.AutoModel):
+    class FileStorable(tests.UUIDAutoModel):
         attr = sheraf.SimpleAttribute()
         file = sheraf.FileAttribute()
 

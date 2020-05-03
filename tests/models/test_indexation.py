@@ -1,9 +1,9 @@
 import BTrees.OOBTree
-import mock
 import pytest
 import warnings
 import sheraf
 import sheraf.exceptions
+import tests
 
 
 # ----------------------------------------------------------------------------
@@ -23,7 +23,7 @@ import sheraf.exceptions
     ],
 )
 def test_integer_unique_index_creation(sheraf_database, instance, mapping):
-    class MyUniqueModel(sheraf.IntAutoModel):
+    class MyUniqueModel(tests.IntAutoModel):
         my_attribute = instance
 
     with sheraf.connection(commit=True):
@@ -43,7 +43,7 @@ def test_integer_unique_index_creation(sheraf_database, instance, mapping):
 
 
 def test_unique_index_creation(sheraf_database):
-    class MyUniqueModel(sheraf.IntAutoModel):
+    class MyUniqueModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(unique=True)
 
     with sheraf.connection(commit=True):
@@ -72,7 +72,7 @@ def test_unique_index_creation(sheraf_database):
 
 
 def test_unique_index_creation_and_edition(sheraf_database):
-    class MyUniqueModel(sheraf.IntAutoModel):
+    class MyUniqueModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(unique=True)
 
     with sheraf.connection(commit=True):
@@ -105,7 +105,7 @@ def test_unique_index_creation_and_edition(sheraf_database):
 
 
 def test_unique_index_creation_and_deletion(sheraf_database):
-    class MyUniqueModel(sheraf.IntAutoModel):
+    class MyUniqueModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(unique=True)
 
     with sheraf.connection(commit=True):
@@ -123,7 +123,7 @@ def test_unique_index_creation_and_deletion(sheraf_database):
 
 
 def test_unique_index_double_value(sheraf_database):
-    class MyUniqueModel(sheraf.IntAutoModel):
+    class MyUniqueModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(unique=True)
 
     with sheraf.connection(commit=True):
@@ -160,7 +160,7 @@ def test_unique_indexation_on_model_attribute(sheraf_database):
 
 
 def test_multiple_index_creation(sheraf_database):
-    class MyMultipleModel(sheraf.IntAutoModel):
+    class MyMultipleModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
@@ -188,7 +188,7 @@ def test_multiple_index_creation(sheraf_database):
 
 
 def test_multiple_index_creation_and_deletion(sheraf_database):
-    class MyMultipleModel(sheraf.IntAutoModel):
+    class MyMultipleModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
@@ -208,7 +208,7 @@ def test_multiple_index_creation_and_deletion(sheraf_database):
 
 
 def test_multiple_index_several_filters(sheraf_database):
-    class MyMultipleModel(sheraf.IntAutoModel):
+    class MyMultipleModel(tests.IntAutoModel):
         my_attribute_1 = sheraf.SimpleAttribute().index()
         my_attribute_2 = sheraf.SimpleAttribute().index()
 
@@ -224,7 +224,7 @@ def test_multiple_index_several_filters(sheraf_database):
 
 
 def test_multiple_index_ordering(sheraf_database):
-    class MyMultipleAllModel(sheraf.IntAutoModel):
+    class MyMultipleAllModel(tests.IntAutoModel):
         my_attribute_1 = sheraf.SimpleAttribute().index()
         my_attribute_2 = sheraf.SimpleAttribute().index()
 
@@ -241,7 +241,7 @@ def test_multiple_index_ordering(sheraf_database):
 
 
 def test_index_key(sheraf_database):
-    class MyIndexKeyModel(sheraf.IntAutoModel):
+    class MyIndexKeyModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(key="another_index_key")
 
     with sheraf.connection(commit=True):
@@ -266,7 +266,7 @@ def test_index_key(sheraf_database):
 
 
 def test_multiple_keys_index_create(sheraf_database):
-    class MyMultipleKeysIndexModel(sheraf.IntAutoModel):
+    class MyMultipleKeysIndexModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(key="key_1").index(key="key_2")
 
     with sheraf.connection(commit=True):
@@ -303,7 +303,7 @@ def test_multiple_keys_index_create(sheraf_database):
 
 
 def test_multiple_keys_index_update(sheraf_database):
-    class MyMultipleKeysIndexModel(sheraf.IntAutoModel):
+    class MyMultipleKeysIndexModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(key="key_1").index(key="key_2")
 
     with sheraf.connection(commit=True):
@@ -344,7 +344,7 @@ def test_multiple_keys_index_update(sheraf_database):
 
 
 def test_custom_indexation_method(sheraf_database):
-    class MyCustomModel(sheraf.IntAutoModel):
+    class MyCustomModel(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute().index(
             unique=True, values=lambda string: {string.lower()}
         )
@@ -379,7 +379,7 @@ def test_custom_indexation_method(sheraf_database):
 
 
 def test_custom_query_method(sheraf_database):
-    class MyCustomModel(sheraf.IntAutoModel):
+    class MyCustomModel(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute().index(
             unique=True,
             values=lambda string: {string.lower()},
@@ -417,7 +417,7 @@ def test_custom_query_method(sheraf_database):
 
 
 def test_unique_indexation_and_filter_on_wrong_attribute(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         an_attribute = sheraf.SimpleAttribute().index(unique=True)
 
     with sheraf.connection(commit=True):
@@ -433,14 +433,14 @@ def test_unique_indexation_and_filter_on_wrong_attribute(sheraf_database):
 
 
 def test_reset_index_table(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
         MyModel.create(foo="bar")
         MyModel.create(foo="baz")
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
@@ -460,7 +460,7 @@ def test_reset_index_table(sheraf_database):
 
 
 def test_index_table_rebuild(sheraf_database):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute()
         bar = sheraf.SimpleAttribute()
 
@@ -468,7 +468,7 @@ def test_index_table_rebuild(sheraf_database):
         MyModel.create(foo="bar", bar="bar")
         MyModel.create(foo="baz", bar="bor")
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute().index()
         bar = sheraf.SimpleAttribute().index()
 

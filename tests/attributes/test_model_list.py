@@ -1,9 +1,10 @@
 import pytest
 
 import sheraf
+import tests
 
 
-class AModelForTest(sheraf.AutoModel):
+class AModelForTest(tests.UUIDAutoModel):
     name = sheraf.SimpleAttribute()
 
 
@@ -25,7 +26,7 @@ class AModelForTest(sheraf.AutoModel):
     ],
 )
 def test_model_dict(sheraf_connection, attribute, list_type, model):
-    class AnotherModelForTest(sheraf.AutoModel):
+    class AnotherModelForTest(tests.UUIDAutoModel):
         a_list_for_test = attribute(sheraf.ModelAttribute(AModelForTest))
 
     a = AModelForTest.create()
@@ -82,7 +83,7 @@ def test_model_dict(sheraf_connection, attribute, list_type, model):
     ],
 )
 def test_indices(sheraf_connection, attribute, list_type):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         models = attribute(sheraf.ModelAttribute(AModelForTest))
 
     model = MyModel.create()
@@ -124,7 +125,7 @@ def test_indices(sheraf_connection, attribute, list_type):
     ],
 )
 def test_create(sheraf_database, attribute, list_type):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         models = attribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -150,7 +151,7 @@ def test_create(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_edition(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = attribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -186,7 +187,7 @@ def test_update_edition(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_no_edition(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = attribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -222,7 +223,7 @@ def test_update_no_edition(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_replacement(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = attribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -258,7 +259,7 @@ def test_update_replacement(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_addition(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = attribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -291,7 +292,7 @@ def test_update_addition(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_no_addition(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = attribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -320,7 +321,7 @@ def test_update_no_addition(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_deletion(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = attribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -347,7 +348,7 @@ def test_update_deletion(sheraf_database, attribute, list_type):
     ],
 )
 def test_update_no_deletion(sheraf_database, attribute, list_type):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = attribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):

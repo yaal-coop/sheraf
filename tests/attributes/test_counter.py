@@ -3,11 +3,11 @@ import multiprocessing
 import BTrees
 import pytest
 import ZODB
-
 import sheraf
+import tests
 
 
-class MyModel(sheraf.AutoModel):
+class MyModel(tests.UUIDAutoModel):
     counter = sheraf.CounterAttribute(default=0)
     useless = sheraf.InlineModelAttribute(
         sheraf.InlineModel(
@@ -124,7 +124,7 @@ def test_monoprocess_assignment_increment_conflict(sheraf_database):
 
 @pytest.mark.skip
 def test_multiprocessing_conflict_nominal_case(sheraf_zeo_database):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         counter = sheraf.SimpleAttribute(default=0)
 
     def process(uri, model_id, barrier, queue, lock, addition):
@@ -177,7 +177,7 @@ def test_multiprocessing_conflict_nominal_case(sheraf_zeo_database):
 
 @pytest.mark.skip
 def test_multiprocessing_int_conflict_resolution(sheraf_zeo_database):
-    class IntModelForTest(sheraf.AutoModel):
+    class IntModelForTest(tests.UUIDAutoModel):
         counter = sheraf.CounterAttribute()
 
     def process(uri, model_id, barrier, addition):
@@ -216,7 +216,7 @@ def test_multiprocessing_int_conflict_resolution(sheraf_zeo_database):
 
 @pytest.mark.skip
 def test_multiprocessing_float_conflict_resolution(sheraf_zeo_database):
-    class FloatModelForTest(sheraf.AutoModel):
+    class FloatModelForTest(tests.UUIDAutoModel):
         counter = sheraf.CounterAttribute(default=0.5)
 
     def process(uri, model_id, barrier, addition):

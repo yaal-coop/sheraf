@@ -1,9 +1,10 @@
 import pytest
 
 import sheraf
+import tests
 
 
-class AModelForTest(sheraf.AutoModel):
+class AModelForTest(tests.UUIDAutoModel):
     name = sheraf.SimpleAttribute()
 
 
@@ -18,7 +19,7 @@ class AModelForTest(sheraf.AutoModel):
     ],
 )
 def test_model_dict(sheraf_connection, model):
-    class AnotherModelForTest(sheraf.AutoModel):
+    class AnotherModelForTest(tests.UUIDAutoModel):
         a_dict_for_test = sheraf.LargeDictAttribute(sheraf.ModelAttribute(model))
 
     a = AModelForTest.create()
@@ -63,7 +64,7 @@ def test_model_dict(sheraf_connection, model):
 
 
 def test_error_if_delete_a_nonexisting_key(sheraf_connection):
-    class _AnotherModelForTest(sheraf.AutoModel):
+    class _AnotherModelForTest(tests.UUIDAutoModel):
         a_dict_for_test = sheraf.LargeDictAttribute(
             sheraf.ModelAttribute(AModelForTest)
         )
@@ -74,7 +75,7 @@ def test_error_if_delete_a_nonexisting_key(sheraf_connection):
 
 
 def test_create(sheraf_database):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -93,7 +94,7 @@ def test_create(sheraf_database):
 
 
 def test_update_edition(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -120,7 +121,7 @@ def test_update_edition(sheraf_database):
 
 
 def test_update_no_edition(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -155,7 +156,7 @@ def test_update_no_edition(sheraf_database):
 
 
 def test_update_replacement(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -192,7 +193,7 @@ def test_update_replacement(sheraf_database):
 
 
 def test_update_addition(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -212,7 +213,7 @@ def test_update_addition(sheraf_database):
 
 
 def test_update_no_addition(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -238,7 +239,7 @@ def test_update_no_addition(sheraf_database):
 
 
 def test_update_deletion(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):
@@ -258,7 +259,7 @@ def test_update_deletion(sheraf_database):
 
 
 def test_update_no_deletion(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
 
     with sheraf.connection(commit=True):

@@ -1,9 +1,10 @@
 import io
+import tests
 
 import sheraf
 
 
-class ModelWithBlob(sheraf.AutoModel):
+class ModelWithBlob(tests.UUIDAutoModel):
     attr = sheraf.SimpleAttribute()
     blob = sheraf.BlobAttribute()
     blobs = sheraf.SmallListAttribute(sheraf.BlobAttribute())

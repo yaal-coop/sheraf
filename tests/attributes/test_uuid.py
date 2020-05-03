@@ -4,10 +4,11 @@ import uuid
 import pytest
 
 import sheraf
+import tests
 
 
 def test_uuid_is_not_autocreated(sheraf_database):
-    class UUIDModel(sheraf.AutoModel):
+    class UUIDModel(tests.UUIDAutoModel):
         my_uuid = sheraf.UUIDAttribute()
 
     with sheraf.connection():
@@ -16,7 +17,7 @@ def test_uuid_is_not_autocreated(sheraf_database):
 
 
 def test_reset_uuid_to_none(sheraf_connection):
-    class UUIDModel(sheraf.AutoModel):
+    class UUIDModel(tests.UUIDAutoModel):
         my_uuid = sheraf.UUIDAttribute()
 
     m = UUIDModel.create()
@@ -31,7 +32,7 @@ def test_reset_uuid_to_none(sheraf_connection):
 
 
 def test_bad_uuid(sheraf_connection):
-    class UUIDModel(sheraf.AutoModel):
+    class UUIDModel(tests.UUIDAutoModel):
         my_uuid = sheraf.UUIDAttribute()
 
     m = UUIDModel.create()
@@ -40,7 +41,7 @@ def test_bad_uuid(sheraf_connection):
 
 
 def test_create_with_an_existing_uuid(sheraf_database):
-    class UUIDModel(sheraf.AutoModel):
+    class UUIDModel(tests.UUIDAutoModel):
         my_uuid = sheraf.UUIDAttribute()
 
     with sheraf.connection():
@@ -50,7 +51,7 @@ def test_create_with_an_existing_uuid(sheraf_database):
 
 
 def test_create_with_an_existing_uuid_str(sheraf_database):
-    class UUIDModel(sheraf.AutoModel):
+    class UUIDModel(tests.UUIDAutoModel):
         my_uuid = sheraf.UUIDAttribute()
 
     with sheraf.connection():
@@ -60,7 +61,7 @@ def test_create_with_an_existing_uuid_str(sheraf_database):
 
 
 def test_create_with_an_existing_uuid_int(sheraf_database):
-    class UUIDModel(sheraf.AutoModel):
+    class UUIDModel(tests.UUIDAutoModel):
         my_uuid = sheraf.UUIDAttribute()
 
     with sheraf.connection():
@@ -70,7 +71,7 @@ def test_create_with_an_existing_uuid_int(sheraf_database):
 
 
 def test_string_uuid_attribute(sheraf_database):
-    class UUIDModel(sheraf.AutoModel):
+    class UUIDModel(tests.UUIDAutoModel):
         my_uuid = sheraf.StringUUIDAttribute()
 
     with sheraf.connection():
@@ -80,7 +81,7 @@ def test_string_uuid_attribute(sheraf_database):
 
 
 def test_reset_str_uuid_to_none(sheraf_connection):
-    class UUIDModel(sheraf.AutoModel):
+    class UUIDModel(tests.UUIDAutoModel):
         my_uuid = sheraf.StringUUIDAttribute()
 
     m = UUIDModel.create()

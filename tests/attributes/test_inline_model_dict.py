@@ -1,7 +1,7 @@
 import pytest
 from BTrees.IOBTree import IOBTree
-
 import sheraf
+import tests
 
 
 class DictInlineModel(sheraf.InlineModel):
@@ -9,7 +9,7 @@ class DictInlineModel(sheraf.InlineModel):
 
 
 def test_inline_model_dict(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
@@ -50,7 +50,7 @@ def test_inline_model_dict(sheraf_connection):
 
 
 def test_create(sheraf_database):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
@@ -71,7 +71,7 @@ def test_create(sheraf_database):
 
 
 def test_default_parameter(sheraf_connection):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.DictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel), persistent_type=IOBTree
         )
@@ -82,7 +82,7 @@ def test_default_parameter(sheraf_connection):
 
 
 def test_clear(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
@@ -99,7 +99,7 @@ def test_clear(sheraf_connection):
 
 
 def test_keys_and_items(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
@@ -121,7 +121,7 @@ def test_keys_and_items(sheraf_connection):
 
 
 def test_model_absolute_string(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inline = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(
                 "tests.attributes.test_inline_model_dict.DictInlineModel"
@@ -135,7 +135,7 @@ def test_model_absolute_string(sheraf_connection):
 
 
 def test_model_invalid_string(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inline = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute("anticonstitutionnellement")
         )
@@ -147,7 +147,7 @@ def test_model_invalid_string(sheraf_connection):
 
 
 def test_minKey_and_maxKey(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
@@ -163,7 +163,7 @@ def test_minKey_and_maxKey(sheraf_connection):
 
 
 def test_update_edition(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
@@ -197,7 +197,7 @@ def test_update_edition(sheraf_database):
 
 
 def test_update_no_edition(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
@@ -231,7 +231,7 @@ def test_update_no_edition(sheraf_database):
 
 
 def test_update_replacement(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
@@ -267,7 +267,7 @@ def test_update_replacement(sheraf_database):
 
 
 def test_update_addition(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
@@ -289,7 +289,7 @@ def test_update_addition(sheraf_database):
 
 
 def test_update_no_addition(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
@@ -317,7 +317,7 @@ def test_update_no_addition(sheraf_database):
 
 
 def test_update_deletion(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
@@ -339,7 +339,7 @@ def test_update_deletion(sheraf_database):
 
 
 def test_update_no_deletion(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )

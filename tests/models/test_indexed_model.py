@@ -1,19 +1,19 @@
 import pytest
 import uuid
-
 import sheraf
+import tests
 
 
 class MyInlineModel(sheraf.InlineModel):
     pass
 
 
-class MyModel(sheraf.AutoModel):
+class MyModel(tests.UUIDAutoModel):
     inline_model = sheraf.InlineModelAttribute(MyInlineModel)
 
 
 def test_read_invalid_parameters(sheraf_connection):
-    class M(sheraf.AutoModel):
+    class M(tests.UUIDAutoModel):
         pass
 
     with pytest.raises(TypeError):
@@ -48,7 +48,7 @@ def test_read_these_invalid_calls(sheraf_connection):
 
 
 def test_count(sheraf_database):
-    class M(sheraf.AutoModel):
+    class M(tests.UUIDAutoModel):
         pass
 
     with sheraf.connection():
@@ -59,7 +59,7 @@ def test_count(sheraf_database):
 
 
 def test_default_id(sheraf_database):
-    class M(sheraf.AutoModel):
+    class M(tests.UUIDAutoModel):
         id = sheraf.IntegerAttribute(default=lambda m: m.count()).index(primary=True)
 
     with sheraf.connection():
@@ -145,7 +145,7 @@ def test_id_inmapping_int_model(sheraf_database):
 def test_id_inmapping_automodel(sheraf_database):
     mid = str(uuid.uuid4())
 
-    class M(sheraf.AutoModel):
+    class M(tests.UUIDAutoModel):
         id = sheraf.StringUUIDAttribute(default=mid).index(primary=True)
 
     assert isinstance(M.attributes["id"], sheraf.attributes.simples.StringUUIDAttribute)

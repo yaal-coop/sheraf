@@ -1,5 +1,6 @@
 import pytest
 import sheraf
+import tests
 
 
 class Horse(sheraf.AttributeModel):
@@ -7,7 +8,7 @@ class Horse(sheraf.AttributeModel):
     size = sheraf.IntegerAttribute()
 
 
-class Cowboy(sheraf.AutoModel):
+class Cowboy(tests.UUIDAutoModel):
     name = sheraf.StringAttribute()
     horses = sheraf.IndexedModelAttribute(Horse)
 
@@ -67,7 +68,7 @@ def test_create_dict(sheraf_connection):
 
 
 def test_string_model(sheraf_database):
-    class Horseboy(sheraf.AutoModel):
+    class Horseboy(tests.UUIDAutoModel):
         name = sheraf.StringAttribute()
         horses = sheraf.IndexedModelAttribute(
             "tests.attributes.test_indexed_models.Horse"
@@ -103,7 +104,7 @@ def test_no_primary_key(sheraf_database):
         foo = sheraf.SimpleAttribute()
         bar = sheraf.SimpleAttribute()
 
-    class HorseKeeper(sheraf.AutoModel):
+    class HorseKeeper(tests.UUIDAutoModel):
         horses = sheraf.IndexedModelAttribute(HorseWithNoName)
 
     with sheraf.connection():

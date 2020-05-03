@@ -3,6 +3,7 @@ import os
 import transaction
 
 import sheraf
+import tests
 
 
 class TestDiskStorage:
@@ -43,7 +44,7 @@ class TestDiskStorage:
                 assert a.a_attribute == a.b_attribute == a.c_attribute == a.d_attribute
 
     def get_Account(self, Model):
-        class Account(sheraf.AutoModel):
+        class Account(tests.UUIDAutoModel):
             a_attribute = sheraf.SimpleAttribute()
             b_attribute = sheraf.SimpleAttribute()
             c_attribute = sheraf.SimpleAttribute()

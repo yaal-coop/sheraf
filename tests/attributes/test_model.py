@@ -4,9 +4,10 @@ import libfaketime
 import pytest
 
 import sheraf
+import tests
 
 
-class Submodel(sheraf.AutoModel):
+class Submodel(tests.UUIDAutoModel):
     name = sheraf.SimpleAttribute()
 
 
@@ -25,7 +26,7 @@ utc_now = datetime.datetime(2016, 12, 31, 23, 59, 59, 5000)
 def test_simple_model(sheraf_database, model):
     sheraf_database.reset()
 
-    class Other(sheraf.AutoModel):
+    class Other(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel)
 
     with sheraf.connection() as conn:
@@ -45,7 +46,7 @@ def test_simple_model(sheraf_database, model):
 
 
 def test_set_to_none(sheraf_connection):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel)
 
     model = Model.create()
@@ -56,7 +57,7 @@ def test_set_to_none(sheraf_connection):
 
 
 def test_create(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel)
 
     model = ModelForTest.create(submodel={"name": "A"})
@@ -66,7 +67,7 @@ def test_create(sheraf_connection):
 
 
 def test_update_edition(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel)
 
     with sheraf.connection(commit=True):
@@ -89,7 +90,7 @@ def test_update_edition(sheraf_database):
 
 
 def test_update_no_edition(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel)
 
     with sheraf.connection(commit=True):
@@ -112,7 +113,7 @@ def test_update_no_edition(sheraf_database):
 
 
 def test_update_replacement(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel)
 
     with sheraf.connection(commit=True):
@@ -135,7 +136,7 @@ def test_update_replacement(sheraf_database):
 
 
 def test_delete_before_created(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel)
 
     with sheraf.connection(commit=True):

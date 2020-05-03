@@ -2,10 +2,11 @@ import mock
 import pytest
 
 import sheraf
+import tests
 
 
 def test_simple(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         opt = sheraf.SimpleAttribute()
 
     m = ModelForTest.create()
@@ -28,7 +29,7 @@ def test_simple(sheraf_connection):
 
 
 def test_string(sheraf_connection):
-    class M(sheraf.AutoModel):
+    class M(tests.UUIDAutoModel):
         string = sheraf.StringAttribute()
 
     m = M.create()
@@ -39,7 +40,7 @@ def test_string(sheraf_connection):
 
 
 def test_default_value(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         opt_false = sheraf.SimpleAttribute(default=bool)
         opt_true = sheraf.SimpleAttribute(default=True)
         opt_none = sheraf.SimpleAttribute()
@@ -58,7 +59,7 @@ def test_default_value(sheraf_connection):
 
 
 def test_model_default_value(sheraf_connection):
-    class M(sheraf.AutoModel):
+    class M(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute(default=lambda m: m.count())
 
     assert 1 == M.create().foo
@@ -66,7 +67,7 @@ def test_model_default_value(sheraf_connection):
 
 
 def test_not_store_deault_value(sheraf_connection):
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         my_attr = sheraf.SimpleAttribute(store_default_value=False)
 
     model = MyModel.create()
@@ -139,7 +140,7 @@ def test_define_keyname_list(sheraf_connection):
 
 
 def test_del(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         attr = sheraf.SimpleAttribute(default="default")
 
     m = ModelForTest.create()
@@ -151,7 +152,7 @@ def test_del(sheraf_connection):
 
 
 def test_del_after_read(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         attr = sheraf.SimpleAttribute(default="default")
 
     m = ModelForTest.create()
@@ -164,7 +165,7 @@ def test_del_after_read(sheraf_connection):
 
 
 def test_del_on_unsetted_attr(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         attr = sheraf.SimpleAttribute(default="default")
 
     m = ModelForTest.create()
@@ -175,7 +176,7 @@ def test_del_on_unsetted_attr(sheraf_connection):
 
 
 def test_del_on_specifed_key_attr(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         attr = sheraf.SimpleAttribute(default="default", key="other_key")
 
     m = ModelForTest.create()

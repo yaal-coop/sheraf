@@ -1,11 +1,11 @@
 import mock
 import pytest
-
 import sheraf
+import tests
 
 
 def test_boolean(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         opt = sheraf.BooleanAttribute()
 
     m = ModelForTest.create()
@@ -25,7 +25,7 @@ def test_boolean(sheraf_connection):
 
 
 def test_int_casting(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         opt = sheraf.BooleanAttribute()
 
     with sheraf.connection(commit=True):
@@ -44,7 +44,7 @@ def test_int_casting(sheraf_database):
 
 
 def test_True_is_settable(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         opt = sheraf.BooleanAttribute(default=True)
 
     m = ModelForTest.create()

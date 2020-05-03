@@ -1,6 +1,6 @@
 import pytest
-
 import sheraf
+import tests
 
 
 class InlineModel(sheraf.InlineModel):
@@ -8,10 +8,10 @@ class InlineModel(sheraf.InlineModel):
 
 
 def test_simple_inline_model(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inline = sheraf.InlineModelAttribute(InlineModel)
 
-    class AnotherModelForTest(sheraf.AutoModel):
+    class AnotherModelForTest(tests.UUIDAutoModel):
         inline = sheraf.InlineModelAttribute(InlineModel)
 
     _model = ModelForTest.create()
@@ -43,7 +43,7 @@ def test_simple_inline_model(sheraf_connection):
 
 
 def test_default_none(sheraf_connection):
-    class AModel(sheraf.AutoModel):
+    class AModel(tests.UUIDAutoModel):
         inline = sheraf.InlineModelAttribute(model=InlineModel, default=None)
 
     m = AModel.create()
@@ -51,7 +51,7 @@ def test_default_none(sheraf_connection):
 
 
 def test_create_none(sheraf_connection):
-    class AModel(sheraf.AutoModel):
+    class AModel(tests.UUIDAutoModel):
         inline = sheraf.InlineModelAttribute(model=InlineModel)
 
     m = AModel.create(inline=None)
@@ -59,7 +59,7 @@ def test_create_none(sheraf_connection):
 
 
 def test_write(sheraf_connection):
-    class AModel(sheraf.AutoModel):
+    class AModel(tests.UUIDAutoModel):
         inline = sheraf.InlineModelAttribute(InlineModel)
 
     model = AModel.create()
@@ -70,7 +70,7 @@ def test_write(sheraf_connection):
 
 
 def test_model_absolute_string(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inline = sheraf.InlineModelAttribute("tests.attributes.test_inline.InlineModel")
 
     _model = ModelForTest.create()
@@ -78,7 +78,7 @@ def test_model_absolute_string(sheraf_connection):
 
 
 def test_model_invalid_string(sheraf_connection):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inline = sheraf.InlineModelAttribute("anticonstitutionnellement")
 
     model = ModelForTest.create()
@@ -88,7 +88,7 @@ def test_model_invalid_string(sheraf_connection):
 
 
 def test_create(sheraf_database):
-    class ModelForTest(sheraf.AutoModel):
+    class ModelForTest(tests.UUIDAutoModel):
         inline = sheraf.InlineModelAttribute(InlineModel)
 
     with sheraf.connection(commit=True):
@@ -105,7 +105,7 @@ def test_create(sheraf_database):
 
 
 def test_update_edition(sheraf_database):
-    class AModel(sheraf.AutoModel):
+    class AModel(tests.UUIDAutoModel):
         inline = sheraf.InlineModelAttribute(InlineModel)
 
     with sheraf.connection(commit=True):
@@ -131,7 +131,7 @@ def test_update_edition(sheraf_database):
 
 
 def test_update_no_edition(sheraf_database):
-    class AModel(sheraf.AutoModel):
+    class AModel(tests.UUIDAutoModel):
         inline = sheraf.InlineModelAttribute(InlineModel)
 
     with sheraf.connection(commit=True):
@@ -157,7 +157,7 @@ def test_update_no_edition(sheraf_database):
 
 
 def test_update_replacement(sheraf_database):
-    class AModel(sheraf.AutoModel):
+    class AModel(tests.UUIDAutoModel):
         inline = sheraf.InlineModelAttribute(InlineModel)
 
     with sheraf.connection(commit=True):
@@ -183,7 +183,7 @@ def test_update_replacement(sheraf_database):
 
 
 def test_anonymous_inline_model(sheraf_database):
-    class Model(sheraf.AutoModel):
+    class Model(tests.UUIDAutoModel):
         inline = sheraf.InlineModelAttribute(
             sheraf.InlineModel(name=sheraf.SimpleAttribute())
         )
@@ -206,7 +206,7 @@ def test_inline_model_update(sheraf_database):
     class MyInline(sheraf.InlineModel):
         foo = sheraf.SimpleAttribute()
 
-    class MyModel(sheraf.AutoModel):
+    class MyModel(tests.UUIDAutoModel):
         bar = sheraf.InlineModelAttribute(MyInline)
 
     with sheraf.connection(commit=True):

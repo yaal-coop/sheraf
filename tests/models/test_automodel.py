@@ -1,7 +1,8 @@
 import sheraf
+import tests
 
 
-class MyAutoModel(sheraf.AutoModel):
+class MyAutoModel(tests.UUIDAutoModel):
     my_attribute = sheraf.SimpleAttribute()
 
 
@@ -18,7 +19,7 @@ def test_create_default_auto(sheraf_database):
         assert "myautomodel" in conn.root()
 
 
-class MyIntAutoModel(sheraf.IntAutoModel):
+class MyIntAutoModel(tests.IntAutoModel):
     my_attribute = sheraf.SimpleAttribute()
 
 

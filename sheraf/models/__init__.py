@@ -7,7 +7,7 @@ from .attributes import (
     IntAttributesModel,
     NamedAttributesModel,
 )
-from .indexation import SimpleIndexedModel, IndexedModel, IndexedModelMetaclass
+from .indexation import SimpleIndexedModel, IndexedModel
 from sheraf.attributes.simples import IntegerAttribute, StringUUIDAttribute
 
 
@@ -45,33 +45,6 @@ class IntIndexedModel:
     )
 
 
-class BaseAutoModelMetaclass(IndexedModelMetaclass):
-    @property
-    def table(self):
-        return self.__name__.lower()
-
-
-class BaseAutoModel(metaclass=BaseAutoModelMetaclass):
-    """
-    :class:`~sheraf.models.indexation.BaseAutoModel` are regular
-    models which 'table' parameter automatically takes the
-    lowercase class name.
-    It should only be used with unit tests.
-
-    >>> class MyWonderfulClass(sheraf.AutoModel):
-    ...    pass
-    ...
-    >>> assert MyWonderfulClass.table == "mywonderfulclass"
-    >>> with sheraf.connection():
-    ...     m = MyWonderfulClass.create()
-    ...     assert m.table == "mywonderfulclass"
-    """
-
-    @property
-    def table(self):
-        return self.__class__.__name__.lower()
-
-
 class IntIndexedNamedAttributesModel(
     NamedAttributesModel, IntIndexedModel, IndexedModel
 ):
@@ -104,19 +77,10 @@ class IntIndexedIntAttributesModel(IntAttributesModel, IntIndexedModel, IndexedM
     also integers."""
 
 
-class UUIDAutoModel(BaseAutoModel, UUIDIndexedDatedNamedAttributesModel):
-    pass
-
-
-class IntAutoModel(BaseAutoModel, IntOrderedNamedAttributesModel):
-    pass
-
-
 class AttributeModel(NamedAttributesModel, SimpleIndexedModel):
     """
     This model is expected to be used with :class:`~sheraf.attributes.models.IndexedModelAttribute`.
     """
 
 
-AutoModel = UUIDAutoModel
 Model = UUIDIndexedDatedNamedAttributesModel
