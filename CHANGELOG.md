@@ -5,6 +5,8 @@ Deprecated
 **********
 
 - :class:`~sheraf.attributes.files.FileObjectV1` is deprecated and will be removed in sheraf ``0.3.0``.
+- :class:`~sheraf.models.AutoModel` are deprecated and will not be shipped with sheraf ``0.3.0``.
+  However, they will still be available for development with sheraf tests.
 
 [0.2.0] - 2020-04-03
 ====================
