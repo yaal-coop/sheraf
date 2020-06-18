@@ -27,7 +27,7 @@ Alphabet reduction
 ------------------
 
 To deal with a lesser number of character, you can map your alphabet to a subset. You can ignore the case in
-the idexation and queries, and consider everything is lowercase.
+the indexation and queries, and consider everything is lowercase.
 
 Another technique is the accent folding. This is about considering that the accented letters (for instance **e**, **é** and **è**) are
 equivalent, and ignoring accents in indexation and querying. This can be done for instance with :func:`unidecode.unidecode`.
