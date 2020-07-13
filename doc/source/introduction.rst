@@ -4,7 +4,7 @@ Introduction
 Why use sheraf?
 ---------------
 
-Sheraf allows you to create models, and indexing them. Using sheraf
+Sheraf allows you to create models, and indexing them in a database. Using sheraf
 should be somewhat similar to other ORM like `SQLAlchemy`_ or `Django`_ ORM.
 However the database backend of sheraf is `ZODB`_, so it is fully pythonic.
 
@@ -42,7 +42,11 @@ on the valuable parts of your application.
   sheraf use those datastructures to offer an unified - but flexible - way to index your
   models. Indexing a model on one of its attributes is generally one line of code away.
 - **Migrations**: This is a work still in progress, but sheraf aims to offer a complete
-  set of tools to painlessly migrate your data.
+  set of tools to painlessly migrate your data so your models can smoothly evolve with
+  the changes happening in your software.
+
+Sheraf only depends on ZODB and a few side projects (BTrees, persistent etc.), so you
+do not need any other project from the Zope/Plone galaxy.
 
 Who are we?
 -----------
