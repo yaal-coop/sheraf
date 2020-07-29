@@ -104,3 +104,12 @@ omit = [
     "tests/perf/*",
     "**/perf_*",
 ]
+
+[tool.pytest.ini_options]
+addopts = "-n auto --durations=10 --color=yes --showlocals --full-trace --timeout 10 --doctest-modules --doctest-glob='*.rst'"
+norecursedirs = "local.virtualenv nodes_modules media .tox tests/perf .eggs .hg .git build doc/build"
+doctest_optionflags= "ALLOW_UNICODE IGNORE_EXCEPTION_DETAIL ELLIPSIS"
+timeout = 0
+flakes-ignore = [
+  ".*@neomake*.py ALL"
+]
