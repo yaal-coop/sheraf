@@ -324,7 +324,7 @@ def print_health(
     attribute_checks=None,
     other_checks=None
 ):
-    """Takes some modules in parameters (e.g. "american.class.cowboy_module").
+    """Takes some modules in parameters (e.g. "american._class.cowboy_module").
 
     The function will discover models in the modules, analyze every model instance, and return
     a health report in a human readable format. Depending on the result, you may need to apply some migrations.
