@@ -51,3 +51,13 @@ If not specified in the conf file or in the arguments passed at the initializati
 * cache size bytes: 0
 
 Note that arguments passed at the initialization of the object override the conf file.
+
+Modifying the data into the database is done with a context manager:
+
+.. code-block:: python
+
+    >>> with sheraf.connection(database_name="database1"): # doctest: +SKIP
+    ...     # currently connected to db1
+    ...     pass
+
+If the database name is not defined, the 'database_name' parameter is optional.
