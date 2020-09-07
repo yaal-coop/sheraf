@@ -77,6 +77,7 @@ SymSpell
 Other algorithms like Wolf Garbe's LinSpell or
 `SymSpell <https://medium.com/@wolfgarbe/1000x-faster-spelling-correction-algorithm-2012-8701fcd87a5f>`_ take a
 different approach but seem to be faster than BK/Damerau-Levenshtein. It indexes a word with
+its deletion transformations to decrease the transformations to compute.
 Thus Symspell especially trades query speed
 against memory usage and pre-computation speed.
 
