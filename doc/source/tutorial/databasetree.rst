@@ -313,7 +313,7 @@ the horses :class:`~sheraf.types.SmallDict` are indexed by their names.
         "table_saloon" [label="OOBTree"];
         "table_cowboy" [label="OOBTree"];
         "root" -> "table_saloon" [label=" saloon"];
-        "root" -> "table_cowboy" [label=" cowboy"];
+        "root" -> "table_cowboy" [label=" indexed_cowboy"];
 
         subgraph cowboy {
             "cowboy_index_id" [label="OOBTree"];
