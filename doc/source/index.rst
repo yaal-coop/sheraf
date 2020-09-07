@@ -20,6 +20,9 @@ Table of contents
    install
    tutorial/index
    api/index
+   databasetree
+   parallelism
+   fts
    integrations
    changelog
 
