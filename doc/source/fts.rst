@@ -6,10 +6,6 @@ Advanced string indexes
 
 Let us see how to apply all the concepts we saw earlier to build a small full-text search engine with sheraf.
 
-.. toctree::
-
-   General concepts
-   Use cases
 
 Full-text search takes a query from a user, and tries to match documents containing the words in the query.
 Generally we expect it to tolerate typos, and understand plural forms, conjugations and variants of the same

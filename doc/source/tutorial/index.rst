@@ -13,6 +13,3 @@ tools it provides to manage and store your data.
     models
     zconfig
     indexation
-    databasetree
-    parallelism
-    fts
