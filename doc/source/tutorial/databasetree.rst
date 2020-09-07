@@ -66,7 +66,7 @@ Now let us add some cowboys in the saloon.
    >>> with sheraf.connection(commit=True):
    ...     peter = Cowboy.create(name="peter", age=30)
 
-Here we define a now *Cowboy* model with a table named *cowboy*. In addition
+Here we define a *Cowboy* model with a table named *cowboy*. In addition
 to the default *id* index, it has an index on *name*. The new *name* index will
 be added in the *Cowboy* table near *id*.
 
@@ -155,7 +155,7 @@ a :class:`~sheraf.types.LargeList` are used.
         "table_saloon" [label="OOBTree"];
         "table_cowboy" [label="OOBTree"];
         "root" -> "table_saloon" [label=" saloon"];
-        "root" -> "table_cowboy" [label=" cowboy"];
+        "root" -> "table_cowboy" [label=" multiple_cowboy"];
 
         subgraph cowboy {
             "cowboy_index_id" [label="OOBTree"];
@@ -228,7 +228,7 @@ As external references are not real ZODB references, just the *Saloon* id is sto
         "table_saloon" [label="OOBTree"];
         "table_cowboy" [label="OOBTree"];
         "root" -> "table_saloon" [label=" saloon"];
-        "root" -> "table_cowboy" [label=" cowboy"];
+        "root" -> "table_cowboy" [label=" external_cowboy"];
 
         subgraph cowboy {
             "cowboy_index_id" [label="OOBTree"];
