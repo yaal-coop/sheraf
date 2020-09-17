@@ -46,6 +46,7 @@ def test_same_simple_attribute_same_modification_no_conflict(database):
 
     class MyModel(sheraf.AutoModel):
         something = sheraf.attributes.simples.SimpleAttribute()
+        stuff = sheraf.LargeListAttribute(lazy=False)
 
     with sheraf.connection(commit=True):
         m = MyModel.create()
@@ -74,6 +75,7 @@ def test_different_simple_attribute_modification_no_conflict(database):
     class MyModel(sheraf.AutoModel):
         something = sheraf.attributes.simples.SimpleAttribute()
         something_else = sheraf.attributes.simples.SimpleAttribute()
+        stuff = sheraf.LargeListAttribute(lazy=False)
 
     with sheraf.connection(commit=True):
         m = MyModel.create()
@@ -101,6 +103,7 @@ def test_same_simple_attribute_different_modification_conflict(database):
 
     class MyModel(sheraf.AutoModel):
         something = sheraf.attributes.simples.SimpleAttribute()
+        stuff = sheraf.LargeListAttribute(lazy=False)
 
     with sheraf.connection(commit=True):
         m = MyModel.create()
@@ -171,6 +174,7 @@ def test_empty_model_no_conflict_mp(database):
 def test_same_simple_attribute_same_modification_conflict_mp(database):
     class ModelForTest(sheraf.AutoModel):
         order = sheraf.SimpleAttribute()
+        stuff = sheraf.LargeListAttribute(lazy=False)
 
     def process(uri, model_id, barrier):
         sheraf.Database(uri)
@@ -212,6 +216,7 @@ def test_different_simple_attribute_modification_no_conflict_mp(database):
     class ModelForTest(sheraf.AutoModel):
         something = sheraf.SimpleAttribute()
         something_else = sheraf.SimpleAttribute()
+        stuff = sheraf.LargeListAttribute(lazy=False)
 
     def process(uri, model_id, barrier, queue, lock):
         sheraf.Database(uri)
@@ -264,6 +269,7 @@ def test_different_simple_attribute_modification_no_conflict_mp(database):
 def test_same_simple_attribute_different_modification_conflict_mp(database):
     class ModelForTest(sheraf.AutoModel):
         order = sheraf.SimpleAttribute()
+        stuff = sheraf.LargeListAttribute(lazy=False)
 
     def process(uri, model_id, barrier, queue, lock):
         sheraf.Database(uri)
