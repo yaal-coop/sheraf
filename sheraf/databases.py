@@ -328,6 +328,8 @@ class Database(object):
 def connection(database_name=None, commit=False, cache_minimize=False):
     database = Database.get(database_name)
     with database.connection(
-        commit=commit, cache_minimize=cache_minimize, _trackeback_shift=2,
+        commit=commit,
+        cache_minimize=cache_minimize,
+        _trackeback_shift=2,
     ) as conn:
         yield conn

@@ -3,8 +3,8 @@ import sheraf.types
 
 class BaseModelMetaclass(type):
     """
-        Internal metaclass.
-        Contains the mapping of attribute names with their corresponding data (of type :class:`~sheraf.attributes.BaseAttribute`)
+    Internal metaclass.
+    Contains the mapping of attribute names with their corresponding data (of type :class:`~sheraf.attributes.BaseAttribute`)
     """
 
     def __new__(cls, name, bases, attrs):

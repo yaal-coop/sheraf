@@ -127,8 +127,7 @@ class InlineModelAttribute(ModelLoader, BaseAttribute):
 
 
 class IndexedModelAttribute(ModelLoader, BaseAttribute):
-    """
-    """
+    """"""
 
     def read(self, parent):
         for index in self.model.indexes().values():
