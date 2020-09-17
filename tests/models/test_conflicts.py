@@ -36,6 +36,7 @@ class TestMonoprocessConflict:
     def test_same_simple_attribute_same_modification_no_conflict(self, database):
         class MyModel(sheraf.AutoModel):
             something = sheraf.attributes.simples.SimpleAttribute()
+            stuff = sheraf.LargeListAttribute(lazy_creation=False)
 
         with sheraf.connection(commit=True):
             m = MyModel.create()
@@ -53,6 +54,7 @@ class TestMonoprocessConflict:
         class MyModel(sheraf.AutoModel):
             something = sheraf.attributes.simples.SimpleAttribute()
             something_else = sheraf.attributes.simples.SimpleAttribute()
+            stuff = sheraf.LargeListAttribute(lazy_creation=False)
 
         with sheraf.connection(commit=True):
             m = MyModel.create()
@@ -69,6 +71,7 @@ class TestMonoprocessConflict:
     def test_same_simple_attribute_different_modification_conflict(self, database):
         class MyModel(sheraf.AutoModel):
             something = sheraf.attributes.simples.SimpleAttribute()
+            stuff = sheraf.LargeListAttribute(lazy_creation=False)
 
         with sheraf.connection(commit=True):
             m = MyModel.create()
@@ -132,6 +135,7 @@ class TestMultiprocessConflict:
     def test_same_simple_attribute_same_modification_conflict(self, database):
         class ModelForTest(sheraf.AutoModel):
             order = sheraf.SimpleAttribute()
+            stuff = sheraf.LargeListAttribute(lazy_creation=False)
 
         def process(uri, model_id, barrier):
             sheraf.Database(uri)
@@ -165,6 +169,7 @@ class TestMultiprocessConflict:
         class ModelForTest(sheraf.AutoModel):
             something = sheraf.SimpleAttribute()
             something_else = sheraf.SimpleAttribute()
+            stuff = sheraf.LargeListAttribute(lazy_creation=False)
 
         def process(uri, model_id, barrier, queue, lock):
             sheraf.Database(uri)
@@ -209,6 +214,7 @@ class TestMultiprocessConflict:
     def test_same_simple_attribute_different_modification_conflict(self, database):
         class ModelForTest(sheraf.AutoModel):
             order = sheraf.SimpleAttribute()
+            stuff = sheraf.LargeListAttribute(lazy_creation=False)
 
         def process(uri, model_id, barrier, queue, lock):
             sheraf.Database(uri)
