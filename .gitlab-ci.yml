@@ -11,11 +11,6 @@ before_script:
   - python get-pip.py
   - pip install tox poetry coveralls pyyaml
 
-python35:
-  image: python:3.5
-  stage: test
-  script: tox -e py35
-
 python36:
   image: python:3.6
   stage: test

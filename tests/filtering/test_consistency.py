@@ -11,7 +11,7 @@ def assert_filter_queryset(qs, is_indexed=False):
         list(qs)
         if not is_indexed:
             assert not indexed_iterator_method.called
-        elif sys.version_info >= (3, 6):
+        else:
             indexed_iterator_method.assert_called_once()
 
 

@@ -48,24 +48,10 @@ def test_successive_orders_copy(sheraf_connection, m0, m1, m2, m3):
     assert [m0, m3, m2, m1] == b
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 6), reason="Arguments order is only kept from python 3.6"
-)
 def test_multiple_order_parameters(sheraf_connection, m0, m1, m2, m3):
     assert [m0, m1, m2, m3] == Cowboy.all()
     assert [m0, m3, m2, m1] == Cowboy.all().order(age=sheraf.ASC, size=sheraf.DESC)
     assert [m1, m2, m3, m0] == Cowboy.all().order(age=sheraf.DESC, size=sheraf.ASC)
-
-
-@pytest.mark.skipif(
-    sys.version_info >= (3, 6), reason="Arguments order is only kept from python 3.6"
-)
-def test_multiple_order_parameters_compatibility(sheraf_connection, m0, m1, m2, m3):
-    with pytest.raises(InvalidOrderException):
-        assert [m0, m2, m1] == Cowboy.all().order(name=sheraf.ASC, age=sheraf.DESC)
-
-    with pytest.raises(InvalidOrderException):
-        assert [m2, m0, m1] == Cowboy.all().order(age=sheraf.DESC, name=sheraf.ASC)
 
 
 def test_invalid_order_call(sheraf_connection, m0, m1, m2, m3):

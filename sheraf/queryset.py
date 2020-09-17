@@ -489,13 +489,6 @@ class QuerySet(object):
                 "Only one 'order' positionnal parameter is allowed."
             )
 
-        if (sys.version_info.major, sys.version_info.minor) < (3, 6) and len(
-            kwargs
-        ) > 1:
-            raise InvalidOrderException(
-                "Only one 'order' named parameter is allowed before python 3.6. Please chain 'order' calls instead."
-            )
-
         qs = self.copy()
 
         if self.model:

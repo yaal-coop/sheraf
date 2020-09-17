@@ -1,6 +1,12 @@
 [0.2.1] - Unreleased
 ====================
 
+Removed
+*******
+
+- Python 3.5 support
+
+
 Deprecated
 **********
 
