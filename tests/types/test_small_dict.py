@@ -4,8 +4,16 @@ import ZODB
 import sheraf
 
 
-def test_empty_dict_no_conflict(sheraf_zeo_database):
-    sheraf_zeo_database.nestable = True
+@pytest.mark.parametrize(
+    "database",
+    [
+        pytest.lazy_fixture("sheraf_database"),
+        pytest.lazy_fixture("sheraf_zeo_database"),
+        #    pytest.lazy_fixture("sheraf_pgsql_relstorage_database"),
+    ],
+)
+def test_empty_dict_no_conflict(database):
+    database.nestable = True
 
     with sheraf.connection(commit=True) as conn:
         conn.root()["mydict"] = sheraf.types.SmallDict()
@@ -17,8 +25,16 @@ def test_empty_dict_no_conflict(sheraf_zeo_database):
             conn2.root()["mydict"]._p_changed = True
 
 
-def test_same_item_same_modification_no_conflict(sheraf_zeo_database):
-    sheraf_zeo_database.nestable = True
+@pytest.mark.parametrize(
+    "database",
+    [
+        pytest.lazy_fixture("sheraf_database"),
+        pytest.lazy_fixture("sheraf_zeo_database"),
+        #    pytest.lazy_fixture("sheraf_pgsql_relstorage_database"),
+    ],
+)
+def test_same_item_same_modification_no_conflict(database):
+    database.nestable = True
 
     with sheraf.connection(commit=True) as conn:
         conn.root()["mydict"] = sheraf.types.SmallDict({"something": None})
@@ -31,8 +47,16 @@ def test_same_item_same_modification_no_conflict(sheraf_zeo_database):
         conn1.root()["mydict"]["something"] = "YOLO"
 
 
-def test_different_item_modification_no_conflict(sheraf_zeo_database):
-    sheraf_zeo_database.nestable = True
+@pytest.mark.parametrize(
+    "database",
+    [
+        pytest.lazy_fixture("sheraf_database"),
+        pytest.lazy_fixture("sheraf_zeo_database"),
+        #    pytest.lazy_fixture("sheraf_pgsql_relstorage_database"),
+    ],
+)
+def test_different_item_modification_no_conflict(database):
+    database.nestable = True
 
     with sheraf.connection(commit=True) as conn:
         conn.root()["mydict"] = sheraf.types.SmallDict(
@@ -47,8 +71,16 @@ def test_different_item_modification_no_conflict(sheraf_zeo_database):
         conn1.root()["mydict"]["something_else"] = "conn1"
 
 
-def test_same_item_different_modification_conflict(sheraf_zeo_database):
-    sheraf_zeo_database.nestable = True
+@pytest.mark.parametrize(
+    "database",
+    [
+        pytest.lazy_fixture("sheraf_database"),
+        pytest.lazy_fixture("sheraf_zeo_database"),
+        #    pytest.lazy_fixture("sheraf_pgsql_relstorage_database"),
+    ],
+)
+def test_same_item_different_modification_conflict(database):
+    database.nestable = True
 
     with sheraf.connection(commit=True) as conn:
         conn.root()["mydict"] = sheraf.types.SmallDict({"something": None})
