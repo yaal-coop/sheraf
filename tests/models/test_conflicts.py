@@ -168,7 +168,7 @@ def test_empty_model_no_conflict_mp(database):
         #    pytest.lazy_fixture("sheraf_pgsql_relstorage_database"),
     ],
 )
-def test_same_simple_attribute_same_modification_conflict(database):
+def test_same_simple_attribute_same_modification_conflict_mp(database):
     class ModelForTest(sheraf.AutoModel):
         order = sheraf.SimpleAttribute()
 
@@ -208,7 +208,7 @@ def test_same_simple_attribute_same_modification_conflict(database):
         #    pytest.lazy_fixture("sheraf_pgsql_relstorage_database"),
     ],
 )
-def test_different_simple_attribute_modification_no_conflict(database):
+def test_different_simple_attribute_modification_no_conflict_mp(database):
     class ModelForTest(sheraf.AutoModel):
         something = sheraf.SimpleAttribute()
         something_else = sheraf.SimpleAttribute()
@@ -261,7 +261,7 @@ def test_different_simple_attribute_modification_no_conflict(database):
         #    pytest.lazy_fixture("sheraf_pgsql_relstorage_database"),
     ],
 )
-def test_same_simple_attribute_different_modification_conflict(database):
+def test_same_simple_attribute_different_modification_conflict_mp(database):
     class ModelForTest(sheraf.AutoModel):
         order = sheraf.SimpleAttribute()
 
