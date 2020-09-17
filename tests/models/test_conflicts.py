@@ -128,7 +128,7 @@ def test_same_simple_attribute_different_modification_conflict(database):
         #    pytest.lazy_fixture("sheraf_pgsql_relstorage_database"),
     ],
 )
-def test_empty_model_no_conflict(database):
+def test_empty_model_no_conflict_mp(database):
     class ModelForTest(sheraf.AutoModel):
         pass
 
