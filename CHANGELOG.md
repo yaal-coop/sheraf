@@ -52,6 +52,14 @@ Removed
 - :class:`~sheraf.indexes.Index`
 - :class:`~sheral.attributes.base.BaseIndexedAttribute` *lazy_creation* parameter has been renamed *lazy*.
 
+[0.1.2] - 2020-09-24
+====================
+
+Changed
+*******
+
+- Fixed a bug when setting an indexed value after the object creation. :pr:`9`
+
 [0.1.1] - 2020-04-01
 ====================
 
