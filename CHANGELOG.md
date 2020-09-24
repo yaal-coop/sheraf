@@ -11,13 +11,13 @@ Changed
 - Use `~BTrees.OOBTree.OOTreeSet` instead of `~orderedset.OrderedSet`.
 - :class:`~tests.AutoModel` has moved in the tests directory.
 
-[0.2.1] - Unreleased
+[0.2.1] - 2020-09-24
 ====================
 
 Changed
 *******
 
-- Fixed a bug when setting an indexed value after the object creation.
+- Fixed a bug when setting an indexed value after the object creation. :pr:`9`
 - Fixed :class:`~sheraf.types.SmallDict` conflict resolution.
 
 Removed
