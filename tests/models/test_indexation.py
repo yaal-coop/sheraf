@@ -155,7 +155,7 @@ def test_unique_indexation_on_model_attribute(sheraf_database):
 
 
 def test_unique_index_set_afterwards(sheraf_database):
-    class DummyModel(sheraf.AutoModel):
+    class DummyModel(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute().index(
             values=lambda foo: {foo.lower()} if foo else {}
         )
