@@ -154,6 +154,21 @@ def test_unique_indexation_on_model_attribute(sheraf_database):
         assert {"fou"} == set(index_table)
 
 
+def test_unique_index_set_afterwards(sheraf_database):
+    class DummyModel(sheraf.AutoModel):
+        foo = sheraf.SimpleAttribute().index(
+            values=lambda foo: {foo.lower()} if foo else {}
+        )
+
+    with sheraf.connection(commit=True):
+        dummy = DummyModel.create()
+        print(dummy.id)
+        dummy.foo = "bar"
+
+    with sheraf.connection():
+        assert [dummy] == list(DummyModel.filter(foo="bar"))
+
+
 # ---------------------------------------------------------------------------------
 # Multiple Indexes
 # ---------------------------------------------------------------------------------
