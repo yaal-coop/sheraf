@@ -5,6 +5,7 @@ Changed
 *******
 
 - Fixed a bug when setting an indexed value after the object creation.
+- Fixed :class:`~sheraf.types.SmallDict` conflict resolution.
 
 Removed
 *******
