@@ -1,48 +1,59 @@
 """Maybe those functions do consume a lot of memory, what about editing
 existing dicts instead of creating new ones?"""
 
-# pickle is needed until this is fixed https://github.com/zopefoundation/ZODB/pull/278
-import zodbpickle.pickle as pickle
-
 
 class DictConflictException(BaseException):
     pass
 
 
-def merge(c, a, b):
-    # From: https://stackoverflow.com/questions/52755140/three-way-dictionary-deep-merge-in-python
+def pr_eq(a, b):
+    try:
+        return a == b
+    except ValueError:
+        return False
 
-    # recursively merge sub-dicts that are common to a, b and c
-    for k in set(a.keys()) & set(b.keys()) & set(c.keys()):
-        if all(isinstance(d.get(k), dict) for d in (a, b, c)):
-            a[k] = b[k] = c[k] = merge(c[k], a[k], b[k])
 
-    # convert sub-dicts into tuples of item pairs to allow them to be hashable
-    for d in a, b, c:
-        for k, v in d.items():
-            if isinstance(v, dict):
-                d[k] = tuple(v.items())
+def merge(old, a, b):
+    res = {}
+    for k in set(a.keys()) | set(b.keys()) | set(old.keys()):
+        # value has been deleted in a and b --> ignore
+        if k not in a and k not in b:
+            continue
 
-    # convert all the dict items into sets
-    set_a, set_b, set_c = (
-        {(k, pickle.dumps(v)) for k, v in d.items()} for d in (a, b, c)
-    )
+        # value not in old
+        if k not in old:
+            if k not in a:
+                # PR is new in b --> keep b
+                res[k] = b[k]
+                continue
 
-    # intersect keys from the symmetric set differences to c to find conflicts
-    for k in {k for k, _ in set_a ^ set_c} & {k for k, _ in set_b ^ set_c}:
-        # it isn't really a conflict if the new values of a and b are the same
-        if a.get(k) != b.get(k) or (k in a) ^ (k in b):
-            raise DictConflictException("Conflict found in key %s" % k)
+            if k not in b:
+                # PR is new in a --> keep a
+                res[k] = a[k]
+                continue
 
-    # merge the dicts by union'ing the differences to c with the common items
-    d = dict(set_a & set_b & set_c | set_a - set_c | set_b - set_c)
-
-    # convert the tuple of items back to dicts for output
-    for k, v in d.items():
-        v = pickle.loads(v)
-        if isinstance(v, tuple):
-            d[k] = dict(v)
+        # value in old
         else:
-            d[k] = v
+            # a unchanged, b changed --> keep b
+            if pr_eq(a.get(k), old.get(k)):
+                res[k] = b[k]
+                continue
 
-    return d
+            # b unchanged, a changed --> keep a
+            if pr_eq(b.get(k), old.get(k)):
+                res[k] = a[k]
+                continue
+
+        # value equal in a and b --> keep
+        if pr_eq(a.get(k), b.get(k)):
+            res[k] = a[k]
+            continue
+
+        # values are dict --> merge
+        if isinstance(a[k], dict) and isinstance(b[k], dict):
+            res[k] = merge(old[k], a[k], b[k])
+            continue
+
+        raise DictConflictException("Conflict found in key %s" % k)
+
+    return res
