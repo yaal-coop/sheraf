@@ -56,11 +56,19 @@ class IndexManager:
     def update_item(self, item, old_keys, new_keys):
         old_values = self.details.values_func(old_keys)
         new_values = self.details.values_func(new_keys)
-        del_values = old_values - new_values
-        add_values = new_values - old_values
 
-        self.delete_item(item, del_values)
-        self.add_item(item, add_values)
+        if old_keys and new_keys:
+            del_values = old_values - new_values
+            add_values = new_values - old_values
+
+            self.delete_item(item, del_values)
+            self.add_item(item, add_values)
+
+        elif not old_keys:
+            self.add_item(item, new_values)
+
+        elif not new_keys:
+            self.delete_item(item, old_values)
 
     def _table_del_unique(self, table, key, value):
         del table[key]

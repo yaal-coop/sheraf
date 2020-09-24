@@ -1,6 +1,11 @@
 [0.2.1] - Unreleased
 ====================
 
+Changed
+*******
+
+- Fixed a bug when setting an indexed value after the object creation.
+
 Removed
 *******
 
