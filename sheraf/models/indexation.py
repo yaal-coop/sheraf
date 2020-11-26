@@ -473,9 +473,9 @@ class IndexedModelMetaclass(BaseModelMetaclass):
 
 class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     """
-    Top-level indexed models.
-
-    Those models are stored at the root of the database. They must
+    :class:`~sheraf.models.indexation.IndexedModel` are the top-level
+    models in the database. They come with one or several indexes,
+    stored in a *table* at the root of the database. They must
     have a **table** parameter defined and an **id** attribute.
 
     They can have a **database_name** attribute. If it is set, then in a
