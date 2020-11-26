@@ -113,3 +113,29 @@ timeout = 0
 flakes-ignore = [
   ".*@neomake*.py ALL"
 ]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+isolated_build = true
+envlist = doc,py36,py37,py38,py39,coverage
+skipsdist=true
+
+[testenv]
+whitelist_externals = poetry
+commands =
+    poetry install -vvv --extras all
+    poetry run pytest {posargs}
+
+[testenv:doc]
+commands =
+    poetry install --extras all --extras doc
+    poetry run sphinx-build doc build/sphinx/html
+
+[testenv:coverage]
+commands =
+    poetry install --extras all
+    poetry run coverage erase
+    poetry run pytest --cov {posargs}
+    poetry run coverage html
+"""
