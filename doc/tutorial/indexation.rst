@@ -163,29 +163,6 @@ By default the `search` argument takes the same argument than the
 Now we index the initials of cowboys, but we search for all the combinations of initials
 with the words that are passed to the *search* argument.
 
-Multiple indexes
-----------------
-
-What if we want to index birth years and birth months? This is quite straightforward,
-:func:`~sheraf.attributes.base.BaseAttribute.index` calls can be chained to describe
-different indexes, and the `key` parameter can be used to identify them.
-
-.. code-block:: python
-
-    >>> class Cowboy(sheraf.Model):
-    ...     table = "multiple_cowboy"
-    ...     birth = sheraf.DateTimeAttribute() \
-    ...         .index(key="year", values=lambda birth: {birth.year}) \
-    ...         .index(key="month", values=lambda birth: {birth.month})
-    ...
-    >>> from datetime import datetime
-    >>> with sheraf.connection():
-    ...     peter = Cowboy.create(birth=datetime(1989, 4, 13))
-    ...     assert [peter] == Cowboy.filter(year=1989)
-    ...     assert [peter] == Cowboy.filter(month=4)
-    ...     assert [peter] == Cowboy.search(year=datetime(1989, 4, 13))
-    ...     assert [peter] == Cowboy.search(month=datetime(1989, 4, 13))
-
 Dig a bit deeper
 ````````````````
 
@@ -214,6 +191,29 @@ We could easilly use this to create a simple full-text search engine on a model 
 The ``substrings`` function extracts all the possible substring from all the words in a string. Now you can find a cowboy by searching for any piece of word in his biography.
 
 To see how indexes can be used to build a full-text search engine, you can check the :ref:`fts` section.
+
+Multiple indexes
+----------------
+
+What if we want to index birth years and birth months? This is quite straightforward,
+:func:`~sheraf.attributes.base.BaseAttribute.index` calls can be chained to describe
+different indexes, and the `key` parameter can be used to identify them.
+
+.. code-block:: python
+
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "multiple_cowboy"
+    ...     birth = sheraf.DateTimeAttribute() \
+    ...         .index(key="year", values=lambda birth: {birth.year}) \
+    ...         .index(key="month", values=lambda birth: {birth.month})
+    ...
+    >>> from datetime import datetime
+    >>> with sheraf.connection():
+    ...     peter = Cowboy.create(birth=datetime(1989, 4, 13))
+    ...     assert [peter] == Cowboy.filter(year=1989)
+    ...     assert [peter] == Cowboy.filter(month=4)
+    ...     assert [peter] == Cowboy.search(year=datetime(1989, 4, 13))
+    ...     assert [peter] == Cowboy.search(month=datetime(1989, 4, 13))
 
 Migration and checks
 --------------------
