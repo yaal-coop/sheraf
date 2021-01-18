@@ -86,8 +86,8 @@ Custom values in the index
 Sometimes you may want to transform a value before indexation, or
 before querying the database.
 
-Recording custom data
-`````````````````````
+Choose how to record data in the index
+``````````````````````````````````````
 
 For instance, what if we would like to index cowboy not its name, but on its initials?
 
@@ -121,8 +121,8 @@ Now it is possible to search for someone only knowing its initials.
 Note that the :func:`~sheraf.queryset.QuerySet.filter` **name** parameter does not go through the same
 *lambda* transformation. It search for the exact data in the index.
 
-Reading custom data
-```````````````````
+Choose how to search data in the index
+``````````````````````````````````````
 
 Now what if you need to search for the initials of a cowboy based on another cowboy's name?
 You could just use the :func:`~sheraf.queryset.QuerySet.search` method to do that.
@@ -166,7 +166,9 @@ with the words that are passed to the *search* argument.
 Multiple indexes
 ----------------
 
-What if we want to index birth years and birth months? This is quite straightforward, :func:`~sheraf.attributes.base.BaseAttribute.index` calls can be chained to describe different indexes, and the `key` parameter can be used to identify them.
+What if we want to index birth years and birth months? This is quite straightforward,
+:func:`~sheraf.attributes.base.BaseAttribute.index` calls can be chained to describe
+different indexes, and the `key` parameter can be used to identify them.
 
 .. code-block:: python
 
