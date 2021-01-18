@@ -248,3 +248,25 @@ class BaseAttribute(object):
         self.lazy = False
 
         return self
+
+    def values(self, value):
+        """
+        The default transformation that will be applied when storing data if this attribute is indexed
+        but the :func:`~sheraf.attributes.base.BaseAttribute.index` `values_func` parameter is not provided.
+
+        By default no transformation is applied, and the `value` parameter is returned in a :class:`set`.
+
+        This method can be overload so a custom transformation is applied.
+        """
+        return {value}
+
+    def search(self, value):
+        """
+        The default transformation that will be applied when searching for data if this attribute is indexed
+        but the :func:`~sheraf.attributes.base.BaseAttribute.index` `search_func` parameter is not provided.
+
+        By default this calls :meth:`~sheraf.attributes.base.BaseAttribute.values`.
+
+        This method can be overload so a custom transformation is applied.
+        """
+        return self.values(value)

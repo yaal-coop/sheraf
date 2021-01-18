@@ -4,6 +4,12 @@
 Added
 *****
 
+- :class:`~sheraf.attributes.base.BaseAttribute` can have custom
+  :meth:`~sheraf.attributes.base.BaseAttribute.values` and
+  :meth:`~sheraf.attributes.base.BaseAttribute.methods` that will
+  be used by default if
+  :meth:`~sheraf.attributes.base.BaseAttribute.index` `values_func` and
+  `search_func` are not provided.
 - Indexation is possible by default with :class:`~sheraf.attributes.collections.ListAttribute`
   and :class:`~sheraf.attributes.collections.SetAttribute`. :issue:`11`
 

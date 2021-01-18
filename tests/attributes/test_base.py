@@ -29,9 +29,10 @@ def test_set_write_memoization_to_false(sheraf_connection):
 
 
 def test_index():
-    primary = IndexDetails(None, True, "primary", None, None, None, True)
-    unique = IndexDetails(None, True, "unique", None, None, None, False)
-    multiple = IndexDetails(None, False, "multiple", None, None, None, False)
+    attribute = sheraf.SimpleAttribute()
+    primary = IndexDetails(attribute, True, "primary", None, None, None, True)
+    unique = IndexDetails(attribute, True, "unique", None, None, None, False)
+    multiple = IndexDetails(attribute, False, "multiple", None, None, None, False)
 
     assert "<IndexDetails key=primary unique=True primary>" == repr(primary)
     assert "<IndexDetails key=unique unique=True>" == repr(unique)

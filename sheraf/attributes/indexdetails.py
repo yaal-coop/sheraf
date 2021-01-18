@@ -12,11 +12,13 @@ class IndexDetails:
     :param values_func: A callable that takes the current attribute value and returns a
                         collection of values to index. Each generated value will be
                         indexed each time this attribute is edited. It may take time if
-                        the generated collection is large. By default, the current
-                        attribute raw value is used.
+                        the generated collection is large. By default the attribute
+                        :meth:`~sheraf.attributes.base.BaseAttribute.values` method is
+                        applied.
     :param search_func: A callable that takes some raw data and returns a collection
-                        of values to search in the index. By default, *values_func*
-                        is used.
+                        of values to search in the index. By default, the
+                        :meth:`~sheraf.attributes.base.BaseAttribute.search` method is
+                        used.
     :param mapping: The mapping object to be used to store the indexed values. OOBTree by
                     default.
     """
@@ -32,14 +34,11 @@ class IndexDetails:
     def __init__(
         self, attribute, unique, key, values_func, search_func, mapping, primary
     ):
-        def default_values_func(value):
-            return {value}
-
         self.attribute = attribute
         self.unique = unique or primary
         self.key = key
-        self.values_func = values_func or default_values_func
-        self.search_func = search_func or self.values_func
+        self.values_func = values_func or attribute.values
+        self.search_func = search_func or values_func or attribute.search
         self.mapping = mapping
         self.primary = primary
 

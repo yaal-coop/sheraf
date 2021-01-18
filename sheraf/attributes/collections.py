@@ -158,12 +158,9 @@ class ListAttribute(sheraf.attributes.base.BaseAttribute):
         kwargs.setdefault("default", self.persistent_type)
         super().__init__(**kwargs)
 
-    def index(self, *args, **kwargs):
+    def values(self, value):
         """
-        The same behavior as :meth:`sheraf.attributes.base.BaseAttribute.index` except
-        `values_func` and `search_func` has default values so when a
-        :class:`~sheraf.attributes.collections.ListAttribute` is indexed,
-        every items in the list is indexed.
+        By default, every items in a :class:`~sheraf.attributes.collections.ListAttribute` is indexed.
 
         >>> class Cowboy(sheraf.Model):
         ...     table = "cowboy"
@@ -178,11 +175,12 @@ class ListAttribute(sheraf.attributes.base.BaseAttribute):
         ...     assert george in Cowboy.search(favorite_colors="red")
         ...     assert george in Cowboy.search(favorite_colors="blue")
         ...     assert george not in Cowboy.search(favorite_colors="yellow")
-        """
 
-        kwargs.setdefault("values", lambda v: set(v))
-        kwargs.setdefault("search", lambda v: {v})
-        return super().index(*args, **kwargs)
+        """
+        return set(value)
+
+    def search(self, value):
+        return {value}
 
     def deserialize(self, value):
         if not self.attribute:
@@ -516,12 +514,9 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         kwargs.setdefault("default", self.persistent_type)
         super().__init__(**kwargs)
 
-    def index(self, *args, **kwargs):
+    def values(self, value):
         """
-        The same behavior as :meth:`sheraf.attributes.base.BaseAttribute.index` except
-        `values_func` and `search_func` has default values so when a
-        :class:`~sheraf.attributes.collections.SetAttribute` is indexed,
-        every items in the set is indexed.
+        By default, every items in a :class:`~sheraf.attributes.collections.SetAttribute` is indexed.
 
         >>> class Cowboy(sheraf.Model):
         ...     table = "cowboy"
@@ -537,10 +532,10 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         ...     assert george in Cowboy.search(favorite_colors="blue")
         ...     assert george not in Cowboy.search(favorite_colors="yellow")
         """
+        return set(value)
 
-        kwargs.setdefault("values", lambda v: set(v))
-        kwargs.setdefault("search", lambda v: {v})
-        return super().index(*args, **kwargs)
+    def search(self, value):
+        return {value}
 
     def deserialize(self, value):
         if not self.attribute:
