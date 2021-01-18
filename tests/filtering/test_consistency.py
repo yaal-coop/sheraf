@@ -1,5 +1,4 @@
 import sheraf
-import sys
 
 from unittest.mock import patch
 import tests
