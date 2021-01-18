@@ -4,7 +4,7 @@ sheraf is an overlay over ZODB. It provides a high level interface to save and r
 
 ## Installation
 
-sheraf is compatible with Python 3.5+
+sheraf is compatible with Python 3.6+
 
     poetry add sheraf
     # or

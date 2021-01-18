@@ -6,4 +6,4 @@ Versions follow `Semantic Versioning <https://semver.org/>`_ (<major>.<minor>.<p
 sheraf 0 versions
 -----------------
 
-.. include:: ../../CHANGELOG.md
+.. include:: ../CHANGELOG.md

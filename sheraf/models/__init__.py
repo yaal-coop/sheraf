@@ -80,6 +80,7 @@ class IntIndexedIntAttributesModel(IntAttributesModel, IntIndexedModel, IndexedM
 class AttributeModel(NamedAttributesModel, SimpleIndexedModel):
     """
     This model is expected to be used with :class:`~sheraf.attributes.models.IndexedModelAttribute`.
+    Its usage is mainly the same as any :class:`~sheraf.models.indexation.BaseIndexedModel`.
     """
 
 

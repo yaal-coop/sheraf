@@ -1,15 +1,15 @@
 [0.3.0] - Unreleased
 ====================
 
-Removed
-*******
-- :class:`~sheraf.attributes.files.FileObjectV1` has been removed.
-
 Changed
 *******
 
 - Use `~BTrees.OOBTree.OOTreeSet` instead of `~orderedset.OrderedSet`.
 - :class:`~tests.AutoModel` has moved in the tests directory.
+
+Removed
+*******
+- :class:`~sheraf.attributes.files.FileObjectV1` has been removed.
 
 [0.2.1] - 2020-09-24
 ====================
