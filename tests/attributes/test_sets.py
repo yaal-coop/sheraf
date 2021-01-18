@@ -143,3 +143,21 @@ def test_nested_indexation(sheraf_database, persistent_type):
         assert m.mapping in conn.root()[ModelTest.table]["set"]["bar"]
         assert m.mapping in conn.root()[ModelTest.table]["set"]["baz"]
         assert [m] == list(ModelTest.search(set="foo"))
+
+
+@pytest.mark.skip
+@pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
+def test_nested_model_indexation(sheraf_database, persistent_type):
+    class Submodel(tests.UUIDAutoModel):
+        pass
+
+    class Model(tests.UUIDAutoModel):
+        submodels = sheraf.SetAttribute(
+            sheraf.ModelAttribute(Submodel),
+            persistent_type=persistent_type,
+        ).index()
+
+    with sheraf.connection(commit=True):
+        sub = Submodel.create()
+        m = Model.create(submodels={sub})
+        assert [m] == Model.search(submodels=sub)

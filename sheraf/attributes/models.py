@@ -41,6 +41,13 @@ class ModelAttribute(ModelLoader, BaseAttribute):
     def __init__(self, model=None, **kwargs):
         super().__init__(default=None, model=model, **kwargs)
 
+    def values(self, model):
+        """
+        By default :class:`~sheraf.attributes.models.ModelAttribute` are indexed on
+        their identifier.
+        """
+        return {model.identifier}
+
     def deserialize(self, value):
         try:
             return self.model.read(value)

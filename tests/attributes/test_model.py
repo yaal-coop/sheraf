@@ -142,3 +142,12 @@ def test_delete_before_created(sheraf_database):
     with sheraf.connection(commit=True):
         m = Model.create()
         m.submodel = None
+
+
+def test_indexation(sheraf_connection):
+    class Model(tests.UUIDAutoModel):
+        submodel = sheraf.ModelAttribute(Submodel).index()
+
+    s = Submodel.create(name="foo")
+    m = Model.create(submodel=s)
+    assert [m] == Model.search(submodel=s)

@@ -184,7 +184,10 @@ class ListAttribute(sheraf.attributes.base.BaseAttribute):
         return set(y for v in list_ for y in self.attribute.values(v))
 
     def search(self, value):
-        return {value}
+        if not self.attribute:
+            return {value}
+
+        return {v for v in self.attribute.search(value)}
 
     def deserialize(self, value):
         if not self.attribute:
@@ -542,7 +545,10 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         return set(y for v in set_ for y in self.attribute.values(v))
 
     def search(self, value):
-        return {value}
+        if not self.attribute:
+            return {value}
+
+        return {v for v in self.attribute.search(value)}
 
     def deserialize(self, value):
         if not self.attribute:

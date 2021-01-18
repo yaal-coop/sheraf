@@ -12,6 +12,8 @@ Added
   `search_func` are not provided.
 - Indexation is possible by default with :class:`~sheraf.attributes.collections.ListAttribute`
   and :class:`~sheraf.attributes.collections.SetAttribute`. :issue:`11`
+- Indexation is possible by default with :class:`~sheraf.attributes.models.ModelAttribute`.
+  :issue:`10`.
 
 Changed
 *******
