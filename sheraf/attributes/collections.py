@@ -73,6 +73,7 @@ You can also nest collections as you like, and play for instance with
 
 import sheraf
 import sheraf.types
+from sheraf.tools.more_itertools import unique_everseen
 
 
 class ListAttributeAccessor:
@@ -158,7 +159,7 @@ class ListAttribute(sheraf.attributes.base.BaseAttribute):
         kwargs.setdefault("default", self.persistent_type)
         super().__init__(**kwargs)
 
-    def values(self, value):
+    def values(self, list_):
         """
         By default, every items in a :class:`~sheraf.attributes.collections.ListAttribute` is indexed.
 
@@ -177,7 +178,10 @@ class ListAttribute(sheraf.attributes.base.BaseAttribute):
         ...     assert george not in Cowboy.search(favorite_colors="yellow")
 
         """
-        return set(value)
+        if not self.attribute:
+            return set(list_)
+
+        return set(y for v in list_ for y in self.attribute.values(v))
 
     def search(self, value):
         return {value}
@@ -514,7 +518,7 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         kwargs.setdefault("default", self.persistent_type)
         super().__init__(**kwargs)
 
-    def values(self, value):
+    def values(self, set_):
         """
         By default, every items in a :class:`~sheraf.attributes.collections.SetAttribute` is indexed.
 
@@ -525,14 +529,17 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         ...     ).index()
         ...
         >>> with sheraf.connection():
-        ...     george = Cowboy.create(favorite_colors=[
+        ...     george = Cowboy.create(favorite_colors={
         ...         "red", "green", "blue",
-        ...     ])
+        ...     })
         ...     assert george in Cowboy.search(favorite_colors="red")
         ...     assert george in Cowboy.search(favorite_colors="blue")
         ...     assert george not in Cowboy.search(favorite_colors="yellow")
         """
-        return set(value)
+        if not self.attribute:
+            return set(set_)
+
+        return set(y for v in set_ for y in self.attribute.values(v))
 
     def search(self, value):
         return {value}
