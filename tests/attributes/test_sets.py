@@ -108,3 +108,18 @@ def test_set_attribute_update(sheraf_connection, persistent_type):
 
     m.edit({"set": {1, 2, 3}}, addition=True)
     assert {1, 2, 3} == set(m.set)
+
+
+@pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
+def test_indexation(sheraf_database, persistent_type):
+    class ModelTest(tests.UUIDAutoModel):
+        list = sheraf.SetAttribute(
+            sheraf.StringAttribute(),
+            persistent_type=persistent_type,
+        ).index()
+
+    with sheraf.connection(commit=True) as conn:
+        m = ModelTest.create(list=["foo", "bar"])
+        assert m.mapping in conn.root()[ModelTest.table]["list"]["foo"]
+        assert m.mapping in conn.root()[ModelTest.table]["list"]["bar"]
+        assert [m] == list(ModelTest.search(list="foo"))

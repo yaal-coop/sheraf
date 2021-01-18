@@ -158,6 +158,32 @@ class ListAttribute(sheraf.attributes.base.BaseAttribute):
         kwargs.setdefault("default", self.persistent_type)
         super().__init__(**kwargs)
 
+    def index(self, *args, **kwargs):
+        """
+        The same behavior as :meth:`sheraf.attributes.base.BaseAttribute.index` except
+        `values_func` and `search_func` has default values so when a
+        :class:`~sheraf.attributes.collections.ListAttribute` is indexed,
+        every items in the list is indexed.
+
+        >>> class Cowboy(sheraf.Model):
+        ...     table = "cowboy"
+        ...     favorite_colors = sheraf.LargeListAttribute(
+        ...         sheraf.StringAttribute()
+        ...     ).index()
+        ...
+        >>> with sheraf.connection():
+        ...     george = Cowboy.create(favorite_colors=[
+        ...         "red", "green", "blue",
+        ...     ])
+        ...     assert george in Cowboy.search(favorite_colors="red")
+        ...     assert george in Cowboy.search(favorite_colors="blue")
+        ...     assert george not in Cowboy.search(favorite_colors="yellow")
+        """
+
+        kwargs.setdefault("values", lambda v: set(v))
+        kwargs.setdefault("search", lambda v: {v})
+        return super().index(*args, **kwargs)
+
     def deserialize(self, value):
         if not self.attribute:
             return value
@@ -489,6 +515,32 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         self.accessor_type = accessor_type
         kwargs.setdefault("default", self.persistent_type)
         super().__init__(**kwargs)
+
+    def index(self, *args, **kwargs):
+        """
+        The same behavior as :meth:`sheraf.attributes.base.BaseAttribute.index` except
+        `values_func` and `search_func` has default values so when a
+        :class:`~sheraf.attributes.collections.SetAttribute` is indexed,
+        every items in the set is indexed.
+
+        >>> class Cowboy(sheraf.Model):
+        ...     table = "cowboy"
+        ...     favorite_colors = sheraf.SetAttribute(
+        ...         sheraf.StringAttribute()
+        ...     ).index()
+        ...
+        >>> with sheraf.connection():
+        ...     george = Cowboy.create(favorite_colors=[
+        ...         "red", "green", "blue",
+        ...     ])
+        ...     assert george in Cowboy.search(favorite_colors="red")
+        ...     assert george in Cowboy.search(favorite_colors="blue")
+        ...     assert george not in Cowboy.search(favorite_colors="yellow")
+        """
+
+        kwargs.setdefault("values", lambda v: set(v))
+        kwargs.setdefault("search", lambda v: {v})
+        return super().index(*args, **kwargs)
 
     def deserialize(self, value):
         if not self.attribute:

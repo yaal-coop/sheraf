@@ -1,6 +1,5 @@
 import itertools
 import operator
-import sys
 from collections import OrderedDict
 
 from BTrees.OOBTree import OOTreeSet, union, intersection, difference

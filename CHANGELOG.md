@@ -1,6 +1,12 @@
 [0.3.0] - Unreleased
 ====================
 
+Added
+*****
+
+- Indexation is possible by default with :class:`~sheraf.attributes.collections.ListAttribute`
+  and :class:`~sheraf.attributes.collections.SetAttribute`. :issue:`11`
+
 Changed
 *******
 
