@@ -163,6 +163,41 @@ By default the `search` argument takes the same argument than the
 Now we index the initials of cowboys, but we search for all the combinations of initials
 with the words that are passed to the *search* argument.
 
+Make custom searchs and recording the default
+`````````````````````````````````````````````
+
+This `name` attribute and its indexation seems very convenient, so you would like to use
+it in other models. Luckily sheraf offers you a way to do this, and cut the boilerplate.
+If a :class:`~sheraf.attributes.base.BaseAttribute` defines some methods called `values`
+or `search`, they will be used by default if the :func:`~sheraf.attributes.base.BaseAttribute.index`
+`values_func` and `search_func` are not provided:
+
+.. code-block:: python
+
+    >>> class NameAttribute(sheraf.StringAttribute):
+    ...     def values(self, name):
+    ...         return {initials(name)}
+    ...
+    ...     def search(self, name):
+    ...         return {"".join(p) for p in permutations(initials(name))}
+    ...
+    ...     def index(self, *args, **kwargs):
+    ...         kwargs.setdefault("values", self.values)
+    ...         kwargs.setdefault("search", self.search)
+    ...         return super().index(*args, **kwargs)
+    ...
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "clean_cowboy"
+    ...     name = NameAttribute().index()
+    ...
+    >>> with sheraf.connection(commit=True):
+    ...     george = Cowboy.create(name="George Abitbol")
+    ...
+    ...     assert [george] == Cowboy.search(name="Amsterdam Gerard")
+
+`NameAttribute` can now be used in other models (and it does not need
+to be indexed).
+
 Dig a bit deeper
 ````````````````
 
