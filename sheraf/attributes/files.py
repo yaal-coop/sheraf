@@ -1,5 +1,4 @@
 import os
-import warnings
 import sheraf
 import sheraf.types
 from sheraf.attributes.base import BaseAttribute

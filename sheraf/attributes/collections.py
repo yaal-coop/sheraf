@@ -73,7 +73,6 @@ You can also nest collections as you like, and play for instance with
 
 import sheraf
 import sheraf.types
-from sheraf.tools.more_itertools import unique_everseen
 
 
 class ListAttributeAccessor:

@@ -66,7 +66,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         if not cls.primary_key():
             raise sheraf.exceptions.PrimaryKeyException(
                 "{} inherit from IndexedModel but has no primary key. Cannot create.".format(
-                    cls.__name__, cls.primary_key()
+                    cls.__name__
                 )
             )
 
