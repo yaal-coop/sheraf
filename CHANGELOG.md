@@ -13,7 +13,8 @@ Added
 - Indexation is possible by default with :class:`~sheraf.attributes.collections.ListAttribute`
   and :class:`~sheraf.attributes.collections.SetAttribute`. :issue:`11`
 - Indexation is possible by default with :class:`~sheraf.attributes.models.ModelAttribute`.
-  :issue:`10`.
+  :issue:`10`
+- :class:`~sheraf.attributes.models.ModelAttribute` can have several model classes. :issue:`13`
 
 Changed
 *******

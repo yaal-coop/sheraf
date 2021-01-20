@@ -1,4 +1,5 @@
 import sheraf
+from sheraf.models.indexation import model_from_table
 from sheraf.attributes import ModelLoader
 from sheraf.attributes.base import BaseAttribute
 
@@ -13,21 +14,21 @@ class ModelAttribute(ModelLoader, BaseAttribute):
     >>> class Cowboy(sheraf.Model):
     ...     table = "cowboy"
     ...     name = sheraf.SimpleAttribute()
-    ...     horse = sheraf.ModelAttribute(Horse)
+    ...     mount = sheraf.ModelAttribute(Horse)
     ...
     >>> with sheraf.connection(commit=True):
     ...     jolly = Horse.create(name="Jolly Jumper")
-    ...     george = Cowboy.create(name="George Abitbol", horse=jolly)
+    ...     george = Cowboy.create(name="George Abitbol", mount=jolly)
     ...
-    ...     george.horse.name
+    ...     george.mount.name
     'Jolly Jumper'
 
     The referenced model can be dynamically created if its structure is passed through as a dict:
 
     >>> with sheraf.connection(commit=True):
-    ...     peter = Cowboy.create(name="Peter", horse={"name": "Polly Pumper"})
-    ...     assert isinstance(peter.horse, Horse)
-    ...     peter.horse.name
+    ...     peter = Cowboy.create(name="Peter", mount={"name": "Polly Pumper"})
+    ...     assert isinstance(peter.mount, Horse)
+    ...     peter.mount.name
     'Polly Pumper'
 
     When the referenced model is deleted, the value of the attribute becomes ``None``.
@@ -35,7 +36,26 @@ class ModelAttribute(ModelLoader, BaseAttribute):
     >>> with sheraf.connection(commit=True):
     ...     george = Cowboy.read(george.id)
     ...     jolly.delete()
-    ...     assert george.horse is None
+    ...     assert george.mount is None
+
+    Several model classes can be used, but this will be more memory consuming in the database.
+
+    >>> class Pony(sheraf.Model):
+    ...     table = "pony"
+    ...     name = sheraf.SimpleAttribute()
+    ...
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "cowboy"
+    ...     name = sheraf.SimpleAttribute()
+    ...     mount = sheraf.ModelAttribute((Horse, Pony))
+    ...
+    >>> with sheraf.connection(commit=True):
+    ...     superpony = Pony.create(name="Superpony")
+    ...     peter = Cowboy.create(name="Peter", mount=superpony)
+
+    When several models are set, the first one is considered to be the default model.
+    The default model is used when there is a doubt on the read data, or in the case
+    of model creation with a dict.
     """
 
     def __init__(self, model=None, **kwargs):
@@ -49,8 +69,17 @@ class ModelAttribute(ModelLoader, BaseAttribute):
         return {model.identifier}
 
     def deserialize(self, value):
+        if isinstance(value, tuple):
+            table, id_ = value
+            model = model_from_table(table)
+        else:
+            model = (
+                self.model[0] if isinstance(self.model, (list, tuple)) else self.model
+            )
+            id_ = value
+
         try:
-            return self.model.read(value)
+            return model.read(id_)
         except (KeyError, sheraf.exceptions.ModelObjectNotFoundException):
             return None
 
@@ -59,9 +88,13 @@ class ModelAttribute(ModelLoader, BaseAttribute):
             return None
 
         elif isinstance(value, sheraf.IndexedModel):
-            return value.identifier
+            return (
+                (value.table, value.identifier)
+                if isinstance(self.model, (tuple, list))
+                else value.identifier
+            )
 
-        elif isinstance(value, dict):
+        elif self.model and isinstance(value, dict):
             return self.model.create(**value).identifier
 
         else:

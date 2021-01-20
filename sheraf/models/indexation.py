@@ -488,6 +488,12 @@ class IndexedModelMetaclass(BaseModelMetaclass):
         return klass
 
 
+def model_from_table(table_name):
+    if table_name not in IndexedModelMetaclass.tables:
+        return None
+    return IndexedModelMetaclass.tables[table_name][1]
+
+
 class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     """
     :class:`~sheraf.models.indexation.IndexedModel` are the top-level

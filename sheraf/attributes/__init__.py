@@ -43,20 +43,31 @@ class ModelLoader(object):
         return self._model
 
     def check_model(self, parent=None):
-        if isinstance(self._model, (str, bytes)):
+        if isinstance(self._model, (list, tuple)):
+            self._model = type(self._model)(
+                self._check_model(m, parent) for m in self._model
+            )
+        else:
+            self._model = self._check_model(self._model, parent)
+
+    def _check_model(self, model, parent):
+        if isinstance(model, (str, bytes)):
             try:
-                self._model = ModelLoader.cache[self._model]
+                return ModelLoader.cache[model]
             except KeyError:
                 try:
-                    ModelLoader.cache[self._model] = self.load_model(self._model)
+                    ModelLoader.cache[model] = self.load_model(model)
                 except ValueError:
                     raise ImportError
 
-                self._model = ModelLoader.cache[self._model]
+                return ModelLoader.cache[model]
 
-        elif parent and not isinstance(self._model, type):
-            self._model = type(
+        elif parent and not isinstance(model, type):
+            return type(
                 "{}.{}".format(parent.__class__.__name__, self.key(parent)),
-                (self._model.__class__,),
-                self._model.attributes,
+                (model.__class__,),
+                model.attributes,
             )
+
+        else:
+            return model
