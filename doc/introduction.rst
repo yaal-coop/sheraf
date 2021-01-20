@@ -35,7 +35,7 @@ on the valuable parts of your application.
 
 - **Models**: ZODB does not provide a *model* layer. Its usage is mainly about storing
   :class:`~persistent.Persistent` objects, and it is up to you to choose which
-  parts of your object you want to save. Sheraf propose a unique - but flexible - way
+  parts of your object you want to save. Sheraf propose a unified - but flexible - way
   to define models, and take care of the saving mechanism for you.
 - **Indexation**: ZODB does not provide an *indexation* layer. Instead it provides you
   datastructures like `BTrees`_ and let you use them as you like to index your data.
@@ -59,4 +59,4 @@ have cleaned the code and opened the sourcecode.
 .. _Django: https://docs.djangoproject.com
 .. _ZODB: https://zodb-docs.readthedocs.io
 .. _BTrees: https://btrees.readthedocs.io
-.. _Yaal: https://yaal.fr
+.. _Yaal: https://yaal.coop
