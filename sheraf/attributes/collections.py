@@ -176,7 +176,20 @@ class ListAttribute(sheraf.attributes.base.BaseAttribute):
         ...     assert george in Cowboy.search(favorite_colors="blue")
         ...     assert george not in Cowboy.search(favorite_colors="yellow")
 
+        .. warning :: A current limitation is that indexed lists won't update their
+                      indexes if they are edited through their accessor. For the indexes
+                      to be updated, the whole list must be re-assigned.
+
+        >>> with sheraf.connection():
+        ...     george.favorite_colors.append("purple")
+        ...     george in Cowboy.search(favorite_colors="purple")
+        False
+        >>> with sheraf.connection():
+        ...     george.favorite_colors = list(george.favorite_colors) + ["purple"]
+        ...     george in Cowboy.search(favorite_colors="purple")
+        True
         """
+
         if not self.attribute:
             return set(list_)
 
@@ -537,7 +550,21 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         ...     assert george in Cowboy.search(favorite_colors="red")
         ...     assert george in Cowboy.search(favorite_colors="blue")
         ...     assert george not in Cowboy.search(favorite_colors="yellow")
+
+        .. warning :: A current limitation is that indexed sets won't update their
+                      indexes if they are edited through their accessor. For the indexes
+                      to be updated, the whole set must be re-assigned.
+
+        >>> with sheraf.connection():
+        ...     george.favorite_colors.add("purple")
+        ...     george in Cowboy.search(favorite_colors="purple")
+        False
+        >>> with sheraf.connection():
+        ...     george.favorite_colors = set(george.favorite_colors) | {"purple"}
+        ...     george in Cowboy.search(favorite_colors="purple")
+        True
         """
+
         if not self.attribute:
             return set(set_)
 
