@@ -356,33 +356,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
     def __setattr__(self, name, value):
         attribute = self.attributes.get(name)
         if attribute:
-            if self._first_instance is None:
-                self._first_instance = not self.index_manager().initialized()
-
-            for index in attribute.indexes.values():
-                index_manager = self.indexes()[index.key]
-                index_table_exists = index_manager.table_initialized()
-                is_indexable = self._first_instance or index_table_exists
-
-                if not is_indexable:
-                    warnings.warn(
-                        "New index in an already populated table. %s.%s will not be indexed. "
-                        'Consider calling %s.index_table_rebuild(["%s"]) to initialize the indexation table.'
-                        % (
-                            self.__class__.__name__,
-                            index.key,
-                            self.__class__.__name__,
-                            index.key,
-                        ),
-                        sheraf.exceptions.IndexationWarning,
-                        stacklevel=4,
-                    )
-                    continue
-
-                if attribute.is_created(self):
-                    index_manager.update_item(self, attribute.read(self), value)
-                else:
-                    index_manager.add_item(self, index.values_func(value))
+            self.update_attribute_indexes(attribute, value)
 
         super().__setattr__(name, value)
 
@@ -396,6 +370,35 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
             self._identifier = getattr(self, self.primary_key())
 
         return self._identifier
+
+    def update_attribute_indexes(self, attribute, value):
+        if self._first_instance is None:
+            self._first_instance = not self.index_manager().initialized()
+
+        for index in attribute.indexes.values():
+            index_manager = self.indexes()[index.key]
+            index_table_exists = index_manager.table_initialized()
+            is_indexable = self._first_instance or index_table_exists
+
+            if not is_indexable:
+                warnings.warn(
+                    "New index in an already populated table. %s.%s will not be indexed. "
+                    'Consider calling %s.index_table_rebuild(["%s"]) to initialize the indexation table.'
+                    % (
+                        self.__class__.__name__,
+                        index.key,
+                        self.__class__.__name__,
+                        index.key,
+                    ),
+                    sheraf.exceptions.IndexationWarning,
+                    stacklevel=5,
+                )
+                continue
+
+            if attribute.is_created(self):
+                index_manager.update_item(self, attribute.read(self), value)
+            else:
+                index_manager.add_item(self, index.values_func(value))
 
     def copy(self, **kwargs):
         r"""
