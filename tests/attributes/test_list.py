@@ -146,10 +146,11 @@ def test_nested(sheraf_database, persistent_type, subattribute):
 @pytest.mark.parametrize(
     "persistent_type", [sheraf.types.SmallList, sheraf.types.LargeList]
 )
-def test_indexation(sheraf_database, persistent_type):
+@pytest.mark.parametrize("subattribute", [None, sheraf.StringAttribute()])
+def test_indexation(sheraf_database, persistent_type, subattribute):
     class ModelTest(tests.UUIDAutoModel):
         list = sheraf.ListAttribute(
-            sheraf.StringAttribute(),
+            subattribute,
             persistent_type=persistent_type,
         ).index()
 

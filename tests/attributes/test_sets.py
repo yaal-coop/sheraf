@@ -111,10 +111,11 @@ def test_set_attribute_update(sheraf_connection, persistent_type):
 
 
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
-def test_indexation(sheraf_database, persistent_type):
+@pytest.mark.parametrize("subattribute", [None, sheraf.StringAttribute()])
+def test_indexation(sheraf_database, persistent_type, subattribute):
     class ModelTest(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(
-            sheraf.StringAttribute(),
+            subattribute,
             persistent_type=persistent_type,
         ).index()
 
