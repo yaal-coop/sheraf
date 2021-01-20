@@ -15,7 +15,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
 
     _indexes = None
     _primary_key = None
-    _first_instance = None
+    _is_first_instance = None
 
     def __init__(self, *args, **kwargs):
         self._identifier = None
@@ -371,16 +371,22 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
 
         return self._identifier
 
+    def _is_indexable(self, index):
+        """
+        To have its entries updated, an index must have its table previously
+        initialized, with the exception of the very first model instance in
+        the database.
+        """
+        if self._is_first_instance is None:
+            self._is_first_instance = not self.index_manager().initialized()
+
+        index_manager = self.indexes()[index.key]
+        index_table_exists = index_manager.table_initialized()
+        return self._is_first_instance or index_table_exists
+
     def update_attribute_indexes(self, attribute, value):
-        if self._first_instance is None:
-            self._first_instance = not self.index_manager().initialized()
-
         for index in attribute.indexes.values():
-            index_manager = self.indexes()[index.key]
-            index_table_exists = index_manager.table_initialized()
-            is_indexable = self._first_instance or index_table_exists
-
-            if not is_indexable:
+            if not self._is_indexable(index):
                 warnings.warn(
                     "New index in an already populated table. %s.%s will not be indexed. "
                     'Consider calling %s.index_table_rebuild(["%s"]) to initialize the indexation table.'
@@ -395,6 +401,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
                 )
                 continue
 
+            index_manager = self.indexes()[index.key]
             if attribute.is_created(self):
                 index_manager.update_item(self, attribute.read(self), value)
             else:
