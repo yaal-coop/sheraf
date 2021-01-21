@@ -1,6 +1,14 @@
 [x.x.x] - Unreleased
 ====================
 
+[0.3.1] - 2021-01-21
+====================
+
+Changed
+*******
+
+- Fixed indexation of generic :class:`~sheraf.attributes.models.ModelAttribute`.
+
 [0.3.0] - 2021-01-20
 ====================
 

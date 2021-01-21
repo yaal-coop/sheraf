@@ -197,5 +197,17 @@ def test_generic_indexation(sheraf_connection):
     m1 = Model.create(submodel=s1)
     m2 = Model.create(submodel=s2)
 
+    assert (Submodel1.table, s1.id) == m1.mapping["submodel"]
+    assert (Submodel2.table, s2.id) == m2.mapping["submodel"]
+
     assert [m1] == Model.search(submodel=s1)
     assert [m2] == Model.search(submodel=s2)
+
+    assert (
+        m1.mapping
+        in sheraf_connection.root()[Model.table]["submodel"][(Submodel1.table, s1.id)]
+    )
+    assert (
+        m2.mapping
+        in sheraf_connection.root()[Model.table]["submodel"][(Submodel2.table, s2.id)]
+    )

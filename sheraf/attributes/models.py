@@ -66,7 +66,11 @@ class ModelAttribute(ModelLoader, BaseAttribute):
         By default :class:`~sheraf.attributes.models.ModelAttribute` are indexed on
         their identifier.
         """
-        return {model.identifier}
+        return {
+            (model.table, model.identifier)
+            if isinstance(self.model, (tuple, list))
+            else model.identifier
+        }
 
     def deserialize(self, value):
         if isinstance(value, tuple):
