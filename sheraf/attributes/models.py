@@ -59,6 +59,8 @@ class ModelAttribute(ModelLoader, BaseAttribute):
     """
 
     def __init__(self, model=None, **kwargs):
+        if not model:
+            raise sheraf.exceptions.SherafException("ModelAttribute requires model parameter.")
         super().__init__(default=None, model=model, **kwargs)
 
     def values(self, model):
