@@ -431,10 +431,11 @@ def test_custom_query_method(sheraf_database):
 # ----------------------------------------------------------------------------
 
 
-def test_none_index(sheraf_connection):
+@pytest.mark.parametrize("unique", (True, False))
+def test_none_index(sheraf_connection, unique):
     class MyModelSimple(tests.IntAutoModel):
-        foo = sheraf.SimpleAttribute().index(noneok=True)
-        bar = sheraf.SimpleAttribute().index(noneok=False)
+        foo = sheraf.SimpleAttribute().index(noneok=True, unique=unique)
+        bar = sheraf.SimpleAttribute().index(noneok=False, unique=unique)
 
     m = MyModelSimple.create(foo=None, bar=None)
     assert m in MyModelSimple.search(foo=None)
@@ -445,12 +446,32 @@ def test_none_index(sheraf_connection):
     assert n in MyModelSimple.search(bar="")
 
     class MyModelInteger(tests.IntAutoModel):
-        foo = sheraf.IntegerAttribute().index(noneok=True)
-        bar = sheraf.IntegerAttribute().index(noneok=False)
+        foo = sheraf.IntegerAttribute().index(noneok=True, unique=unique)
+        bar = sheraf.IntegerAttribute().index(noneok=False, unique=unique)
 
     o = MyModelInteger.create(foo=0, bar=0)
     assert o in MyModelInteger.search(foo=0)
     assert o in MyModelInteger.search(bar=0)
+
+
+@pytest.mark.parametrize("unique", (True, False))
+def test_none_index_as_default(sheraf_connection, unique):
+    class MyModelSimple(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute(default=None).index(noneok=True, unique=unique)
+        bar = sheraf.SimpleAttribute(default=None).index(noneok=False, unique=unique)
+
+    m = MyModelSimple.create()
+    assert m in MyModelSimple.search(foo=None)
+    assert m not in MyModelSimple.search(bar=None)
+
+    if not unique:
+        MyModelSimple.create()
+
+    else:
+        MyModelSimple.create(foo="anything")
+
+        with pytest.raises(sheraf.exceptions.UniqueIndexException):
+            MyModelSimple.create(bar="anything")
 
 
 # ------------------------------------------------------------------------------------------------
