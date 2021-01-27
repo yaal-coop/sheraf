@@ -28,15 +28,33 @@ def test_simple(sheraf_connection):
     assert "YEAH" == m.opt
 
 
-def test_string(sheraf_connection):
+def test_string(sheraf_database):
     class M(tests.UUIDAutoModel):
         string = sheraf.StringAttribute()
 
-    m = M.create()
-    assert "" == m.string
+    with sheraf.connection(commit=True):
+        m = M.create()
+        assert "" == m.string
 
-    m.string = 1
-    assert "1" == m.string
+    with sheraf.connection():
+        m = M.read(m.id)
+        assert "" == m.string
+
+    with sheraf.connection(commit=True):
+        m = M.create(string=1)
+        assert "1" == m.string
+
+    with sheraf.connection():
+        m = M.read(m.id)
+        assert "1" == m.string
+
+    with sheraf.connection(commit=True):
+        m = M.create(string=None)
+        assert m.string is None
+
+    with sheraf.connection():
+        m = M.read(m.id)
+        assert m.string is None
 
 
 def test_default_value(sheraf_connection):

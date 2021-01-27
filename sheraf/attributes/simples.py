@@ -18,6 +18,8 @@ class TypedAttribute(BaseAttribute):
     """Store a persistent dict of primitive data.
 
     Keys and values can be :class:`str`, :class:`int`, :class:`float`.
+
+    If the value set is :class:`None`, it will not be casted.
     """
 
     type = object
@@ -27,6 +29,9 @@ class TypedAttribute(BaseAttribute):
         super().__init__(**kwargs)
 
     def serialize(self, value):
+        if value is None:
+            return None
+
         return self.type(value)
 
 
@@ -52,7 +57,7 @@ class FloatAttribute(TypedAttribute):
 class StringAttribute(TypedAttribute):
     """Stores a :class:`str` object."""
 
-    type = "".__class__
+    type = str
 
 
 class UUIDAttribute(BaseAttribute):
