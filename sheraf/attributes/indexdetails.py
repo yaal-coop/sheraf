@@ -21,6 +21,7 @@ class IndexDetails:
                         used.
     :param mapping: The mapping object to be used to store the indexed values. OOBTree by
                     default.
+    :param noneok: Allow to index None or noneok values. `False` by default.
     """
 
     unique = False
@@ -30,9 +31,10 @@ class IndexDetails:
     attribute = None
     mapping = None
     primary = False
+    noneok = False
 
     def __init__(
-        self, attribute, unique, key, values_func, search_func, mapping, primary
+        self, attribute, unique, key, values_func, search_func, mapping, primary, noneok
     ):
         self.attribute = attribute
         self.unique = unique or primary
@@ -41,6 +43,7 @@ class IndexDetails:
         self.search_func = search_func or values_func or attribute.search
         self.mapping = mapping
         self.primary = primary
+        self.noneok = noneok
 
     def __repr__(self):
         if self.primary:
@@ -49,5 +52,13 @@ class IndexDetails:
             )
         return "<IndexDetails key={} unique={}>".format(self.key, self.unique)
 
-    def get_values(self, model):
-        return self.values_func(self.attribute.read(model))
+    def get_values(self, model=None, keys=None):
+        if model is None and keys is None:
+            return set()
+
+        value = self.attribute.read(model) if model else keys
+
+        if self.noneok:
+            return self.values_func(value)
+
+        return {v for v in self.values_func(value) if v is not None}

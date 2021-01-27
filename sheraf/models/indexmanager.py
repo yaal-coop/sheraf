@@ -20,7 +20,7 @@ class IndexManager:
                      are set.
         """
         if not keys:
-            keys = self.details.values_func(self.details.attribute.read(model))
+            keys = self.details.get_values(model)
 
         table = self.table()
 
@@ -40,7 +40,7 @@ class IndexManager:
                      are removed.
         """
         if not keys:
-            keys = self.details.values_func(self.details.attribute.read(model))
+            keys = self.details.get_values(model)
 
         table = self.table()
 
@@ -54,8 +54,8 @@ class IndexManager:
                 self._table_del_multiple(table, key, model.mapping)
 
     def update_item(self, item, old_keys, new_keys):
-        old_values = self.details.values_func(old_keys)
-        new_values = self.details.values_func(new_keys)
+        old_values = self.details.get_values(keys=old_keys)
+        new_values = self.details.get_values(keys=new_keys)
 
         if old_keys and new_keys:
             del_values = old_values - new_values

@@ -213,7 +213,9 @@ def test_generic_indexation(sheraf_connection):
         in sheraf_connection.root()[Model.table]["submodel"][(Submodel2.table, s2.id)]
     )
 
+
 def test_raise_exception_if_no_model_are_defined(sheraf_database):
     with pytest.raises(sheraf.exceptions.SherafException) as e:
+
         class Model(tests.UUIDAutoModel):
             submodel = sheraf.ModelAttribute()

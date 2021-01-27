@@ -1,5 +1,12 @@
-[x.x.x] - Unreleased
+[0.3.2] - Unreleased
 ====================
+
+Added
+*****
+
+- :class:`~sheraf.attributes.indexdetails.IndexDetails` have a `noneok`
+  parameter, `False` by default, that allows indexation of `None` values.
+  :issue:`16`
 
 [0.3.1] - 2021-01-21
 ====================

@@ -426,6 +426,33 @@ def test_custom_query_method(sheraf_database):
             MyCustomModel.create(foo="FOO")
 
 
+# ----------------------------------------------------------------------------
+# Empty Index
+# ----------------------------------------------------------------------------
+
+
+def test_none_index(sheraf_connection):
+    class MyModelSimple(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute().index(noneok=True)
+        bar = sheraf.SimpleAttribute().index(noneok=False)
+
+    m = MyModelSimple.create(foo=None, bar=None)
+    assert m in MyModelSimple.search(foo=None)
+    assert m not in MyModelSimple.search(bar=None)
+
+    n = MyModelSimple.create(foo="", bar="")
+    assert n in MyModelSimple.search(foo="")
+    assert n in MyModelSimple.search(bar="")
+
+    class MyModelInteger(tests.IntAutoModel):
+        foo = sheraf.IntegerAttribute().index(noneok=True)
+        bar = sheraf.IntegerAttribute().index(noneok=False)
+
+    o = MyModelInteger.create(foo=0, bar=0)
+    assert o in MyModelInteger.search(foo=0)
+    assert o in MyModelInteger.search(bar=0)
+
+
 # ------------------------------------------------------------------------------------------------
 # Cases that must fail
 # ------------------------------------------------------------------------------------------------

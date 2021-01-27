@@ -405,7 +405,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
             if attribute.is_created(self):
                 index_manager.update_item(self, attribute.read(self), value)
             else:
-                index_manager.add_item(self, index.values_func(value))
+                index_manager.add_item(self, index.get_values(keys=value))
 
     def copy(self, **kwargs):
         r"""
