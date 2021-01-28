@@ -1,5 +1,13 @@
-[0.3.4] - 2021-01-28
+[0.3.5] - 2021-xx-xx
 ====================
+
+Added
+*****
+
+- :func:`~sheraf.transactions.commit` can take no argument.
+
+-[0.3.4] - 2021-01-28
+=====================
 
 Added
 *****

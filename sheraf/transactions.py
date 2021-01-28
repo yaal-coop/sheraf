@@ -72,12 +72,17 @@ def attempt(
         start_commit_time = None
         try:
             connection.transaction_manager.begin()
-            _response = function(*args, **kwargs)
+            if function:
+                _response = function(*args, **kwargs)
+            else:
+                _response = None
+
             if commit():
                 start_commit_time = time.time()
                 connection.transaction_manager.commit()
             else:
                 connection.transaction_manager.abort()
+
             return _response
 
         except exception_classes as exc:
@@ -125,7 +130,7 @@ def attempt(
     raise _exc
 
 
-def commit(f):
+def commit(f=None):
     """
     Wrapper shortcut for :func:`~sheraf.transactions.attempt`.
 
@@ -148,6 +153,12 @@ def commit(f):
     ...     Cowboy.read(loser.id).dead
     True
     """
+
+    if f is None:
+        connection = sheraf.Database.current_connection()
+        if not connection:
+            raise sheraf.exceptions.NotConnectedException()
+        connection.transaction_manager.commit()
 
     @functools.wraps(f)
     def wrapper(*args, **kwargs):

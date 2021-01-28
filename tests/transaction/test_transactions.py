@@ -1,4 +1,5 @@
 import pytest
+import tests
 from ZODB.POSException import ConflictError
 
 import sheraf
@@ -79,3 +80,15 @@ def test_no_commit(sheraf_database):
     with sheraf.connection() as conn:
         sheraf.attempt(my_function, commit=lambda: False)
         assert "foo" not in conn.root()
+
+
+def test_empty_commit(sheraf_database):
+    class MyModel(tests.IntAutoModel):
+        pass
+
+    with sheraf.connection():
+        m = MyModel.create()
+        sheraf.commit()
+
+    with sheraf.connection():
+        assert MyModel.read(m.id)
