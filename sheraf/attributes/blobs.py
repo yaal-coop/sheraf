@@ -107,6 +107,28 @@ class BlobAttribute(sheraf.attributes.models.InlineModelAttribute):
     def __init__(self, model=Blob, **kwargs):
         super().__init__(model=model, **kwargs)
 
+    def serialize(self, value):
+        if value is None:
+            return None
+
+        elif isinstance(value, sheraf.InlineModel):
+            return value.mapping
+
+        elif isinstance(value, dict):
+            return self.model.create(**value).mapping
+
+        elif hasattr(value, "filename") and (
+            hasattr(value, "stream") or hasattr(value, "data")
+        ):
+            return Blob.create(
+                stream=getattr(value, "stream", None),
+                filename=getattr(value, "filename", None),
+                data=getattr(value, "data", None),
+            ).mapping
+
+        else:
+            return self._default_value(value)
+
     def deserialize(self, value):
         if not value:
             return None

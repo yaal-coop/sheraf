@@ -233,3 +233,23 @@ def test_remove_all_blobs(sheraf_zeo_database):
     with sheraf.connection():
         m = ModelWithBlob.read(m.id)
         check_blobs(m, sheraf_zeo_database, True, 0)
+
+
+def test_shortcut(sheraf_zeo_database):
+    with sheraf.connection(commit=True):
+
+        class File:
+            def __init__(self, stream=None, filename=None, data=None):
+                self.stream = stream
+                self.filename = filename
+                self.data = data
+
+        m = ModelWithBlob.create()
+        assert not m.blob and not bool(m.blob)
+        m.blob = File(stream=io.BytesIO(b"ABCDEF"), filename="image.png")
+        check_blob(m, sheraf_zeo_database, False)
+
+        m = ModelWithBlob.create()
+        assert not m.blob and not bool(m.blob)
+        m.blob = File(data=b"ABCDEF", filename="image.png")
+        check_blob(m, sheraf_zeo_database, False)

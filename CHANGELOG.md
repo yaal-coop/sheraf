@@ -1,3 +1,12 @@
+[0.3.4] - 2021-01-28
+====================
+
+Added
+*****
+
+- :class:`~sheraf.attributes.blobs.BlobAttribute` shortcut for common web frameworks.
+
+
 [0.3.3] - 2021-01-27
 ====================
 
