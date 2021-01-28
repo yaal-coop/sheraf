@@ -72,10 +72,7 @@ def attempt(
         start_commit_time = None
         try:
             connection.transaction_manager.begin()
-            if function:
-                _response = function(*args, **kwargs)
-            else:
-                _response = None
+            _response = function(*args, **kwargs)
 
             if commit():
                 start_commit_time = time.time()
