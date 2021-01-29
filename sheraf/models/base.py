@@ -269,7 +269,13 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         self.edit(kwargs, addition=True, edition=True, deletion=True, replacement=False)
 
     def edit(
-        self, value, addition=True, edition=True, deletion=False, replacement=False
+        self,
+        value,
+        addition=True,
+        edition=True,
+        deletion=False,
+        replacement=False,
+        strict=False,
     ):
         """Take a dictionary and a set of options, and try to applies the
         dictionary values to the instance structure.
@@ -280,18 +286,22 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         :param edition: If *True*, elements present in both *value* and the instance will be updated.
         :param deletion: If *True*, elements present in the instance and absent from *value* will be deleted.
         :param replacement: Like *edition*, but create a new element instead of updating one.
+        :param strict: If strict is *True*, every keys in value must be sheraf attributes of the current model. Default is *False*.
         """
-        try:
-            for attr, new_value in value.items():
+        for attr, new_value in value.items():
+            try:
                 old_value = self.attributes[attr].read(self)
                 updated = self.attributes[attr].update(
                     old_value, new_value, addition, edition, deletion, replacement
                 )
                 self.__setattr__(attr, updated)
-        except KeyError:
-            raise TypeError(
-                "TypeError: edit() got an unexpected keyword argument '{}'".format(attr)
-            )
+            except KeyError:
+                if strict is True:
+                    raise TypeError(
+                        "TypeError: edit() got an unexpected keyword argument '{}'".format(
+                            attr
+                        )
+                    )
         return self
 
     def save(self):

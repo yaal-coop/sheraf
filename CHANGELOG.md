@@ -5,6 +5,7 @@ Added
 *****
 
 - :func:`~sheraf.transactions.commit` can take no argument.
+- :meth:`~sheraf.models.base.BaseModel.edit` has a `strict` parameter. :issue:`18`
 
 -[0.3.4] - 2021-01-28
 =====================

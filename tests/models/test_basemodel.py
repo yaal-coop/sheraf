@@ -246,7 +246,7 @@ def test_simple_update(sheraf_database):
         assert "foobar" == m.foo
 
 
-def test_simple_update_wrong_attribute(sheraf_database):
+def test_simple_update_wrong_attribute_strict(sheraf_database):
     class MyModel(tests.UUIDAutoModel):
         pass
 
@@ -254,7 +254,9 @@ def test_simple_update_wrong_attribute(sheraf_database):
         m = MyModel.create()
 
         with pytest.raises(TypeError):
-            m.update(foo="foobar")
+            m.edit(dict(foo="foobar"), strict=True)
+
+        m.edit(dict(foo="foobar"), strict=False)
 
 
 def test_list_update(sheraf_database):
