@@ -1,5 +1,6 @@
 import pytest
 import tests
+import sheraf.exceptions
 from ZODB.POSException import ConflictError
 
 import sheraf
@@ -92,3 +93,8 @@ def test_empty_commit(sheraf_database):
 
     with sheraf.connection():
         assert MyModel.read(m.id)
+
+
+def test_commit_no_db():
+    with pytest.raises(sheraf.exceptions.NotConnectedException):
+        sheraf.commit()
