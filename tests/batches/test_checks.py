@@ -17,7 +17,6 @@ def test_healthcheck_conflict_resolution(sheraf_database):
         assert check_health(fixture1)["check_conflict_resolution"] is True
 
 
-@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
 def test_healthcheck_attributes_index(sheraf_database, capsys):
     from .fixture1 import Model2
 
@@ -43,7 +42,6 @@ def test_healthcheck_attributes_index(sheraf_database, capsys):
         assert re.search(r"tests.batches.fixture1.Model2[^\n]*1[^\n]*1", stdout)
 
 
-@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
 def test_healthcheck_attributes_index_when_instance_deleted(sheraf_database, capsys):
     from .fixture1 import Model2unique
 
@@ -69,10 +67,9 @@ def test_healthcheck_attributes_index_when_instance_deleted(sheraf_database, cap
 
         print_health(fixture1, **kwargs)
         stdout = capsys.readouterr().out
-        assert re.search(r"tests.batches.fixture1.Model2unique[^\n]*2[^\n]*1", stdout)
+        assert re.search(r"tests.batches.fixture1.Model2unique[^\n]*1[^\n]*2", stdout)
 
 
-@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
 def test_healthcheck_attributes_index_with_key_when_instance_deleted(
     sheraf_database, capsys
 ):
@@ -99,7 +96,6 @@ def test_healthcheck_attributes_index_with_key_when_instance_deleted(
         ]
 
 
-@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
 def test_multiple_healthcheck_attributes_index_with_key_when_instance_deleted(
     sheraf_database, capsys
 ):
@@ -127,7 +123,6 @@ def test_multiple_healthcheck_attributes_index_with_key_when_instance_deleted(
         ]
 
 
-@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
 def test_healthcheck_attributes_index_with_key(sheraf_database, capsys):
     from .fixture1 import Model2k
 
@@ -151,7 +146,6 @@ def test_healthcheck_attributes_index_with_key(sheraf_database, capsys):
         assert re.search(r"tests.batches.fixture1.Model2k[^\n]*1[^\n]*1", stdout)
 
 
-@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
 def test_healthcheck_attributes_index_non_primitive(sheraf_database, capsys):
     from .fixture1 import Model3, DummyModel
 
@@ -178,7 +172,6 @@ def test_healthcheck_attributes_index_non_primitive(sheraf_database, capsys):
         assert re.search(r"tests.batches.fixture1.Model3[^\n]*1[^\n]*1", stdout)
 
 
-@mock.patch("sheraf.batches.checks.HAS_COLORED", False)
 def test_healthcheck_attributes_index_non_primitive_with_key(sheraf_database, capsys):
     from .fixture1 import Model3k, DummyModel
 

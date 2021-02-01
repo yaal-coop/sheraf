@@ -45,7 +45,6 @@ psycopg2 = {version = "*", optional=true}
 psycopg2cffi = {version = "*", optional=true}
 relstorage = {version = "*", optional=true}
 
-colored = {version = "*", optional=true}
 rich = "^9.10.0"
 
 [tool.poetry.extras]
@@ -54,7 +53,6 @@ all = [
     "psycopg2",
     "psycopg2cffi",
     "relstorage",
-    "colored",
 ]
 relstorage_pg = [
     "psycopg2",

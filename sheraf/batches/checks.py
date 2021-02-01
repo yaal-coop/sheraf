@@ -1,15 +1,10 @@
 import ZODB
 
 import sheraf
+from rich.console import Console
 from rich.progress import track
+from rich.table import Table
 from sheraf.batches.utils import discover_models
-
-try:  # pragma: no cover
-    import colored
-
-    HAS_COLORED = True
-except ImportError:  # pragma: no cover
-    HAS_COLORED = False
 
 
 def check_conflict_resolution():
@@ -145,7 +140,7 @@ def check_health(
     model_checks=None,
     instance_checks=None,
     attribute_checks=None,
-    other_checks=None
+    other_checks=None,
 ):
     """
     Takes some modules in parameters.
@@ -177,9 +172,10 @@ def check_health(
     for model_path, model in models:
 
         for check_key in instance_checks:
-            health_report.setdefault(
-                INSTANCE_CHECK_FUNCS[check_key].__name__, {}
-            ).setdefault(model_path, {"ok": 0, "ko": 0})
+            instance_check_func = INSTANCE_CHECK_FUNCS[check_key]
+            health_report.setdefault(instance_check_func.__name__, {}).setdefault(
+                model_path, {"ok": 0, "ko": 0}
+            )
 
         for check_key in model_checks:
             model_check_func = MODEL_CHECK_FUNCS[check_key]
@@ -214,98 +210,81 @@ def check_health(
     return health_report
 
 
-def _print(string, padding, color):
-    if not HAS_COLORED:
-        return str(string).ljust(padding, "_")
-
-    if padding:  # pragma: no cover
-        return (
-            colored.stylize(string, colored.fg("blue"))
-            + (padding - len(str(string))) * "_"
-        )
-    return colored.stylize(string, colored.fg("blue"))  # pragma: no cover
-
-
-def print_neutral(string, padding=0):
-    return _print(string, padding, "blue")
-
-
-def print_success(string, padding=0):
-    return _print(string, padding, "green")
-
-
-def print_failure(string, padding=0):
-    return _print(string, padding, "red")
-
-
-def _print_check_other_health_result(check_reason, health_table):
-    print(
-        "- {:_<86} ".format(print_neutral(check_reason))
-        + " "
-        + (print_success("OK") if health_table[check_reason] else print_failure("KO"))
+def _print_check_other_health_result(console, check_reason, health_table):
+    table = Table(
+        show_header=True, header_style="bold magenta", title=check_reason, expand=True
     )
+    table.add_column("Check")
+    table.add_column("State")
+
+    table.add_row(check_reason, "OK" if health_table[check_reason] else "KO")
 
 
-def _print_check_model_health_result(check_reason, health_table):
-
-    print(80 * "=" + "\n" + print_neutral(check_reason) + 39 * " " + """OK       KO""")
+def _print_check_model_health_result(console, check_reason, health_table):
     table_key = "check_model_" + check_reason
+    table = Table(
+        show_header=True, header_style="bold magenta", title=table_key, expand=True
+    )
+    table.add_column("Model")
+    table.add_column("KO")
+    table.add_column("OK")
+
     for model_path, attributes in health_table[table_key].items():
-        print(
-            "- {:_<52} TOTAL: ".format(model_path)
-            + print_success(sum(values["ok"] for values in attributes.values()), 8)
-            + " "
-            + print_failure(sum(values["ko"] for values in attributes.values()), 8)
+        table.add_row(
+            model_path,
+            str(sum(values["ko"] for values in attributes.values())),
+            str(sum(values["ok"] for values in attributes.values())),
         )
 
         for attribute_name, values in attributes.items():
-            print(
-                "  - {:_<57} ".format(attribute_name)
-                + print_success(values["ok"], 8)
-                + " "
-                + print_failure(values["ko"], 8)
-            )
+            table.add_row(f"  - {attribute_name}", str(values["ko"]), str(values["ok"]))
 
-    if not health_table[table_key]:
-        print("  No model to visit.")
+    if health_table[table_key]:
+        console.print(table)
+    else:
+        console.print("  No model to visit.")
 
 
-def _print_check_instance_health_result(check_reason, health_table):
+def _print_check_instance_health_result(console, check_reason, health_table):
     """
     :param check_reason: one among model_checks keys
     :param health_table: result of a check function
     """
-    print(80 * "=" + "\n" + print_neutral(check_reason) + 39 * " " + """OK       KO""")
-    for model_path, values in health_table["check_instance_" + check_reason].items():
-        print(
-            "- {:_<59} ".format(model_path)
-            + print_success(values["ok"], 8)
-            + " "
-            + print_failure(values["ko"], 8)
-        )
+    table_key = "check_instance_" + check_reason
+    table = Table(
+        show_header=True, header_style="bold magenta", title=table_key, expand=True
+    )
+    table.add_column("Model")
+    table.add_column("KO")
+    table.add_column("OK")
+    for model_path, values in health_table[table_key].items():
+        table.add_row(model_path, str(values["ko"]), str(values["ok"]))
+    console.print(table)
 
 
-def _print_check_attribute_health_result(check_reason, health_table):
-    print(80 * "=" + "\n{:<62}".format(print_neutral(check_reason)) + """OK       KO""")
+def _print_check_attribute_health_result(console, check_reason, health_table):
     table_key = "check_attributes_" + check_reason
+    table = Table(
+        show_header=True, header_style="bold magenta", title=table_key, expand=True
+    )
+    table.add_column("Model")
+    table.add_column("KO")
+    table.add_column("OK")
+
     for model_path, attributes in health_table[table_key].items():
-        print(
-            "- {:_<52} TOTAL: ".format(model_path)
-            + print_success(sum(values["ok"] for values in attributes.values()), 8)
-            + " "
-            + print_failure(sum(values["ko"] for values in attributes.values()), 8)
+        table.add_row(
+            model_path,
+            str(sum(values["ko"] for values in attributes.values())),
+            str(sum(values["ko"] for values in attributes.values())),
         )
 
         for attribute_name, values in attributes.items():
-            print(
-                "  - {:_<57} ".format(attribute_name)
-                + print_success(values["ok"], 8)
-                + " "
-                + print_failure(values["ko"], 8)
-            )
+            table.add_row(f"  - {attribute_name}", str(values["ko"]), str(values["ok"]))
 
-    if not health_table[table_key]:
-        print("  No model to visit.")
+    if health_table[table_key]:
+        console.print(table)
+    else:
+        console.print("  No model to visit.")
 
 
 def print_health(
@@ -313,8 +292,9 @@ def print_health(
     model_checks=None,
     instance_checks=None,
     attribute_checks=None,
-    other_checks=None
+    other_checks=None,
 ):
+    console = Console()
     """Takes some modules in parameters (e.g. "american._class.cowboy_module").
 
     The function will discover models in the modules, analyze every model instance, and return
@@ -322,7 +302,7 @@ def print_health(
 
     This function does not edit any data and is safe to be executed in a production shell.
     """
-    print(
+    console.print(
         "             _                     __        _               _\n"
         "=========== | | ================= / _| ==== | | =========== | | ===============\n"
         "         ___| |__   ___ _ __ __ _| |_    ___| |__   ___  ___| | _____\n"
@@ -351,13 +331,13 @@ def print_health(
     )
 
     for other_check_type in other_checks:
-        _print_check_other_health_result(other_check_type, health)
+        _print_check_other_health_result(console, other_check_type, health)
 
     for model_check_type in model_checks:
-        _print_check_model_health_result(model_check_type, health)
+        _print_check_model_health_result(console, model_check_type, health)
 
     for instance_check_type in instance_checks:
-        _print_check_instance_health_result(instance_check_type, health)
+        _print_check_instance_health_result(console, instance_check_type, health)
 
     for attribute_check_type in attribute_checks:
-        _print_check_attribute_health_result(attribute_check_type, health)
+        _print_check_attribute_health_result(console, attribute_check_type, health)
