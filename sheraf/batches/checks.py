@@ -210,9 +210,13 @@ def check_health(
     return health_report
 
 
-def _print_check_other_health_result(console, check_reason, health_table):
+def _print_check_other_health_result(console, check_reason, health_table, help):
     table = Table(
-        show_header=True, header_style="bold magenta", title=check_reason, expand=True
+        show_header=True,
+        header_style="bold magenta",
+        title=check_reason,
+        expand=True,
+        caption=help,
     )
     table.add_column("Check")
     table.add_column("State")
@@ -220,10 +224,14 @@ def _print_check_other_health_result(console, check_reason, health_table):
     table.add_row(check_reason, "OK" if health_table[check_reason] else "KO")
 
 
-def _print_check_model_health_result(console, check_reason, health_table):
+def _print_check_model_health_result(console, check_reason, health_table, help):
     table_key = "check_model_" + check_reason
     table = Table(
-        show_header=True, header_style="bold magenta", title=table_key, expand=True
+        show_header=True,
+        header_style="bold magenta",
+        title=table_key,
+        expand=True,
+        caption=help,
     )
     table.add_column("Model")
     table.add_column("KO")
@@ -245,14 +253,18 @@ def _print_check_model_health_result(console, check_reason, health_table):
         console.print("  No model to visit.")
 
 
-def _print_check_instance_health_result(console, check_reason, health_table):
+def _print_check_instance_health_result(console, check_reason, health_table, help):
     """
     :param check_reason: one among model_checks keys
     :param health_table: result of a check function
     """
     table_key = "check_instance_" + check_reason
     table = Table(
-        show_header=True, header_style="bold magenta", title=table_key, expand=True
+        show_header=True,
+        header_style="bold magenta",
+        title=table_key,
+        expand=True,
+        caption=help,
     )
     table.add_column("Model")
     table.add_column("KO")
@@ -262,10 +274,14 @@ def _print_check_instance_health_result(console, check_reason, health_table):
     console.print(table)
 
 
-def _print_check_attribute_health_result(console, check_reason, health_table):
+def _print_check_attribute_health_result(console, check_reason, health_table, help):
     table_key = "check_attributes_" + check_reason
     table = Table(
-        show_header=True, header_style="bold magenta", title=table_key, expand=True
+        show_header=True,
+        header_style="bold magenta",
+        title=table_key,
+        expand=True,
+        caption=help,
     )
     table.add_column("Model")
     table.add_column("KO")
@@ -331,13 +347,33 @@ def print_health(
     )
 
     for other_check_type in other_checks:
-        _print_check_other_health_result(console, other_check_type, health)
+        _print_check_other_health_result(
+            console,
+            other_check_type,
+            health,
+            OTHER_CHECK_FUNCS[other_check_type].__doc__,
+        )
 
     for model_check_type in model_checks:
-        _print_check_model_health_result(console, model_check_type, health)
+        _print_check_model_health_result(
+            console,
+            model_check_type,
+            health,
+            MODEL_CHECK_FUNCS[model_check_type].__doc__,
+        )
 
     for instance_check_type in instance_checks:
-        _print_check_instance_health_result(console, instance_check_type, health)
+        _print_check_instance_health_result(
+            console,
+            instance_check_type,
+            health,
+            INSTANCE_CHECK_FUNCS[instance_check_type].__doc__,
+        )
 
     for attribute_check_type in attribute_checks:
-        _print_check_attribute_health_result(console, attribute_check_type, health)
+        _print_check_attribute_health_result(
+            console,
+            attribute_check_type,
+            health,
+            ATTRIBUTE_CHECK_FUNCS[attribute_check_type].__doc__,
+        )
