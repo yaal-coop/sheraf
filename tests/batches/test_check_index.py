@@ -9,7 +9,6 @@ from . import fixture1
 
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
-@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
 def test_healthcheck_attributes_index_when_instance_deleted(sheraf_database, capsys):
     from .fixture1 import Model2unique
 
@@ -39,7 +38,6 @@ def test_healthcheck_attributes_index_when_instance_deleted(sheraf_database, cap
 
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
-@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
 def test_healthcheck_attributes_index_with_key_when_instance_deleted(
     sheraf_database, capsys
 ):
@@ -67,7 +65,6 @@ def test_healthcheck_attributes_index_with_key_when_instance_deleted(
 
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
-@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
 def test_multiple_healthcheck_attributes_index_when_instance_deleted(
     sheraf_database, capsys
 ):
@@ -96,7 +93,6 @@ def test_multiple_healthcheck_attributes_index_when_instance_deleted(
 
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
-@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
 def test_multiple_healthcheck_attributes_index_with_key_when_instance_deleted(
     sheraf_database, capsys
 ):
@@ -123,7 +119,6 @@ def test_multiple_healthcheck_attributes_index_with_key_when_instance_deleted(
 
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
-@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
 def test_multiple_healthcheck_attributes_index(sheraf_database, capsys):
     from .fixture1 import Model2
 
@@ -150,7 +145,6 @@ def test_multiple_healthcheck_attributes_index(sheraf_database, capsys):
 
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
-@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
 def test_multiple_healthcheck_attributes_index_with_key(sheraf_database, capsys):
     from .fixture1 import Model2k
 
@@ -175,7 +169,6 @@ def test_multiple_healthcheck_attributes_index_with_key(sheraf_database, capsys)
 
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
-@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
 def test_healthcheck_attributes_index(sheraf_database, capsys):
     from .fixture1 import Model2unique
 
@@ -202,7 +195,6 @@ def test_healthcheck_attributes_index(sheraf_database, capsys):
 
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
-@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
 def test_healthcheck_attributes_index_with_key(sheraf_database, capsys):
     from .fixture1 import Model2kunique
 
@@ -229,7 +221,6 @@ def test_healthcheck_attributes_index_with_key(sheraf_database, capsys):
 
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
-@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
 def test_healthcheck_attributes_index_non_primitive(sheraf_database, capsys):
     from .fixture1 import Model3, DummyModel
 
@@ -257,7 +248,6 @@ def test_healthcheck_attributes_index_non_primitive(sheraf_database, capsys):
 
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
-@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
 def test_healthcheck_attributes_index_non_primitive_with_key(sheraf_database, capsys):
     from .fixture1 import Model3k, DummyModel
 
@@ -284,7 +274,6 @@ def test_healthcheck_attributes_index_non_primitive_with_key(sheraf_database, ca
 
 
 @mock.patch("sheraf.batches.checks.HAS_COLORED", False)
-@mock.patch("sheraf.batches.checks.HAS_TQDM", False)
 def test_index_table_not_yet_created(sheraf_database, capsys):
     class Cowboy(sheraf.Model):
         table = "future_cowboys"

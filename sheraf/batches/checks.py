@@ -1,6 +1,7 @@
 import ZODB
 
 import sheraf
+from rich.progress import track
 from sheraf.batches.utils import discover_models
 
 try:  # pragma: no cover
@@ -9,13 +10,6 @@ try:  # pragma: no cover
     HAS_COLORED = True
 except ImportError:  # pragma: no cover
     HAS_COLORED = False
-
-try:  # pragma: no cover
-    from tqdm import tqdm
-
-    HAS_TQDM = True
-except ImportError:  # pragma: no cover
-    HAS_TQDM = False
 
 
 def check_conflict_resolution():
@@ -194,10 +188,7 @@ def check_health(
             ] = model_check_func(model)
 
         # Iterate on instances
-        if HAS_TQDM:  # pragma: no cover
-            iterator = tqdm(model.all(), total=model.count(), desc=model.__name__)
-        else:
-            iterator = model.all()
+        iterator = track(model.all(), total=model.count(), description=model.__name__)
         for m in iterator:
             for check_key in instance_checks:
                 check_func = INSTANCE_CHECK_FUNCS[check_key]
@@ -340,7 +331,6 @@ def print_health(
         "        |___/_| |_|\\___|_|  \\__,_|_|    \\___|_| |_|\\___|\\___|_|\\_\\___/\n"
         "==============================================================================="
     )
-    print("Analyzing your models, this operation can be very long...")
 
     instance_checks = instance_checks or []
     attribute_checks = attribute_checks or []

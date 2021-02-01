@@ -30,7 +30,7 @@ repository = "https://gitlab.com/yaal/sheraf"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.5, <4"
+python = ">=3.6, <4"
 zodb = ">=5"
 zodburi = "*"
 
@@ -46,7 +46,7 @@ psycopg2cffi = {version = "*", optional=true}
 relstorage = {version = "*", optional=true}
 
 colored = {version = "*", optional=true}
-tqdm = {version = "*", optional=true}
+rich = "^9.10.0"
 
 [tool.poetry.extras]
 all = [
@@ -55,7 +55,6 @@ all = [
     "psycopg2cffi",
     "relstorage",
     "colored",
-    "tqdm",
 ]
 relstorage_pg = [
     "psycopg2",
