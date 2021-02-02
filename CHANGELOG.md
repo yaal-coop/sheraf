@@ -1,3 +1,17 @@
+[0.x.x] - 2021-xx-xx
+====================
+
+Changed
+*******
+
+- Checks and migrations now use rich. :issue:`12`
+
+
+Fixed
+*****
+
+- Fixed a bug with indexed :class:`~sheraf.attributes.simples.IntegerAttribute`.
+
 [0.3.5] - 2021-01-29
 ====================
 

@@ -261,7 +261,7 @@ class BaseAttribute(object):
 
         This method can be overload so a custom transformation is applied.
         """
-        return {value}
+        return {self.serialize(value)}
 
     def search(self, value):
         """

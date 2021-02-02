@@ -80,6 +80,9 @@ class UUIDAttribute(BaseAttribute):
             return uuid.UUID(int=value)
         return None
 
+    def values(self, value):
+        return {value}
+
 
 class StringUUIDAttribute(UUIDAttribute):
     """Stores an :class:`uuid.UUID` but data is handled as a string."""
