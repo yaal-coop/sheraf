@@ -7,6 +7,9 @@ from sheraf.attributes.base import BaseAttribute
 class ModelAttribute(ModelLoader, BaseAttribute):
     """This attribute references another :class:`~sheraf.models.Model`.
 
+    :param model: The model type to store.
+    :type model: :class:`~sheraf.models.Model` or list of :class:`~sheraf.models.Model`
+
     >>> class Horse(sheraf.Model):
     ...     table = "horse"
     ...     name = sheraf.SimpleAttribute()
@@ -124,16 +127,26 @@ class ModelAttribute(ModelLoader, BaseAttribute):
 
 
 class InlineModelAttribute(ModelLoader, BaseAttribute):
-    """Class for defining attributes whose value is stored in their owner
-    object as a dictionary, as opposed to ModelAttributes where the
-    corresponding object 'id' is stored instead.
+    """:class:`~sheraf.attributes.models.ModelAttribute` behaves like a basic
+    model (i.e. have no indexation capability). The child attribute mapping is stored
+    in the parent mapping.
 
-    Use this class (1) to faster access the objects referenced by this
-    attribute (2) to encapsulate data for which direct access through
-    tables is not preferred.
+    :param model: The model type to store.
+    :type model: :class:`~sheraf.models.inline.InlineModel`
 
-    :class:`~sheraf.attributes.inline.InlineModelAttribute` should refer to
-    :class:`~sheraf.models.inline.InlineModel`.
+    >>> class Horse(sheraf.InlineModel):
+    ...     name = sheraf.StringAttribute()
+    ...
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "cowboy_inliner"
+    ...     name = sheraf.StringAttribute()
+    ...     horse = sheraf.InlineModelAttribute(Horse)
+    ...
+    >>> with sheraf.connection(commit=True):
+    ...     jolly = Horse.create(name="Jolly Jumper")
+    ...     george = Cowboy.create(name="George", horse=jolly)
+    ...     george.horse.name
+    'Jolly Jumper'
     """
 
     def __init__(self, model=None, **kwargs):
@@ -175,7 +188,32 @@ class InlineModelAttribute(ModelLoader, BaseAttribute):
 
 
 class IndexedModelAttribute(ModelLoader, BaseAttribute):
-    """"""
+    """
+    :class:`~sheraf.attributes.models.ModelAttribute` behaves like a classic model,
+    including the indexation capabilities. The child attribute mapping and all the
+    index mappings are is stored in the parent mapping.
+
+    :param model: The model type to store.
+    :type model: :class:`~sheraf.models.AttributeModel`
+
+    .. note:: The :class:`~sheraf.models.AttributeModel` must have a *primary* index.
+
+    >>> class Horse(sheraf.AttributeModel):
+    ...     name = sheraf.StringAttribute().index(primary=True)
+    ...     size = sheraf.IntegerAttribute().index()
+    ...
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "cowboy_indexer"
+    ...     name = sheraf.StringAttribute()
+    ...     horses = sheraf.IndexedModelAttribute(Horse)
+    ...
+    >>> with sheraf.connection(commit=True):
+    ...     george = Cowboy.create(name="George Abitbol")
+    ...     jolly = george.horses.create(name="Jolly Jumper", size=32)
+    ...
+    ...     assert jolly == george.horses.read("Jolly Jumper")
+    ...     assert jolly in george.horses.search(size=32)
+    """
 
     def read(self, parent):
         for index in self.model.indexes().values():
