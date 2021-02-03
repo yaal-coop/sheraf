@@ -58,6 +58,7 @@ class StringAttribute(TypedAttribute):
     """Stores a :class:`str` object."""
 
     type = str
+    nullok = False
 
 
 class UUIDAttribute(BaseAttribute):

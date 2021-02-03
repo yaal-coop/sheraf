@@ -40,6 +40,8 @@ class BaseAttribute(object):
     """
 
     default_index_mapping = OOBTree
+    nullok = True
+    noneok = False
 
     def __init__(
         self,
@@ -197,8 +199,8 @@ class BaseAttribute(object):
         search=None,
         mapping=None,
         primary=False,
-        nullok=True,
-        noneok=False,
+        nullok=None,
+        noneok=None,
     ):
         """
         Indexing an attribute allows very fast reading with :func:`~sheraf.queryset.QuerySet.filter` calls.

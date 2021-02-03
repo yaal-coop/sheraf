@@ -31,8 +31,8 @@ class IndexDetails:
     attribute = None
     mapping = None
     primary = False
-    nullok = True
-    noneok = False
+    nullok = None
+    noneok = None
 
     def __init__(
         self,
@@ -53,8 +53,8 @@ class IndexDetails:
         self.search_func = search_func or values_func or attribute.search
         self.mapping = mapping
         self.primary = primary
-        self.nullok = nullok
-        self.noneok = noneok
+        self.nullok = nullok if nullok is not None else attribute.nullok
+        self.noneok = noneok if noneok is not None else attribute.noneok
 
     def __repr__(self):
         if self.primary:
