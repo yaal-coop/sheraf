@@ -330,7 +330,7 @@ def print_health(
     attribute_checks=None,
     other_checks=None,
 ):
-    console = Console()
+    console = Console(width=100)
     """Takes some modules in parameters (e.g. "american._class.cowboy_module").
 
     The function will discover models in the modules, analyze every model instance, and return
