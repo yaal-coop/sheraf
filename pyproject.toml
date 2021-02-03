@@ -5,7 +5,7 @@ build-backend = "poetry.masonry.api"
 [tool]
 [tool.poetry]
 name = "sheraf"
-version = "0.3.5"
+version = "0.3.6"
 description = "Versatile ZODB abstraction layer"
 license = "MIT"
 keywords = ["zodb", "orm"]
@@ -46,6 +46,7 @@ psycopg2cffi = {version = "*", optional=true}
 relstorage = {version = "*", optional=true}
 
 rich = "^9.10.0"
+click = "^7.1.2"
 
 [tool.poetry.extras]
 all = [
@@ -87,6 +88,11 @@ wtforms = "*"
 tox = "*"
 unidecode = "*"
 
+[tool.poetry.scripts]
+sheraf = "sheraf.cli:cli"
+
+[options.entry_points.console_scripts]
+console_scripts = { sheraf = "sheraf.cli:cli" }
 
 [tool.coverage.run]
 source = [
