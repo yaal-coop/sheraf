@@ -4,14 +4,10 @@ import sheraf
 
 
 def check_conflict_resolution():
-    """A simple utility functions that checks that sheraf objects conflict
-    resolution is active.
-
-    :return: ``True`` if sheraf objects conflicts can be solved, else ``False``.
-
-    >>> from sheraf.batches.checks import check_conflict_resolution
-    >>> with sheraf.connection():
-    ...    assert check_conflict_resolution()
+    """
+    Checks wether sheraf object conflicts resolutions are possible.
+    When this is KO, it is generally because sheraf is not installed in the ZEO
+    environnement, so ZEO cannot solve sheraf object conflicts.
     """
     table_name = "__conflict_resolution_test_model__"
     nestable = sheraf.Database.get().nestable
@@ -46,9 +42,8 @@ def check_conflict_resolution():
 
 def check_attributes_index(model_instance):
     """
-    For a given model instance compute all the values for all
-    the indexes, then checks the index table if the values
-    match the model instance.
+    For a given model instance this computes all the values for all the indexes,
+    then checks the index table if the values match the model instance.
     """
     root = sheraf.Database.current_connection().root()
     result = {}
@@ -87,10 +82,10 @@ def check_model_index(model):
     Browse an index_table, and checks that every indexed persistent can be read.
 
     For a given attribute:
-    - If MULTIPLE: an attribute index is ok if all model instances for an attribute value are present
-    - If UNIQUE: an attribute index is ok if the model instances for this attribute value is present
-    :param model: a model (class)
-    :return: a health report dictionary for each model for each attribute.
+    - If *unique*, an attribute index is ok if all model instances for an attribute
+      value are present;
+    - If *multiple*, an attribute index is ok if the model instances for this
+      attribute value is present.
     """
     root = sheraf.Database.current_connection().root()
     index_table = root.get(model.table)

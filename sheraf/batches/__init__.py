@@ -2,6 +2,7 @@ from rich.console import Console
 from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
 from rich.table import Table
 from rich.text import Text
+from rich.markdown import Markdown
 from sheraf.batches.utils import discover_models
 
 from .checks import check_conflict_resolution, check_attributes_index, check_model_index
@@ -122,6 +123,7 @@ def _print_check_other_health_result(console, check_reason, health_table, help):
     table.add_column("State")
 
     table.add_row(check_reason, "OK" if health_table[check_reason] else "KO")
+    console.print(table)
 
 
 def _print_check_model_health_result(console, check_reason, health_table, help):
@@ -251,33 +253,41 @@ def print_health(
     )
 
     for other_check_type in other_checks:
+        console.print()
         _print_check_other_health_result(
             console,
             other_check_type,
             health,
-            OTHER_CHECK_FUNCS[other_check_type].__doc__,
+            Markdown(OTHER_CHECK_FUNCS[other_check_type].__doc__),
         )
+        console.print()
 
     for model_check_type in model_checks:
+        console.print()
         _print_check_model_health_result(
             console,
             model_check_type,
             health,
-            MODEL_CHECK_FUNCS[model_check_type].__doc__,
+            Markdown(MODEL_CHECK_FUNCS[model_check_type].__doc__),
         )
+        console.print()
 
     for instance_check_type in instance_checks:
+        console.print()
         _print_check_instance_health_result(
             console,
             instance_check_type,
             health,
-            INSTANCE_CHECK_FUNCS[instance_check_type].__doc__,
+            Markdown(INSTANCE_CHECK_FUNCS[instance_check_type].__doc__),
         )
+        console.print()
 
     for attribute_check_type in attribute_checks:
+        console.print()
         _print_check_attribute_health_result(
             console,
             attribute_check_type,
             health,
-            ATTRIBUTE_CHECK_FUNCS[attribute_check_type].__doc__,
+            Markdown(ATTRIBUTE_CHECK_FUNCS[attribute_check_type].__doc__),
         )
+        console.print()
