@@ -4,6 +4,7 @@ import sheraf
 from rich.console import Console
 from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
 from rich.table import Table
+from rich.text import Text
 from sheraf.batches.utils import discover_models
 
 
@@ -338,13 +339,16 @@ def print_health(
     This function does not edit any data and is safe to be executed in a production shell.
     """
     console.print(
-        "             _                     __        _               _\n"
-        "=========== | | ================= / _| ==== | | =========== | | ===============\n"
-        "         ___| |__   ___ _ __ __ _| |_    ___| |__   ___  ___| | _____\n"
-        "        / __| '_ \\ / _ \\ '__/ _` |  _|  / __| '_ \\ / _ \\/ __| |/ / __|\n"
-        "        \\__ \\ | | |  __/ | | (_| | |   | (__| | | |  __/ (__|   <\\__ \\\n"
-        "        |___/_| |_|\\___|_|  \\__,_|_|    \\___|_| |_|\\___|\\___|_|\\_\\___/\n"
-        "==============================================================================="
+        Text(
+            "====== _ ==================  __ ==\n"
+            "=     | |                   / _| =\n"
+            "=  ___| |__   ___ _ __ __ _| |_  =\n"
+            "= / __| '_ \\ / _ \\ '__/ _` |  _| =\n"
+            "= \\__ \\ | | |  __/ | | (_| | |   =\n"
+            "= |___/_| |_|\\___|_|  \\__,_|_|   =\n"
+            "==================================",
+            justify="center",
+        )
     )
 
     instance_checks = instance_checks or []
