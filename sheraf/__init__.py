@@ -39,7 +39,7 @@ from .attributes.simples import (
     TimeAttribute,
     UUIDAttribute,
 )
-from .batches.checks import print_health
+from .batches import check_health, print_health
 from .constants import ASC, DESC
 from .databases import Database, connection
 from .exceptions import (

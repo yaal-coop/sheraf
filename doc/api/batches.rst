@@ -1,6 +1,10 @@
 Batches
 =======
 
+.. automodule:: sheraf.batches
+    :members:
+    :show-inheritance:
+
 Checks
 ``````
 

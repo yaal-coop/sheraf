@@ -1,9 +1,7 @@
 import re
 
-import mock
-
 import sheraf
-from sheraf.batches.checks import check_health, print_health
+from sheraf.batches import check_health, print_health
 
 from . import fixture1
 
