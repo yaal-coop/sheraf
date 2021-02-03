@@ -22,3 +22,4 @@ def test_healthcheck_conflict_resolution(sheraf_zeo_database):
     assert "check_model_index" in result.output
     assert "check_attributes_index" in result.output
     assert re.search(r"tests.test_cli.CliModel[^\n]*0[^\n]*1", result.output)
+    sheraf.Database.get("cli").close()

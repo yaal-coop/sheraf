@@ -12,8 +12,6 @@ install(show_locals=True)
 def cli(uri):
     sys.path.append(".")
     db = sheraf.Database(uri)
-    yield
-    db.close()
 
 
 @cli.command()
