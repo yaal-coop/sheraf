@@ -42,8 +42,10 @@ def check_conflict_resolution():
 
 def check_attributes_index(model_instance):
     """
-    For a given model instance this computes all the values for all the indexes,
+    Given a model instance, computes all the values for all the indexes,
     then checks the index table if the values match the model instance.
+
+    This finds instances that are not synchronized with theirs indexes.
     """
     root = sheraf.Database.current_connection().root()
     result = {}
@@ -79,13 +81,10 @@ def check_attributes_index(model_instance):
 
 def check_model_index(model):
     """
-    Browse an index_table, and checks that every indexed persistent can be read.
+    Given a model, for every index table, reads every mapping in the table
+    and checks that the mappin belongs a model.
 
-    For a given attribute:
-    - If *unique*, an attribute index is ok if all model instances for an attribute
-      value are present;
-    - If *multiple*, an attribute index is ok if the model instances for this
-      attribute value is present.
+    This finds orphans models.
     """
     root = sheraf.Database.current_connection().root()
     index_table = root.get(model.table)
