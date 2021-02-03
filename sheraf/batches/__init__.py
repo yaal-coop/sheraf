@@ -55,6 +55,9 @@ def check_health(
     with Progress(
         TextColumn("[progress.description]{task.description}"),
         BarColumn(bar_width=None),
+        TextColumn("{task.completed}", justify="right"),
+        TextColumn("/"),
+        TextColumn("{task.total}"),
         TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
         TimeRemainingColumn(),
         console=console,
