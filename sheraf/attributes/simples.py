@@ -70,7 +70,7 @@ class UUIDAttribute(BaseAttribute):
         if isinstance(value, Integral):
             return uuid.UUID(int=value).int
 
-        if isinstance(value, (bytes, str, "".__class__)):
+        if isinstance(value, (bytes, str)):
             return uuid.UUID(value).int
 
         return value.int

@@ -1,3 +1,13 @@
+[0.3.7] - 2021-02-03
+====================
+
+Added
+*****
+
+- :class:`~sheraf.attributes.indexdetails.IndexDetails` have a `nullok`
+  parameter, `True` by default, that allows indexation of falseworthy values.
+  :issue:`16`
+
 [0.3.6] - 2021-02-03
 ====================
 

@@ -21,8 +21,8 @@ class IndexDetails:
                         used.
     :param mapping: The mapping object to be used to store the indexed values. OOBTree by
                     default.
-    :param noneok: Allow to index None or noneok values. `False` by default.
-    """
+    :param nullok: If `True`, `None` or empty values can be indexed. `True` by default.
+    :param noneok: Ignored in if `nullok` is `True`. Else, if `noneok` is  `True`, `None` values can be indexed. `False` by default."""
 
     unique = False
     key = None
@@ -31,10 +31,20 @@ class IndexDetails:
     attribute = None
     mapping = None
     primary = False
+    nullok = True
     noneok = False
 
     def __init__(
-        self, attribute, unique, key, values_func, search_func, mapping, primary, noneok
+        self,
+        attribute,
+        unique,
+        key,
+        values_func,
+        search_func,
+        mapping,
+        primary,
+        nullok,
+        noneok,
     ):
         self.attribute = attribute
         self.unique = unique or primary
@@ -43,6 +53,7 @@ class IndexDetails:
         self.search_func = search_func or values_func or attribute.search
         self.mapping = mapping
         self.primary = primary
+        self.nullok = nullok
         self.noneok = noneok
 
     def __repr__(self):
@@ -58,7 +69,11 @@ class IndexDetails:
 
         value = self.attribute.read(model) if model else keys
 
-        if self.noneok:
-            return self.values_func(value)
+        if not self.nullok:  # Empty values are not indexed
+            return {v for v in self.values_func(value) if v}
 
-        return {v for v in self.values_func(value) if v is not None}
+        elif not self.noneok:  # None values are not indexed
+            return {v for v in self.values_func(value) if v is not None}
+
+        else:  # Everything is indexed
+            return self.values_func(value)

@@ -432,7 +432,7 @@ def test_custom_query_method(sheraf_database):
 
 
 @pytest.mark.parametrize("unique", (True, False))
-def test_none_index(sheraf_connection, unique):
+def test_noneok_index(sheraf_connection, unique):
     class MyModelSimple(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute().index(noneok=True, unique=unique)
         bar = sheraf.SimpleAttribute().index(noneok=False, unique=unique)
@@ -455,7 +455,7 @@ def test_none_index(sheraf_connection, unique):
 
 
 @pytest.mark.parametrize("unique", (True, False))
-def test_none_index_as_default(sheraf_connection, unique):
+def test_noneok_index_with_none_as_default(sheraf_connection, unique):
     class MyModelSimple(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute(default=None).index(noneok=True, unique=unique)
         bar = sheraf.SimpleAttribute(default=None).index(noneok=False, unique=unique)
@@ -472,6 +472,33 @@ def test_none_index_as_default(sheraf_connection, unique):
 
         with pytest.raises(sheraf.exceptions.UniqueIndexException):
             MyModelSimple.create(bar="anything")
+
+
+@pytest.mark.parametrize("unique", (True, False))
+def test_nullok_index(sheraf_connection, unique):
+    class MyModelSimple(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute().index(nullok=True, unique=unique)
+        bar = sheraf.SimpleAttribute().index(nullok=False, unique=unique)
+
+    m = MyModelSimple.create(foo=None, bar=None)
+    assert m not in MyModelSimple.search(foo=None)
+    assert m not in MyModelSimple.search(bar=None)
+    m.delete()
+
+    n = MyModelSimple.create(foo="", bar="")
+    assert n in MyModelSimple.search(foo="")
+    assert n not in MyModelSimple.search(bar="")
+    n.delete()
+
+    o = MyModelSimple.create(foo=0, bar=0)
+    assert o in MyModelSimple.search(foo=0)
+    assert o not in MyModelSimple.search(bar=0)
+    o.delete()
+
+    p = MyModelSimple.create(foo="anything", bar="anything")
+    assert p in MyModelSimple.search(foo="anything")
+    assert p in MyModelSimple.search(bar="anything")
+    p.delete()
 
 
 # ------------------------------------------------------------------------------------------------

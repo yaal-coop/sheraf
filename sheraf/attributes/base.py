@@ -197,6 +197,7 @@ class BaseAttribute(object):
         search=None,
         mapping=None,
         primary=False,
+        nullok=True,
         noneok=False,
     ):
         """
@@ -209,7 +210,8 @@ class BaseAttribute(object):
         :param key: The key the index will use. By default, just the attribute name is used.
         :param values: A callable that takes the current attribute value and returns a collection of values to index. Each generated value will be indexed each time this attribute is edited. It may take time if the generated collection is large. By default, the current attribute raw value is used.
         :param primary: If true, this will be the default index for the model. `False` by default.
-        :param emtpy: If true, `None` or noneok values can be indexed. `False` by default.
+        :param nullok: If `True`, `None` or empty values can be indexed. `True` by default.
+        :param noneok: Ignored in if `nullok` is `True`. Else, if `noneok` is  `True`, `None` values can be indexed. `False` by default.
 
         When indexes are used, **lazy** is disabled.
 
@@ -246,6 +248,7 @@ class BaseAttribute(object):
             search,
             mapping or self.default_index_mapping,
             primary,
+            nullok,
             noneok,
         )
         self.lazy = False
