@@ -2,7 +2,7 @@ import ZODB
 
 import sheraf
 from rich.console import Console
-from rich.progress import track
+from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
 from rich.table import Table
 from sheraf.batches.utils import discover_models
 
@@ -141,6 +141,7 @@ def check_health(
     instance_checks=None,
     attribute_checks=None,
     other_checks=None,
+    console=None,
 ):
     """
     Takes some modules in parameters.
@@ -169,44 +170,62 @@ def check_health(
     for check_key in other_checks:
         health_report[check_key] = OTHER_CHECK_FUNCS[check_key]()
 
-    for model_path, model in models:
+    with Progress(
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(bar_width=None),
+        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        TimeRemainingColumn(),
+        console=console,
+        transient=True,
+    ) as progress:
+        tasks = {}
+        for model_path, model in models:
+            tasks[model] = progress.add_task(model.__name__)
 
-        for check_key in instance_checks:
-            instance_check_func = INSTANCE_CHECK_FUNCS[check_key]
-            health_report.setdefault(instance_check_func.__name__, {}).setdefault(
-                model_path, {"ok": 0, "ko": 0}
-            )
+        for model_path, model in models:
+            progress.update(tasks[model], total=model.count())
 
-        for check_key in model_checks:
-            model_check_func = MODEL_CHECK_FUNCS[check_key]
-            health_report.setdefault(model_check_func.__name__, {})[
-                model_path
-            ] = model_check_func(model)
+        for model_path, model in models:
+            progress.start_task(tasks[model])
 
-        # Iterate on instances
-        iterator = track(model.all(), total=model.count(), description=model.__name__)
-        for m in iterator:
             for check_key in instance_checks:
-                check_func = INSTANCE_CHECK_FUNCS[check_key]
-                model_instance_result = health_report[check_func.__name__][model_path]
-                if check_func(m):
-                    model_instance_result["ok"] += 1
-                else:
-                    model_instance_result["ko"] += 1
+                instance_check_func = INSTANCE_CHECK_FUNCS[check_key]
+                health_report.setdefault(instance_check_func.__name__, {}).setdefault(
+                    model_path, {"ok": 0, "ko": 0}
+                )
 
-            for check_key in attribute_checks:
-                check_func = ATTRIBUTE_CHECK_FUNCS[check_key]
-                health_report.setdefault(check_func.__name__, {})
-                for attribute_name, bool_value in check_func(m).items():
-                    attribute_result = (
-                        health_report[check_func.__name__]
-                        .setdefault(model_path, {})
-                        .setdefault(attribute_name, {"ok": 0, "ko": 0})
-                    )
-                    if bool_value:
-                        attribute_result["ok"] += 1
+            for check_key in model_checks:
+                model_check_func = MODEL_CHECK_FUNCS[check_key]
+                health_report.setdefault(model_check_func.__name__, {})[
+                    model_path
+                ] = model_check_func(model)
+
+            # Iterate on instances
+            for m in model.all():
+                progress.update(tasks[model], advance=1)
+                for check_key in instance_checks:
+                    check_func = INSTANCE_CHECK_FUNCS[check_key]
+                    model_instance_result = health_report[check_func.__name__][
+                        model_path
+                    ]
+                    if check_func(m):
+                        model_instance_result["ok"] += 1
                     else:
-                        attribute_result["ko"] += 1
+                        model_instance_result["ko"] += 1
+
+                for check_key in attribute_checks:
+                    check_func = ATTRIBUTE_CHECK_FUNCS[check_key]
+                    health_report.setdefault(check_func.__name__, {})
+                    for attribute_name, bool_value in check_func(m).items():
+                        attribute_result = (
+                            health_report[check_func.__name__]
+                            .setdefault(model_path, {})
+                            .setdefault(attribute_name, {"ok": 0, "ko": 0})
+                        )
+                        if bool_value:
+                            attribute_result["ok"] += 1
+                        else:
+                            attribute_result["ko"] += 1
     return health_report
 
 
@@ -344,6 +363,7 @@ def print_health(
         instance_checks=instance_checks,
         attribute_checks=attribute_checks,
         other_checks=other_checks,
+        console=console,
     )
 
     for other_check_type in other_checks:
