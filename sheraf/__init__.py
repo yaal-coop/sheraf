@@ -54,6 +54,7 @@ from .exceptions import (
     QuerySetUnpackException,
     EmptyQuerySetUnpackException,
     PrimaryKeyException,
+    UniqueIndexException,
 )
 from .models import (
     AttributeModel,
