@@ -6,6 +6,12 @@ Changed
 
 - `batches` have been renamed `health`
 
+Fixed
+*****
+
+- Fixed a bug happening when creating a :meth:`~sheraf.models.indexation.IndexedModel` with
+  an indexed :class:`~sheraf.attributes.models.ModelAttribute` not initialized at creation.
+
 
 [0.3.7] - 2021-02-03
 ====================

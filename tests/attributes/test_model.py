@@ -155,6 +155,9 @@ def test_indexation(sheraf_connection):
     class Model(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel1).index()
 
+    m = Model.create()
+    assert m.submodel is None
+
     s = Submodel1.create(name="foo")
     m = Model.create(submodel=s)
     assert [m] == Model.search(submodel=s)

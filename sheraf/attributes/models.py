@@ -73,6 +73,9 @@ class ModelAttribute(ModelLoader, BaseAttribute):
         By default :class:`~sheraf.attributes.models.ModelAttribute` are indexed on
         their identifier.
         """
+        if model is None:
+            return {None}
+
         return {
             (model.table, model.identifier)
             if isinstance(self.model, (tuple, list))
