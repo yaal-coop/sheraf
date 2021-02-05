@@ -1,20 +1,20 @@
-Batches
-=======
+Health
+======
 
-.. automodule:: sheraf.batches
+.. automodule:: sheraf.health
     :members:
     :show-inheritance:
 
 Checks
 ``````
 
-.. automodule:: sheraf.batches.checks
+.. automodule:: sheraf.health.checks
     :members:
     :show-inheritance:
 
 Fixes
 `````
 
-.. automodule:: sheraf.batches.fixes
+.. automodule:: sheraf.health.fixes
     :members:
     :show-inheritance:

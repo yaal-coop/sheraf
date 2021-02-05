@@ -1,4 +1,4 @@
-from sheraf.batches.utils import discover_models
+from sheraf.health.utils import discover_models
 
 
 def test_model_discovery():
@@ -9,8 +9,8 @@ def test_model_discovery():
     from .fixture1 import Model1
     from .fixture1.subdirectory.model2 import Model2
 
-    assert ("tests.batches.fixture1.Model1", Model1) in discovery
-    assert ("tests.batches.fixture1.subdirectory.model2.Model2", Model2) in discovery
+    assert ("tests.health.fixture1.Model1", Model1) in discovery
+    assert ("tests.health.fixture1.subdirectory.model2.Model2", Model2) in discovery
 
 
 def test_model_discovery_with_model():
@@ -18,4 +18,4 @@ def test_model_discovery_with_model():
 
     discovery = discover_models(Model1)
 
-    assert ("tests.batches.fixture1.Model1", Model1) in discovery
+    assert ("tests.health.fixture1.Model1", Model1) in discovery

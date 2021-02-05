@@ -3,7 +3,7 @@ from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
 from rich.table import Table
 from rich.text import Text
 from rich.markdown import Markdown
-from sheraf.batches.utils import discover_models
+from sheraf.health.utils import discover_models
 
 from .checks import check_conflict_resolution, check_attributes_index, check_model_index
 

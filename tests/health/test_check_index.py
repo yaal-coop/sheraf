@@ -1,7 +1,7 @@
 import re
 
 import sheraf
-from sheraf.batches import check_health, print_health
+from sheraf.health import check_health, print_health
 
 from . import fixture1
 
@@ -26,12 +26,12 @@ def test_healthcheck_attributes_index_when_instance_deleted(sheraf_database, cap
         health = check_health(fixture1, **kwargs)["check_model_index"]
 
         assert {"str_indexed": {"ok": 2, "ko": 1}} == health[
-            "tests.batches.fixture1.Model2unique"
+            "tests.health.fixture1.Model2unique"
         ]
 
         print_health(fixture1, **kwargs)
         stdout = capsys.readouterr().out
-        assert re.search(r"tests.batches.fixture1.Model2unique[^\n]*1[^\n]*2", stdout)
+        assert re.search(r"tests.health.fixture1.Model2unique[^\n]*1[^\n]*2", stdout)
 
 
 def test_healthcheck_attributes_index_with_key_when_instance_deleted(
@@ -56,7 +56,7 @@ def test_healthcheck_attributes_index_with_key_when_instance_deleted(
         health = check_health(fixture1, **kwargs)["check_model_index"]
 
         assert {"str": {"ok": 2, "ko": 1}} == health[
-            "tests.batches.fixture1.Model2kunique"
+            "tests.health.fixture1.Model2kunique"
         ]
 
 
@@ -83,7 +83,7 @@ def test_multiple_healthcheck_attributes_index_when_instance_deleted(
         health = check_health(fixture1, **kwargs)["check_model_index"]
 
         assert {"str_indexed": {"ok": 1, "ko": 1}} == health[
-            "tests.batches.fixture1.Model2"
+            "tests.health.fixture1.Model2"
         ]
 
 
@@ -109,7 +109,7 @@ def test_multiple_healthcheck_attributes_index_with_key_when_instance_deleted(
         assert "str2" in conn.root()["model2k_table"]["str"]
         health = check_health(fixture1, **kwargs)["check_model_index"]
 
-        assert {"str": {"ok": 1, "ko": 1}} == health["tests.batches.fixture1.Model2k"]
+        assert {"str": {"ok": 1, "ko": 1}} == health["tests.health.fixture1.Model2k"]
 
 
 def test_multiple_healthcheck_attributes_index(sheraf_database, capsys):
@@ -129,12 +129,12 @@ def test_multiple_healthcheck_attributes_index(sheraf_database, capsys):
         health = check_health(fixture1, **kwargs)["check_attributes_index"]
 
         assert {"str_indexed": {"ok": 1, "ko": 1}} == health[
-            "tests.batches.fixture1.Model2"
+            "tests.health.fixture1.Model2"
         ]
 
         print_health(fixture1, **kwargs)
         stdout = capsys.readouterr().out
-        assert re.search(r"tests.batches.fixture1.Model2[^\n]*1[^\n]*1", stdout)
+        assert re.search(r"tests.health.fixture1.Model2[^\n]*1[^\n]*1", stdout)
 
 
 def test_multiple_healthcheck_attributes_index_with_key(sheraf_database, capsys):
@@ -153,11 +153,11 @@ def test_multiple_healthcheck_attributes_index_with_key(sheraf_database, capsys)
         assert "str2" in conn.root()["model2k_table"]["str"]
         health = check_health(fixture1, **kwargs)["check_attributes_index"]
 
-        assert {"str": {"ok": 1, "ko": 1}} == health["tests.batches.fixture1.Model2k"]
+        assert {"str": {"ok": 1, "ko": 1}} == health["tests.health.fixture1.Model2k"]
 
         print_health(fixture1, **kwargs)
         stdout = capsys.readouterr().out
-        assert re.search(r"tests.batches.fixture1.Model2k[^\n]*1[^\n]*1", stdout)
+        assert re.search(r"tests.health.fixture1.Model2k[^\n]*1[^\n]*1", stdout)
 
 
 def test_healthcheck_attributes_index(sheraf_database, capsys):
@@ -177,12 +177,12 @@ def test_healthcheck_attributes_index(sheraf_database, capsys):
         health = check_health(fixture1, **kwargs)["check_attributes_index"]
 
         assert {"str_indexed": {"ok": 1, "ko": 1}} == health[
-            "tests.batches.fixture1.Model2unique"
+            "tests.health.fixture1.Model2unique"
         ]
 
         print_health(fixture1, **kwargs)
         stdout = capsys.readouterr().out
-        assert re.search(r"tests.batches.fixture1.Model2unique[^\n]*1[^\n]*1", stdout)
+        assert re.search(r"tests.health.fixture1.Model2unique[^\n]*1[^\n]*1", stdout)
 
 
 def test_healthcheck_attributes_index_with_key(sheraf_database, capsys):
@@ -202,12 +202,12 @@ def test_healthcheck_attributes_index_with_key(sheraf_database, capsys):
         health = check_health(fixture1, **kwargs)["check_attributes_index"]
 
         assert {"str": {"ok": 1, "ko": 1}} == health[
-            "tests.batches.fixture1.Model2kunique"
+            "tests.health.fixture1.Model2kunique"
         ]
 
         print_health(fixture1, **kwargs)
         stdout = capsys.readouterr().out
-        assert re.search(r"tests.batches.fixture1.Model2kunique[^\n]*1[^\n]*1", stdout)
+        assert re.search(r"tests.health.fixture1.Model2kunique[^\n]*1[^\n]*1", stdout)
 
 
 def test_healthcheck_attributes_index_non_primitive(sheraf_database, capsys):
@@ -228,12 +228,12 @@ def test_healthcheck_attributes_index_non_primitive(sheraf_database, capsys):
         ]
 
         assert {"obj_indexed": {"ok": 1, "ko": 1}} == health[
-            "tests.batches.fixture1.Model3"
+            "tests.health.fixture1.Model3"
         ]
 
         print_health(fixture1)
         stdout = capsys.readouterr().out
-        assert re.search(r"tests.batches.fixture1.Model3[^\n]*1[^\n]*1", stdout)
+        assert re.search(r"tests.health.fixture1.Model3[^\n]*1[^\n]*1", stdout)
 
 
 def test_healthcheck_attributes_index_non_primitive_with_key(sheraf_database, capsys):
@@ -254,11 +254,11 @@ def test_healthcheck_attributes_index_non_primitive_with_key(sheraf_database, ca
             "check_attributes_index"
         ]
 
-        assert {"obj": {"ok": 1, "ko": 1}} == health["tests.batches.fixture1.Model3k"]
+        assert {"obj": {"ok": 1, "ko": 1}} == health["tests.health.fixture1.Model3k"]
 
         print_health(fixture1)
         stdout = capsys.readouterr().out
-        assert re.search(r"tests.batches.fixture1.Model3k[^\n]*1[^\n]*1", stdout)
+        assert re.search(r"tests.health.fixture1.Model3k[^\n]*1[^\n]*1", stdout)
 
 
 def test_index_table_not_yet_created(sheraf_database, capsys):
@@ -278,5 +278,5 @@ def test_index_table_not_yet_created(sheraf_database, capsys):
         health = check_health(Cowboy, attribute_checks=["index"])
 
     assert {"ok": 0, "ko": 2} == health["check_attributes_index"][
-        "tests.batches.test_check_index.Cowboy"
+        "tests.health.test_check_index.Cowboy"
     ]["name"]
