@@ -12,9 +12,9 @@ Checks
     :members:
     :show-inheritance:
 
-Migrations
-``````````
+Fixes
+`````
 
-.. automodule:: sheraf.batches.migrations
+.. automodule:: sheraf.batches.fixes
     :members:
     :show-inheritance:

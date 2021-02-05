@@ -269,13 +269,13 @@ The ``substrings`` function extracts all the possible substring from all the wor
 
 To see how indexes can be used to build a full-text search engine, you can check the :ref:`fts` section.
 
-Migration and checks
---------------------
+Health checks and fixes
+-----------------------
 
 Now you are convinced that indexes are awesome and you want to add some in your models. You can totally just add a ``.index()`` on your attributes, and everything will go fine...
 
 ...except that things may not be faster. This is because indexation is disabled for already populated model tables.
-If your database is empty, indexation will work out of the box, but if you already have some models you will get a :class:`~sheraf.exceptions.IndexationWarning` when you will create or edit model instances.
+If your database is empty, indexation will work out of the box, but if you already have some instances you will get a :class:`~sheraf.exceptions.IndexationWarning` when you will create or edit model instances.
 
 .. code-block:: python
 

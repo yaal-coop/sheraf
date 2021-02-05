@@ -34,7 +34,7 @@ def check_health(
     checking rules (see constant instance_check_funcs)
     The function will discover models in the modules, analyze every
     model instance, and return a health report in JSON. Depending on the
-    result, you may need to apply some migrations.
+    result, you may need to apply some fixes.
     """
     models = discover_models(*args)
     health_report = {}
@@ -219,7 +219,7 @@ def print_health(
     """Takes some modules in parameters (e.g. "american._class.cowboy_module").
 
     The function will discover models in the modules, analyze every model instance, and return
-    a health report in a human readable format. Depending on the result, you may need to apply some migrations.
+    a health report in a human readable format. Depending on the result, you may need to apply some fixes.
 
     This function does not edit any data and is safe to be executed in a production shell.
     """
