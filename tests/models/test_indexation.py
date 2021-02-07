@@ -23,14 +23,14 @@ import tests
     ],
 )
 def test_integer_unique_index_creation(sheraf_database, instance, mapping):
-    class MyUniqueModel(tests.IntAutoModel):
+    class UniqueModel(tests.IntAutoModel):
         my_attribute = instance
 
     with sheraf.connection(commit=True):
-        mfoo = MyUniqueModel.create(my_attribute=22)
+        mfoo = UniqueModel.create(my_attribute=22)
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["myuniquemodel"]["my_attribute"]
+        index_table = conn.root()["uniquemodel"]["my_attribute"]
         assert {22} == set(index_table)
         assert mfoo.mapping == index_table[22]
 
@@ -43,95 +43,91 @@ def test_integer_unique_index_creation(sheraf_database, instance, mapping):
 
 
 def test_unique_index_creation(sheraf_database):
-    class MyUniqueModel(tests.IntAutoModel):
+    class UniqueModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(unique=True)
 
     with sheraf.connection(commit=True):
-        mfoo = MyUniqueModel.create(my_attribute="foo")
-        mbar = MyUniqueModel.create(my_attribute="bar")
+        mfoo = UniqueModel.create(my_attribute="foo")
+        mbar = UniqueModel.create(my_attribute="bar")
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["myuniquemodel"]["my_attribute"]
+        index_table = conn.root()["uniquemodel"]["my_attribute"]
         assert {"foo", "bar"} == set(index_table)
         assert mfoo.mapping == index_table["foo"]
         assert mbar.mapping == index_table["bar"]
 
-        assert mbar == MyUniqueModel.read(my_attribute="bar")
-        assert [mbar] == list(MyUniqueModel.read_these(my_attribute=["bar"]))
-        assert [mbar, mfoo] == list(
-            MyUniqueModel.read_these(my_attribute=["bar", "foo"])
-        )
+        assert mbar == UniqueModel.read(my_attribute="bar")
+        assert [mbar] == list(UniqueModel.read_these(my_attribute=["bar"]))
+        assert [mbar, mfoo] == list(UniqueModel.read_these(my_attribute=["bar", "foo"]))
 
-        # MyUniqueModel._read_unique_index = mock.MagicMock(
-        #    side_effect=MyUniqueModel._read_unique_index
+        # UniqueModel._read_unique_index = mock.MagicMock(
+        #    side_effect=UniqueModel._read_unique_index
         # )
-        assert [mbar] == MyUniqueModel.filter(my_attribute="bar")
-        # MyUniqueModel._read_unique_index.assert_has_calls(
+        assert [mbar] == UniqueModel.filter(my_attribute="bar")
+        # UniqueModel._read_unique_index.assert_has_calls(
         #    [mock.call("bar", "my_attribute")]
         # )
 
 
 def test_unique_index_creation_and_edition(sheraf_database):
-    class MyUniqueModel(tests.IntAutoModel):
+    class UniqueModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(unique=True)
 
     with sheraf.connection(commit=True):
-        mfoo = MyUniqueModel.create(my_attribute="FOO")
-        mbar = MyUniqueModel.create(my_attribute="BAR")
+        mfoo = UniqueModel.create(my_attribute="FOO")
+        mbar = UniqueModel.create(my_attribute="BAR")
 
     with sheraf.connection(commit=True):
-        MyUniqueModel.read(mfoo.id).my_attribute = "foo"
-        MyUniqueModel.read(mbar.id).my_attribute = "bar"
+        UniqueModel.read(mfoo.id).my_attribute = "foo"
+        UniqueModel.read(mbar.id).my_attribute = "bar"
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["myuniquemodel"]["my_attribute"]
+        index_table = conn.root()["uniquemodel"]["my_attribute"]
         assert {"foo", "bar"} == set(index_table)
         assert mfoo.mapping == index_table["foo"]
         assert mbar.mapping == index_table["bar"]
 
-        assert mbar == MyUniqueModel.read(my_attribute="bar")
-        assert [mbar] == list(MyUniqueModel.read_these(my_attribute=["bar"]))
-        assert [mbar, mfoo] == list(
-            MyUniqueModel.read_these(my_attribute=["bar", "foo"])
-        )
+        assert mbar == UniqueModel.read(my_attribute="bar")
+        assert [mbar] == list(UniqueModel.read_these(my_attribute=["bar"]))
+        assert [mbar, mfoo] == list(UniqueModel.read_these(my_attribute=["bar", "foo"]))
 
-        # MyUniqueModel._read_unique_index = mock.MagicMock(
-        #    side_effect=MyUniqueModel._read_unique_index
+        # UniqueModel._read_unique_index = mock.MagicMock(
+        #    side_effect=UniqueModel._read_unique_index
         # )
-        assert [mbar] == MyUniqueModel.filter(my_attribute="bar")
-        # MyUniqueModel._read_unique_index.assert_has_calls(
+        assert [mbar] == UniqueModel.filter(my_attribute="bar")
+        # UniqueModel._read_unique_index.assert_has_calls(
         #    [mock.call("bar", "my_attribute")]
         # )
 
 
 def test_unique_index_creation_and_deletion(sheraf_database):
-    class MyUniqueModel(tests.IntAutoModel):
+    class UniqueModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(unique=True)
 
     with sheraf.connection(commit=True):
-        mfoo = MyUniqueModel.create(my_attribute="foo")
-        mbar = MyUniqueModel.create(my_attribute="bar")
+        mfoo = UniqueModel.create(my_attribute="foo")
+        mbar = UniqueModel.create(my_attribute="bar")
 
     with sheraf.connection(commit=True):
         mfoo.delete()
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["myuniquemodel"]["my_attribute"]
+        index_table = conn.root()["uniquemodel"]["my_attribute"]
         assert {"bar"} == set(index_table)
-        assert [] == MyUniqueModel.filter(my_attribute="foo")
-        assert [mbar] == MyUniqueModel.filter(my_attribute="bar")
+        assert [] == UniqueModel.filter(my_attribute="foo")
+        assert [mbar] == UniqueModel.filter(my_attribute="bar")
 
 
 def test_unique_index_double_value(sheraf_database):
-    class MyUniqueModel(tests.IntAutoModel):
+    class UniqueModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(unique=True)
 
     with sheraf.connection(commit=True):
-        MyUniqueModel.create(my_attribute="foo")
+        UniqueModel.create(my_attribute="foo")
 
     with sheraf.connection():
         with pytest.raises(sheraf.exceptions.UniqueIndexException):
-            MyUniqueModel.create(my_attribute="foo")
+            UniqueModel.create(my_attribute="foo")
 
 
 def test_unique_indexation_on_model_attribute(sheraf_database):
@@ -139,18 +135,18 @@ def test_unique_indexation_on_model_attribute(sheraf_database):
         table = "dummymodel_table"
         v = sheraf.SimpleAttribute(lazy=False, default=str)
 
-    class MyModel(sheraf.Model):
-        table = "mymodel_table"
+    class Model(sheraf.Model):
+        table = "model_table"
         dummy_attribute = sheraf.ModelAttribute(DummyModel, lazy=False).index(
             unique=True, values=lambda x: {x.v}
         )
 
     with sheraf.connection(commit=True):
         foo = DummyModel.create(v="fou")
-        MyModel.create(dummy_attribute=foo)
+        Model.create(dummy_attribute=foo)
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["mymodel_table"]["dummy_attribute"]
+        index_table = conn.root()["model_table"]["dummy_attribute"]
         assert {"fou"} == set(index_table)
 
 
@@ -162,7 +158,6 @@ def test_unique_index_set_afterwards(sheraf_database):
 
     with sheraf.connection(commit=True):
         dummy = DummyModel.create()
-        print(dummy.id)
         dummy.foo = "bar"
 
     with sheraf.connection():
@@ -175,226 +170,226 @@ def test_unique_index_set_afterwards(sheraf_database):
 
 
 def test_multiple_index_creation(sheraf_database):
-    class MyMultipleModel(tests.IntAutoModel):
+    class MultipleModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
-        mfoo = MyMultipleModel.create(my_attribute="foo")
-        mbar1 = MyMultipleModel.create(my_attribute="bar")
-        mbar2 = MyMultipleModel.create(my_attribute="bar")
+        mfoo = MultipleModel.create(my_attribute="foo")
+        mbar1 = MultipleModel.create(my_attribute="bar")
+        mbar2 = MultipleModel.create(my_attribute="bar")
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["mymultiplemodel"]["my_attribute"]
+        index_table = conn.root()["multiplemodel"]["my_attribute"]
         assert {"foo", "bar"} == set(index_table)
         assert [mfoo.mapping] == list(index_table["foo"])
         assert [mbar1.mapping, mbar2.mapping] == list(index_table["bar"])
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
-            MyMultipleModel.read(my_attribute="bar")
-        assert [mbar1, mbar2] == list(MyMultipleModel.read_these(my_attribute=["bar"]))
+            MultipleModel.read(my_attribute="bar")
+        assert [mbar1, mbar2] == list(MultipleModel.read_these(my_attribute=["bar"]))
 
-        # MyMultipleModel._read_multiple_index = mock.MagicMock(
-        #    side_effect=MyMultipleModel._read_multiple_index
+        # MultipleModel._read_multiple_index = mock.MagicMock(
+        #    side_effect=MultipleModel._read_multiple_index
         # )
-        assert [mbar1, mbar2] == MyMultipleModel.filter(my_attribute="bar")
-        # MyMultipleModel._read_multiple_index.assert_has_calls(
+        assert [mbar1, mbar2] == MultipleModel.filter(my_attribute="bar")
+        # MultipleModel._read_multiple_index.assert_has_calls(
         #    [mock.call("bar", "my_attribute")]
         # )
 
 
 def test_multiple_index_creation_and_deletion(sheraf_database):
-    class MyMultipleModel(tests.IntAutoModel):
+    class MultipleModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
-        mfoo = MyMultipleModel.create(my_attribute="foo")
-        mbar1 = MyMultipleModel.create(my_attribute="bar")
-        mbar2 = MyMultipleModel.create(my_attribute="bar")
+        mfoo = MultipleModel.create(my_attribute="foo")
+        mbar1 = MultipleModel.create(my_attribute="bar")
+        mbar2 = MultipleModel.create(my_attribute="bar")
 
     with sheraf.connection(commit=True):
         mfoo.delete()
         mbar2.delete()
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["mymultiplemodel"]["my_attribute"]
+        index_table = conn.root()["multiplemodel"]["my_attribute"]
         assert {"bar"} == set(index_table)
-        assert [] == MyMultipleModel.filter(my_attribute="foo")
-        assert [mbar1] == MyMultipleModel.filter(my_attribute="bar")
+        assert [] == MultipleModel.filter(my_attribute="foo")
+        assert [mbar1] == MultipleModel.filter(my_attribute="bar")
 
 
 def test_multiple_index_several_filters(sheraf_database):
-    class MyMultipleModel(tests.IntAutoModel):
+    class MultipleModel(tests.IntAutoModel):
         my_attribute_1 = sheraf.SimpleAttribute().index()
         my_attribute_2 = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
-        MyMultipleModel.create(my_attribute_1="foo", my_attribute_2="foo")
-        MyMultipleModel.create(my_attribute_1="bar", my_attribute_2="bar")
-        m = MyMultipleModel.create(my_attribute_1="foo", my_attribute_2="bar")
+        MultipleModel.create(my_attribute_1="foo", my_attribute_2="foo")
+        MultipleModel.create(my_attribute_1="bar", my_attribute_2="bar")
+        m = MultipleModel.create(my_attribute_1="foo", my_attribute_2="bar")
 
     with sheraf.connection():
-        assert [m] == MyMultipleModel.filter(my_attribute_1="foo").filter(
+        assert [m] == MultipleModel.filter(my_attribute_1="foo").filter(
             my_attribute_2="bar"
         )
 
 
 def test_multiple_index_ordering(sheraf_database):
-    class MyMultipleAllModel(tests.IntAutoModel):
+    class MultipleAllModel(tests.IntAutoModel):
         my_attribute_1 = sheraf.SimpleAttribute().index()
         my_attribute_2 = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
-        maa = MyMultipleAllModel.create(my_attribute_1="a", my_attribute_2="a")
-        mab = MyMultipleAllModel.create(my_attribute_1="a", my_attribute_2="b")
-        mba = MyMultipleAllModel.create(my_attribute_1="b", my_attribute_2="a")
-        mbb = MyMultipleAllModel.create(my_attribute_1="b", my_attribute_2="b")
+        maa = MultipleAllModel.create(my_attribute_1="a", my_attribute_2="a")
+        mab = MultipleAllModel.create(my_attribute_1="a", my_attribute_2="b")
+        mba = MultipleAllModel.create(my_attribute_1="b", my_attribute_2="a")
+        mbb = MultipleAllModel.create(my_attribute_1="b", my_attribute_2="b")
 
     with sheraf.connection():
-        assert [mab, maa, mbb, mba] == MyMultipleAllModel.order(
+        assert [mab, maa, mbb, mba] == MultipleAllModel.order(
             my_attribute_1=sheraf.ASC
         ).order(my_attribute_2=sheraf.DESC)
 
 
 def test_index_key(sheraf_database):
-    class MyIndexKeyModel(tests.IntAutoModel):
+    class IndexKeyModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(key="another_index_key")
 
     with sheraf.connection(commit=True):
-        mfoo = MyIndexKeyModel.create(my_attribute="foo")
+        mfoo = IndexKeyModel.create(my_attribute="foo")
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["myindexkeymodel"]["another_index_key"]
+        index_table = conn.root()["indexkeymodel"]["another_index_key"]
         assert {"foo"} == set(index_table)
         assert [mfoo.mapping] == list(index_table["foo"])
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
-            MyIndexKeyModel.read(another_index_key="foo")
-        assert [mfoo] == list(MyIndexKeyModel.read_these(another_index_key=["foo"]))
+            IndexKeyModel.read(another_index_key="foo")
+        assert [mfoo] == list(IndexKeyModel.read_these(another_index_key=["foo"]))
 
-        # MyIndexKeyModel._read_multiple_index = mock.MagicMock(
-        #    side_effect=MyIndexKeyModel._read_multiple_index
+        # IndexKeyModel._read_multiple_index = mock.MagicMock(
+        #    side_effect=IndexKeyModel._read_multiple_index
         # )
-        assert [mfoo] == MyIndexKeyModel.filter(another_index_key="foo")
-        # MyIndexKeyModel._read_multiple_index.assert_has_calls(
+        assert [mfoo] == IndexKeyModel.filter(another_index_key="foo")
+        # IndexKeyModel._read_multiple_index.assert_has_calls(
         #    [mock.call("foo", "another_index_key")]
         # )
 
 
 def test_multiple_keys_index_create(sheraf_database):
-    class MyMultipleKeysIndexModel(tests.IntAutoModel):
+    class MultipleKeysIndexModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(key="key_1").index(key="key_2")
 
     with sheraf.connection(commit=True):
-        mfoo = MyMultipleKeysIndexModel.create(my_attribute="foo")
+        mfoo = MultipleKeysIndexModel.create(my_attribute="foo")
 
     with sheraf.connection() as conn:
-        index_table_key_1 = conn.root()["mymultiplekeysindexmodel"]["key_1"]
-        index_table_key_2 = conn.root()["mymultiplekeysindexmodel"]["key_2"]
+        index_table_key_1 = conn.root()["multiplekeysindexmodel"]["key_1"]
+        index_table_key_2 = conn.root()["multiplekeysindexmodel"]["key_2"]
         assert {"foo"} == set(index_table_key_1)
         assert [mfoo.mapping] == list(index_table_key_1["foo"])
         assert {"foo"} == set(index_table_key_2)
         assert [mfoo.mapping] == list(index_table_key_2["foo"])
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
-            MyMultipleKeysIndexModel.read(key_1="foo")
-        assert [mfoo] == list(MyMultipleKeysIndexModel.read_these(key_1=["foo"]))
+            MultipleKeysIndexModel.read(key_1="foo")
+        assert [mfoo] == list(MultipleKeysIndexModel.read_these(key_1=["foo"]))
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
-            MyMultipleKeysIndexModel.read(key_2="foo")
-        assert [mfoo] == list(MyMultipleKeysIndexModel.read_these(key_2=["foo"]))
+            MultipleKeysIndexModel.read(key_2="foo")
+        assert [mfoo] == list(MultipleKeysIndexModel.read_these(key_2=["foo"]))
 
-        # MyMultipleKeysIndexModel._read_multiple_index = mock.MagicMock(
-        #    side_effect=MyMultipleKeysIndexModel._read_multiple_index
+        # MultipleKeysIndexModel._read_multiple_index = mock.MagicMock(
+        #    side_effect=MultipleKeysIndexModel._read_multiple_index
         # )
-        assert [mfoo] == MyMultipleKeysIndexModel.filter(key_1="foo")
-        # MyMultipleKeysIndexModel._read_multiple_index.assert_has_calls(
+        assert [mfoo] == MultipleKeysIndexModel.filter(key_1="foo")
+        # MultipleKeysIndexModel._read_multiple_index.assert_has_calls(
         #    [mock.call("foo", "key_1")]
         # )
 
-        assert [mfoo] == MyMultipleKeysIndexModel.filter(key_2="foo")
-        # MyMultipleKeysIndexModel._read_multiple_index.assert_has_calls(
+        assert [mfoo] == MultipleKeysIndexModel.filter(key_2="foo")
+        # MultipleKeysIndexModel._read_multiple_index.assert_has_calls(
         #    [mock.call("foo", "key_1")]
         # )
 
 
 def test_multiple_keys_index_update(sheraf_database):
-    class MyMultipleKeysIndexModel(tests.IntAutoModel):
+    class MultipleKeysIndexModel(tests.IntAutoModel):
         my_attribute = sheraf.SimpleAttribute().index(key="key_1").index(key="key_2")
 
     with sheraf.connection(commit=True):
-        mfoo = MyMultipleKeysIndexModel.create(my_attribute="bar")
+        mfoo = MultipleKeysIndexModel.create(my_attribute="bar")
 
     with sheraf.connection(commit=True):
-        mfoo = MyMultipleKeysIndexModel.read(mfoo.id)
+        mfoo = MultipleKeysIndexModel.read(mfoo.id)
         mfoo.my_attribute = "foo"
 
     with sheraf.connection() as conn:
-        index_table_key_1 = conn.root()["mymultiplekeysindexmodel"]["key_1"]
-        index_table_key_2 = conn.root()["mymultiplekeysindexmodel"]["key_2"]
+        index_table_key_1 = conn.root()["multiplekeysindexmodel"]["key_1"]
+        index_table_key_2 = conn.root()["multiplekeysindexmodel"]["key_2"]
         assert {"foo"} == set(index_table_key_1)
         assert [mfoo.mapping] == list(index_table_key_1["foo"])
         assert {"foo"} == set(index_table_key_2)
         assert [mfoo.mapping] == list(index_table_key_2["foo"])
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
-            MyMultipleKeysIndexModel.read(key_1="foo")
-        assert [mfoo] == list(MyMultipleKeysIndexModel.read_these(key_1=["foo"]))
+            MultipleKeysIndexModel.read(key_1="foo")
+        assert [mfoo] == list(MultipleKeysIndexModel.read_these(key_1=["foo"]))
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
-            MyMultipleKeysIndexModel.read(key_2="foo")
-        assert [mfoo] == list(MyMultipleKeysIndexModel.read_these(key_2=["foo"]))
+            MultipleKeysIndexModel.read(key_2="foo")
+        assert [mfoo] == list(MultipleKeysIndexModel.read_these(key_2=["foo"]))
 
-        # MyMultipleKeysIndexModel._read_multiple_index = mock.MagicMock(
-        #    side_effect=MyMultipleKeysIndexModel._read_multiple_index
+        # MultipleKeysIndexModel._read_multiple_index = mock.MagicMock(
+        #    side_effect=MultipleKeysIndexModel._read_multiple_index
         # )
-        assert [mfoo] == MyMultipleKeysIndexModel.filter(key_1="foo")
-        # MyMultipleKeysIndexModel._read_multiple_index.assert_has_calls(
+        assert [mfoo] == MultipleKeysIndexModel.filter(key_1="foo")
+        # MultipleKeysIndexModel._read_multiple_index.assert_has_calls(
         #    [mock.call("foo", "key_1")]
         # )
 
-        assert [mfoo] == MyMultipleKeysIndexModel.filter(key_2="foo")
-        # MyMultipleKeysIndexModel._read_multiple_index.assert_has_calls(
+        assert [mfoo] == MultipleKeysIndexModel.filter(key_2="foo")
+        # MultipleKeysIndexModel._read_multiple_index.assert_has_calls(
         #    [mock.call("foo", "key_1")]
         # )
 
 
 def test_custom_indexation_method(sheraf_database):
-    class MyCustomModel(tests.IntAutoModel):
+    class CustomModel(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute().index(
             unique=True, values=lambda string: {string.lower()}
         )
         bar = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
-        m = MyCustomModel.create(foo="FOO", bar="BAR")
+        m = CustomModel.create(foo="FOO", bar="BAR")
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["mycustommodel"]["foo"]
+        index_table = conn.root()["custommodel"]["foo"]
         assert {"foo"} == set(index_table)
         assert m.mapping == index_table["foo"]
 
-        assert [m] == list(MyCustomModel.filter(foo="foo"))
-        assert [] == list(MyCustomModel.filter(foo="FOO"))
+        assert [m] == list(CustomModel.filter(foo="foo"))
+        assert [] == list(CustomModel.filter(foo="FOO"))
 
-        assert [m] == list(MyCustomModel.filter(foo="foo", bar="BAR"))
-        assert [] == list(MyCustomModel.filter(foo="foo", bar="bar"))
+        assert [m] == list(CustomModel.filter(foo="foo", bar="BAR"))
+        assert [] == list(CustomModel.filter(foo="foo", bar="bar"))
 
-        assert [m] == list(MyCustomModel.search(foo="foo"))
-        assert [m] == list(MyCustomModel.search(foo="FOO"))
+        assert [m] == list(CustomModel.search(foo="foo"))
+        assert [m] == list(CustomModel.search(foo="FOO"))
 
-        assert [m] == list(MyCustomModel.search(foo="foo", bar="BAR"))
-        assert [m] == list(MyCustomModel.search(foo="FOO", bar="BAR"))
+        assert [m] == list(CustomModel.search(foo="foo", bar="BAR"))
+        assert [m] == list(CustomModel.search(foo="FOO", bar="BAR"))
 
-        assert [] == list(MyCustomModel.search(foo="foo", bar="bar"))
-        assert [] == list(MyCustomModel.search(foo="FOO", bar="bar"))
+        assert [] == list(CustomModel.search(foo="foo", bar="bar"))
+        assert [] == list(CustomModel.search(foo="FOO", bar="bar"))
 
     with sheraf.connection():
         with pytest.raises(sheraf.exceptions.UniqueIndexException):
-            MyCustomModel.create(foo="FOO")
+            CustomModel.create(foo="FOO")
 
 
 def test_custom_query_method(sheraf_database):
-    class MyCustomModel(tests.IntAutoModel):
+    class CustomModel(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute().index(
             unique=True,
             values=lambda string: {string.lower()},
@@ -403,27 +398,27 @@ def test_custom_query_method(sheraf_database):
         bar = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
-        m = MyCustomModel.create(foo="FOO", bar="BAR")
+        m = CustomModel.create(foo="FOO", bar="BAR")
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["mycustommodel"]["foo"]
+        index_table = conn.root()["custommodel"]["foo"]
         assert {"foo"} == set(index_table)
         assert m.mapping == index_table["foo"]
 
-        assert [m] == list(MyCustomModel.search(foo="oof"))
-        assert [m] == list(MyCustomModel.search(foo="foo"))
-        assert [m] == list(MyCustomModel.search(foo="OOF"))
-        assert [m] == list(MyCustomModel.search(foo="FOO"))
+        assert [m] == list(CustomModel.search(foo="oof"))
+        assert [m] == list(CustomModel.search(foo="foo"))
+        assert [m] == list(CustomModel.search(foo="OOF"))
+        assert [m] == list(CustomModel.search(foo="FOO"))
 
-        assert [m] == list(MyCustomModel.search(foo="oof", bar="BAR"))
-        assert [m] == list(MyCustomModel.search(foo="OOF", bar="BAR"))
+        assert [m] == list(CustomModel.search(foo="oof", bar="BAR"))
+        assert [m] == list(CustomModel.search(foo="OOF", bar="BAR"))
 
-        assert [] == list(MyCustomModel.search(foo="oof", bar="bar"))
-        assert [] == list(MyCustomModel.search(foo="OOF", bar="bar"))
+        assert [] == list(CustomModel.search(foo="oof", bar="bar"))
+        assert [] == list(CustomModel.search(foo="OOF", bar="bar"))
 
     with sheraf.connection():
         with pytest.raises(sheraf.exceptions.UniqueIndexException):
-            MyCustomModel.create(foo="FOO")
+            CustomModel.create(foo="FOO")
 
 
 # ----------------------------------------------------------------------------
@@ -433,71 +428,71 @@ def test_custom_query_method(sheraf_database):
 
 @pytest.mark.parametrize("unique", (True, False))
 def test_noneok_index(sheraf_connection, unique):
-    class MyModelSimple(tests.IntAutoModel):
+    class ModelSimple(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute().index(noneok=True, unique=unique)
         bar = sheraf.SimpleAttribute().index(noneok=False, unique=unique)
 
-    m = MyModelSimple.create(foo=None, bar=None)
-    assert m in MyModelSimple.search(foo=None)
-    assert m not in MyModelSimple.search(bar=None)
+    m = ModelSimple.create(foo=None, bar=None)
+    assert m in ModelSimple.search(foo=None)
+    assert m not in ModelSimple.search(bar=None)
 
-    n = MyModelSimple.create(foo="", bar="")
-    assert n in MyModelSimple.search(foo="")
-    assert n in MyModelSimple.search(bar="")
+    n = ModelSimple.create(foo="", bar="")
+    assert n in ModelSimple.search(foo="")
+    assert n in ModelSimple.search(bar="")
 
-    class MyModelInteger(tests.IntAutoModel):
+    class ModelInteger(tests.IntAutoModel):
         foo = sheraf.IntegerAttribute().index(noneok=True, unique=unique)
         bar = sheraf.IntegerAttribute().index(noneok=False, unique=unique)
 
-    o = MyModelInteger.create(foo=0, bar=0)
-    assert o in MyModelInteger.search(foo=0)
-    assert o in MyModelInteger.search(bar=0)
+    o = ModelInteger.create(foo=0, bar=0)
+    assert o in ModelInteger.search(foo=0)
+    assert o in ModelInteger.search(bar=0)
 
 
 @pytest.mark.parametrize("unique", (True, False))
 def test_noneok_index_with_none_as_default(sheraf_connection, unique):
-    class MyModelSimple(tests.IntAutoModel):
+    class ModelSimple(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute(default=None).index(noneok=True, unique=unique)
         bar = sheraf.SimpleAttribute(default=None).index(noneok=False, unique=unique)
 
-    m = MyModelSimple.create()
-    assert m in MyModelSimple.search(foo=None)
-    assert m not in MyModelSimple.search(bar=None)
+    m = ModelSimple.create()
+    assert m in ModelSimple.search(foo=None)
+    assert m not in ModelSimple.search(bar=None)
 
     if not unique:
-        MyModelSimple.create()
+        ModelSimple.create()
 
     else:
-        MyModelSimple.create(foo="anything")
+        ModelSimple.create(foo="anything")
 
         with pytest.raises(sheraf.exceptions.UniqueIndexException):
-            MyModelSimple.create(bar="anything")
+            ModelSimple.create(bar="anything")
 
 
 @pytest.mark.parametrize("unique", (True, False))
 def test_nullok_index(sheraf_connection, unique):
-    class MyModelSimple(tests.IntAutoModel):
+    class ModelSimple(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute().index(nullok=True, unique=unique)
         bar = sheraf.SimpleAttribute().index(nullok=False, unique=unique)
 
-    m = MyModelSimple.create(foo=None, bar=None)
-    assert m not in MyModelSimple.search(foo=None)
-    assert m not in MyModelSimple.search(bar=None)
+    m = ModelSimple.create(foo=None, bar=None)
+    assert m not in ModelSimple.search(foo=None)
+    assert m not in ModelSimple.search(bar=None)
     m.delete()
 
-    n = MyModelSimple.create(foo="", bar="")
-    assert n in MyModelSimple.search(foo="")
-    assert n not in MyModelSimple.search(bar="")
+    n = ModelSimple.create(foo="", bar="")
+    assert n in ModelSimple.search(foo="")
+    assert n not in ModelSimple.search(bar="")
     n.delete()
 
-    o = MyModelSimple.create(foo=0, bar=0)
-    assert o in MyModelSimple.search(foo=0)
-    assert o not in MyModelSimple.search(bar=0)
+    o = ModelSimple.create(foo=0, bar=0)
+    assert o in ModelSimple.search(foo=0)
+    assert o not in ModelSimple.search(bar=0)
     o.delete()
 
-    p = MyModelSimple.create(foo="anything", bar="anything")
-    assert p in MyModelSimple.search(foo="anything")
-    assert p in MyModelSimple.search(bar="anything")
+    p = ModelSimple.create(foo="anything", bar="anything")
+    assert p in ModelSimple.search(foo="anything")
+    assert p in ModelSimple.search(bar="anything")
     p.delete()
 
 
@@ -507,73 +502,73 @@ def test_nullok_index(sheraf_connection, unique):
 
 
 def test_unique_indexation_and_filter_on_wrong_attribute(sheraf_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         an_attribute = sheraf.SimpleAttribute().index(unique=True)
 
     with sheraf.connection(commit=True):
-        m = MyModel.create(an_attribute="foo")
+        m = Model.create(an_attribute="foo")
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["mymodel"]["an_attribute"]
+        index_table = conn.root()["model"]["an_attribute"]
         assert {"foo"} == set(index_table)
         assert m.mapping == index_table["foo"]
 
         with pytest.raises(sheraf.exceptions.InvalidFilterException):
-            list(MyModel.filter(foobar="foo"))
+            list(Model.filter(foobar="foo"))
 
 
 def test_reset_index_table(sheraf_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
-        MyModel.create(foo="bar")
-        MyModel.create(foo="baz")
+        Model.create(foo="bar")
+        Model.create(foo="baz")
 
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
         with warnings.catch_warnings(record=True) as warns:
-            MyModel.create(foo="foobar")
+            Model.create(foo="foobar")
             assert warns[0].category is sheraf.exceptions.IndexationWarning
 
     with sheraf.connection(commit=True):
-        MyModel.index_table_rebuild(["foo"])
+        Model.index_table_rebuild(["foo"])
 
     with sheraf.connection(commit=True):
-        assert 3 == MyModel.count()
+        assert 3 == Model.count()
 
         with warnings.catch_warnings(record=True) as warns:
-            MyModel.create(foo="foobar")
+            Model.create(foo="foobar")
             assert not warns
 
 
 def test_index_table_rebuild(sheraf_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute()
         bar = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
-        MyModel.create(foo="bar", bar="bar")
-        MyModel.create(foo="baz", bar="bor")
+        Model.create(foo="bar", bar="bar")
+        Model.create(foo="baz", bar="bor")
 
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute().index()
         bar = sheraf.SimpleAttribute().index()
 
     with sheraf.connection(commit=True):
         with warnings.catch_warnings(record=True) as warns:
-            MyModel.create(foo="foobar", bar="bur")
+            Model.create(foo="foobar", bar="bur")
             assert warns[0].category is sheraf.exceptions.IndexationWarning
             assert warns[1].category is sheraf.exceptions.IndexationWarning
 
     with sheraf.connection(commit=True):
-        MyModel.index_table_rebuild()
+        Model.index_table_rebuild()
 
     with sheraf.connection(commit=True):
-        assert 3 == MyModel.count()
+        assert 3 == Model.count()
 
         with warnings.catch_warnings(record=True) as warns:
-            MyModel.create(foo="foobar", bar="boo")
+            Model.create(foo="foobar", bar="boo")
             assert not warns
