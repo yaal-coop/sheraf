@@ -53,7 +53,7 @@ class BaseAttribute(object):
         store_default_value=True,
     ):
         self._default_value = default
-        self._default_key = None
+        self.attribute_name = None
         self._key = key
         self.read_memoization = (
             READ_MEMOIZATION if read_memoization is None else read_memoization
@@ -64,9 +64,6 @@ class BaseAttribute(object):
         self.lazy = lazy
         self.store_default_value = store_default_value
         self.indexes = {}
-
-    def set_default_key(self, key):
-        self._default_key = key
 
     def create(self, parent):
         """
@@ -90,7 +87,7 @@ class BaseAttribute(object):
     def key(self, parent):
         """:return: the key that identifies this attribute in its owner object"""
         if self._key is None:
-            return self._default_key
+            return self.attribute_name
 
         if isinstance(self._key, (list, tuple)):
             for key in self._key:

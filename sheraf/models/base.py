@@ -16,7 +16,7 @@ class BaseModelMetaclass(type):
                 continue
 
             try:
-                attr.set_default_key(klass.attribute_id(name, attr))
+                attr.attribute_name = klass.attribute_id(name, attr)
             except NotImplementedError:
                 continue
 
@@ -34,7 +34,7 @@ class BaseModelMetaclass(type):
                     continue
 
                 try:
-                    attr.set_default_key(klass.attribute_id(name, attr))
+                    attr.attribute_name = klass.attribute_id(name, attr)
                 except NotImplementedError:
                     continue
 
