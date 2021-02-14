@@ -63,17 +63,15 @@ class IndexDetails:
             )
         return "<IndexDetails key={} unique={}>".format(self.key, self.unique)
 
-    def get_values(self, model=None, keys=None):
-        if model is None and keys is None:
-            return set()
+    def get_model_values(self, model):
+        return self.get_values(self.attribute.read(model))
 
-        value = self.attribute.read(model) if model else keys
-
+    def get_values(self, keys):
         if not self.nullok:  # Empty values are not indexed
-            return {v for v in self.values_func(value) if v}
+            return {v for v in self.values_func(keys) if v}
 
         elif not self.noneok:  # None values are not indexed
-            return {v for v in self.values_func(value) if v is not None}
+            return {v for v in self.values_func(keys) if v is not None}
 
         else:  # Everything is indexed
-            return self.values_func(value)
+            return self.values_func(keys)

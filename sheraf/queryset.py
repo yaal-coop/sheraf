@@ -115,11 +115,11 @@ class QuerySet(object):
                 index = model.indexes()[filter_name]
                 if filter_transformation:
                     if not set(index.details.search_func(expected_value)) & set(
-                        index.details.get_values(model)
+                        index.details.get_model_values(model)
                     ):
                         return False
                 else:
-                    if expected_value not in index.details.get_values(model):
+                    if expected_value not in index.details.get_model_values(model):
                         return False
 
             elif filter_name in model.attributes:
