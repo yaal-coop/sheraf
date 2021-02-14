@@ -1,12 +1,3 @@
-[0.3.9] - 2021-xx-xx
-====================
-
-Changed
-*******
-
-- :meth:`~sheraf.attributes.base.BaseAttribute.search` method does not default
-  to :meth:`~sheraf.attributes.base.BaseAttribute.values` anymore.
-
 [0.3.8] - 2021-02-05
 ====================
 

@@ -80,6 +80,29 @@ Note that when an attribute is unique, you can use the :func:`~sheraf.models.ind
     >>> with sheraf.connection():
     ...     assert george == Cowboy.read(email="george@abitbol.com")
 
+Multiple indexes
+----------------
+
+What if we want to index birth years and birth months? This is quite straightforward,
+:func:`~sheraf.attributes.base.BaseAttribute.index` calls can be chained to describe
+different indexes, and the `key` parameter can be used to identify them.
+
+.. code-block:: python
+
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "multiple_cowboy"
+    ...     birth = sheraf.DateTimeAttribute() \
+    ...         .index(key="year", values=lambda birth: {birth.year}) \
+    ...         .index(key="month", values=lambda birth: {birth.month})
+    ...
+    >>> from datetime import datetime
+    >>> with sheraf.connection():
+    ...     peter = Cowboy.create(birth=datetime(1989, 4, 13))
+    ...     assert [peter] == Cowboy.filter(year=1989)
+    ...     assert [peter] == Cowboy.filter(month=4)
+    ...     assert [peter] == Cowboy.search(year=datetime(1989, 4, 13))
+    ...     assert [peter] == Cowboy.search(month=datetime(1989, 4, 13))
+
 Custom values in the index
 --------------------------
 
@@ -103,7 +126,6 @@ taking the attribute value, and returning a collection of values that should be 
     ...     table = "valuable_cowboy"
     ...     name = sheraf.StringAttribute().index(
     ...          values=lambda name: {initials(name)},
-    ...          search=lambda name: {initials(name)},
     ...     )
     ...
     >>> with sheraf.connection(commit=True):
@@ -217,30 +239,9 @@ every component of a collection is indexed.
     ...
     ...     assert [george] == Cowboy.search(horses=jolly)
 
-Multiple indexes
-----------------
-
-What if we want to index birth years and birth months? This is quite straightforward,
-:func:`~sheraf.attributes.base.BaseAttribute.index` calls can be chained to describe
-different indexes, and the `key` parameter can be used to identify them.
-
-.. code-block:: python
-
-    >>> class Cowboy(sheraf.Model):
-    ...     table = "multiple_cowboy"
-    ...     birth = sheraf.DateTimeAttribute() \
-    ...         .index(key="year", values=lambda birth: {birth.year}) \
-    ...         .index(key="month", values=lambda birth: {birth.month})
-    ...
-    >>> from datetime import datetime
-    >>> with sheraf.connection():
-    ...     peter = Cowboy.create(birth=datetime(1989, 4, 13))
-    ...     assert [peter] == Cowboy.filter(year=1989)
-    ...     assert [peter] == Cowboy.filter(month=4)
-
 
 Dig a bit deeper
-----------------
+````````````````
 
 We could easilly use this to create a simple full-text search engine on a model attribute with only a few lines:
 

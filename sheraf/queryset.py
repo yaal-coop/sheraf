@@ -344,9 +344,7 @@ class QuerySet(object):
             ...
         sheraf.exceptions.InvalidFilterException: Some filter parameters appeared twice
 
-        .. note::   Filtering on indexed attributes is more performant than filtering
-                    on non-indexed attributes. See
-                    :func:`~sheraf.attributes.base.BaseAttribute.index`.
+        .. note::   Filtering on indexed attributes is more performant than filtering on non-indexed attributes. See :func:`~sheraf.attributes.base.BaseAttribute.index`.
         """
         return self._filter(False, predicate=predicate, **kwargs)
 
@@ -355,18 +353,18 @@ class QuerySet(object):
         Refine a copy of the current :class:`~sheraf.queryset.QuerySet` with further tests.
 
         This method is very similar to :func:`~sheraf.queryset.QuerySet.filter` except the
-        search values are transformed with the index `search` function.
+        values it takes are transformed with the same way values are transformed at indexation.
+        TODO: pas très clair
 
-        For instance, if an attribute indexes its values with a lowercase transformation,
-        you can also define a lowercase transformation for search Hence it allows to pass
-        uppercase filter values, while :func:`~sheraf.queryset.QuerySet.filter` does not
-        allow this.
+        For instance, if an attribute indexes its values with a lowercase transformation, the
+        :func:`~sheraf.queryset.QuerySet.search` attributes will go through the same
+        transformation. Hence it allows to pass uppercase filter values, while
+        :func:`~sheraf.queryset.QuerySet.filter` does not allow this.
 
         >>> class MyCustomModel(sheraf.Model):
         ...     table = "my_custom_model"
         ...     my_attribute = sheraf.SimpleAttribute().index(
-        ...        values=lambda string: {string.lower()},
-        ...        search=lambda string: {string.lower()},
+        ...        values=lambda string: {string.lower()}
         ...     )
         ...
         >>> with sheraf.connection(commit=True):

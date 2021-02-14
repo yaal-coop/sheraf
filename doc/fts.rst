@@ -310,7 +310,6 @@ possible subwords. Now let us check our previous tests.
     ...     table = "cowboys_2"
     ...     name = sheraf.StringAttribute().index(
     ...         values=cowboy_indexation,
-    ...         search=cowboy_indexation,
     ...     )
     ...
     >>> with sheraf.connection(commit=True):

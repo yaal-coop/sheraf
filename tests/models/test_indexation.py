@@ -375,10 +375,10 @@ def test_custom_indexation_method(sheraf_database):
         assert [] == list(CustomModel.filter(foo="foo", bar="bar"))
 
         assert [m] == list(CustomModel.search(foo="foo"))
-        assert [] == list(CustomModel.search(foo="FOO"))
+        assert [m] == list(CustomModel.search(foo="FOO"))
 
         assert [m] == list(CustomModel.search(foo="foo", bar="BAR"))
-        assert [] == list(CustomModel.search(foo="FOO", bar="BAR"))
+        assert [m] == list(CustomModel.search(foo="FOO", bar="BAR"))
 
         assert [] == list(CustomModel.search(foo="foo", bar="bar"))
         assert [] == list(CustomModel.search(foo="FOO", bar="bar"))

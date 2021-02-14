@@ -277,4 +277,4 @@ class BaseAttribute(object):
 
         This method can be overload so a custom transformation is applied.
         """
-        return {self.serialize(value)}
+        return self.values(value)
