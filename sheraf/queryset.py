@@ -111,8 +111,8 @@ class QuerySet(object):
 
     def _model_has_expected_values(self, model):
         for filter_name, expected_value, filter_transformation in self.filters.values():
-            if filter_name in model.indexes():
-                index = model.indexes()[filter_name]
+            if filter_name in model.indexes:
+                index = model.indexes[filter_name]
                 if filter_transformation:
                     if not set(index.details.search_func(expected_value)) & set(
                         index.details.get_model_values(model)
@@ -209,7 +209,7 @@ class QuerySet(object):
         return QuerySet(itertools.islice(self._iterator, start, stop, step))
 
     def _init_indexed_iterator(self, filter_name, filter_value, filter_transformation):
-        index = self.model.indexes()[filter_name]
+        index = self.model.indexes[filter_name]
         index_values = (
             index.details.search_func(filter_value)
             if filter_transformation
@@ -229,7 +229,7 @@ class QuerySet(object):
         indexed_filters = (
             (name, value, transformation)
             for (name, value, transformation) in self.filters.values()
-            if name in self.model.indexes()
+            if name in self.model.indexes
         )
 
         for name, value, transformation in indexed_filters:
@@ -239,7 +239,7 @@ class QuerySet(object):
                 return
 
         if not self._iterator:
-            identifier_index = self.model.indexes()[self.model.primary_key()]
+            identifier_index = self.model.indexes[self.model.primary_key()]
             keys = identifier_index.iterkeys(reverse)
             self._iterator = self.model.read_these(keys)
 
@@ -265,7 +265,7 @@ class QuerySet(object):
         # So we successively sort the list from the less important
         # order to the most important order.
         if self._iterable is None:
-            keys = self.model.indexes()[self.model.primary_key()].iterkeys()
+            keys = self.model.indexes[self.model.primary_key()].iterkeys()
             self._iterable = self.model.read_these(keys)
 
         for attribute, order in reversed(self.orders.items()):
@@ -386,7 +386,7 @@ class QuerySet(object):
             for filter_name in kwargs.keys():
                 if (
                     filter_name not in self.model.attributes
-                    and filter_name not in self.model.indexes()
+                    and filter_name not in self.model.indexes
                 ):
                     raise sheraf.exceptions.InvalidFilterException(
                         "{} has no attribute {}".format(

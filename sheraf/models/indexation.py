@@ -6,7 +6,20 @@ from sheraf.models.base import BaseModel, BaseModelMetaclass
 from sheraf.models.indexmanager import SimpleIndexManager, MultipleDatabaseIndexManager
 
 
-class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
+class BaseIndexedModelMetaclass(BaseModelMetaclass):
+    def __new__(cls, name, bases, attrs):
+        klass = super().__new__(cls, name, bases, attrs)
+
+        klass.indexes = {}
+        for attribute_name, attribute in klass.attributes.items():
+            for index_key, index in attribute.indexes.items():
+                index.key = index_key or attribute.key(klass)
+                klass.indexes[index.key] = klass.index_manager(index)
+
+        return klass
+
+
+class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
     """
     This class handles the whole indexation mechanism. The mechanisms
     for reading or iterating over models in the database are handled
@@ -22,20 +35,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def indexes(cls):
-        if cls._indexes is None:
-            cls._indexes = {}
-            for attribute_name, attribute in cls.attributes.items():
-                for index_key, index in attribute.indexes.items():
-                    index.key = index_key or attribute.key(cls)
-                    cls._indexes[index.key] = cls.index_manager(index)
-
-        return cls._indexes
-
-    @classmethod
     def primary_key(cls):
         if cls._primary_key is None:
-            for index_name, index in cls.indexes().items():
+            for index_name, index in cls.indexes.items():
                 if not index.details.primary:
                     continue
 
@@ -87,7 +89,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
             index_name, key = list(kwargs.items())[0]
 
         try:
-            index = cls.indexes()[index_name]
+            index = cls.indexes[index_name]
         except KeyError:
             raise sheraf.exceptions.InvalidIndexException(
                 "'{}' is not a valid index".format(index_name)
@@ -249,11 +251,11 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
                             resetted.
         """
         if not index_names:
-            indexes = cls.indexes().values()
+            indexes = cls.indexes.values()
         else:
             indexes = [
                 index
-                for index_name, index in cls.indexes().items()
+                for index_name, index in cls.indexes.items()
                 if index_name in index_names
             ]
 
@@ -380,7 +382,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         if self._is_first_instance is None:
             self._is_first_instance = not self.index_manager().initialized()
 
-        index_manager = self.indexes()[index.key]
+        index_manager = self.indexes[index.key]
         index_table_exists = index_manager.table_initialized()
         return self._is_first_instance or index_table_exists
 
@@ -406,7 +408,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
                 index.get_model_values(self) if attribute.is_created(self) else None
             )
 
-            index_manager = self.indexes()[index.key]
+            index_manager = self.indexes[index.key]
             index_manager.update_item(self, old_index_value, new_index_value)
 
     def copy(self, **kwargs):
@@ -424,7 +426,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
 
         unique_attributes = (
             index.details.attribute
-            for index in self.indexes().values()
+            for index in self.indexes.values()
             if index.details.unique
         )
 
@@ -448,7 +450,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
             ...
         sheraf.exceptions.ModelObjectNotFoundException: Id '...' not found in MyModel
         """
-        for index in self.indexes().values():
+        for index in self.indexes.values():
             index.delete_item(self)
 
         for attr in self.attributes.values():
@@ -456,10 +458,10 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
 
     @classmethod
     def count(cls):
-        return cls.indexes()[cls.primary_key()].count()
+        return cls.indexes[cls.primary_key()].count()
 
 
-class IndexedModelMetaclass(BaseModelMetaclass):
+class IndexedModelMetaclass(BaseIndexedModelMetaclass):
     """
     Contains the mapping of tables (name of models) to their
     corresponding model definitions
@@ -540,7 +542,7 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
         return super().create(*args, **kwargs)
 
 
-class SimpleIndexedModel(BaseIndexedModel):
+class SimpleIndexedModel(BaseIndexedModel, metaclass=BaseIndexedModelMetaclass):
     @classmethod
     def index_manager(cls, index=None):
         return SimpleIndexManager(index)

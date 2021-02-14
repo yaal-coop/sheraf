@@ -54,7 +54,7 @@ def check_attributes_index(model_instance):
     if not index_table:
         return result
 
-    for index_name, index in model_instance.indexes().items():
+    for index_name, index in model_instance.indexes.items():
         if index.details.primary:
             continue
 
@@ -94,7 +94,7 @@ def check_model_index(model):
         return result
 
     for attribute_index_key, attribute_index_table in index_table.items():
-        index = model.indexes()[attribute_index_key]
+        index = model.indexes[attribute_index_key]
 
         if index.details.primary:
             continue
