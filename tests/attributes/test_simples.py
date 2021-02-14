@@ -96,16 +96,16 @@ def test_not_store_deault_value(sheraf_connection):
 def test_define_keyname(sheraf_connection):
     class ModelForTest(sheraf.Model):
         table = "model_test_with_simple_attribute_3"
+        unique_table_name = False
         opt = sheraf.SimpleAttribute(key="defined_key_in_db")
 
     m = ModelForTest.create()
     m.opt = "data"
 
     class ModifiedModel(sheraf.Model):
-        table = "model_test_with_simple_attribute__workaround_unicity"
+        table = "model_test_with_simple_attribute_3"
+        unique_table_name = False
         new_name = sheraf.SimpleAttribute(key="defined_key_in_db")
-
-    ModifiedModel.table = "model_test_with_simple_attribute_3"
 
     m = ModifiedModel.read(m.id)
     assert "data" == m.new_name
@@ -114,23 +114,24 @@ def test_define_keyname(sheraf_connection):
 def test_inherit_define_keyname(sheraf_connection):
     class ParentModel(sheraf.Model):
         table = "parent_model_test_1"
+        unique_table_name = False
         opt = sheraf.SimpleAttribute(key="defined_key_in_db")
 
     class ChildModel(ParentModel):
+        unique_table_name = False
         table = "son_model_test_1"
 
     m = ChildModel.create()
     m.opt = "data"
 
     class ModifiedParentModel(sheraf.Model):
-        table = "parent_model_test__workaround_unicity"
+        table = "parent_model_test_1"
+        unique_table_name = False
         new_name = sheraf.SimpleAttribute(key="defined_key_in_db")
 
     class ModifiedChildModel(ModifiedParentModel):
-        table = "son_model_test__workaround_unicity"
-
-    ModifiedParentModel.table = "parent_model_test_1"
-    ModifiedChildModel.table = "son_model_test_1"
+        unique_table_name = False
+        table = "son_model_test_1"
 
     m = ModifiedChildModel.read(m.id)
     assert "data" == m.new_name
