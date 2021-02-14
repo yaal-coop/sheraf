@@ -1,4 +1,4 @@
-class IndexDetails:
+class Index:
     """
     :param attribute: The attribute being indexed
     :type attribute: class BaseAttribute
@@ -58,10 +58,8 @@ class IndexDetails:
 
     def __repr__(self):
         if self.primary:
-            return "<IndexDetails key={} unique={} primary>".format(
-                self.key, self.unique
-            )
-        return "<IndexDetails key={} unique={}>".format(self.key, self.unique)
+            return "<Index key={} unique={} primary>".format(self.key, self.unique)
+        return "<Index key={} unique={}>".format(self.key, self.unique)
 
     def get_model_values(self, model):
         return self.get_values(self.attribute.read(model))

@@ -48,6 +48,6 @@ File attributes
 Index
 -----
 
-.. automodule:: sheraf.attributes.indexdetails
+.. automodule:: sheraf.attributes.index
     :members:
     :show-inheritance:

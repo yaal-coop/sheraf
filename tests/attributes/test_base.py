@@ -1,6 +1,6 @@
 import sheraf
 from tests import UUIDAutoModel
-from sheraf.attributes.indexdetails import IndexDetails
+from sheraf.attributes.index import Index
 
 
 def test_default_read_and_write_memoization_attribute(sheraf_connection):
@@ -38,16 +38,10 @@ def test_attribute_repr():
 
 def test_index():
     attribute = sheraf.SimpleAttribute()
-    primary = IndexDetails(
-        attribute, True, "primary", None, None, None, True, True, False
-    )
-    unique = IndexDetails(
-        attribute, True, "unique", None, None, None, False, True, False
-    )
-    multiple = IndexDetails(
-        attribute, False, "multiple", None, None, None, False, True, False
-    )
+    primary = Index(attribute, True, "primary", None, None, None, True, True, False)
+    unique = Index(attribute, True, "unique", None, None, None, False, True, False)
+    multiple = Index(attribute, False, "multiple", None, None, None, False, True, False)
 
-    assert "<IndexDetails key=primary unique=True primary>" == repr(primary)
-    assert "<IndexDetails key=unique unique=True>" == repr(unique)
-    assert "<IndexDetails key=multiple unique=False>" == repr(multiple)
+    assert "<Index key=primary unique=True primary>" == repr(primary)
+    assert "<Index key=unique unique=True>" == repr(unique)
+    assert "<Index key=multiple unique=False>" == repr(multiple)

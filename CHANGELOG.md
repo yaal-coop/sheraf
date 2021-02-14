@@ -19,7 +19,7 @@ Fixed
 Added
 *****
 
-- :class:`~sheraf.attributes.indexdetails.IndexDetails` have a `nullok`
+- :class:`~sheraf.attributes.index.Index` have a `nullok`
   parameter, `True` by default, that allows indexation of falseworthy values.
   :issue:`16`
 
@@ -69,7 +69,7 @@ Added
 Added
 *****
 
-- :class:`~sheraf.attributes.indexdetails.IndexDetails` have a `noneok`
+- :class:`~sheraf.attributes.index.Index` have a `noneok`
   parameter, `False` by default, that allows indexation of `None` values.
   :issue:`16`
 
