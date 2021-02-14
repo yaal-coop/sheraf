@@ -50,7 +50,7 @@ class IndexDetails:
         self.unique = unique or primary
         self.key = key
         self.values_func = values_func or attribute.values
-        self.search_func = search_func or values_func or attribute.search
+        self.search_func = search_func or attribute.search
         self.mapping = mapping
         self.primary = primary
         self.nullok = nullok if nullok is not None else attribute.nullok
