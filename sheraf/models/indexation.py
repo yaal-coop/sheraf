@@ -384,7 +384,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
         index_table_exists = index_manager.table_initialized()
         return self._is_first_instance or index_table_exists
 
-    def update_attribute_indexes(self, attribute, value):
+    def update_attribute_indexes(self, attribute, new_attribute_value):
         for index in attribute.indexes.values():
             if not self._is_indexable(index):
                 warnings.warn(
@@ -401,11 +401,13 @@ class BaseIndexedModel(BaseModel, metaclass=BaseModelMetaclass):
                 )
                 continue
 
+            new_index_value = index.get_values(new_attribute_value)
+            old_index_value = (
+                index.get_model_values(self) if attribute.is_created(self) else None
+            )
+
             index_manager = self.indexes()[index.key]
-            if attribute.is_created(self):
-                index_manager.update_item(self, attribute.read(self), value)
-            else:
-                index_manager.add_item(self, index.get_values(value))
+            index_manager.update_item(self, old_index_value, new_index_value)
 
     def copy(self, **kwargs):
         r"""

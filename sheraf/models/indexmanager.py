@@ -53,22 +53,19 @@ class IndexManager:
             else:
                 self._table_del_multiple(table, key, model.mapping)
 
-    def update_item(self, item, old_keys, new_keys):
-        old_values = self.details.get_values(old_keys)
-        new_values = self.details.get_values(new_keys)
-
-        if old_keys and new_keys:
+    def update_item(self, model, old_values, new_values):
+        if old_values and new_values:
             del_values = old_values - new_values
             add_values = new_values - old_values
 
-            self.delete_item(item, del_values)
-            self.add_item(item, add_values)
+            self.delete_item(model, del_values)
+            self.add_item(model, add_values)
 
-        elif not old_keys:
-            self.add_item(item, new_values)
+        elif not old_values:
+            self.add_item(model, new_values)
 
-        elif not new_keys:
-            self.delete_item(item, old_values)
+        elif not new_values:
+            self.delete_item(model, old_values)
 
     def _table_del_unique(self, table, key, value):
         del table[key]
