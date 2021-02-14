@@ -1,4 +1,5 @@
 import sheraf
+from tests import UUIDAutoModel
 from sheraf.attributes.indexdetails import IndexDetails
 
 
@@ -26,6 +27,13 @@ def test_set_write_memoization_to_false(sheraf_connection):
     attribute = sheraf.BaseAttribute()
     assert attribute.write_memoization is False
     sheraf.attributes.base.set_write_memoization(True)
+
+
+def test_attribute_repr():
+    class Model(UUIDAutoModel):
+        foo = sheraf.SimpleAttribute()
+
+    assert "<SimpleAttribute name=foo>" == repr(Model.attributes["foo"])
 
 
 def test_index():

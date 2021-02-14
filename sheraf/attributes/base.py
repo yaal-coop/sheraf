@@ -65,6 +65,9 @@ class BaseAttribute(object):
         self.store_default_value = store_default_value
         self.indexes = {}
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__} name={self.attribute_name}>"
+
     def create(self, parent):
         """
         :return: The attribute's defined default value. If it is a callable, return
