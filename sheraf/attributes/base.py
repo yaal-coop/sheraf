@@ -243,15 +243,15 @@ class BaseAttribute(object):
         UniqueIndexException
         """
         self.indexes[key] = Index(
-            self,
-            unique,
-            key,
-            values,
-            search,
-            mapping or self.default_index_mapping,
-            primary,
-            nullok,
-            noneok,
+            attribute=self,
+            unique=unique,
+            key=key,
+            values=values,
+            search=search,
+            mapping=mapping or self.default_index_mapping,
+            primary=primary,
+            nullok=nullok,
+            noneok=noneok,
         )
         self.lazy = False
 

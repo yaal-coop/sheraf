@@ -9,11 +9,34 @@ from sheraf.models.indexmanager import SimpleIndexManager, MultipleDatabaseIndex
 class BaseIndexedModelMetaclass(BaseModelMetaclass):
     def __new__(cls, name, bases, attrs):
         klass = super().__new__(cls, name, bases, attrs)
-
         klass.indexes = {}
+
+        for base in bases:
+            for name, index in base.__dict__.get("indexes", {}).items():
+                if not isinstance(index, sheraf.attributes.index.Index):
+                    continue
+
+                index.key = index.key or name
+                if index.attribute is None:
+                    index.attribute = base.attributes[index.attribute_name]
+                    index.attribute.indexes[index.key] = index
+                klass.indexes[index.key] = klass.index_manager(index)
+
+        for name, index in attrs.items():
+            if not isinstance(index, sheraf.attributes.index.Index):
+                continue
+
+            index.key = index.key or name
+            if index.attribute is None:
+                index.attribute = klass.attributes[index.attribute_name]
+                index.attribute.indexes[index.key] = index
+            klass.indexes[index.key] = klass.index_manager(index)
+
         for attribute_name, attribute in klass.attributes.items():
             for index_key, index in attribute.indexes.items():
                 index.key = index_key or attribute.key(klass)
+                if index.attribute is None:
+                    index.attribute = klass.attributes[index.attribute_name]
                 klass.indexes[index.key] = klass.index_manager(index)
 
         return klass
@@ -26,7 +49,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
     here.
     """
 
-    _indexes = None
     _primary_key = None
     _is_first_instance = None
 
