@@ -19,21 +19,35 @@ With large collections, searching for models with :func:`~sheraf.queryset.QueryS
 
 Of course all the models are not loaded in memory at once due to the lazy behavior of :class:`~sheraf.queryset.QuerySet`, but the iteration still need to make numerous accesses to the database, and test every model instance, thus severely degrading the performances.
 
-A solution to keep good performances is to use attribute indexation with :func:`~sheraf.attributes.base.BaseAttribute.index`. Indexing an attribute creates a new index table in the database. This table matches the model instances with their attribute values. Any piece of code that works with a non-indexed attribute will have the very same behavior, but faster. So migrations are painless.
+A solution to keep good performances is to use attribute indexation with :class:`~sheraf.attributes.index.Index`. Creating an :class:`~sheraf.attributes.index.Index` object in a :class:`~sheraf.models.indexation.IndexedModel` creates a new index table in the database. This table matches the model instances with their attribute values.
 
 .. code-block:: python
 
     >>> class Cowboy(sheraf.Model):
     ...     table = "simple_cowboy"
-    ...     name = sheraf.SimpleAttribute().index()
+    ...     name = sheraf.SimpleAttribute()
+    ...     nameindex = sheraf.Index("name")
     ...
     >>> with sheraf.connection(commit=True) as conn:
     ...     george = Cowboy.create(name="George Abitbol")
     ...
-    ...     # A dedicated table has been created for the 'name' index
-    ...     assert george.mapping in conn.root()["simple_cowboy"]["name"]["George Abitbol"]
+    ...     # A dedicated table has been created for the 'nameindex' index
+    ...     assert george.mapping in conn.root()["simple_cowboy"]["nameindex"]["George Abitbol"]
     ...
     ...     # Filtering over names is a lot faster!
+    ...     assert [george] == Cowboy.filter(nameindex="George Abitbol")
+
+A shortcut for this is to call the :func:`~sheraf.attributes.base.BaseAttribute.index` method on attributes. It takes the very same arguments as the :class:`~sheraf.attributes.index.Index` object, but the index will have the same name as the attribute.
+Any piece of code that worked with a non-indexed attribute will have the very same behavior when the attribute is indexed, but faster. So migrations are painless.
+
+.. code-block:: python
+
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "simple_cowboy_shortcut"
+    ...     name = sheraf.SimpleAttribute().index()
+    ...
+    >>> with sheraf.connection(commit=True) as conn:
+    ...     george = Cowboy.create(name="George Abitbol")
     ...     assert [george] == Cowboy.filter(name="George Abitbol")
 
 Attribute indexation also hugely improves the :func:`~sheraf.queryset.QuerySet.order` performances.

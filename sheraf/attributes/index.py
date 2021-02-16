@@ -3,29 +3,71 @@ from BTrees.OOBTree import OOBTree
 
 class Index:
     """
+    Indexes should be either created as :class:`~sheraf.models.indexation.IndexedModel` class parameters,
+    or with the attributes :func:`~sheraf.attributes.base.BaseAttribute.index` method.
+
     :param attribute: The attribute being indexed
     :type attribute: class BaseAttribute
-    :param key: The key the index will use. By default, just the attribute name is used.
-    :param unique: If the attribute is unique, and two models have the same value for this
-                   attribute, a :class:`~sheraf.exceptions.UniqueIndexException` is raised
+    :param key: The key the index will use. By default, it takes the name it has
+                as a :class:`~sheraf.models.indexation.IndexedModel` attribute.
+                If the :func:`~sheraf.attributes.base.BaseAttribute.index` is used,
+                the key is the :class:`~sheraf.attributes.base.BaseAttribute` name.
+    :param unique: If the index is unique, and two models have the same value for this
+                   model, a :class:`~sheraf.exceptions.UniqueIndexException` is raised
                    when trying to write the second one. Automatically set to :class:`True` if
                    primary is :class:`True`.
     :type unique: bool
-    :param key: The key the index will use. By default, just the attribute name is used.
-    :param values A callable that takes the current attribute value and returns a
-                  collection of values to index. Each generated value will be
-                  indexed each time this attribute is edited. It may take time if
-                  the generated collection is large. By default the attribute
-                  :meth:`~sheraf.attributes.base.BaseAttribute.values` method is
-                  applied.
+    :param values: A callable that takes the current attribute value and returns a
+                   collection of values to index. Each generated value will be
+                   indexed each time this attribute is edited. It may take time if
+                   the generated collection is large. By default the attribute
+                   :meth:`~sheraf.attributes.base.BaseAttribute.values` method is
+                   applied.
     :param search: A callable that takes some raw data and returns a collection
                    of values to search in the index. By default, the
                    :meth:`~sheraf.attributes.base.BaseAttribute.search` method is
                    used.
-    :param mapping: The mapping object to be used to store the indexed values. OOBTree by
-                    default.
+    :param mapping: The mapping object to be used to store the indexed values.
+                   By default :class:`~BTrees.OOBTree.OOBTree` is used.
     :param nullok: If `True`, `None` or empty values can be indexed. `True` by default.
-    :param noneok: Ignored in if `nullok` is `True`. Else, if `noneok` is  `True`, `None` values can be indexed. `False` by default."""
+    :param noneok: Ignored in if `nullok` is `True`. Else, if `noneok` is
+                   `True`, `None` values can be indexed. `False` by default."
+
+    >>> class People(sheraf.Model):
+    ...     table = "index_people"
+    ...
+    ...     # Simple indexing
+    ...     name = sheraf.SimpleAttribute()
+    ...     nameindex = sheraf.Index("name")
+    ...
+    ...     # Indexing with the .index() shortcut
+    ...     size = sheraf.IntegerAttribute().index()
+    ...
+    ...     # Emails can only be owned once
+    ...     email = sheraf.SimpleAttribute().index(unique=True)
+    ...
+    ...     # Indexing people by their decade
+    ...     age = sheraf.SimpleAttribute().index(key="decade", values=lambda age: {age // 10})
+    ...
+    >>> with sheraf.connection(commit=True):
+    ...     m = People.create(
+    ...         name="George Abitbol",
+    ...         size=180,
+    ...         email="george@abitbol.com",
+    ...         age=55,
+    ...     )
+    ...
+    >>> with sheraf.connection():
+    ...     assert [m] == People.filter(nameindex="George Abitbol")
+    ...     assert [m] == People.filter(size=180)
+    ...     assert [m] == People.filter(decade=5)
+    ...
+    >>> with sheraf.connection():
+    ...     People.create(name="Peter", size=175, email="george@abitbol.com", age=35)
+    Traceback (most recent call last):
+        ...
+    UniqueIndexException
+    """
 
     def __init__(
         self,
