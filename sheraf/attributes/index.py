@@ -118,14 +118,12 @@ class Index:
         return self.get_values(model, self.attribute.read(model))
 
     def get_values(self, model, keys):
-        nullok = self.nullok if self.nullok is not None else self.attribute.nullok
-        noneok = self.noneok if self.noneok is not None else self.attribute.noneok
         values = self.call_values_func(model, keys)
 
-        if not nullok:  # Empty values are not indexed
+        if not self.nullok:  # Empty values are not indexed
             return {v for v in values if v}
 
-        elif not noneok:  # None values are not indexed
+        elif not self.noneok:  # None values are not indexed
             return {v for v in values if v is not None}
 
         else:  # Everything is indexed

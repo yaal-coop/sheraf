@@ -211,6 +211,8 @@ class BaseAttribute(object):
         - the mapping parameter will be this attribute `default_index_mapping` parameter;
         - the values parameter will be this attribute :meth:`~sheraf.attributes.base.BaseAttribute.values` method;
         - the search parameter will be this attribute :meth:`~sheraf.attributes.base.BaseAttribute.search` method;
+        - the noneok parameter will be this attribute `noneok` parameter
+        - the nullok parameter will be this attribute `nullok` parameter
         """
         self.indexes[key] = Index(
             attribute=self,
@@ -220,8 +222,8 @@ class BaseAttribute(object):
             search=search or values or self.search or self.values,
             mapping=mapping or self.default_index_mapping,
             primary=primary,
-            nullok=nullok,
-            noneok=noneok,
+            nullok=nullok if nullok is not None else self.nullok,
+            noneok=noneok if noneok is not None else self.noneok,
         )
         self.lazy = False
 
