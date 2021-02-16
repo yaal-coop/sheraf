@@ -164,6 +164,20 @@ def test_unique_index_set_afterwards(sheraf_database):
         assert [dummy] == list(DummyModel.filter(foo="bar"))
 
 
+def test_unique_index_alternate_definition(sheraf_database):
+    class Model(tests.IntAutoModel):
+        fooindex = sheraf.Index("foo", key="foo", unique=True)
+        foo = sheraf.SimpleAttribute()
+
+    with sheraf.connection(commit=True):
+        m = Model.create(foo="foo")
+        assert [m] == Model.search(foo="foo")
+
+    with sheraf.connection():
+        with pytest.raises(sheraf.exceptions.UniqueIndexException):
+            Model.create(foo="foo")
+
+
 # ---------------------------------------------------------------------------------
 # Multiple Indexes
 # ---------------------------------------------------------------------------------
@@ -353,72 +367,214 @@ def test_multiple_keys_index_update(sheraf_database):
         # )
 
 
-def test_custom_indexation_method(sheraf_database):
-    class CustomModel(tests.IntAutoModel):
-        foo = sheraf.SimpleAttribute().index(
-            unique=True, values=lambda string: {string.lower()}
-        )
-        bar = sheraf.SimpleAttribute().index()
+def test_multiple_index_alternate_definition(sheraf_database):
+    class Model(tests.IntAutoModel):
+        fooindex = sheraf.Index("foo", key="foo")
+        foo = sheraf.SimpleAttribute()
 
+    with sheraf.connection(commit=True) as conn:
+        m = Model.create(foo="bar")
+        n = Model.create(foo="bar")
+
+        assert m.mapping in conn.root()["model"]["foo"]["bar"]
+        assert n.mapping in conn.root()["model"]["foo"]["bar"]
+        assert [m, n] == Model.search(foo="bar")
+
+
+# ---------------------------------------------------------------------------------
+# Custom methods
+# ---------------------------------------------------------------------------------
+
+
+class CustomIndexationModelA(tests.IntAutoModel):
+    foo = sheraf.SimpleAttribute().index(
+        unique=True, values=lambda string: {string.lower()}
+    )
+    barindex = sheraf.Index("bar", key="bar")
+    bar = sheraf.SimpleAttribute()
+
+
+class CustomIndexationModelB(tests.IntAutoModel):
+    fooindex = sheraf.Index(
+        "foo", key="foo", unique=True, values=lambda string: {string.lower()}
+    )
+    foo = sheraf.SimpleAttribute()
+    barindex = sheraf.Index("bar", key="bar")
+    bar = sheraf.SimpleAttribute()
+
+
+class CustomIndexationModelC(tests.IntAutoModel):
+    fooindex = sheraf.Index("foo", key="foo", unique=True)
+    foo = sheraf.SimpleAttribute()
+    barindex = sheraf.Index("bar", key="bar")
+    bar = sheraf.SimpleAttribute()
+
+    @fooindex.values()
+    def fooindex_values(self, value):
+        return {value.lower()}
+
+
+class CustomIndexationModelD(tests.IntAutoModel):
+    fooindex = sheraf.Index("foo", key="foo", unique=True)
+    foo = sheraf.SimpleAttribute()
+    barindex = sheraf.Index("bar", key="bar")
+    bar = sheraf.SimpleAttribute()
+
+    @fooindex.values
+    def fooindex_values(self, value):
+        return {value.lower()}
+
+
+@pytest.mark.parametrize(
+    "Model",
+    [
+        CustomIndexationModelA,
+        CustomIndexationModelB,
+        CustomIndexationModelC,
+        CustomIndexationModelD,
+    ],
+)
+def test_custom_indexation_method(sheraf_database, Model):
     with sheraf.connection(commit=True):
-        m = CustomModel.create(foo="FOO", bar="BAR")
+        m = Model.create(foo="FOO", bar="BAR")
+        assert Model.indexes["foo"].details._values_func is not None
+        assert {"foo"} == Model.indexes["foo"].details.get_values(m, "FOO")
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["custommodel"]["foo"]
+        index_table = conn.root()[Model.table]["foo"]
         assert {"foo"} == set(index_table)
         assert m.mapping == index_table["foo"]
 
-        assert [m] == list(CustomModel.filter(foo="foo"))
-        assert [] == list(CustomModel.filter(foo="FOO"))
+        assert [m] == list(Model.filter(foo="foo"))
+        assert [] == list(Model.filter(foo="FOO"))
 
-        assert [m] == list(CustomModel.filter(foo="foo", bar="BAR"))
-        assert [] == list(CustomModel.filter(foo="foo", bar="bar"))
+        assert [m] == list(Model.filter(foo="foo", bar="BAR"))
+        assert [] == list(Model.filter(foo="foo", bar="bar"))
 
-        assert [m] == list(CustomModel.search(foo="foo"))
-        assert [m] == list(CustomModel.search(foo="FOO"))
+        assert [m] == list(Model.search(foo="foo"))
+        assert [m] == list(Model.search(foo="FOO"))
 
-        assert [m] == list(CustomModel.search(foo="foo", bar="BAR"))
-        assert [m] == list(CustomModel.search(foo="FOO", bar="BAR"))
+        assert [m] == list(Model.search(foo="foo", bar="BAR"))
+        assert [m] == list(Model.search(foo="FOO", bar="BAR"))
 
-        assert [] == list(CustomModel.search(foo="foo", bar="bar"))
-        assert [] == list(CustomModel.search(foo="FOO", bar="bar"))
+        assert [] == list(Model.search(foo="foo", bar="bar"))
+        assert [] == list(Model.search(foo="FOO", bar="bar"))
 
     with sheraf.connection():
         with pytest.raises(sheraf.exceptions.UniqueIndexException):
-            CustomModel.create(foo="FOO")
+            Model.create(foo="FOO")
 
 
-def test_custom_query_method(sheraf_database):
-    class CustomModel(tests.IntAutoModel):
-        foo = sheraf.SimpleAttribute().index(
-            unique=True,
-            values=lambda string: {string.lower()},
-            search=lambda string: [string.lower()[::-1], string.lower()],
-        )
-        bar = sheraf.SimpleAttribute().index()
+def test_default_indexation_method(sheraf_database):
+    class ModelA(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute().index()
 
+    assert ModelA.indexes["foo"].details._values_func == ModelA.attributes["foo"].values
+
+    class ModelB(tests.IntAutoModel):
+        fooindex = sheraf.Index("foo")
+        foo = sheraf.SimpleAttribute()
+
+    assert ModelB.indexes["fooindex"].details._values_func is None
+
+
+class CustomSearchModelA(tests.IntAutoModel):
+    foo = sheraf.SimpleAttribute().index(
+        unique=True,
+        values=lambda string: {string.lower()},
+        search=lambda string: [string.lower()[::-1], string.lower()],
+    )
+    bar = sheraf.SimpleAttribute().index()
+
+
+class CustomSearchModelB(tests.IntAutoModel):
+    fooindex = sheraf.Index(
+        "foo",
+        key="foo",
+        unique=True,
+        values=lambda string: {string.lower()},
+        search=lambda string: [string.lower()[::-1], string.lower()],
+    )
+
+    foo = sheraf.SimpleAttribute()
+    barindex = sheraf.Index("bar", key="bar")
+    bar = sheraf.SimpleAttribute()
+
+
+class CustomSearchModelC(tests.IntAutoModel):
+    fooindex = sheraf.Index(
+        "foo",
+        key="foo",
+        unique=True,
+        values=lambda string: {string.lower()},
+    )
+
+    foo = sheraf.SimpleAttribute()
+    barindex = sheraf.Index("bar", key="bar")
+    bar = sheraf.SimpleAttribute()
+
+    @fooindex.search()
+    def search_foo(self, value):
+        return [value.lower()[::-1], value.lower()]
+
+
+class CustomSearchModelD(tests.IntAutoModel):
+    fooindex = sheraf.Index(
+        "foo",
+        key="foo",
+        unique=True,
+        values=lambda string: {string.lower()},
+    )
+
+    foo = sheraf.SimpleAttribute()
+    barindex = sheraf.Index("bar", key="bar")
+    bar = sheraf.SimpleAttribute()
+
+    @fooindex.search
+    def search_foo(self, value):
+        return [value.lower()[::-1], value.lower()]
+
+
+@pytest.mark.parametrize(
+    "Model",
+    [CustomSearchModelA, CustomSearchModelB, CustomSearchModelC, CustomSearchModelD],
+)
+def test_custom_query_method(sheraf_database, Model):
     with sheraf.connection(commit=True):
-        m = CustomModel.create(foo="FOO", bar="BAR")
+        m = Model.create(foo="FOO", bar="BAR")
 
     with sheraf.connection() as conn:
-        index_table = conn.root()["custommodel"]["foo"]
+        index_table = conn.root()[Model.table]["foo"]
         assert {"foo"} == set(index_table)
         assert m.mapping == index_table["foo"]
 
-        assert [m] == list(CustomModel.search(foo="oof"))
-        assert [m] == list(CustomModel.search(foo="foo"))
-        assert [m] == list(CustomModel.search(foo="OOF"))
-        assert [m] == list(CustomModel.search(foo="FOO"))
+        assert [m] == list(Model.search(foo="oof"))
+        assert [m] == list(Model.search(foo="foo"))
+        assert [m] == list(Model.search(foo="OOF"))
+        assert [m] == list(Model.search(foo="FOO"))
 
-        assert [m] == list(CustomModel.search(foo="oof", bar="BAR"))
-        assert [m] == list(CustomModel.search(foo="OOF", bar="BAR"))
+        assert [m] == list(Model.search(foo="oof", bar="BAR"))
+        assert [m] == list(Model.search(foo="OOF", bar="BAR"))
 
-        assert [] == list(CustomModel.search(foo="oof", bar="bar"))
-        assert [] == list(CustomModel.search(foo="OOF", bar="bar"))
+        assert [] == list(Model.search(foo="oof", bar="bar"))
+        assert [] == list(Model.search(foo="OOF", bar="bar"))
 
     with sheraf.connection():
         with pytest.raises(sheraf.exceptions.UniqueIndexException):
-            CustomModel.create(foo="FOO")
+            Model.create(foo="FOO")
+
+
+def test_default_search_method(sheraf_database):
+    class ModelA(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute().index()
+
+    assert ModelA.indexes["foo"].details._search_func == ModelA.attributes["foo"].search
+
+    class ModelB(tests.IntAutoModel):
+        fooindex = sheraf.Index("foo")
+        foo = sheraf.SimpleAttribute()
+
+    assert ModelB.indexes["fooindex"].details._search_func is None
 
 
 # ----------------------------------------------------------------------------

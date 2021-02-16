@@ -113,10 +113,11 @@ class QuerySet(object):
         for filter_name, expected_value, filter_transformation in self.filters.values():
             if filter_name in model.indexes:
                 index = model.indexes[filter_name]
+
                 if filter_transformation:
-                    if not set(index.details.search_func(expected_value)) & set(
-                        index.details.get_model_values(model)
-                    ):
+                    if not set(
+                        index.details.call_search_func(model, expected_value)
+                    ) & set(index.details.get_model_values(model)):
                         return False
                 else:
                     if expected_value not in index.details.get_model_values(model):
@@ -211,7 +212,7 @@ class QuerySet(object):
     def _init_indexed_iterator(self, filter_name, filter_value, filter_transformation):
         index = self.model.indexes[filter_name]
         index_values = (
-            index.details.search_func(filter_value)
+            index.details.call_search_func(self.model, filter_value)
             if filter_transformation
             else [filter_value]
         )

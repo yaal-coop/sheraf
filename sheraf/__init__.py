@@ -22,6 +22,7 @@ from .attributes.files import (
     FilesGarbageCollector,
     set_files_root_dir,
 )
+from .attributes.index import Index
 from .attributes.models import (
     ModelAttribute,
     InlineModelAttribute,

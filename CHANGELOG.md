@@ -1,3 +1,13 @@
+[0.3.9] - 2021-02-16
+====================
+
+Added
+*****
+
+- :class:`~sheraf.attributes.index.Index` can be used directly as
+  :meth:`~sheraf.models.indexation.IndexedModel` parameters. :pr:`11`
+
+
 [0.3.8] - 2021-02-05
 ====================
 

@@ -203,55 +203,25 @@ class BaseAttribute(object):
         noneok=None,
     ):
         """
-        Indexing an attribute allows very fast reading with :func:`~sheraf.queryset.QuerySet.filter` calls.
+        This method is a shortcut that inits a
+        :class:`~sheraf.attributes.index.Index` object on the current attribute.
+        It takes the same arguments as :class:`~sheraf.attributes.index.Index` except that by default:
 
-        :param unique: If the attribute is unique, and two models have the same value for this
-                      attribute, a :class:`~sheraf.exceptions.UniqueIndexException` is raised
-                      when trying to write the second one. Automatically set to :class:`True` if
-                      *primary* is :class:`True`.
-        :param key: The key the index will use. By default, just the attribute name is used.
-        :param values: A callable that takes the current attribute value and returns a collection of values to index. Each generated value will be indexed each time this attribute is edited. It may take time if the generated collection is large. By default, the current attribute raw value is used.
-        :param primary: If true, this will be the default index for the model. `False` by default.
-        :param nullok: If `True`, `None` or empty values can be indexed. `True` by default.
-        :param noneok: Ignored in if `nullok` is `True`. Else, if `noneok` is  `True`, `None` values can be indexed. `False` by default.
-
-        When indexes are used, **lazy** is disabled.
-
-        >>> class People(sheraf.Model):
-        ...     table = "index_people"
-        ...
-        ...     # Simple indexing
-        ...     name = sheraf.SimpleAttribute().index()
-        ...
-        ...     # Emails can only be owned once
-        ...     email = sheraf.SimpleAttribute().index(unique=True)
-        ...
-        ...     # Indexing people by their decade
-        ...     age = sheraf.SimpleAttribute().index(key="decade", values=lambda age: {age // 10})
-        ...
-        >>> with sheraf.connection(commit=True):
-        ...     m = People.create(name="George Abitbol", email="george@abitbol.com", age=55)
-        ...
-        >>> with sheraf.connection():
-        ...     assert [m] == People.filter(name="George Abitbol")
-        ...     assert [m] == People.filter(decade=5)
-        ...
-        >>> with sheraf.connection():
-        ...     People.create(name="Peter", email="george@abitbol.com", age=35)
-        Traceback (most recent call last):
-            ...
-        UniqueIndexException
+        - the index name will be this attribute name;
+        - the mapping parameter will be this attribute `default_index_mapping` parameter;
+        - the values parameter will be this attribute :meth:`~sheraf.attributes.base.BaseAttribute.values` method;
+        - the search parameter will be this attribute :meth:`~sheraf.attributes.base.BaseAttribute.search` method;
         """
         self.indexes[key] = Index(
-            self,
-            unique,
-            key,
-            values,
-            search,
-            mapping or self.default_index_mapping,
-            primary,
-            nullok,
-            noneok,
+            attribute=self,
+            unique=unique,
+            key=key,
+            values=values,
+            search=search,
+            mapping=mapping or self.default_index_mapping,
+            primary=primary,
+            nullok=nullok,
+            noneok=noneok,
         )
         self.lazy = False
 
