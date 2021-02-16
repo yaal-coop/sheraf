@@ -20,6 +20,7 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
                 if index.attribute is None:
                     index.attribute = base.attributes[index.attribute_name]
                     index.attribute.indexes[index.key] = index
+                index.attribute.lazy = False
                 klass.indexes[index.key] = klass.index_manager(index)
 
         for name, index in attrs.items():
@@ -30,6 +31,7 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
             if index.attribute is None:
                 index.attribute = klass.attributes[index.attribute_name]
                 index.attribute.indexes[index.key] = index
+            index.attribute.lazy = False
             klass.indexes[index.key] = klass.index_manager(index)
 
         for attribute_name, attribute in klass.attributes.items():
@@ -37,6 +39,7 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
                 index.key = index_key or attribute.key(klass)
                 if index.attribute is None:
                     index.attribute = klass.attributes[index.attribute_name]
+                index.attribute.lazy = False
                 klass.indexes[index.key] = klass.index_manager(index)
 
         return klass
