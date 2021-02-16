@@ -71,7 +71,7 @@ class Index:
 
     def __init__(
         self,
-        attribute_name=None,
+        attribute=None,
         unique=False,
         key=None,
         values=None,
@@ -80,10 +80,8 @@ class Index:
         primary=False,
         nullok=None,
         noneok=None,
-        attribute=None,
     ):
         self.attribute = attribute
-        self.attribute_name = attribute_name
         self.unique = unique or primary
         self.key = key
         self._values_func = values
