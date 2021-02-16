@@ -87,12 +87,7 @@ class Index:
         self.unique = unique or primary
         self.key = key
         self._values_func = values
-        if self._values_func is None and self.attribute is not None:
-            self._values_func = self.attribute.values
         self._search_func = search or values
-        if self._search_func is None and self.attribute is not None:
-            self._search_func = self.attribute.search
-
         self.mapping = mapping or OOBTree
         self.primary = primary
         self.nullok = nullok
