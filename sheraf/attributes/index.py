@@ -87,7 +87,12 @@ class Index:
         self.unique = unique or primary
         self.key = key
         self._values_func = values
+        if self._values_func is None and self.attribute is not None:
+            self._values_func = self.attribute.values
         self._search_func = search or values
+        if self._search_func is None and self.attribute is not None:
+            self._search_func = self.attribute.search
+
         self.mapping = mapping or OOBTree
         self.primary = primary
         self.nullok = nullok
@@ -98,19 +103,21 @@ class Index:
             return "<Index key={} unique={} primary>".format(self.key, self.unique)
         return "<Index key={} unique={}>".format(self.key, self.unique)
 
-    def call_values_func(self, model, *args, **kwargs):
-        func = self._values_func or self.attribute.values
+    def call_values_func(self, model, value):
+        if not self._values_func:
+            return {value}
         try:
-            return func(*args, **kwargs)
+            return self._values_func(value)
         except TypeError:
-            return func(model, *args, **kwargs)
+            return self._values_func(model, value)
 
-    def call_search_func(self, model, *args, **kwargs):
-        func = self._search_func or self.attribute.search
+    def call_search_func(self, model, value):
+        if not self._search_func:
+            return {value}
         try:
-            return func(*args, **kwargs)
+            return self._search_func(value)
         except TypeError:
-            return func(model, *args, **kwargs)
+            return self._search_func(model, value)
 
     def get_model_values(self, model):
         return self.get_values(model, self.attribute.read(model))

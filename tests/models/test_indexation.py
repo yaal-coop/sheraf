@@ -465,6 +465,19 @@ def test_custom_indexation_method(sheraf_database, Model):
             Model.create(foo="FOO")
 
 
+def test_default_indexation_method(sheraf_database):
+    class ModelA(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute().index()
+
+    assert ModelA.indexes["foo"].details._values_func == ModelA.attributes["foo"].values
+
+    class ModelB(tests.IntAutoModel):
+        fooindex = sheraf.Index("foo")
+        foo = sheraf.SimpleAttribute()
+
+    assert ModelB.indexes["fooindex"].details._values_func is None
+
+
 class CustomSearchModelA(tests.IntAutoModel):
     foo = sheraf.SimpleAttribute().index(
         unique=True,
@@ -549,6 +562,19 @@ def test_custom_query_method(sheraf_database, Model):
     with sheraf.connection():
         with pytest.raises(sheraf.exceptions.UniqueIndexException):
             Model.create(foo="FOO")
+
+
+def test_default_search_method(sheraf_database):
+    class ModelA(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute().index()
+
+    assert ModelA.indexes["foo"].details._search_func == ModelA.attributes["foo"].search
+
+    class ModelB(tests.IntAutoModel):
+        fooindex = sheraf.Index("foo")
+        foo = sheraf.SimpleAttribute()
+
+    assert ModelB.indexes["fooindex"].details._search_func is None
 
 
 # ----------------------------------------------------------------------------

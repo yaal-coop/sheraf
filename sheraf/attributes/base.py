@@ -208,7 +208,9 @@ class BaseAttribute(object):
         It takes the same arguments as :class:`~sheraf.attributes.index.Index` except that by default:
 
         - the index name will be this attribute name;
-        - the index mapping will be this attribute `default_index_mapping` parameter.
+        - the mapping parameter will be this attribute `default_index_mapping` parameter;
+        - the values parameter will be this attribute :meth:`~sheraf.attributes.base.BaseAttribute.values` method;
+        - the search parameter will be this attribute :meth:`~sheraf.attributes.base.BaseAttribute.search` method;
         """
         self.indexes[key] = Index(
             attribute=self,
