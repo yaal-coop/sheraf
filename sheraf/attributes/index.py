@@ -56,26 +56,49 @@ class Index:
             return "<Index key={} unique={} primary>".format(self.key, self.unique)
         return "<Index key={} unique={}>".format(self.key, self.unique)
 
-    @property
-    def values_func(self):
-        return self._values_func or self.attribute.values
+    def call_values_func(self, model, *args, **kwargs):
+        func = self._values_func or self.attribute.values
+        try:
+            return func(*args, **kwargs)
+        except TypeError:
+            return func(model, *args, **kwargs)
 
-    @property
-    def search_func(self):
-        return self._search_func or self.attribute.search
+    def call_search_func(self, model, *args, **kwargs):
+        func = self._search_func or self.attribute.search
+        try:
+            return func(*args, **kwargs)
+        except TypeError:
+            return func(model, *args, **kwargs)
 
     def get_model_values(self, model):
-        return self.get_values(self.attribute.read(model))
+        return self.get_values(model, self.attribute.read(model))
 
-    def get_values(self, keys):
+    def get_values(self, model, keys):
         nullok = self.nullok if self.nullok is not None else self.attribute.nullok
         noneok = self.noneok if self.noneok is not None else self.attribute.noneok
+        values = self.call_values_func(model, keys)
 
         if not nullok:  # Empty values are not indexed
-            return {v for v in self.values_func(keys) if v}
+            return {v for v in values if v}
 
         elif not noneok:  # None values are not indexed
-            return {v for v in self.values_func(keys) if v is not None}
+            return {v for v in values if v is not None}
 
         else:  # Everything is indexed
-            return self.values_func(keys)
+            return values
+
+    def values(self, *args, **kwargs):
+        def values_wrapper(func):
+            self._values_func = func
+            if self._search_func is None:
+                self._search_func = func
+            return func
+
+        return values_wrapper if not args else values_wrapper(args[0])
+
+    def search(self, *args, **kwargs):
+        def search_wrapper(func):
+            self._search_func = func
+            return func
+
+        return search_wrapper if not args else search_wrapper(args[0])

@@ -425,7 +425,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 )
                 continue
 
-            new_index_value = index.get_values(new_attribute_value)
+            new_index_value = index.get_values(self, new_attribute_value)
             old_index_value = (
                 index.get_model_values(self) if attribute.is_created(self) else None
             )

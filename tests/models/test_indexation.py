@@ -403,10 +403,42 @@ class CustomIndexationModelB(tests.IntAutoModel):
     bar = sheraf.SimpleAttribute()
 
 
-@pytest.mark.parametrize("Model", [CustomIndexationModelA, CustomIndexationModelB])
+class CustomIndexationModelC(tests.IntAutoModel):
+    fooindex = sheraf.Index("foo", key="foo", unique=True)
+    foo = sheraf.SimpleAttribute()
+    barindex = sheraf.Index("bar", key="bar")
+    bar = sheraf.SimpleAttribute()
+
+    @fooindex.values()
+    def fooindex_values(self, value):
+        return {value.lower()}
+
+
+class CustomIndexationModelD(tests.IntAutoModel):
+    fooindex = sheraf.Index("foo", key="foo", unique=True)
+    foo = sheraf.SimpleAttribute()
+    barindex = sheraf.Index("bar", key="bar")
+    bar = sheraf.SimpleAttribute()
+
+    @fooindex.values
+    def fooindex_values(self, value):
+        return {value.lower()}
+
+
+@pytest.mark.parametrize(
+    "Model",
+    [
+        CustomIndexationModelA,
+        CustomIndexationModelB,
+        CustomIndexationModelC,
+        CustomIndexationModelD,
+    ],
+)
 def test_custom_indexation_method(sheraf_database, Model):
     with sheraf.connection(commit=True):
         m = Model.create(foo="FOO", bar="BAR")
+        assert Model.indexes["foo"].details._values_func is not None
+        assert {"foo"} == Model.indexes["foo"].details.get_values(m, "FOO")
 
     with sheraf.connection() as conn:
         index_table = conn.root()[Model.table]["foo"]
@@ -456,7 +488,44 @@ class CustomSearchModelB(tests.IntAutoModel):
     bar = sheraf.SimpleAttribute()
 
 
-@pytest.mark.parametrize("Model", [CustomSearchModelA, CustomSearchModelB])
+class CustomSearchModelC(tests.IntAutoModel):
+    fooindex = sheraf.Index(
+        "foo",
+        key="foo",
+        unique=True,
+        values=lambda string: {string.lower()},
+    )
+
+    foo = sheraf.SimpleAttribute()
+    barindex = sheraf.Index("bar", key="bar")
+    bar = sheraf.SimpleAttribute()
+
+    @fooindex.search()
+    def search_foo(self, value):
+        return [value.lower()[::-1], value.lower()]
+
+
+class CustomSearchModelD(tests.IntAutoModel):
+    fooindex = sheraf.Index(
+        "foo",
+        key="foo",
+        unique=True,
+        values=lambda string: {string.lower()},
+    )
+
+    foo = sheraf.SimpleAttribute()
+    barindex = sheraf.Index("bar", key="bar")
+    bar = sheraf.SimpleAttribute()
+
+    @fooindex.search
+    def search_foo(self, value):
+        return [value.lower()[::-1], value.lower()]
+
+
+@pytest.mark.parametrize(
+    "Model",
+    [CustomSearchModelA, CustomSearchModelB, CustomSearchModelC, CustomSearchModelD],
+)
 def test_custom_query_method(sheraf_database, Model):
     with sheraf.connection(commit=True):
         m = Model.create(foo="FOO", bar="BAR")
