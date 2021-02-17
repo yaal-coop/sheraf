@@ -76,3 +76,15 @@ def test_deletion_all():
     assert [1, 3] == a
     with pytest.raises(ValueError):
         a.remove(2)
+
+
+def test_append():
+    a = sheraf.types.LargeList()
+    a.append(1)
+    assert [1] == a
+    a.append(2)
+    assert [1, 2] == a
+    a.append(2)
+    assert [1, 2, 2] == a
+    a.append(2, unique=True)
+    assert [1, 2, 2] == a

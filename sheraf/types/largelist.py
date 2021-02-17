@@ -10,7 +10,10 @@ class LargeList(IOBTree):
         items = items if items is not None else []
         self.extend(items)
 
-    def append(self, item):
+    def append(self, item, unique=False):
+        if unique and item in self:
+            return
+
         new_index = len(self)
         self._set_length(len(self) + 1)
         self[new_index] = item
@@ -27,9 +30,9 @@ class LargeList(IOBTree):
     def _set_length(self, length):
         IOBTree.__setitem__(self, self.LENGTH_KEY, length)
 
-    def extend(self, items):
+    def extend(self, items, unique=False):
         for _item in items:
-            self.append(_item)
+            self.append(_item, unique)
 
     def insert(self, indice, element):
         self._set_length(len(self) + 1)
