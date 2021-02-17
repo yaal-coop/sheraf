@@ -1005,9 +1005,6 @@ def test_wrong_index_attribute(sheraf_connection):
         class ModelC(tests.UUIDAutoModel):
             i = sheraf.Index("invalid")
 
-        class ModelD(ModelC):
-            foo = sheraf.SimpleAttribute()
-
     with pytest.raises(sheraf.SherafException):
 
         class ModelE(tests.UUIDAutoModel):
