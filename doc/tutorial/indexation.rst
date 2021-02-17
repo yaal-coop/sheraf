@@ -345,6 +345,36 @@ We also defined a ``reverse_indexation``.By passing the ``first_name`` and ``las
 :meth:`~sheraf.attributes.index.Index.values` decorator, we assigned this method to the attributes, and thus
 those very attributes can be indexed using this method, for this ``name`` index only: here the names will be normal and reversed.
 
+Index inheritance
+-----------------
+
+Index are inherited the most transparently as you can expect. You can overwrite a parent index, or even create an
+index on a parent attribute:
+
+.. code-block:: python
+
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "legacy_cowboys"
+    ...     first_name = sheraf.StringAttribute()
+    ...     last_name = sheraf.StringAttribute()
+    ...
+    ...     last_name_index = sheraf.Index(last_name, values=lambda x: {x.lower()})
+    ...
+    >>> class UpperCowboy(Cowboy):
+    ...     table = "upper_cowboys"
+    ...     last_name_index = sheraf.Index("last_name", values=lambda x: {x.upper()})
+    ...     first_name_index = sheraf.Index("first_name", values=lambda x: {x.upper()})
+    ...
+    >>> with sheraf.connection():
+    ...     george = UpperCowboy.create(first_name="george", last_name="abitbol")
+    ...     assert george in UpperCowboy.filter(first_name_index="GEORGE")
+    ...     assert george in UpperCowboy.filter(last_name_index="ABITBOL")
+
+In the ``Cowboy`` model the ``last_name_index`` stores the names in lowercase, but in the
+inherited ``UpperCowboy`` model the index has been overwritten so names are stored in the
+index in uppercase. ``UpperCowboy`` also defines a ``first_name_index`` on the ``first_name``
+attribute, that is defined in its parent model class.
+
 Health checks and fixes
 -----------------------
 
