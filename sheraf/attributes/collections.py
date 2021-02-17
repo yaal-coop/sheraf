@@ -185,8 +185,8 @@ class ListAttribute(sheraf.attributes.base.BaseAttribute):
         ...     george in Cowboy.search(favorite_colors="purple")
         False
         >>> with sheraf.connection():
-        ...     george.favorite_colors = list(george.favorite_colors) + ["purple"]
-        ...     george in Cowboy.search(favorite_colors="purple")
+        ...     george.favorite_colors = list(george.favorite_colors) + ["brown"]
+        ...     george in Cowboy.search(favorite_colors="brown")
         True
         """
 
@@ -560,8 +560,8 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         ...     george in Cowboy.search(favorite_colors="purple")
         False
         >>> with sheraf.connection():
-        ...     george.favorite_colors = set(george.favorite_colors) | {"purple"}
-        ...     george in Cowboy.search(favorite_colors="purple")
+        ...     george.favorite_colors = set(george.favorite_colors) | {"brown"}
+        ...     george in Cowboy.search(favorite_colors="brown")
         True
         """
 
