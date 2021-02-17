@@ -31,7 +31,7 @@ Bug reports and pull requests are highly encouraged!
 
 ## Documentation
 
-You can build it with the following commands, or read it on [hosted here](https://sheraf.readthedocs.io/en/latest/).
+You can build it with the following commands, or read it on [readthedocs](https://sheraf.readthedocs.io/en/latest/).
 
     poetry run tox -e doc
     open build/sphinx/html/index.html
