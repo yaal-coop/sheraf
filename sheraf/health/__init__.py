@@ -27,14 +27,15 @@ def check_health(
 ):
     """
     Takes some modules in parameters.
+
     :param model_checks: If None, check also model consistency (see constant model_check_funcs)
     :param instance_checks: If None, check all instance consistency rules. Else, give the list of wanted
-    checking rules (see constant instance_check_funcs)
+        checking rules (see constant instance_check_funcs)
     :param attribute_checks: If None, check all attribute consistency rules. Else, give the list of wanted
-    checking rules (see constant instance_check_funcs)
-    The function will discover models in the modules, analyze every
-    model instance, and return a health report in JSON. Depending on the
-    result, you may need to apply some fixes.
+        checking rules (see constant instance_check_funcs)
+        The function will discover models in the modules, analyze every
+        model instance, and return a health report in JSON. Depending on the
+        result, you may need to apply some fixes.
     """
     models = discover_models(*args)
     health_report = {}

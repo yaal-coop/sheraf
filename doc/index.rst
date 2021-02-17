@@ -17,13 +17,13 @@ Table of contents
    :maxdepth: 2
 
    introduction
-   install
    tutorial/index
    api/index
    databasetree
    parallelism
    fts
    integrations
+   install
    changelog
 
 Indices and tables

@@ -1,5 +1,3 @@
-"""Databases."""
-
 import contextlib
 import os
 import threading
@@ -44,9 +42,9 @@ class Database(object):
     factory.
 
     The storage factory will either create a
-    :class:`ZEO.ClientStorage.ClientStorage`, a
-    :class:`ZODB.FileStorage.FileStorage.FileStorage`, a
-    :class:`ZODB.DemoStorage.DemoStorage`, a Relstorage
+    :class:`~ZEO.ClientStorage.ClientStorage`, a
+    :class:`~ZODB.FileStorage.FileStorage.FileStorage`, a
+    :class:`~ZODB.DemoStorage.DemoStorage`, a Relstorage
     :class:`~relstorage.adapters.postgresql.adapter.PostgreSQLAdapter` or use a
     user defined storage depending on the argument passed at the initialization
     of the object.

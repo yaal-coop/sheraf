@@ -6,10 +6,10 @@ class Index:
     Indexes should be either created as :class:`~sheraf.models.indexation.IndexedModel` class parameters,
     or with the attributes :func:`~sheraf.attributes.base.BaseAttribute.index` method.
 
-    :param attribute: The attribute being indexed. This can be either a
-        :class:`~sheraf.attributes.base.BaseAttribute` or a string representing
-        the attribute name in the model.
-    :type attribute: :class:`~sheraf.attributes.base.BaseAttribute` or string
+    :param attributes: The attributes being indexed. They can be either
+        :class:`~sheraf.attributes.base.BaseAttribute` or strings representing
+        the attributes names in the model.
+    :type *attributes: A collection of :class:`~sheraf.attributes.base.BaseAttribute` or strings.
     :param key: The key the index will use. By default, it takes the name it has
                 as a :class:`~sheraf.models.indexation.IndexedModel` attribute.
                 If the :func:`~sheraf.attributes.base.BaseAttribute.index` is used,
