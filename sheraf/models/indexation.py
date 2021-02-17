@@ -11,36 +11,32 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
         klass = super().__new__(cls, name, bases, attrs)
         klass.indexes = {}
 
-        for base in bases:
-            for name, index in base.__dict__.get("indexes", {}).items():
-                if not isinstance(index, sheraf.attributes.index.Index):
-                    continue
-
-                index.key = index.key or name
-                if isinstance(index.attribute, str):
-                    index.attribute = base.attributes[index.attribute]
-                    index.attribute.indexes[index.key] = index
-                index.attribute.lazy = False
-                klass.indexes[index.key] = klass.index_manager(index)
-
-        for name, index in attrs.items():
-            if not isinstance(index, sheraf.attributes.index.Index):
-                continue
+        def add_index(name, index, attributes, add_to_attribute=True):
+            if isinstance(index.attribute, str):
+                index.attribute = attributes[index.attribute]
 
             index.key = index.key or name
-            if isinstance(index.attribute, str):
-                index.attribute = klass.attributes[index.attribute]
+            if not isinstance(index.attribute, sheraf.BaseAttribute):
+                raise sheraf.exceptions.SherafException(f"The {index.key} index has a wrong attribute.")
+
+            if add_to_attribute:
                 index.attribute.indexes[index.key] = index
+
             index.attribute.lazy = False
             klass.indexes[index.key] = klass.index_manager(index)
 
+        for base in bases:
+            for name, index in base.__dict__.get("indexes", {}).items():
+                if isinstance(index, sheraf.attributes.index.Index):
+                    add_index(name, index, base.attributes)
+
+        for name, index in attrs.items():
+            if isinstance(index, sheraf.attributes.index.Index):
+                add_index(name, index, klass.attributes)
+
         for attribute in klass.attributes.values():
             for index_key, index in attribute.indexes.items():
-                index.key = index_key or attribute.key(klass)
-                if isinstance(index.attribute, str):
-                    index.attribute = klass.attributes[index.attribute]
-                index.attribute.lazy = False
-                klass.indexes[index.key] = klass.index_manager(index)
+                add_index(attribute.key(klass), index, klass.attributes, False)
 
         return klass
 
