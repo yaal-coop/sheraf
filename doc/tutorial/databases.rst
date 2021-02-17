@@ -62,7 +62,7 @@ You can also use it as a function decorator:
     ...     m = MyModel.create()
     ...     # do other things
     ...
-    >>> do_thing()
+    >>> do_thing() # doctest: +SKIP
 
 .. warning::  Note that by default, you cannot open two connections to the same database:
 
@@ -91,7 +91,7 @@ A :class:`~transaction.interfaces.ITransaction` is opened each time you open a c
     ...     m = MyModel.create()
     ...     # do other things
     ...
-    >>> do_thing()
+    >>> do_thing() # doctest: +SKIP
 
 Another option is to use the :func:`~sheraf.transactions.commit` shortcut:
 
@@ -113,7 +113,7 @@ use the :func:`~sheraf.transactions.attempt` function:
     ...     m = MyModel.create()
     ...     # do other things
     ...
-    >>> sheraf.attempt(do_thing)
+    >>> sheraf.attempt(do_thing) # doctest: +SKIP
 
 ZConfig file
 ============
