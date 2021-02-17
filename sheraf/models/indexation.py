@@ -12,19 +12,27 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
         klass.indexes = {}
 
         def add_index(name, index, attributes, add_to_attribute=True):
-            if isinstance(index.attribute, str):
-                index.attribute = attributes[index.attribute]
+            # Get the real attributes objects when string have been passed as attributes
+            # in the index.
+            index.attributes = [
+                attributes[a] if isinstance(a, str) else a for a in index.attributes
+            ]
+            index.attribute_values_func = {
+                attributes[k] if isinstance(k, str) else k: v
+                for k, v in index.attribute_values_func.items()
+            }
 
             index.key = index.key or name
-            if not isinstance(index.attribute, sheraf.BaseAttribute):
-                raise sheraf.exceptions.SherafException(
-                    f"The {index.key} index has a wrong attribute."
-                )
+            for attribute in index.attributes:
+                if not isinstance(attribute, sheraf.BaseAttribute):
+                    raise sheraf.exceptions.SherafException(
+                        f"The {index.key} index has a wrong attribute."
+                    )
 
-            if add_to_attribute:
-                index.attribute.indexes[index.key] = index
+                if add_to_attribute:
+                    attribute.indexes[index.key] = index
 
-            index.attribute.lazy = False
+                attribute.lazy = False
             klass.indexes[index.key] = klass.index_manager(index)
 
         for base in bases:
@@ -380,10 +388,39 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     def __setattr__(self, name, value):
         attribute = self.attributes.get(name)
-        if attribute:
-            self.update_attribute_indexes(attribute, value)
+        if not attribute or not attribute.indexes:
+            super().__setattr__(name, value)
+            return
+
+        old_index_values = {}
+        for index in attribute.indexes.values():
+            if not self._is_indexable(index):
+                warnings.warn(
+                    "New index in an already populated table. %s.%s will not be indexed. "
+                    'Consider calling %s.index_table_rebuild(["%s"]) to initialize the indexation table.'
+                    % (
+                        self.__class__.__name__,
+                        index.key,
+                        self.__class__.__name__,
+                        index.key,
+                    ),
+                    sheraf.exceptions.IndexationWarning,
+                    stacklevel=5,
+                )
+                continue
+
+            old_index_values[index] = index.get_model_values(self)
 
         super().__setattr__(name, value)
+
+        for index in attribute.indexes.values():
+            if not self._is_indexable(index):
+                continue
+
+            new_index_values = index.get_model_values(self)
+
+            index_manager = self.indexes[index.key]
+            index_manager.update_item(self, old_index_values[index], new_index_values)
 
     @property
     def identifier(self):
@@ -409,31 +446,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         index_table_exists = index_manager.table_initialized()
         return self._is_first_instance or index_table_exists
 
-    def update_attribute_indexes(self, attribute, new_attribute_value):
-        for index in attribute.indexes.values():
-            if not self._is_indexable(index):
-                warnings.warn(
-                    "New index in an already populated table. %s.%s will not be indexed. "
-                    'Consider calling %s.index_table_rebuild(["%s"]) to initialize the indexation table.'
-                    % (
-                        self.__class__.__name__,
-                        index.key,
-                        self.__class__.__name__,
-                        index.key,
-                    ),
-                    sheraf.exceptions.IndexationWarning,
-                    stacklevel=5,
-                )
-                continue
-
-            new_index_value = index.get_values(self, new_attribute_value)
-            old_index_value = (
-                index.get_model_values(self) if attribute.is_created(self) else None
-            )
-
-            index_manager = self.indexes[index.key]
-            index_manager.update_item(self, old_index_value, new_index_value)
-
     def copy(self, **kwargs):
         r"""
         Copies a model.
@@ -448,8 +460,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         """
 
         unique_attributes = (
-            index.details.attribute
+            attribute
             for index in self.indexes.values()
+            for attribute in index.details.attributes
             if index.details.unique
         )
 

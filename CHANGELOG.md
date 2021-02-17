@@ -1,4 +1,4 @@
-[0.3.9] - 2021-02-16
+[0.4.0] - 2021-02-17
 ====================
 
 Added
@@ -8,6 +8,8 @@ Added
   :meth:`~sheraf.models.indexation.IndexedModel` parameters. :pr:`11`
 - :meth:`sheraf.types.largelist.LargeList.remove` can take a `all` argument.
 - :meth:`sheraf.types.largelist.LargeList.append` can take a `unique` argument.
+- :class:`~sheraf.attributes.index.Index` can have several
+  :class:`~sheraf.attributes.base.BaseAttribute` :issue:`23`
 
 
 [0.3.8] - 2021-02-05

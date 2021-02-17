@@ -60,7 +60,7 @@ class LargeList(IOBTree):
             if not all:
                 return
 
-        if not found:
+        if not all or not found:
             raise ValueError("{} not in {}".format(item, self))
 
     def pop(self):
