@@ -1,6 +1,13 @@
 # A versatile ZODB abstraction layer
 
-sheraf is an overlay over ZODB. It provides a high level interface to save and read your data.
+sheraf is a wrapper library around [ZODB](https://www.zodb.org) that provides models management and indexation. It aims to make the use of `ZODB` simple by providing ready-to-use tools and explicit tools. sheraf is currently compatible with `ZODB 5` and `python 3.6+`.
+
+You can expect sheraf to:
+
+- Do few things, but do them right;
+- Be simple enough so beginners can do a lot with a few lines;
+- Be powerful enough and tunable for python experts;
+- Have a simple and expressive code, that allows you to hack it if needed.
 
 ## Installation
 
