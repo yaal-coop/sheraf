@@ -19,7 +19,7 @@ class IndexManager:
                      the current values of the index for the current model
                      are set.
         """
-        if not keys:
+        if keys is None:
             keys = self.details.get_model_values(model)
 
         table = self.table()
@@ -39,7 +39,7 @@ class IndexManager:
                      the current values of the index for the current model
                      are removed.
         """
-        if not keys:
+        if keys is None:
             keys = self.details.get_model_values(model)
 
         table = self.table()
@@ -58,8 +58,11 @@ class IndexManager:
             del_values = old_values - new_values
             add_values = new_values - old_values
 
-            self.delete_item(model, del_values)
-            self.add_item(model, add_values)
+            if del_values:
+                self.delete_item(model, del_values)
+
+            if add_values:
+                self.add_item(model, add_values)
 
         elif not old_values:
             self.add_item(model, new_values)
