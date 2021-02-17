@@ -88,6 +88,7 @@ class Index:
         self.key = key
         self._values_func = values
         self._search_func = search or values
+        self.attribute_values_func = {}
         self.mapping = mapping or OOBTree
         self.primary = primary
         self.nullok = nullok
@@ -98,13 +99,15 @@ class Index:
             return "<Index key={} unique={} primary>".format(self.key, self.unique)
         return "<Index key={} unique={}>".format(self.key, self.unique)
 
-    def call_values_func(self, model, value):
-        if not self._values_func:
+    def call_values_func(self, model, attribute, value):
+        func = self.attribute_values_func.get(attribute, self._values_func)
+
+        if not func:
             return {value}
         try:
-            return self._values_func(value)
+            return func(value)
         except TypeError:
-            return self._values_func(model, value)
+            return func(model, value)
 
     def call_search_func(self, model, value):
         if not self._search_func:
@@ -118,11 +121,12 @@ class Index:
         return {
             v
             for attribute in self.attributes
-            for v in self.get_values(model, attribute.read(model))
+            if attribute.is_created(model)
+            for v in self.get_values(model, attribute, attribute.read(model))
         }
 
-    def get_values(self, model, keys):
-        values = self.call_values_func(model, keys)
+    def get_values(self, model, attribute, value):
+        values = self.call_values_func(model, attribute, value)
 
         if not self.nullok:  # Empty values are not indexed
             return {v for v in values if v}
@@ -134,17 +138,78 @@ class Index:
             return values
 
     def values(self, *args, **kwargs):
-        def values_wrapper(func):
-            self._values_func = func
-            if self._search_func is None:
-                self._search_func = func
+        """
+        This decorator sets a values method, for one, several or all of the index attributes.
+
+        - If no positionnal argument is passed, then this sets a default values function for the
+        index.
+        - You can pass one or several attributes or attributes names to set a specific values method
+        for those attributes.
+
+        >>> class Model(sheraf.Model):
+        ...     table = "any_table"
+        ...     foo = sheraf.StringAttribute()
+        ...     bar = sheraf.StringAttribute()
+        ...     baz = sheraf.StringAttribute()
+        ...     theindex = sheraf.Index(foo, bar, baz)
+        ...
+        ...     @theindex.values
+        ...     def the_default_values_method(self, values):
+        ...         return {values.lower()}
+        ...
+        ...     @theindex.values(bar, "baz")
+        ...     def the_baz_values_method(self, values):
+        ...         return {values.upper()}
+        ...
+        >>> with sheraf.connection():
+        ...     m = Model.create(foo="Foo", bar="Bar", baz="Baz")
+        ...     assert m in Model.filter(theindex="foo")
+        ...     assert m in Model.filter(theindex="BAR")
+        ...     assert m in Model.filter(theindex="BAZ")
+        """
+
+        if args and (len(args) > 1 or not callable(args[0])):
+            attributes = args
+            args = []
+        else:
+            attributes = []
+
+        def wrapper(func):
+            if not attributes:
+                self._values_func = func
+
+                if self._search_func is None:
+                    self._search_func = func
+
+            for attribute in attributes:
+                self.attribute_values_func[attribute] = func
+
             return func
 
-        return values_wrapper if not args else values_wrapper(args[0])
+        return wrapper if not args else wrapper(args[0])
 
     def search(self, *args, **kwargs):
-        def search_wrapper(func):
+        """
+        This decorator sets the search method for the index.
+
+        >>> class Model(sheraf.Model):
+        ...     table = "any_table"
+        ...     foo = sheraf.StringAttribute()
+        ...     bar = sheraf.StringAttribute()
+        ...     theindex = sheraf.Index(foo, bar)
+        ...
+        ...     @theindex.search
+        ...     def the_search_method(self, values):
+        ...         return {values.lower()}
+        ...
+        >>> with sheraf.connection():
+        ...     m = Model.create(foo="foo", bar="bar")
+        ...     assert m in Model.search(theindex="foo")
+        ...     assert m in Model.search(theindex="BAR")
+        """
+
+        def wrapper(func):
             self._search_func = func
             return func
 
-        return search_wrapper if not args else search_wrapper(args[0])
+        return wrapper if not args else wrapper(args[0])

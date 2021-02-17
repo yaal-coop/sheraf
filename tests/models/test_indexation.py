@@ -172,16 +172,16 @@ def test_unique_index_double_value(sheraf_database, Model):
 def test_unique_indexation_on_model_attribute(sheraf_database):
     class DummyModel(sheraf.Model):
         table = "dummymodel_table"
-        v = sheraf.SimpleAttribute(lazy=False, default=str)
+        val = sheraf.SimpleAttribute(lazy=False, default=str)
 
     class Model(sheraf.Model):
         table = "model_table"
-        dummy_attribute = sheraf.ModelAttribute(DummyModel, lazy=False).index(
-            unique=True, values=lambda x: {x.v}
+        dummy_attribute = sheraf.ModelAttribute(DummyModel).index(
+            unique=True, values=lambda x: {x.val}
         )
 
     with sheraf.connection(commit=True):
-        foo = DummyModel.create(v="fou")
+        foo = DummyModel.create(val="fou")
         Model.create(dummy_attribute=foo)
 
     with sheraf.connection() as conn:
@@ -510,7 +510,9 @@ def test_custom_indexation_method(sheraf_database, Model):
     with sheraf.connection(commit=True):
         m = Model.create(foo="FOO", bar="BAR")
         assert Model.indexes["foo"].details._values_func is not None
-        assert {"foo"} == Model.indexes["foo"].details.get_values(m, "FOO")
+        assert {"foo"} == Model.indexes["foo"].details.get_values(
+            m, Model.attributes["foo"], "FOO"
+        )
 
     with sheraf.connection() as conn:
         index_table = conn.root()[Model.table]["foo"]
@@ -749,6 +751,203 @@ def test_nullok_index(sheraf_connection, unique):
     assert p in ModelSimple.search(foo="anything")
     assert p in ModelSimple.search(bar="anything")
     p.delete()
+
+
+# ---------------------------------------------------------------------------------
+# Common indexes
+# ---------------------------------------------------------------------------------
+
+
+def test_common_index(sheraf_database):
+    class Model(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute()
+        bar = sheraf.SimpleAttribute()
+        theindex = sheraf.Index(foo, bar)
+
+    with sheraf.connection(commit=True):
+        m = Model.create(foo="foo", bar="bar")
+
+    with sheraf.connection() as conn:
+        index_table = conn.root()[Model.table]["theindex"]
+        assert {"foo", "bar"} == set(index_table)
+        assert [m.mapping] == list(index_table["foo"])
+        assert [m.mapping] == list(index_table["bar"])
+
+        assert [m] == list(Model.read_these(theindex=["foo"]))
+        assert [m] == list(Model.read_these(theindex=["bar"]))
+
+        assert [m] == Model.search(theindex="foo")
+        assert [m] == Model.search(theindex="bar")
+
+
+class CommonModelDifferentValuesMethodsA(tests.IntAutoModel):
+    foo = sheraf.StringAttribute()
+    bar = sheraf.SimpleAttribute()
+    theindex = sheraf.Index(foo, bar)
+
+    @theindex.values("foo")
+    def lower(self, value):
+        return {value.lower()}
+
+    @theindex.values("bar")
+    def upper(self, value):
+        return {value.upper()}
+
+
+class CommonModelDifferentValuesMethodsB(tests.IntAutoModel):
+    foo = sheraf.StringAttribute()
+    bar = sheraf.SimpleAttribute()
+    theindex = sheraf.Index(foo, bar)
+
+    @theindex.values(foo)
+    def lower(self, value):
+        return {value.lower()}
+
+    @theindex.values(bar)
+    def upper(self, value):
+        return {value.upper()}
+
+
+@pytest.mark.parametrize(
+    "Model", (CommonModelDifferentValuesMethodsA, CommonModelDifferentValuesMethodsB)
+)
+def test_common_index_different_values_methods(sheraf_database, Model):
+    assert (
+        Model.indexes["theindex"].details.attribute_values_func[Model.attributes["foo"]]
+        == Model.lower
+    )
+    assert (
+        Model.indexes["theindex"].details.attribute_values_func[Model.attributes["bar"]]
+        == Model.upper
+    )
+    assert Model.indexes["theindex"].details._values_func is None
+    assert Model.indexes["theindex"].details._search_func is None
+
+    with sheraf.connection(commit=True) as conn:
+        m = Model.create(foo="FOo", bar="bAr")
+
+    with sheraf.connection() as conn:
+        index_table = conn.root()[Model.table]["theindex"]
+        assert {"foo", "BAR"} == set(index_table)
+        assert [m.mapping] == list(index_table["foo"])
+        assert [m.mapping] == list(index_table["BAR"])
+
+        assert [m] == list(Model.read_these(theindex=["foo"]))
+        assert [m] == list(Model.read_these(theindex=["BAR"]))
+
+        assert [m] == Model.search(theindex="foo")
+        assert [m] == Model.search(theindex="BAR")
+
+        assert [] == Model.search(theindex="FOo")
+        assert [] == Model.search(theindex="bAr")
+
+
+class CommonModelDefaultValuesMethodsA(tests.IntAutoModel):
+    def lower(self, value):
+        return {value.lower()}
+
+    foo = sheraf.StringAttribute()
+    bar = sheraf.SimpleAttribute()
+    theindex = sheraf.Index(foo, bar, values=lower)
+
+    @theindex.values(bar)
+    def upper(self, value):
+        return {value.upper()}
+
+
+class CommonModelDefaultValuesMethodsB(tests.IntAutoModel):
+    foo = sheraf.StringAttribute()
+    bar = sheraf.SimpleAttribute()
+    theindex = sheraf.Index(foo, bar)
+
+    @theindex.values
+    def lower(self, value):
+        return {value.lower()}
+
+    @theindex.values(bar)
+    def upper(self, value):
+        return {value.upper()}
+
+
+@pytest.mark.parametrize(
+    "Model", (CommonModelDefaultValuesMethodsA, CommonModelDefaultValuesMethodsB)
+)
+def test_common_index_default_values_methods(sheraf_database, Model):
+    assert (
+        Model.attributes["foo"]
+        not in Model.indexes["theindex"].details.attribute_values_func
+    )
+    assert (
+        Model.indexes["theindex"].details.attribute_values_func[Model.attributes["bar"]]
+        == Model.upper
+    )
+    assert Model.indexes["theindex"].details._values_func == Model.lower
+    assert Model.indexes["theindex"].details._search_func == Model.lower
+
+    with sheraf.connection(commit=True) as conn:
+        m = Model.create(foo="FOo", bar="bAr")
+
+    with sheraf.connection() as conn:
+        index_table = conn.root()[Model.table]["theindex"]
+        assert {"foo", "BAR"} == set(index_table)
+        assert [m.mapping] == list(index_table["foo"])
+        assert [m.mapping] == list(index_table["BAR"])
+
+        assert [m] == list(Model.read_these(theindex=["foo"]))
+        assert [m] == list(Model.read_these(theindex=["BAR"]))
+
+        assert [m] == Model.filter(theindex="foo")
+        assert [m] == Model.filter(theindex="BAR")
+
+        assert [m] == Model.search(theindex="foo")
+        assert [m] == Model.search(theindex="FOo")
+        assert [] == Model.search(theindex="BAR")
+        assert [] == Model.search(theindex="bAr")
+
+
+def test_common_index_unique(sheraf_database):
+    class Model(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute()
+        bar = sheraf.SimpleAttribute()
+        theindex = sheraf.Index(foo, bar, unique=True)
+
+    with sheraf.connection(commit=True):
+        Model.create(foo="foo", bar="bar")
+
+        # This behavior can seem strange
+        Model.create(foo="anything", bar="anything")
+
+    with sheraf.connection():
+        with pytest.raises(sheraf.UniqueIndexException):
+            Model.create(foo="bar")
+
+        with pytest.raises(sheraf.UniqueIndexException):
+            Model.create(bar="foo")
+
+
+def test_common_index_complex(sheraf_database):
+    class Model(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute()
+        bar = sheraf.SimpleAttribute()
+        theindex = sheraf.Index(foo, bar)
+
+        @theindex.values
+        def values(self, value):
+            return {value.lower(), value.upper()}
+
+    with sheraf.connection(commit=True) as conn:
+        m = Model.create(foo="foo", bar="bar")
+        assert {"foo", "bar", "FOO", "BAR"} == set(conn.root()[Model.table]["theindex"])
+
+        m.bar = "baz"
+        assert {"foo", "baz", "FOO", "BAZ"} == set(conn.root()[Model.table]["theindex"])
+
+    with sheraf.connection(commit=True) as conn:
+        m = Model.read(m.id)
+        assert {"foo", "baz", "FOO", "BAZ"} == set(conn.root()[Model.table]["theindex"])
+
+        m.foo = "OOF"
+        assert {"oof", "baz", "OOF", "BAZ"} == set(conn.root()[Model.table]["theindex"])
 
 
 # ------------------------------------------------------------------------------------------------
