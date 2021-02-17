@@ -142,9 +142,9 @@ class Index:
         This decorator sets a values method, for one, several or all of the index attributes.
 
         - If no positionnal argument is passed, then this sets a default values function for the
-        index.
+          index.
         - You can pass one or several attributes or attributes names to set a specific values method
-        for those attributes.
+          for those attributes.
 
         >>> class Model(sheraf.Model):
         ...     table = "any_table"

@@ -283,6 +283,68 @@ The ``substrings`` function extracts all the possible substring from all the wor
 
 To see how indexes can be used to build a full-text search engine, you can check the :ref:`fts` section.
 
+Indexes over multiple attributes
+--------------------------------
+
+It is possible for an index to watch several attributes. To do this you cannot use the
+:func:`~sheraf.attributes.base.BaseAttribute.index` shortcut, so you need to define the
+index with a :class:`~sheraf.attributes.index.Index` object.
+
+
+Here both ``first_name`` and ``last_name`` are indexed in the same place:
+
+.. code-block:: python
+
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "common_cowboys"
+    ...     first_name = sheraf.StringAttribute()
+    ...     last_name = sheraf.StringAttribute()
+    ...
+    ...     name = sheraf.Index(first_name, last_name)
+    ...
+    >>> with sheraf.connection():
+    ...     george = Cowboy.create(first_name="George", last_name="Abitbol")
+    ...     assert george in Cowboy.search(name="George")
+    ...     assert george in Cowboy.search(name="Abitbol")
+
+When an index has several attributes, it can have a different indexation methods for each attribute,
+and a default one:
+
+.. code-block:: python
+
+    >>> class Cowboy(sheraf.Model):
+    ...     table = "advanced_common_cowboys"
+    ...     first_name = sheraf.StringAttribute()
+    ...     last_name = sheraf.StringAttribute()
+    ...     surname = sheraf.StringAttribute()
+    ...
+    ...     name = sheraf.Index(first_name, last_name, surname)
+    ...
+    ...     @name.values
+    ...     def default_name_indexation(self, value):
+    ...         return {value.lower()}
+    ...
+    ...     @name.values(first_name, last_name)
+    ...     def reverse_indexation(self, value):
+    ...         return {value.lower(), value.lower()[::-1]}
+    ...
+    >>> with sheraf.connection():
+    ...     george = Cowboy.create(first_name="George", last_name="Abitbol", surname="Georgy")
+    ...     assert george in Cowboy.search(name="George")
+    ...     assert george in Cowboy.search(name="egroeG")
+    ...
+    ...     assert george in Cowboy.search(name="Abitbol")
+    ...     assert george in Cowboy.search(name="lobtibA")
+    ...
+    ...     assert george in Cowboy.search(name="Georgy")
+    ...     assert george not in Cowboy.search(name="ygroeG")
+
+Here we used the :meth:`~sheraf.attributes.index.Index.values` decorator to define a ``default_name_indexation`` method.
+As we did not pass any argument to the decorator, this method is the default indexation method for the index ``name``.
+We also defined a ``reverse_indexation``.By passing the ``first_name`` and ``last_name`` attributes to the
+:meth:`~sheraf.attributes.index.Index.values` decorator, we assigned this method to the attributes, and thus
+those very attributes can be indexed using this method, for this ``name`` index only: here the names will be normal and reversed.
+
 Health checks and fixes
 -----------------------
 
