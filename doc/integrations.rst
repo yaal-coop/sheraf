@@ -3,6 +3,9 @@ Integrations
 
 sheraf integrates well with some other libraries. Here are some examples.
 
+.. contents::
+   :local:
+
 WTForms
 -------
 
