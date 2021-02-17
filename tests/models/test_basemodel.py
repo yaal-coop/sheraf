@@ -9,13 +9,15 @@ def test_delete_attributes(sheraf_connection):
         foo = sheraf.StringAttribute()
 
     m = M.create()
-    m.foo = "foo"
-    m.bar = "bar"
+    m.foo = "FOO"
+    assert "foo" in m.mapping
+    m.bar = "BAR"
 
-    assert "foo" == m.foo
-    assert "bar" == m.bar
+    assert "FOO" == m.foo
+    assert "BAR" == m.bar
 
     del m.foo
+    assert "foo" not in m.mapping
     del m.bar
 
     assert "" == m.foo

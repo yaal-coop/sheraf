@@ -160,6 +160,35 @@ def test_unique_index_creation_and_deletion(sheraf_database, Model):
         UniqueModelC,
     ],
 )
+def test_unique_index_creation_and_attribute_deletion(sheraf_database, Model):
+    with sheraf.connection(commit=True):
+        mfoo = Model.create(my_attribute="foo")
+        mbar = Model.create(my_attribute="bar")
+
+    with sheraf.connection() as conn:
+        index_table = conn.root()[Model.table]["my_attribute"]
+        assert {"foo", "bar"} == set(index_table)
+        assert [mfoo] == Model.filter(my_attribute="foo")
+        assert [mbar] == Model.filter(my_attribute="bar")
+
+    with sheraf.connection(commit=True):
+        del mfoo.my_attribute
+
+    with sheraf.connection() as conn:
+        index_table = conn.root()[Model.table]["my_attribute"]
+        assert {"bar"} == set(index_table)
+        assert [] == Model.filter(my_attribute="foo")
+        assert [mbar] == Model.filter(my_attribute="bar")
+
+
+@pytest.mark.parametrize(
+    "Model",
+    [
+        UniqueModelA,
+        UniqueModelB,
+        UniqueModelC,
+    ],
+)
 def test_unique_index_double_value(sheraf_database, Model):
     with sheraf.connection(commit=True):
         Model.create(my_attribute="foo")
@@ -948,6 +977,9 @@ def test_common_index_complex(sheraf_database):
 
         m.foo = "OOF"
         assert {"oof", "baz", "OOF", "BAZ"} == set(conn.root()[Model.table]["theindex"])
+
+        del m.foo
+        assert {"baz", "BAZ"} == set(conn.root()[Model.table]["theindex"])
 
 
 # ------------------------------------------------------------------------------------------------

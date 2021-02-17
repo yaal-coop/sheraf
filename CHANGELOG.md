@@ -5,6 +5,8 @@ Fixed
 *****
 
 - :class:`~sheraf.attributes.index.Index` inheritance is fixed.
+- :class:`~sheraf.attributes.index.Index` update :class:`~sheraf.attributes.base.BaseAttribute`
+  on deletion.
 
 [0.4.0] - 2021-02-17
 ====================

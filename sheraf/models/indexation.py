@@ -404,10 +404,25 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     def __setattr__(self, name, value):
         attribute = self.attributes.get(name)
-        if not attribute or not attribute.indexes:
-            super().__setattr__(name, value)
-            return
+        if attribute:
+            old_values = self.before_index_edition(attribute)
 
+        super().__setattr__(name, value)
+
+        if attribute:
+            self.after_index_edition(attribute, old_values)
+
+    def __delattr__(self, name):
+        attribute = self.attributes.get(name)
+        if attribute:
+            old_values = self.before_index_edition(attribute)
+
+        super().__delattr__(name)
+
+        if attribute:
+            self.after_index_edition(attribute, old_values)
+
+    def before_index_edition(self, attribute):
         old_index_values = {}
         for index in attribute.indexes.values():
             if not self._is_indexable(index):
@@ -426,9 +441,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 continue
 
             old_index_values[index] = index.get_model_values(self)
+        return old_index_values
 
-        super().__setattr__(name, value)
-
+    def after_index_edition(self, attribute, old_index_values):
         for index in attribute.indexes.values():
             if not self._is_indexable(index):
                 continue
