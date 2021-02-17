@@ -51,14 +51,25 @@ class UniqueModelB(tests.IntAutoModel):
     my_attribute_index = sheraf.Index("my_attribute", unique=True, key="my_attribute")
 
 
+class UniqueModelC(tests.IntAutoModel):
+    my_attribute = sheraf.SimpleAttribute()
+    my_attribute_index = sheraf.Index(my_attribute, unique=True, key="my_attribute")
+
+
 @pytest.mark.parametrize(
     "Model",
     [
         UniqueModelA,
         UniqueModelB,
+        UniqueModelC,
     ],
 )
 def test_unique_index_creation(sheraf_database, Model):
+    assert (
+        Model.attributes["my_attribute"]
+        == Model.indexes["my_attribute"].details.attribute
+    )
+
     with sheraf.connection(commit=True):
         mfoo = Model.create(my_attribute="foo")
         mbar = Model.create(my_attribute="bar")
@@ -87,6 +98,7 @@ def test_unique_index_creation(sheraf_database, Model):
     [
         UniqueModelA,
         UniqueModelB,
+        UniqueModelC,
     ],
 )
 def test_unique_index_creation_and_edition(sheraf_database, Model):
@@ -122,6 +134,7 @@ def test_unique_index_creation_and_edition(sheraf_database, Model):
     [
         UniqueModelA,
         UniqueModelB,
+        UniqueModelC,
     ],
 )
 def test_unique_index_creation_and_deletion(sheraf_database, Model):
@@ -144,6 +157,7 @@ def test_unique_index_creation_and_deletion(sheraf_database, Model):
     [
         UniqueModelA,
         UniqueModelB,
+        UniqueModelC,
     ],
 )
 def test_unique_index_double_value(sheraf_database, Model):
@@ -201,11 +215,17 @@ class MultipleModelB(tests.IntAutoModel):
     my_attribute_index = sheraf.Index("my_attribute", key="my_attribute")
 
 
+class MultipleModelC(tests.IntAutoModel):
+    my_attribute = sheraf.SimpleAttribute()
+    my_attribute_index = sheraf.Index(my_attribute, key="my_attribute")
+
+
 @pytest.mark.parametrize(
     "Model",
     [
         MultipleModelA,
         MultipleModelB,
+        MultipleModelC,
     ],
 )
 def test_multiple_index_creation(sheraf_database, Model):
@@ -238,6 +258,7 @@ def test_multiple_index_creation(sheraf_database, Model):
     [
         MultipleModelA,
         MultipleModelB,
+        MultipleModelC,
     ],
 )
 def test_multiple_index_creation_and_deletion(sheraf_database, Model):
@@ -323,11 +344,18 @@ class MultipleKeysIndexModelB(tests.IntAutoModel):
     key_2 = sheraf.Index("my_attribute")
 
 
+class MultipleKeysIndexModelC(tests.IntAutoModel):
+    my_attribute = sheraf.SimpleAttribute()
+    key_1 = sheraf.Index(my_attribute)
+    key_2 = sheraf.Index(my_attribute)
+
+
 @pytest.mark.parametrize(
     "Model",
     [
         MultipleKeysIndexModelA,
         MultipleKeysIndexModelB,
+        MultipleKeysIndexModelC,
     ],
 )
 def test_multiple_keys_index_create(sheraf_database, Model):
@@ -456,6 +484,18 @@ class CustomIndexationModelD(tests.IntAutoModel):
         return {value.lower()}
 
 
+class CustomIndexationModelE(tests.IntAutoModel):
+    foo = sheraf.SimpleAttribute()
+    bar = sheraf.SimpleAttribute()
+
+    fooindex = sheraf.Index(foo, key="foo", unique=True)
+    barindex = sheraf.Index(bar, key="bar")
+
+    @fooindex.values
+    def fooindex_values(self, value):
+        return {value.lower()}
+
+
 @pytest.mark.parametrize(
     "Model",
     [
@@ -463,6 +503,7 @@ class CustomIndexationModelD(tests.IntAutoModel):
         CustomIndexationModelB,
         CustomIndexationModelC,
         CustomIndexationModelD,
+        CustomIndexationModelE,
     ],
 )
 def test_custom_indexation_method(sheraf_database, Model):
@@ -569,9 +610,33 @@ class CustomSearchModelD(tests.IntAutoModel):
         return [value.lower()[::-1], value.lower()]
 
 
+class CustomSearchModelE(tests.IntAutoModel):
+    foo = sheraf.SimpleAttribute()
+    bar = sheraf.SimpleAttribute()
+
+    fooindex = sheraf.Index(
+        foo,
+        key="foo",
+        unique=True,
+        values=lambda string: {string.lower()},
+    )
+
+    barindex = sheraf.Index(bar, key="bar")
+
+    @fooindex.search
+    def search_foo(self, value):
+        return [value.lower()[::-1], value.lower()]
+
+
 @pytest.mark.parametrize(
     "Model",
-    [CustomSearchModelA, CustomSearchModelB, CustomSearchModelC, CustomSearchModelD],
+    [
+        CustomSearchModelA,
+        CustomSearchModelB,
+        CustomSearchModelC,
+        CustomSearchModelD,
+        CustomSearchModelE,
+    ],
 )
 def test_custom_query_method(sheraf_database, Model):
     with sheraf.connection(commit=True):
