@@ -21,8 +21,6 @@ If you need pytest fixtures for your project check out [pytest-sheraf](https://g
 
     pip install pytest-sheraf
 
-The documentation is [hosted here](https://sheraf.readthedocs.io/en/latest/).
-
 ## Contributing
 
 Bug reports and pull requests are highly encouraged!
@@ -32,6 +30,8 @@ Bug reports and pull requests are highly encouraged!
  - Generate documentation : `poetry run tox -e doc`
 
 ## Documentation
+
+You can build it with the following commands, or read it on [hosted here](https://sheraf.readthedocs.io/en/latest/).
 
     poetry run tox -e doc
     open build/sphinx/html/index.html
