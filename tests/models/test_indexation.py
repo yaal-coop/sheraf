@@ -1,9 +1,9 @@
 import BTrees.OOBTree
 import pytest
-import warnings
 import sheraf
 import sheraf.exceptions
 import tests
+import warnings
 
 
 # ----------------------------------------------------------------------------
@@ -951,6 +951,24 @@ def test_common_index_complex(sheraf_database):
 
 
 # ------------------------------------------------------------------------------------------------
+# Inheritance
+# ------------------------------------------------------------------------------------------------
+
+
+def test_inheritance_indexation(sheraf_connection):
+    class A(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute()
+        aindex = sheraf.Index("foo")
+
+    class B(A):
+        bindex = sheraf.Index("foo")
+
+    b = B.create(foo="foo")
+    assert b in B.search(aindex="foo")
+    assert b in B.search(bindex="foo")
+
+
+# ------------------------------------------------------------------------------------------------
 # Cases that must fail
 # ------------------------------------------------------------------------------------------------
 
@@ -969,6 +987,33 @@ def test_unique_indexation_and_filter_on_wrong_attribute(sheraf_database):
 
         with pytest.raises(sheraf.exceptions.InvalidFilterException):
             list(Model.filter(foobar="foo"))
+
+
+def test_wrong_index_attribute(sheraf_connection):
+    with pytest.raises(sheraf.SherafException):
+
+        class ModelA(tests.UUIDAutoModel):
+            i = sheraf.Index()
+
+    with pytest.raises(sheraf.SherafException):
+
+        class ModelB(tests.UUIDAutoModel):
+            i = sheraf.Index("invalid")
+
+    with pytest.raises(sheraf.SherafException):
+
+        class ModelC(tests.UUIDAutoModel):
+            i = sheraf.Index("invalid")
+
+        class ModelD(ModelC):
+            pass
+
+    with pytest.raises(sheraf.SherafException):
+
+        class ModelE(tests.UUIDAutoModel):
+            foo = sheraf.SimpleAttribute()
+            ok = sheraf.Index(foo)
+            i = sheraf.Index(ok)
 
 
 # ------------------------------------------------------------------------------------------------

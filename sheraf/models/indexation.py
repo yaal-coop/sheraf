@@ -3,7 +3,11 @@ import warnings
 
 import sheraf.exceptions
 from sheraf.models.base import BaseModel, BaseModelMetaclass
-from sheraf.models.indexmanager import SimpleIndexManager, MultipleDatabaseIndexManager
+from sheraf.models.indexmanager import (
+    IndexManager,
+    SimpleIndexManager,
+    MultipleDatabaseIndexManager,
+)
 
 
 class BaseIndexedModelMetaclass(BaseModelMetaclass):
@@ -14,31 +18,43 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
         def add_index(name, index, attributes, add_to_attribute=True):
             # Get the real attributes objects when string have been passed as attributes
             # in the index.
-            index.attributes = [
-                attributes[a] if isinstance(a, str) else a for a in index.attributes
-            ]
+
+            if not index.attributes:
+                raise sheraf.exceptions.SherafException(
+                    f"The {index.key} must have at least one attribute."
+                )
+
+            new_attrs = []
+            for a in index.attributes:
+                if isinstance(a, str):
+                    try:
+                        a = attributes[a]
+                    except KeyError:
+                        raise sheraf.exceptions.SherafException(
+                            f"The {index.key} index has a wrong attribute with name '{a}'."
+                        )
+                if not isinstance(a, sheraf.BaseAttribute):
+                    raise sheraf.exceptions.SherafException(
+                        f"The {index.key} index has a wrong attribute."
+                    )
+
+                new_attrs.append(a)
+            index.attributes = new_attrs
+
             index.attribute_values_func = {
                 attributes[k] if isinstance(k, str) else k: v
                 for k, v in index.attribute_values_func.items()
             }
 
             index.key = index.key or name
+
             for attribute in index.attributes:
-                if not isinstance(attribute, sheraf.BaseAttribute):
-                    raise sheraf.exceptions.SherafException(
-                        f"The {index.key} index has a wrong attribute."
-                    )
 
                 if add_to_attribute:
                     attribute.indexes[index.key] = index
 
                 attribute.lazy = False
             klass.indexes[index.key] = klass.index_manager(index)
-
-        for base in bases:
-            for name, index in base.__dict__.get("indexes", {}).items():
-                if isinstance(index, sheraf.attributes.index.Index):
-                    add_index(name, index, base.attributes)
 
         for name, index in attrs.items():
             if isinstance(index, sheraf.attributes.index.Index):

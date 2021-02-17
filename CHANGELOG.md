@@ -1,3 +1,11 @@
+[0.4.1] - 2021-xx-xx
+====================
+
+Fixed
+*****
+
+- :class:`~sheraf.attributes.index.Index` inheritance is fixed.
+
 [0.4.0] - 2021-02-17
 ====================
 
