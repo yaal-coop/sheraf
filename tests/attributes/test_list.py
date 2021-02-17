@@ -160,6 +160,38 @@ def test_indexation(sheraf_database, persistent_type, subattribute):
         assert m.mapping in conn.root()[ModelTest.table]["list"]["bar"]
         assert [m] == list(ModelTest.search(list="foo"))
 
+        m.list = ["bar", "baz"]
+        assert m.mapping in conn.root()[ModelTest.table]["list"]["bar"]
+        assert m.mapping in conn.root()[ModelTest.table]["list"]["baz"]
+        assert "foo" not in conn.root()[ModelTest.table]["list"]
+
+
+@pytest.mark.parametrize(
+    "persistent_type", [sheraf.types.SmallList, sheraf.types.LargeList]
+)
+@pytest.mark.parametrize("subattribute", [None, sheraf.StringAttribute()])
+def test_indexation_limitation(sheraf_database, persistent_type, subattribute):
+    class ModelTest(tests.UUIDAutoModel):
+        list = sheraf.ListAttribute(
+            subattribute,
+            persistent_type=persistent_type,
+        ).index()
+
+    with sheraf.connection(commit=True) as conn:
+        m = ModelTest.create(list=["foo", "bar"])
+        assert m.mapping in conn.root()[ModelTest.table]["list"]["foo"]
+        assert m.mapping in conn.root()[ModelTest.table]["list"]["bar"]
+        assert [m] == list(ModelTest.search(list="foo"))
+
+        # TODO: This behavior should be fixed one day.
+        # https://gitlab.com/yaal/sheraf/-/issues/14
+        m.list.remove("foo")
+        m.list.append("baz")
+        assert ["bar", "baz"] == list(m.list)
+        assert m.mapping in conn.root()[ModelTest.table]["list"]["foo"]
+        assert m.mapping in conn.root()[ModelTest.table]["list"]["bar"]
+        assert "baz" not in conn.root()[ModelTest.table]["list"]
+
 
 @pytest.mark.parametrize(
     "persistent_type", [sheraf.types.SmallList, sheraf.types.LargeList]
