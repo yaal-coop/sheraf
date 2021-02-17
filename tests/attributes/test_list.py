@@ -182,15 +182,23 @@ def test_indexation_limitation(sheraf_database, persistent_type, subattribute):
         assert m.mapping in conn.root()[ModelTest.table]["list"]["foo"]
         assert m.mapping in conn.root()[ModelTest.table]["list"]["bar"]
         assert [m] == list(ModelTest.search(list="foo"))
+        assert [m] == list(ModelTest.search(list="bar"))
+        assert [] == list(ModelTest.search(list="baz"))
 
         # TODO: This behavior should be fixed one day.
         # https://gitlab.com/yaal/sheraf/-/issues/14
+
         m.list.remove("foo")
         m.list.append("baz")
         assert ["bar", "baz"] == list(m.list)
+
         assert m.mapping in conn.root()[ModelTest.table]["list"]["foo"]
         assert m.mapping in conn.root()[ModelTest.table]["list"]["bar"]
         assert "baz" not in conn.root()[ModelTest.table]["list"]
+
+        assert [] == list(ModelTest.search(list="foo"))
+        assert [m] == list(ModelTest.search(list="bar"))
+        assert [] == list(ModelTest.search(list="baz"))
 
 
 @pytest.mark.parametrize(
