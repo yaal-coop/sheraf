@@ -11,5 +11,5 @@ tools it provides to manage and store your data.
 
     attributes
     models
-    zconfig
+    databases
     indexation

@@ -20,7 +20,6 @@ Table of contents
    tutorial/index
    api/index
    databasetree
-   parallelism
    fts
    integrations
    install
