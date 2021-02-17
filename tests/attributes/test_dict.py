@@ -48,10 +48,7 @@ def test_dict_attribute(sheraf_connection, persistent_type, subattribute):
     assert "a" not in m.dict
 
     assert m.dict
-    try:
-        m.dict.clear()
-    except AssertionError:
-        pass
+    m.dict.clear()
     assert not m.dict
 
     m.dict["a"] = 5

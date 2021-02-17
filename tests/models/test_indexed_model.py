@@ -2,6 +2,7 @@ import pytest
 import uuid
 import sheraf
 import tests
+from sheraf.models.indexation import model_from_table
 
 
 class MyInlineModel(sheraf.InlineModel):
@@ -153,3 +154,12 @@ def test_id_inmapping_automodel(sheraf_database):
     with sheraf.connection():
         m = M.create()
         assert mid == str(uuid.UUID(int=m.mapping["id"]))
+
+
+def test_model_from_table():
+    class M(sheraf.Model):
+        table = "tablem"
+        foo = sheraf.SimpleAttribute()
+
+    assert model_from_table("tablem") is M
+    assert model_from_table("invalid") is None

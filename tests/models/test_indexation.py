@@ -1006,7 +1006,7 @@ def test_wrong_index_attribute(sheraf_connection):
             i = sheraf.Index("invalid")
 
         class ModelD(ModelC):
-            pass
+            foo = sheraf.SimpleAttribute()
 
     with pytest.raises(sheraf.SherafException):
 
