@@ -17,7 +17,9 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
 
             index.key = index.key or name
             if not isinstance(index.attribute, sheraf.BaseAttribute):
-                raise sheraf.exceptions.SherafException(f"The {index.key} index has a wrong attribute.")
+                raise sheraf.exceptions.SherafException(
+                    f"The {index.key} index has a wrong attribute."
+                )
 
             if add_to_attribute:
                 index.attribute.indexes[index.key] = index

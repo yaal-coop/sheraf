@@ -37,7 +37,8 @@ class LargeList(IOBTree):
             self[i] = self[i - 1]
         self[indice] = element
 
-    def remove(self, item):
+    def remove(self, item, all=False):
+        found = False
         for key, value in self.items():
             if key == self.LENGTH_KEY:
                 continue
@@ -45,15 +46,19 @@ class LargeList(IOBTree):
             if item != value:
                 continue
 
+            found = True
             IOBTree.__delitem__(self, key)
             for i in range(key + 1, len(self)):
                 item = IOBTree.__getitem__(self, i)
                 IOBTree.__setitem__(self, i - 1, item)
                 IOBTree.__delitem__(self, i)
             self._set_length(len(self) - 1)
-            return
 
-        raise ValueError("{} not in {}".format(item, self))
+            if not all:
+                return
+
+        if not found:
+            raise ValueError("{} not in {}".format(item, self))
 
     def pop(self):
         length = len(self)

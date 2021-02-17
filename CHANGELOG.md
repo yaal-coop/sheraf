@@ -6,6 +6,7 @@ Added
 
 - :class:`~sheraf.attributes.index.Index` can be used directly as
   :meth:`~sheraf.models.indexation.IndexedModel` parameters. :pr:`11`
+- :meth:`sheraf.types.largelist.LargeList.remove` can take a `all` argument.
 
 
 [0.3.8] - 2021-02-05
