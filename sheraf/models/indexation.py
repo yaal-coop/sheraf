@@ -12,19 +12,21 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
         klass.indexes = {}
 
         def add_index(name, index, attributes, add_to_attribute=True):
-            if isinstance(index.attribute, str):
-                index.attribute = attributes[index.attribute]
+            index.attributes = [
+                attributes[a] if isinstance(a, str) else a for a in index.attributes
+            ]
 
             index.key = index.key or name
-            if not isinstance(index.attribute, sheraf.BaseAttribute):
-                raise sheraf.exceptions.SherafException(
-                    f"The {index.key} index has a wrong attribute."
-                )
+            for attribute in index.attributes:
+                if not isinstance(attribute, sheraf.BaseAttribute):
+                    raise sheraf.exceptions.SherafException(
+                        f"The {index.key} index has a wrong attribute."
+                    )
 
-            if add_to_attribute:
-                index.attribute.indexes[index.key] = index
+                if add_to_attribute:
+                    attribute.indexes[index.key] = index
 
-            index.attribute.lazy = False
+                attribute.lazy = False
             klass.indexes[index.key] = klass.index_manager(index)
 
         for base in bases:
@@ -448,8 +450,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         """
 
         unique_attributes = (
-            index.details.attribute
+            attribute
             for index in self.indexes.values()
+            for attribute in index.details.attributes
             if index.details.unique
         )
 

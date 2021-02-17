@@ -215,7 +215,7 @@ class BaseAttribute(object):
         - the nullok parameter will be this attribute `nullok` parameter
         """
         self.indexes[key] = Index(
-            attribute=self,
+            self,
             unique=unique,
             key=key,
             values=values or self.values,

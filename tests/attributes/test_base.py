@@ -38,9 +38,9 @@ def test_attribute_repr():
 
 def test_index():
     attribute = sheraf.SimpleAttribute()
-    primary = Index(attribute, True, "primary", None, None, None, True, True, False)
-    unique = Index(attribute, True, "unique", None, None, None, False, True, False)
-    multiple = Index(attribute, False, "multiple", None, None, None, False, True, False)
+    primary = Index(attribute, key="primary", primary=True)
+    unique = Index(attribute, key="unique", unique=True)
+    multiple = Index(attribute, key="multiple", unique=False)
 
     assert "<Index key=primary unique=True primary>" == repr(primary)
     assert "<Index key=unique unique=True>" == repr(unique)

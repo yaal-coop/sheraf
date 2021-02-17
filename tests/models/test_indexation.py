@@ -67,7 +67,7 @@ class UniqueModelC(tests.IntAutoModel):
 def test_unique_index_creation(sheraf_database, Model):
     assert (
         Model.attributes["my_attribute"]
-        == Model.indexes["my_attribute"].details.attribute
+        in Model.indexes["my_attribute"].details.attributes
     )
 
     with sheraf.connection(commit=True):

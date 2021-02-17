@@ -73,7 +73,7 @@ class Index:
 
     def __init__(
         self,
-        attribute=None,
+        *attributes,
         unique=False,
         key=None,
         values=None,
@@ -83,7 +83,7 @@ class Index:
         nullok=None,
         noneok=None,
     ):
-        self.attribute = attribute
+        self.attributes = attributes
         self.unique = unique or primary
         self.key = key
         self._values_func = values
@@ -115,7 +115,11 @@ class Index:
             return self._search_func(model, value)
 
     def get_model_values(self, model):
-        return self.get_values(model, self.attribute.read(model))
+        return {
+            v
+            for attribute in self.attributes
+            for v in self.get_values(model, attribute.read(model))
+        }
 
     def get_values(self, model, keys):
         values = self.call_values_func(model, keys)
