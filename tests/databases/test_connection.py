@@ -18,9 +18,7 @@ def test_connection(sheraf_database):
 
     with sheraf.connection(commit=True):
         sheraf_database.connection.assert_called_with(
-            commit=True,
-            cache_minimize=False,
-            _trackeback_shift=2,
+            commit=True, cache_minimize=False, reuse=False, _trackeback_shift=2,
         )
         m = AModel.create(field="foo")
 
@@ -31,9 +29,7 @@ def test_connection(sheraf_database):
 
     read(m.id)
     sheraf_database.connection.assert_called_with(
-        commit=False,
-        cache_minimize=False,
-        _trackeback_shift=2,
+        commit=False, cache_minimize=False, reuse=False, _trackeback_shift=2,
     )
 
     @sheraf.connection(commit=True, cache_minimize=True)
@@ -44,16 +40,12 @@ def test_connection(sheraf_database):
 
     update(m.id)
     sheraf_database.connection.assert_called_with(
-        commit=True,
-        cache_minimize=True,
-        _trackeback_shift=2,
+        commit=True, cache_minimize=True, reuse=False, _trackeback_shift=2,
     )
 
     with sheraf.connection():
         sheraf_database.connection.assert_called_with(
-            commit=False,
-            cache_minimize=False,
-            _trackeback_shift=2,
+            commit=False, cache_minimize=False, reuse=False, _trackeback_shift=2,
         )
 
         m = AModel.read(m.id)
@@ -329,3 +321,9 @@ def test_get_current_connection_nested(sheraf_database, other_nested_database):
 def test_last_connection(sheraf_database):
     with sheraf.connection() as conn:
         assert conn == sheraf.Database.last_connection(sheraf_database)
+
+
+def test_replace(sheraf_database):
+    with sheraf.connection() as conn1:
+        with sheraf.connection(reuse=True) as conn2:
+            assert conn1 is conn2

@@ -20,11 +20,7 @@ def test_default_params_are_zodburi_default_params():
 def test_params_override_default_params():
     db = sheraf.Database(
         uri="zconfig://" + DIR + "tests/zodb_unique_database.conf",
-        db_args=dict(
-            database_name="toto",
-            cache_size=10,
-            cache_size_bytes=10,
-        ),
+        db_args=dict(database_name="toto", cache_size=10, cache_size_bytes=10,),
     )
     assert db.name == "toto"
     assert db.db.database_name == "toto"
@@ -36,11 +32,7 @@ def test_params_override_default_params():
 def test_params_override_conf_file():
     db = sheraf.Database(
         uri="zconfig://" + DIR + "tests/zodb_multiple_databases.conf#temp1",
-        db_args=dict(
-            database_name="toto",
-            cache_size=10,
-            cache_size_bytes=10,
-        ),
+        db_args=dict(database_name="toto", cache_size=10, cache_size_bytes=10,),
     )
     assert db.name == "toto"
     assert db.db.database_name == "toto"

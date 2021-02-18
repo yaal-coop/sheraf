@@ -115,8 +115,7 @@ def test_set_attribute_update(sheraf_connection, persistent_type):
 def test_indexation(sheraf_database, persistent_type, subattribute):
     class ModelTest(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(
-            subattribute,
-            persistent_type=persistent_type,
+            subattribute, persistent_type=persistent_type,
         ).index()
 
     with sheraf.connection(commit=True) as conn:
@@ -132,8 +131,7 @@ def test_nested_indexation(sheraf_database, persistent_type):
     class ModelTest(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(
             sheraf.SetAttribute(
-                sheraf.StringAttribute(),
-                persistent_type=persistent_type,
+                sheraf.StringAttribute(), persistent_type=persistent_type,
             ),
             persistent_type=persistent_type,
         ).index()
@@ -154,8 +152,7 @@ def test_nested_model_indexation(sheraf_database, persistent_type):
 
     class Model(tests.UUIDAutoModel):
         submodels = sheraf.SetAttribute(
-            sheraf.ModelAttribute(Submodel),
-            persistent_type=persistent_type,
+            sheraf.ModelAttribute(Submodel), persistent_type=persistent_type,
         ).index()
 
     with sheraf.connection(commit=True):

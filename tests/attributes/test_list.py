@@ -150,8 +150,7 @@ def test_nested(sheraf_database, persistent_type, subattribute):
 def test_indexation(sheraf_database, persistent_type, subattribute):
     class ModelTest(tests.UUIDAutoModel):
         list = sheraf.ListAttribute(
-            subattribute,
-            persistent_type=persistent_type,
+            subattribute, persistent_type=persistent_type,
         ).index()
 
     with sheraf.connection(commit=True) as conn:
@@ -173,8 +172,7 @@ def test_indexation(sheraf_database, persistent_type, subattribute):
 def test_indexation_limitation(sheraf_database, persistent_type, subattribute):
     class ModelTest(tests.UUIDAutoModel):
         list = sheraf.ListAttribute(
-            subattribute,
-            persistent_type=persistent_type,
+            subattribute, persistent_type=persistent_type,
         ).index()
 
     with sheraf.connection(commit=True) as conn:
@@ -208,8 +206,7 @@ def test_nested_indexation(sheraf_database, persistent_type):
     class ModelTest(tests.UUIDAutoModel):
         list = sheraf.ListAttribute(
             sheraf.ListAttribute(
-                sheraf.StringAttribute(),
-                persistent_type=persistent_type,
+                sheraf.StringAttribute(), persistent_type=persistent_type,
             ),
             persistent_type=persistent_type,
         ).index()
@@ -231,8 +228,7 @@ def test_nested_model_indexation(sheraf_database, persistent_type):
 
     class Model(tests.UUIDAutoModel):
         submodels = sheraf.ListAttribute(
-            sheraf.ModelAttribute(Submodel),
-            persistent_type=persistent_type,
+            sheraf.ModelAttribute(Submodel), persistent_type=persistent_type,
         ).index()
 
     with sheraf.connection(commit=True):

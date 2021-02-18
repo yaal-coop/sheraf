@@ -94,9 +94,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 else:
                     raise sheraf.exceptions.PrimaryKeyException(
                         "A model can have only one primary key. '{}' has '{}' and '{}'".format(
-                            cls.__class__.__name__,
-                            cls._primary_key,
-                            index_name,
+                            cls.__class__.__name__, cls._primary_key, index_name,
                         )
                     )
 

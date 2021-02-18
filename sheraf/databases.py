@@ -215,7 +215,9 @@ class Database(object):
         self.storage = None
 
     @contextlib.contextmanager
-    def connection(self, commit=False, cache_minimize=False, _trackeback_shift=0):
+    def connection(
+        self, commit=False, cache_minimize=False, reuse=False, _trackeback_shift=0
+    ):
         """A context manager opening a connection on this database.
 
         :param commit: Whether to commit the transaction when leaving the
@@ -225,6 +227,8 @@ class Database(object):
             :func:`ZODB.Connection.Connection.cache_minimize` when leaving the
             context manager.
         :type cache_minimize: boolean
+        :param reuse: If a connection is already opened, reuse it.
+        :type reuse: boolean
 
 
         >>> database = sheraf.Database()
@@ -232,6 +236,10 @@ class Database(object):
         ...    sheraf.Database.current_connection() is connection
         True
         """
+        if reuse and Database.last_connection(self):
+            yield Database.last_connection(self)
+            return
+
         _connection = self.connection_open()
         if not self.nestable:
             stack = traceback.extract_stack()[-3 - _trackeback_shift]
@@ -323,11 +331,16 @@ class Database(object):
 
 
 @contextlib.contextmanager
-def connection(database_name=None, commit=False, cache_minimize=False):
+def connection(database_name=None, commit=False, cache_minimize=False, reuse=False):
+    """
+    Shortcut for :meth:`sheraf.databases.Database.connection`
+
+    :param database_name: The name of the database on which to open a connection.
+        If not set, the default database will be used.
+    :param *kwargs: See :meth:`sheraf.databases.Database.connection` arguments.
+    """
     database = Database.get(database_name)
     with database.connection(
-        commit=commit,
-        cache_minimize=cache_minimize,
-        _trackeback_shift=2,
+        commit=commit, cache_minimize=cache_minimize, reuse=reuse, _trackeback_shift=2,
     ) as conn:
         yield conn

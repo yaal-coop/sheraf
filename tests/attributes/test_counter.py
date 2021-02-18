@@ -10,9 +10,7 @@ import tests
 class MyModel(tests.UUIDAutoModel):
     counter = sheraf.CounterAttribute(default=0)
     useless = sheraf.InlineModelAttribute(
-        sheraf.InlineModel(
-            foo=sheraf.SimpleAttribute(default="bar", lazy=False),
-        ),
+        sheraf.InlineModel(foo=sheraf.SimpleAttribute(default="bar", lazy=False),),
         lazy=False,
     )
 
