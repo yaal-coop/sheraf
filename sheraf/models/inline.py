@@ -1,4 +1,4 @@
-from sheraf.attributes.base import BaseAttribute
+from sheraf.attributes import Attribute
 
 from .attributes import NamedAttributesModel
 
@@ -77,6 +77,6 @@ class InlineModel(NamedAttributesModel):
         super().__init__()
 
         for k, v in kwargs.items():
-            if isinstance(v, BaseAttribute):
+            if isinstance(v, Attribute):
                 v._default_key = k
                 self.attributes[k] = v

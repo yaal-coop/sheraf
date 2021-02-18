@@ -57,7 +57,12 @@ class UniqueModelC(tests.IntAutoModel):
 
 
 @pytest.mark.parametrize(
-    "Model", [UniqueModelA, UniqueModelB, UniqueModelC,],
+    "Model",
+    [
+        UniqueModelA,
+        UniqueModelB,
+        UniqueModelC,
+    ],
 )
 def test_unique_index_creation(sheraf_database, Model):
     assert (
@@ -89,7 +94,12 @@ def test_unique_index_creation(sheraf_database, Model):
 
 
 @pytest.mark.parametrize(
-    "Model", [UniqueModelA, UniqueModelB, UniqueModelC,],
+    "Model",
+    [
+        UniqueModelA,
+        UniqueModelB,
+        UniqueModelC,
+    ],
 )
 def test_unique_index_creation_and_edition(sheraf_database, Model):
     with sheraf.connection(commit=True):
@@ -120,7 +130,12 @@ def test_unique_index_creation_and_edition(sheraf_database, Model):
 
 
 @pytest.mark.parametrize(
-    "Model", [UniqueModelA, UniqueModelB, UniqueModelC,],
+    "Model",
+    [
+        UniqueModelA,
+        UniqueModelB,
+        UniqueModelC,
+    ],
 )
 def test_unique_index_creation_and_deletion(sheraf_database, Model):
     with sheraf.connection(commit=True):
@@ -138,7 +153,12 @@ def test_unique_index_creation_and_deletion(sheraf_database, Model):
 
 
 @pytest.mark.parametrize(
-    "Model", [UniqueModelA, UniqueModelB, UniqueModelC,],
+    "Model",
+    [
+        UniqueModelA,
+        UniqueModelB,
+        UniqueModelC,
+    ],
 )
 def test_unique_index_creation_and_attribute_deletion(sheraf_database, Model):
     with sheraf.connection(commit=True):
@@ -162,7 +182,12 @@ def test_unique_index_creation_and_attribute_deletion(sheraf_database, Model):
 
 
 @pytest.mark.parametrize(
-    "Model", [UniqueModelA, UniqueModelB, UniqueModelC,],
+    "Model",
+    [
+        UniqueModelA,
+        UniqueModelB,
+        UniqueModelC,
+    ],
 )
 def test_unique_index_double_value(sheraf_database, Model):
     with sheraf.connection(commit=True):
@@ -225,7 +250,12 @@ class MultipleModelC(tests.IntAutoModel):
 
 
 @pytest.mark.parametrize(
-    "Model", [MultipleModelA, MultipleModelB, MultipleModelC,],
+    "Model",
+    [
+        MultipleModelA,
+        MultipleModelB,
+        MultipleModelC,
+    ],
 )
 def test_multiple_index_creation(sheraf_database, Model):
     with sheraf.connection(commit=True):
@@ -253,7 +283,12 @@ def test_multiple_index_creation(sheraf_database, Model):
 
 
 @pytest.mark.parametrize(
-    "Model", [MultipleModelA, MultipleModelB, MultipleModelC,],
+    "Model",
+    [
+        MultipleModelA,
+        MultipleModelB,
+        MultipleModelC,
+    ],
 )
 def test_multiple_index_creation_and_deletion(sheraf_database, Model):
     with sheraf.connection(commit=True):
@@ -346,7 +381,11 @@ class MultipleKeysIndexModelC(tests.IntAutoModel):
 
 @pytest.mark.parametrize(
     "Model",
-    [MultipleKeysIndexModelA, MultipleKeysIndexModelB, MultipleKeysIndexModelC,],
+    [
+        MultipleKeysIndexModelA,
+        MultipleKeysIndexModelB,
+        MultipleKeysIndexModelC,
+    ],
 )
 def test_multiple_keys_index_create(sheraf_database, Model):
     with sheraf.connection(commit=True):
@@ -383,7 +422,11 @@ def test_multiple_keys_index_create(sheraf_database, Model):
 
 
 @pytest.mark.parametrize(
-    "Model", [MultipleKeysIndexModelA, MultipleKeysIndexModelB,],
+    "Model",
+    [
+        MultipleKeysIndexModelA,
+        MultipleKeysIndexModelB,
+    ],
 )
 def test_multiple_keys_index_update(sheraf_database, Model):
     with sheraf.connection(commit=True):
@@ -567,7 +610,10 @@ class CustomSearchModelC(tests.IntAutoModel):
     bar = sheraf.SimpleAttribute()
 
     fooindex = sheraf.Index(
-        "foo", key="foo", unique=True, values=lambda string: {string.lower()},
+        "foo",
+        key="foo",
+        unique=True,
+        values=lambda string: {string.lower()},
     )
 
     barindex = sheraf.Index("bar", key="bar")
@@ -582,7 +628,10 @@ class CustomSearchModelD(tests.IntAutoModel):
     bar = sheraf.SimpleAttribute()
 
     fooindex = sheraf.Index(
-        "foo", key="foo", unique=True, values=lambda string: {string.lower()},
+        "foo",
+        key="foo",
+        unique=True,
+        values=lambda string: {string.lower()},
     )
 
     barindex = sheraf.Index("bar", key="bar")
@@ -597,7 +646,10 @@ class CustomSearchModelE(tests.IntAutoModel):
     bar = sheraf.SimpleAttribute()
 
     fooindex = sheraf.Index(
-        foo, key="foo", unique=True, values=lambda string: {string.lower()},
+        foo,
+        key="foo",
+        unique=True,
+        values=lambda string: {string.lower()},
     )
 
     barindex = sheraf.Index(bar, key="bar")

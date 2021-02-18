@@ -1,7 +1,7 @@
 import os
 import sheraf
 import sheraf.types
-from sheraf.attributes.base import BaseAttribute
+from sheraf.attributes import Attribute
 from sheraf.models.base import BaseModel
 
 FILES_ROOT_DIR = "files/"
@@ -119,7 +119,7 @@ class FileObject:
         del self.model.mapping[self.attribute_name]
 
 
-class FileAttribute(BaseAttribute):
+class FileAttribute(Attribute):
     """
     This attribute stores a file on disk.
     """

@@ -345,7 +345,7 @@ class QuerySet(object):
             ...
         sheraf.exceptions.InvalidFilterException: Some filter parameters appeared twice
 
-        .. note::   Filtering on indexed attributes is more performant than filtering on non-indexed attributes. See :func:`~sheraf.attributes.base.BaseAttribute.index`.
+        .. note::   Filtering on indexed attributes is more performant than filtering on non-indexed attributes. See :func:`~sheraf.attributes.Attribute.index`.
         """
         return self._filter(False, predicate=predicate, **kwargs)
 
@@ -468,7 +468,7 @@ class QuerySet(object):
 
         .. note:: Sorting on indexed attributes is more performant than
             sorting on other attributes. See
-            :func:`~sheraf.attributes.base.BaseAttribute.index`.
+            :func:`~sheraf.attributes.Attribute.index`.
             The less :func:`~sheraf.queryset.QuerySet.order` parameters are
             passed, the better performances will be.
         """

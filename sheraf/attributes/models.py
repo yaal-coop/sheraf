@@ -1,6 +1,6 @@
 import sheraf
 from sheraf.models.indexation import model_from_table
-from sheraf.attributes.base import BaseAttribute
+from sheraf.attributes import Attribute
 
 
 class ModelLoader(object):
@@ -78,7 +78,7 @@ class ModelLoader(object):
             return model
 
 
-class ModelAttribute(ModelLoader, BaseAttribute):
+class ModelAttribute(ModelLoader, Attribute):
     """This attribute references another :class:`~sheraf.models.Model`.
 
     :param model: The model type to store.
@@ -203,7 +203,7 @@ class ModelAttribute(ModelLoader, BaseAttribute):
         return old_value.edit(new_value, addition, edition, deletion, replacement)
 
 
-class InlineModelAttribute(ModelLoader, BaseAttribute):
+class InlineModelAttribute(ModelLoader, Attribute):
     """:class:`~sheraf.attributes.models.ModelAttribute` behaves like a basic
     model (i.e. have no indexation capability). The child attribute mapping is stored
     in the parent mapping.
@@ -264,7 +264,7 @@ class InlineModelAttribute(ModelLoader, BaseAttribute):
         return old_value.edit(new_value, addition, edition, deletion, replacement)
 
 
-class IndexedModelAttribute(ModelLoader, BaseAttribute):
+class IndexedModelAttribute(ModelLoader, Attribute):
     """
     :class:`~sheraf.attributes.models.ModelAttribute` behaves like a classic model,
     including the indexation capabilities. The child attribute mapping and all the

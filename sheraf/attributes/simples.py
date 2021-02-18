@@ -3,10 +3,10 @@ import uuid
 from numbers import Integral
 from BTrees.LOBTree import LOBTree
 
-from sheraf.attributes.base import BaseAttribute
+from sheraf.attributes import Attribute
 
 
-class SimpleAttribute(BaseAttribute):
+class SimpleAttribute(Attribute):
     """Store a primitive data.
 
     The value can be a :class:`bool`, :class:`str`, :class:`int`,
@@ -14,7 +14,7 @@ class SimpleAttribute(BaseAttribute):
     """
 
 
-class TypedAttribute(BaseAttribute):
+class TypedAttribute(Attribute):
     """Store a persistent dict of primitive data.
 
     Keys and values can be :class:`str`, :class:`int`, :class:`float`.
@@ -61,7 +61,7 @@ class StringAttribute(TypedAttribute):
     nullok = False
 
 
-class UUIDAttribute(BaseAttribute):
+class UUIDAttribute(Attribute):
     """Stores an :class:`uuid.UUID`."""
 
     def serialize(self, value):
@@ -95,7 +95,7 @@ class StringUUIDAttribute(UUIDAttribute):
         return str(uuid)
 
 
-class DateTimeAttribute(BaseAttribute):
+class DateTimeAttribute(Attribute):
     """Store a :class:`datetime.datetime` object."""
 
     def deserialize(self, value):

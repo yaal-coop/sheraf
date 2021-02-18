@@ -119,7 +119,7 @@ class ListAttributeAccessor:
         self.mapping.remove(self._attribute.serialize(item))
 
 
-class ListAttribute(sheraf.attributes.base.BaseAttribute):
+class ListAttribute(sheraf.attributes.Attribute):
     """Attribute mimicking the behavior of :class:`list`.
 
     >>> class Cowboy(sheraf.Model):
@@ -346,7 +346,7 @@ class DictAttributeAccessor:
             self[k] = v
 
 
-class DictAttribute(sheraf.attributes.base.BaseAttribute):
+class DictAttribute(sheraf.attributes.Attribute):
     """Attribute mimicking the behavior of :class:`dict`.
 
     >>> class Gun(sheraf.InlineModel):

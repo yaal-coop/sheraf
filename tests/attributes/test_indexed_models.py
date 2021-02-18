@@ -56,7 +56,8 @@ def test_read_these(sheraf_database):
 
 def test_create_dict(sheraf_connection):
     george = Cowboy.create(
-        name="George", horses=[dict(name="Jolly Jumper"), dict(name="Polly Pumper")],
+        name="George",
+        horses=[dict(name="Jolly Jumper"), dict(name="Polly Pumper")],
     )
 
     jolly = george.horses.read("Jolly Jumper")

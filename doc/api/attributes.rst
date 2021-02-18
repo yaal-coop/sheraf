@@ -1,7 +1,7 @@
 Attributes
 ==========
 
-.. automodule:: sheraf.attributes.base
+.. automodule:: sheraf.attributes
     :members:
     :show-inheritance:
 

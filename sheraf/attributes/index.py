@@ -4,16 +4,16 @@ from BTrees.OOBTree import OOBTree
 class Index:
     """
     Indexes should be either created as :class:`~sheraf.models.indexation.IndexedModel` class parameters,
-    or with the attributes :func:`~sheraf.attributes.base.BaseAttribute.index` method.
+    or with the attributes :func:`~sheraf.attributes.Attribute.index` method.
 
     :param attributes: The attributes being indexed. They can be either
-        :class:`~sheraf.attributes.base.BaseAttribute` or strings representing
+        :class:`~sheraf.attributes.Attribute` or strings representing
         the attributes names in the model.
-    :type *attributes: A collection of :class:`~sheraf.attributes.base.BaseAttribute` or strings.
+    :type *attributes: A collection of :class:`~sheraf.attributes.Attribute` or strings.
     :param key: The key the index will use. By default, it takes the name it has
                 as a :class:`~sheraf.models.indexation.IndexedModel` attribute.
-                If the :func:`~sheraf.attributes.base.BaseAttribute.index` is used,
-                the key is the :class:`~sheraf.attributes.base.BaseAttribute` name.
+                If the :func:`~sheraf.attributes.Attribute.index` is used,
+                the key is the :class:`~sheraf.attributes.Attribute` name.
     :param unique: If the index is unique, and two models have the same value for this
                    model, a :class:`~sheraf.exceptions.UniqueIndexException` is raised
                    when trying to write the second one. Automatically set to :class:`True` if
@@ -23,11 +23,11 @@ class Index:
                    collection of values to index. Each generated value will be
                    indexed each time this attribute is edited. It may take time if
                    the generated collection is large. By default the attribute
-                   :meth:`~sheraf.attributes.base.BaseAttribute.values` method is
+                   :meth:`~sheraf.attributes.Attribute.values` method is
                    applied.
     :param search: A callable that takes some raw data and returns a collection
                    of values to search in the index. By default, the
-                   :meth:`~sheraf.attributes.base.BaseAttribute.search` method is
+                   :meth:`~sheraf.attributes.Attribute.search` method is
                    used.
     :param mapping: The mapping object to be used to store the indexed values.
                    By default :class:`~BTrees.OOBTree.OOBTree` is used.

@@ -1,3 +1,11 @@
+[0.4.2] - 2021-xx-xx
+====================
+
+Changed
+*******
+
+- BaseAttribute renamed in :class:`~sheraf.attributes.Attribute`.
+
 [0.4.1] - 2021-02-18
 ====================
 
@@ -5,7 +13,7 @@ Fixed
 *****
 
 - :class:`~sheraf.attributes.index.Index` inheritance is fixed.
-- :class:`~sheraf.attributes.index.Index` update :class:`~sheraf.attributes.base.BaseAttribute`
+- :class:`~sheraf.attributes.index.Index` update :class:`~sheraf.attributes.Attribute`
   on deletion.
 - :meth:`~sheraf.databases.connection` can take a ``reuse`` parameter.
 
@@ -21,7 +29,7 @@ Added
 - :meth:`sheraf.types.largelist.LargeList.remove` can take a `all` argument.
 - :meth:`sheraf.types.largelist.LargeList.append` can take a `unique` argument.
 - :class:`~sheraf.attributes.index.Index` can have several
-  :class:`~sheraf.attributes.base.BaseAttribute` :issue:`23`
+  :class:`~sheraf.attributes.Attribute` :issue:`23`
 
 
 [0.3.8] - 2021-02-05
@@ -113,11 +121,11 @@ Changed
 Added
 *****
 
-- :class:`~sheraf.attributes.base.BaseAttribute` can have custom
-  :meth:`~sheraf.attributes.base.BaseAttribute.values` and
-  :meth:`~sheraf.attributes.base.BaseAttribute.methods` that will
+- :class:`~sheraf.attributes.Attribute` can have custom
+  :meth:`~sheraf.attributes.Attribute.values` and
+  :meth:`~sheraf.attributes.Attribute.methods` that will
   be used by default if
-  :meth:`~sheraf.attributes.base.BaseAttribute.index` `values_func` and
+  :meth:`~sheraf.attributes.Attribute.index` `values_func` and
   `search_func` are not provided.
 - Indexation is possible by default with :class:`~sheraf.attributes.collections.ListAttribute`
   and :class:`~sheraf.attributes.collections.SetAttribute`. :issue:`11`
@@ -165,7 +173,7 @@ Added
 A whole indexation mechanism. :pr:`1`
   - A new :class:`~sheraf.attributes.models.IndexedModelAttribute` attribute, that holds a whole model indexation table.
   - A new :class:`~shera.models.AttributeMode`l class, to be used with :class:`~sheraf.attributes.models.IndexedModelAttribute`.
-  - Method :meth:`~sheraf.attributes.base.BaseAttribute.index` method on :class:`~sheraf.attributes.base.BaseAttribute` to describe indexes.
+  - Method :meth:`~sheraf.attributes.Attribute.index` method on :class:`~sheraf.attributes.Attribute` to describe indexes.
   - Two check methods :func:`sheraf.batches.checks.check_attributes_index` and :func:`sheraf.batches.checks.check_model_index` to check the index tables integrity.
   - Method :meth:`~sheraf.models.indexation.BaseIndexedModel.index_table_rebuild` to rebuild an index table.
   - filter and order methods on QuerySet are faster on indexed attributes.
@@ -174,7 +182,7 @@ Removed
 *******
 - :func:`sheraf.models.BaseIndexedAttribute.make_id`
 - :class:`~sheraf.indexes.Index`
-- :class:`~sheral.attributes.base.BaseIndexedAttribute` *lazy_creation* parameter has been renamed *lazy*.
+- :class:`~sheral.attributes.BaseIndexedAttribute` *lazy_creation* parameter has been renamed *lazy*.
 
 [0.1.2] - 2020-09-24
 ====================
@@ -190,9 +198,9 @@ Changed
 Deprecated
 **********
 
-- :func:`sheraf.models.BaseIndexedAttribute.make_id`. Please use the 'default' parameter of your id :class:`~sheraf.attributes.base.BaseAttribute` instead.
+- :func:`sheraf.models.BaseIndexedAttribute.make_id`. Please use the 'default' parameter of your id :class:`~sheraf.attributes.Attribute` instead.
 - :class:`~sheraf.indexes.Index`
-- :class:`~sheral.attributes.base.BaseIndexedAttribute` *lazy_creation* parameter has been deprecated, and has been renamed *lazy*.
+- :class:`~sheral.attributes.BaseIndexedAttribute` *lazy_creation* parameter has been deprecated, and has been renamed *lazy*.
 
 Added
 *****

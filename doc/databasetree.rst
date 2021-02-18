@@ -133,7 +133,7 @@ What if we want to remember the favorite guns of the cowboys.
    ...     peter.gun = "remington"
 
 We edited *Cowboy* to add a *gun* index. Indices are multiple by default,
-so as we did not passed any argument to :func:`~sheraf.attributes.base.BaseAttribute.index`,
+so as we did not passed any argument to :func:`~sheraf.attributes.Attribute.index`,
 the *gun* index is multiple.
 
 This means that each entry in the *gun* index will match a list of references

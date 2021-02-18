@@ -346,7 +346,8 @@ def test_save(sheraf_temp_dir, sheraf_connection):
     _path = _model.file.relative_path()
 
     assert "file_storable_{}/file/{}.txt".format(
-        sheraf.FileAttribute(), _model.id == _path,
+        sheraf.FileAttribute(),
+        _model.id == _path,
     )
 
 
@@ -361,7 +362,8 @@ def test_read(sheraf_temp_dir, sheraf_connection):
     _path = _model.file.relative_path()
 
     assert "file_storable_{}/file/{}.txt".format(
-        sheraf.FileAttribute(), _model.id == _path,
+        sheraf.FileAttribute(),
+        _model.id == _path,
     )
 
 

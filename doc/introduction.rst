@@ -16,7 +16,7 @@ following objects:
 
 - :class:`~sheraf.models.base.BaseModel` represents a coherent set of data you want
   to store in a database;
-- :class:`~sheraf.attributes.base.BaseAttribute` are model parameters that will
+- :class:`~sheraf.attributes.Attribute` are model parameters that will
   serialize and deserialize your data. They come in several flavors such as
   :class:`int`, :class:`string`, etc.
 - :class:`~sheraf.attributes.index.Index` are model parameters that will control how

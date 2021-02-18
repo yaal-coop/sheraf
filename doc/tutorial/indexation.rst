@@ -37,7 +37,7 @@ A solution to keep good performances is to use attribute indexation with :class:
     ...     # Filtering over names is a lot faster!
     ...     assert [george] == Cowboy.filter(nameindex="George Abitbol")
 
-A shortcut for this is to call the :func:`~sheraf.attributes.base.BaseAttribute.index` method on attributes. It takes the very same arguments as the :class:`~sheraf.attributes.index.Index` object, but the index will have the same name as the attribute.
+A shortcut for this is to call the :func:`~sheraf.attributes.Attribute.index` method on attributes. It takes the very same arguments as the :class:`~sheraf.attributes.index.Index` object, but the index will have the same name as the attribute.
 Any piece of code that worked with a non-indexed attribute will have the very same behavior when the attribute is indexed, but faster. So migrations are painless.
 
 .. code-block:: python
@@ -98,7 +98,7 @@ Multiple indexes
 ----------------
 
 What if we want to index birth years and birth months? This is quite straightforward,
-:func:`~sheraf.attributes.base.BaseAttribute.index` calls can be chained to describe
+:func:`~sheraf.attributes.Attribute.index` calls can be chained to describe
 different indexes, and the `key` parameter can be used to identify them.
 
 .. code-block:: python
@@ -128,7 +128,7 @@ Choose how to record data in the index
 
 For instance, what if we would like to index cowboy not its name, but on its initials?
 
-:func:`~sheraf.attributes.base.BaseAttribute.index` takes a `values` argument that is a function
+:func:`~sheraf.attributes.Attribute.index` takes a `values` argument that is a function
 taking the attribute value, and returning a collection of values that should be indexed.
 
 .. code-block:: python
@@ -173,12 +173,12 @@ You could just use the :func:`~sheraf.queryset.QuerySet.search` method to do tha
 You may want to be able to edit the values you pass to *name*. For instance, you may want
 your users to be able to search for initials in whatever order they have been passed.
 
-:func:`~sheraf.attributes.base.BaseAttribute.index` takes a `search` argument that is a function
+:func:`~sheraf.attributes.Attribute.index` takes a `search` argument that is a function
 taking the data you want to search, and return a collection of keys to search in the index.
 :func:`~sheraf.queryset.QuerySet.search` will search for all the keys in the index, and will
 return the matching model instances.
 By default the `search` argument takes the same argument than the
-:func:`~sheraf.attributes.base.BaseAttribute.index` *values* argument.
+:func:`~sheraf.attributes.Attribute.index` *values* argument.
 
 .. code-block:: python
 
@@ -205,8 +205,8 @@ Make custom searchs and recording the default behavior
 
 This `name` attribute and its indexation seems very convenient, so you would like to use
 it in other models. Luckily sheraf offers you a way to do this, and cut the boilerplate.
-If a :class:`~sheraf.attributes.base.BaseAttribute` defines some methods called `values`
-or `search`, they will be used by default if the :func:`~sheraf.attributes.base.BaseAttribute.index`
+If a :class:`~sheraf.attributes.Attribute` defines some methods called `values`
+or `search`, they will be used by default if the :func:`~sheraf.attributes.Attribute.index`
 `values_func` and `search_func` are not provided:
 
 .. code-block:: python
@@ -287,7 +287,7 @@ Indexes over multiple attributes
 --------------------------------
 
 It is possible for an index to watch several attributes. To do this you cannot use the
-:func:`~sheraf.attributes.base.BaseAttribute.index` shortcut, so you need to define the
+:func:`~sheraf.attributes.Attribute.index` shortcut, so you need to define the
 index with a :class:`~sheraf.attributes.index.Index` object.
 
 

@@ -4,7 +4,7 @@ import sheraf.types
 class BaseModelMetaclass(type):
     """
     Internal metaclass.
-    Contains the mapping of attribute names with their corresponding data (of type :class:`~sheraf.attributes.BaseAttribute`)
+    Contains the mapping of attribute names with their corresponding data (of type :class:`~sheraf.attributes.Attribute`)
     """
 
     def __new__(cls, name, bases, attrs):
@@ -12,7 +12,7 @@ class BaseModelMetaclass(type):
         klass.attributes = {}
 
         for name, attr in attrs.items():
-            if not isinstance(attr, sheraf.attributes.base.BaseAttribute):
+            if not isinstance(attr, sheraf.attributes.Attribute):
                 continue
 
             try:
@@ -27,7 +27,7 @@ class BaseModelMetaclass(type):
             base_attributes.update(_base.__dict__.get("attributes", {}))
             base_attributes.update(_base.__dict__)
             for name, attr in base_attributes.items():
-                if not isinstance(attr, sheraf.attributes.base.BaseAttribute):
+                if not isinstance(attr, sheraf.attributes.Attribute):
                     continue
 
                 if name in klass.attributes:
@@ -160,7 +160,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
         try:
             attribute = super().__getattribute__(name)
-            if not isinstance(attribute, sheraf.attributes.base.BaseAttribute):
+            if not isinstance(attribute, sheraf.attributes.Attribute):
                 return attribute
 
         except AttributeError as exc:
@@ -208,7 +208,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         """Takes an arbitrary number of keywords arguments, and updates the
         instance attributes matching the arguments.
 
-        This functions recursively calls :func:`sheraf.attributes.base.BaseAttribute.edit` with `addition` and `edition` to `True`.
+        This functions recursively calls :func:`sheraf.attributes.Attribute.edit` with `addition` and `edition` to `True`.
 
         >>> class Horse(sheraf.InlineModel):
         ...     name = sheraf.SimpleAttribute()
@@ -237,7 +237,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         """Takes an arbitrary number of keywords arguments, and updates the
         instance attributes matching the arguments.
 
-        This functions recursively calls :func:`sheraf.attributes.base.BaseAttribute.edit` with `addition`, `edition` and `deletion` to `True`.
+        This functions recursively calls :func:`sheraf.attributes.Attribute.edit` with `addition`, `edition` and `deletion` to `True`.
 
         >>> class Arm(sheraf.InlineModel):
         ...     name = sheraf.SimpleAttribute()

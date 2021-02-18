@@ -1,7 +1,7 @@
 A tour of model attributes
 ==========================
 
-Sheraf can store a lot of different objet types. Each type has its own :class:`~sheraf.model.attributes.base.BaseAttribute` to take care of it.
+Sheraf can store a lot of different objet types. Each type has its own :class:`~sheraf.model.attributes.Attribute` to take care of it.
 In this section we will briefly see the most commonly used attributes. For each class the reference will provide more complete information.
 
 .. contents::
@@ -227,7 +227,7 @@ The most basic way to reference another model is by using :class:`~sheraf.models
 The **id** of the **Horse** instance will be stored in the **Cowboy** instance.
 Accessing to the horse thus makes a second access to the database.
 
-Note that :func:`~sheraf.models.base.BaseAttribute.create` can make instances for both models.
+Note that :func:`~sheraf.models.Attribute.create` can make instances for both models.
 The inner model should be passed as a dictionnary matching the attribute names to their values:
 
 .. code-block:: python
