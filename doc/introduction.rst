@@ -20,7 +20,8 @@ following objects:
   serialize and deserialize your data. They come in several flavors such as
   :class:`int`, :class:`string`, etc.
 - :class:`~sheraf.attributes.index.Index` are model parameters that will control how
-  you search for a model in the database;
+  you register and how you search for a model in the database;
+- :class:`~sheraf.queryset.QuerySet` holds the result of a model search;
 - :class:`~sheraf.databases.Database` holds the connection context to your database.
 
 Here is a quick example of sheraf usage:
@@ -36,13 +37,17 @@ Here is a quick example of sheraf usage:
     >>> # Initialize a database context
     ... sheraf.Database("zeo://localhost:8000"): # doctest: +SKIP
     ...
-    >>> # Create a model instance and store it in the database
+    >>> # Open a connection to the database
     ... with sheraf.connection(commit=True):
+    ...     # Create a model instance and store it in the database
     ...     Cowboy.create(first_name="George", last_name="Abitbol", age=51)
     <Cowboy id=...>
-    >>> # Find the model based on its indexed parameters
-    ... with sheraf.connection():
-    ...     george = Cowboy.read(name="Abitbol")
+    >>> with sheraf.connection():
+    ...     # Find the model based on its indexed parameters
+    ...     cowboys = Cowboy.search(name="Abitbol")
+    ...
+    ...     # Unpack the QuerySet
+    ...     george = cowboys.get()
     ...     george.age
     51
 
