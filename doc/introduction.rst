@@ -5,25 +5,47 @@ Why use sheraf?
 ---------------
 
 Sheraf allows you to create models, and indexing them in a database. Using sheraf
-should be somewhat similar to other ORM like `SQLAlchemy`_ or `Django`_ ORM.
-However the database backend of sheraf is `ZODB`_, so it is fully pythonic.
+should be somewhat similar to other ORM like `MongoEngine`_, `SQLAlchemy`_ or `Django`_ ORM.
+However the database backend of sheraf is a fully pythonic `ZODB`_.
+
+General concepts
+----------------
+
+sheraf is about storing and reading data in a database. You will mainly encounter the
+following objects:
+
+- :class:`~sheraf.models.base.BaseModel` represents a coherent set of data you want
+  to store in a database;
+- :class:`~sheraf.attributes.base.BaseAttribute` are model parameters that will
+  serialize and deserialize your data. They come in several flavors such as
+  :class:`int`, :class:`string`, etc.
+- :class:`~sheraf.attributes.index.Index` are model parameters that will control how
+  you search for a model in the database;
+- :class:`~sheraf.databases.Database` holds the connection context to your database.
 
 Here is a quick example of sheraf usage:
 
     >>> # Declare a model with attributes
     ... class Cowboy(sheraf.Model):
-    ...     name = sheraf.StringAttribute().index(unique=True)
+    ...     first_name = sheraf.StringAttribute()
+    ...     last_name = sheraf.StringAttribute()
     ...     age = sheraf.IntegerAttribute()
+    ...
+    ...     name = sheraf.Index(first_name, last_name, unique=True)
+    ...
+    >>> # Initialize a database context
+    ... sheraf.Database("zeo://localhost:8000"): # doctest: +SKIP
     ...
     >>> # Create a model instance and store it in the database
     ... with sheraf.connection(commit=True):
-    ...     Cowboy.create(name="George Abitbol", age=51)
+    ...     Cowboy.create(first_name="George", last_name="Abitbol", age=51)
     <Cowboy id=...>
     >>> # Find the model based on its indexed parameters
     ... with sheraf.connection():
-    ...     george = Cowboy.read(name="George Abitbol")
+    ...     george = Cowboy.read(name="Abitbol")
     ...     george.age
     51
+
 
 Why use sheraf instead of plain ZODB?
 -------------------------------------
@@ -51,12 +73,13 @@ do not need any other project from the Zope/Plone galaxy.
 Who are we?
 -----------
 
-`Yaal`_ is a company based in Bordeaux, France. We are specialized in python development,
+`Yaal`_ is a cooperative company based in Bordeaux, France. We are specialized in python development,
 and we are FOSS lovers. We have been using sheraf in production for years, and in 2020 we
 have cleaned the code and opened the sourcecode.
 
-.. _SQLAlchemy: https://docs.sqlalchemy.org/
-.. _Django: https://docs.djangoproject.com
-.. _ZODB: https://zodb-docs.readthedocs.io
 .. _BTrees: https://btrees.readthedocs.io
+.. _Django: https://docs.djangoproject.com
+.. _MongoEngine: https://docs.mongoengine.org/
+.. _SQLAlchemy: https://docs.sqlalchemy.org/
 .. _Yaal: https://yaal.coop
+.. _ZODB: https://zodb-docs.readthedocs.io

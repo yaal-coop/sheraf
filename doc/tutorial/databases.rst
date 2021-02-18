@@ -7,7 +7,10 @@ Database connections are handled with :class:`~sheraf.databases.Database` object
 .. contents::
    :local:
 
-Generally you can configure your :class:`~sheraf.databases.Database` with a `zodburi <https://docs.pylonsproject.org/projects/zodburi/en/latest/>`_, but if you do not pass any argument, a temporary in-memory database will be created.
+Before you edit any persistent data, you need to open a database connection, and thus you need to
+set up a database context. Generally you can configure your :class:`~sheraf.databases.Database`
+with a `zodburi <https://docs.pylonsproject.org/projects/zodburi/en/latest/>`_, but if you do
+not pass give any database information, a temporary in-memory database will be created.
 
 Depending on the cases you might want to use:
 
