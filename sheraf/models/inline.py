@@ -78,5 +78,5 @@ class InlineModel(NamedAttributesModel):
 
         for k, v in kwargs.items():
             if isinstance(v, Attribute):
-                v._default_key = k
+                v.attribute_name = k
                 self.attributes[k] = v
