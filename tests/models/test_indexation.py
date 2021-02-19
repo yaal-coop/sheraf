@@ -708,7 +708,7 @@ def test_default_search_method(sheraf_database):
 
 
 # ----------------------------------------------------------------------------
-# Empty Index
+# Empty index keys
 # ----------------------------------------------------------------------------
 
 
@@ -837,8 +837,35 @@ class CommonModelDifferentValuesMethodsB(tests.IntAutoModel):
         return {value.upper()}
 
 
+class CommonModelDifferentValuesMethodsC(tests.IntAutoModel):
+    lower = lambda v: {v.lower()}
+    upper = lambda v: {v.upper()}
+
+    foo = sheraf.StringAttribute()
+    bar = sheraf.SimpleAttribute()
+    theindex = sheraf.Index(foo, bar).values(
+        foo=lower,
+        bar=upper,
+    )
+
+
+class CommonModelDifferentValuesMethodsD(tests.IntAutoModel):
+    lower = lambda v: {v.lower()}
+    upper = lambda v: {v.upper()}
+
+    foo = sheraf.StringAttribute()
+    bar = sheraf.SimpleAttribute()
+    theindex = sheraf.Index(foo, bar).values(foo=lower).values(bar=upper)
+
+
 @pytest.mark.parametrize(
-    "Model", (CommonModelDifferentValuesMethodsA, CommonModelDifferentValuesMethodsB)
+    "Model",
+    (
+        CommonModelDifferentValuesMethodsA,
+        CommonModelDifferentValuesMethodsB,
+        CommonModelDifferentValuesMethodsC,
+        CommonModelDifferentValuesMethodsD,
+    ),
 )
 def test_common_index_different_values_methods(sheraf_database, Model):
     assert (

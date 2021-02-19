@@ -1,6 +1,12 @@
 [0.4.2] - 2021-xx-xx
 ====================
 
+Added
+*****
+
+- :meth:`~sheraf.attributes.index.Index.values` can also be used as
+  a regular method.
+
 Changed
 *******
 

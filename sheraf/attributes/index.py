@@ -139,7 +139,10 @@ class Index:
 
     def values(self, *args, **kwargs):
         """
-        This decorator sets a values method, for one, several or all of the index attributes.
+        This can be used either as a decorator or a regular method. Both ways
+        it sets a values method, for one, several or all of the index attributes.
+
+        As a decorator:
 
         - If no positionnal argument is passed, then this sets a default values function for the
           index.
@@ -166,8 +169,24 @@ class Index:
         ...     assert m in Model.filter(theindex="foo")
         ...     assert m in Model.filter(theindex="BAR")
         ...     assert m in Model.filter(theindex="BAZ")
+
+        As a regular method:
+
+        >>> class Model(sheraf.Model):
+        ...     table = "any_other_table"
+        ...     first_name = sheraf.StringAttribute()
+        ...     last_name = sheraf.StringAttribute()
+        ...
+        ...     name = sheraf.Index(first_name, last_name) \
+        ...         .values(first_name=lambda x: {x.lower()})
         """
 
+        if kwargs:
+            for attribute_name, func in kwargs.items():
+                self.attribute_values_func[attribute_name] = func
+            return self
+
+        # Guess if the decorator has been called with or without parenthesis
         if args and (len(args) > 1 or not callable(args[0])):
             attributes = args
             args = []
@@ -175,12 +194,15 @@ class Index:
             attributes = []
 
         def wrapper(func):
+            # If no attribute is passed as a positionnal argument,
+            # the method will be the default values method
             if not attributes:
                 self._values_func = func
 
                 if self._search_func is None:
                     self._search_func = func
 
+            # Else the method will be assigned to each attribute
             for attribute in attributes:
                 self.attribute_values_func[attribute] = func
 
