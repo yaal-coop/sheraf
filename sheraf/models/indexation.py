@@ -4,7 +4,6 @@ import warnings
 import sheraf.exceptions
 from sheraf.models.base import BaseModel, BaseModelMetaclass
 from sheraf.models.indexmanager import (
-    IndexManager,
     SimpleIndexManager,
     MultipleDatabaseIndexManager,
 )

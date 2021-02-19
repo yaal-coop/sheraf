@@ -1,5 +1,5 @@
-Model indexation
-================
+Indexes
+=======
 
 Sheraf provides a way to quickly access your data matching some criterias. This section shows how to take advantage of sheraf indexes.
 

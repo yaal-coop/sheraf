@@ -1,7 +1,7 @@
-A tour of model attributes
-==========================
+Attributes
+==========
 
-Sheraf can store a lot of different objet types. Each type has its own :class:`~sheraf.model.attributes.Attribute` to take care of it.
+Sheraf can store a lot of different objet types. Each type has its own :class:`~sheraf.attributes.Attribute` to take care of it.
 In this section we will briefly see the most commonly used attributes. For each class the reference will provide more complete information.
 
 .. contents::
@@ -10,7 +10,7 @@ In this section we will briefly see the most commonly used attributes. For each 
 Introduction
 ------------
 
-The most simple attribute type is the :class:`~sheraf.attributes.simples.SimpleAttribute`. It can hold anything that an :class:`~BTrees.OOBTree` can store.
+The most simple attribute type is the :class:`~sheraf.attributes.simples.SimpleAttribute`. It can hold anything that an :class:`~BTrees.OOBTree` can store. It does not apply any type coercion or transformation on the data you put in it. It will just try to save it as it is.
 
 .. code-block:: python
 
@@ -83,10 +83,12 @@ Default attributes values are lazy. This means they are not stored in the databa
 
 Here we can see that the **age** was stored as soon as the instance was created, but we had to wait to an access to the **name** attribute before it was stored.
 
+.. note :: Indexed attributes are always lazy, not matter the **lazy** argument value.
+
 Basic attributes
 ----------------
 
-The simple types such as :class:`int`, :class:`float`, :class:`str`, :class:`str` have their matching :class:`~sheraf.attributes.simples.IntegerAttribute` :class:`~sheraf.attributes.simples.FloatAttribute`, :class:`~sheraf.attributes.simples.StringAttribute` and :class:`~sheraf.attributes.simples.BooleanAttribute`.
+The simple types such as :class:`int`, :class:`float`, :class:`str`, :class:`bool` have their matching :class:`~sheraf.attributes.simples.IntegerAttribute` :class:`~sheraf.attributes.simples.FloatAttribute`, :class:`~sheraf.attributes.simples.StringAttribute` and :class:`~sheraf.attributes.simples.BooleanAttribute`.
 
 All those typed attributes cast their inputs in the type they refers to:
 
@@ -204,7 +206,7 @@ Models have several ways to reference to other models.
 Externals references
 ~~~~~~~~~~~~~~~~~~~~
 
-The most basic way to reference another model is by using :class:`~sheraf.models.models.ModelAttribute`.
+The most basic way to reference another model is by using :class:`~sheraf.attributes.models.ModelAttribute`.
 
 .. code-block:: python
 
@@ -227,7 +229,7 @@ The most basic way to reference another model is by using :class:`~sheraf.models
 The **id** of the **Horse** instance will be stored in the **Cowboy** instance.
 Accessing to the horse thus makes a second access to the database.
 
-Note that :func:`~sheraf.models.Attribute.create` can make instances for both models.
+Note that :func:`~sheraf.models.base.BaseAttribute.create` can make instances for both models.
 The inner model should be passed as a dictionnary matching the attribute names to their values:
 
 .. code-block:: python
@@ -307,9 +309,9 @@ more advanced indexation behavior, like with first-level models.
 
 :class:`~sheraf.attributes.models.IndexedModelAttribute` does not store just one model, but a whole
 model indexation machine. It handles a :class:`~sheraf.models.AttributeModel` and allows you to use
-the :func:`~sheraf.models.indexation.BaseIndexedModel.create`
-and :func:`~sheraf.models.indexation.BaseIndexedModel.read` methods from
-:class:`~sheraf.models.indexation.BaseIndexedModel`, and take advantages of the :func:`~sheraf.queryset.QuerySet.filter`
+the :func:`~sheraf.models.indexation.IndexableModel.create`
+and :func:`~sheraf.models.indexation.IndexableModel.read` methods from
+:class:`~sheraf.models.indexation.IndexableModel`, and take advantages of the :func:`~sheraf.queryset.QuerySet.filter`
 and :func:`~sheraf.queryset.QuerySet.order` methods from :class:`~sheraf.queryset.QuerySet`.
 
 .. code-block:: python
