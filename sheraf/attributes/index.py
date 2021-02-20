@@ -86,9 +86,9 @@ class Index:
         self.attributes = attributes
         self.unique = unique or primary
         self.key = key
-        self._values_func = values
-        self._search_func = search or values
-        self.attribute_values_func = {}
+        self.default_values_func = values
+        self.search_func = search or values
+        self.values_funcs = {}
         self.mapping = mapping or OOBTree
         self.primary = primary
         self.nullok = nullok
@@ -100,7 +100,7 @@ class Index:
         return "<Index key={} unique={}>".format(self.key, self.unique)
 
     def call_values_func(self, model, attribute, value):
-        func = self.attribute_values_func.get(attribute, self._values_func)
+        func = self.values_funcs.get(attribute, self.default_values_func)
 
         if not func:
             return {value}
@@ -110,12 +110,12 @@ class Index:
             return func(model, value)
 
     def call_search_func(self, model, value):
-        if not self._search_func:
+        if not self.search_func:
             return {value}
         try:
-            return self._search_func(value)
+            return self.search_func(value)
         except TypeError:
-            return self._search_func(model, value)
+            return self.search_func(model, value)
 
     def get_model_values(self, model):
         return {
@@ -177,13 +177,14 @@ class Index:
         ...     first_name = sheraf.StringAttribute()
         ...     last_name = sheraf.StringAttribute()
         ...
-        ...     name = sheraf.Index(first_name, last_name) \
-        ...         .values(first_name=lambda x: {x.lower()})
+        ...     name = sheraf.Index(first_name, last_name).values(
+        ...         first_name=lambda x: {x.lower()}
+        ...     )
         """
 
         if kwargs:
             for attribute_name, func in kwargs.items():
-                self.attribute_values_func[attribute_name] = func
+                self.values_funcs[attribute_name] = func
             return self
 
         # Guess if the decorator has been called with or without parenthesis
@@ -197,14 +198,14 @@ class Index:
             # If no attribute is passed as a positionnal argument,
             # the method will be the default values method
             if not attributes:
-                self._values_func = func
+                self.default_values_func = func
 
-                if self._search_func is None:
-                    self._search_func = func
+                if self.search_func is None:
+                    self.search_func = func
 
             # Else the method will be assigned to each attribute
             for attribute in attributes:
-                self.attribute_values_func[attribute] = func
+                self.values_funcs[attribute] = func
 
             return func
 
@@ -231,7 +232,7 @@ class Index:
         """
 
         def wrapper(func):
-            self._search_func = func
+            self.search_func = func
             return func
 
         return wrapper if not args else wrapper(args[0])

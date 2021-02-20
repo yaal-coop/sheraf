@@ -538,7 +538,7 @@ class CustomIndexationModelE(tests.IntAutoModel):
 def test_custom_indexation_method(sheraf_database, Model):
     with sheraf.connection(commit=True):
         m = Model.create(foo="FOO", bar="BAR")
-        assert Model.indexes["foo"].details._values_func is not None
+        assert Model.indexes["foo"].details.default_values_func is not None
         assert {"foo"} == Model.indexes["foo"].details.get_values(
             m, Model.attributes["foo"], "FOO"
         )
@@ -572,13 +572,16 @@ def test_default_indexation_method(sheraf_database):
     class ModelA(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute().index()
 
-    assert ModelA.indexes["foo"].details._values_func == ModelA.attributes["foo"].values
+    assert (
+        ModelA.indexes["foo"].details.default_values_func
+        == ModelA.attributes["foo"].values
+    )
 
     class ModelB(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute()
         fooindex = sheraf.Index("foo")
 
-    assert ModelB.indexes["fooindex"].details._values_func is None
+    assert ModelB.indexes["fooindex"].details.default_values_func is None
 
 
 class CustomSearchModelA(tests.IntAutoModel):
@@ -698,13 +701,13 @@ def test_default_search_method(sheraf_database):
     class ModelA(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute().index()
 
-    assert ModelA.indexes["foo"].details._search_func == ModelA.attributes["foo"].search
+    assert ModelA.indexes["foo"].details.search_func == ModelA.attributes["foo"].search
 
     class ModelB(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute()
         fooindex = sheraf.Index("foo")
 
-    assert ModelB.indexes["fooindex"].details._search_func is None
+    assert ModelB.indexes["fooindex"].details.search_func is None
 
 
 # ----------------------------------------------------------------------------
@@ -869,15 +872,15 @@ class CommonModelDifferentValuesMethodsD(tests.IntAutoModel):
 )
 def test_common_index_different_values_methods(sheraf_database, Model):
     assert (
-        Model.indexes["theindex"].details.attribute_values_func[Model.attributes["foo"]]
+        Model.indexes["theindex"].details.values_funcs[Model.attributes["foo"]]
         == Model.lower
     )
     assert (
-        Model.indexes["theindex"].details.attribute_values_func[Model.attributes["bar"]]
+        Model.indexes["theindex"].details.values_funcs[Model.attributes["bar"]]
         == Model.upper
     )
-    assert Model.indexes["theindex"].details._values_func is None
-    assert Model.indexes["theindex"].details._search_func is None
+    assert Model.indexes["theindex"].details.default_values_func is None
+    assert Model.indexes["theindex"].details.search_func is None
 
     with sheraf.connection(commit=True) as conn:
         m = Model.create(foo="FOo", bar="bAr")
@@ -929,16 +932,13 @@ class CommonModelDefaultValuesMethodsB(tests.IntAutoModel):
     "Model", (CommonModelDefaultValuesMethodsA, CommonModelDefaultValuesMethodsB)
 )
 def test_common_index_default_values_methods(sheraf_database, Model):
+    assert Model.attributes["foo"] not in Model.indexes["theindex"].details.values_funcs
     assert (
-        Model.attributes["foo"]
-        not in Model.indexes["theindex"].details.attribute_values_func
-    )
-    assert (
-        Model.indexes["theindex"].details.attribute_values_func[Model.attributes["bar"]]
+        Model.indexes["theindex"].details.values_funcs[Model.attributes["bar"]]
         == Model.upper
     )
-    assert Model.indexes["theindex"].details._values_func == Model.lower
-    assert Model.indexes["theindex"].details._search_func == Model.lower
+    assert Model.indexes["theindex"].details.default_values_func == Model.lower
+    assert Model.indexes["theindex"].details.search_func == Model.lower
 
     with sheraf.connection(commit=True) as conn:
         m = Model.create(foo="FOo", bar="bAr")
