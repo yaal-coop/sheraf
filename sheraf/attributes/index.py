@@ -99,44 +99,6 @@ class Index:
             return "<Index key={} unique={} primary>".format(self.key, self.unique)
         return "<Index key={} unique={}>".format(self.key, self.unique)
 
-    def call_values_func(self, model, attribute, value):
-        func = self.values_funcs.get(attribute, self.default_values_func)
-
-        if not func:
-            return {value}
-        try:
-            return func(value)
-        except TypeError:
-            return func(model, value)
-
-    def call_search_func(self, model, value):
-        if not self.search_func:
-            return {value}
-        try:
-            return self.search_func(value)
-        except TypeError:
-            return self.search_func(model, value)
-
-    def get_model_values(self, model):
-        return {
-            v
-            for attribute in self.attributes
-            if attribute.is_created(model)
-            for v in self.get_values(model, attribute, attribute.read(model))
-        }
-
-    def get_values(self, model, attribute, value):
-        values = self.call_values_func(model, attribute, value)
-
-        if not self.nullok:  # Empty values are not indexed
-            return {v for v in values if v}
-
-        elif not self.noneok:  # None values are not indexed
-            return {v for v in values if v is not None}
-
-        else:  # Everything is indexed
-            return values
-
     def values(self, *args, **kwargs):
         """
         This can be used either as a decorator or a regular method. Both ways
@@ -236,3 +198,41 @@ class Index:
             return func
 
         return wrapper if not args else wrapper(args[0])
+
+    def get_model_values(self, model):
+        return {
+            v
+            for attribute in self.attributes
+            if attribute.is_created(model)
+            for v in self.get_values(model, attribute, attribute.read(model))
+        }
+
+    def get_values(self, model, attribute, value):
+        values = self.call_values_func(model, attribute, value)
+
+        if not self.nullok:  # Empty values are not indexed
+            return {v for v in values if v}
+
+        elif not self.noneok:  # None values are not indexed
+            return {v for v in values if v is not None}
+
+        else:  # Everything is indexed
+            return values
+
+    def call_values_func(self, model, attribute, value):
+        func = self.values_funcs.get(attribute, self.default_values_func)
+
+        if not func:
+            return {value}
+        try:
+            return func(value)
+        except TypeError:
+            return func(model, value)
+
+    def call_search_func(self, model, value):
+        if not self.search_func:
+            return {value}
+        try:
+            return self.search_func(value)
+        except TypeError:
+            return self.search_func(model, value)
