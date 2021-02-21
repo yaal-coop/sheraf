@@ -111,26 +111,25 @@ class Index:
           will be given the attribute values as positionnal arguments, in the order they were passed
           to the decorator.
 
-        >>> class Model(sheraf.Model):
+        >>> class Cowboy(sheraf.Model):
         ...     table = "any_table"
-        ...     foo = sheraf.StringAttribute()
-        ...     bar = sheraf.StringAttribute()
-        ...     baz = sheraf.StringAttribute()
-        ...     theindex = sheraf.Index(foo, bar, baz)
+        ...     first_name = sheraf.StringAttribute()
+        ...     last_name = sheraf.StringAttribute()
+        ...     surname = sheraf.StringAttribute()
+        ...     theindex = sheraf.Index(first_name, last_name, surname)
         ...
         ...     @theindex.values
-        ...     def the_default_values_method(self, values):
+        ...     def default_name_indexation(self, values):
         ...         return {values.lower()}
         ...
-        ...     @theindex.values(bar, "baz")
-        ...     def the_baz_values_method(self, bar, baz):
-        ...         return {bar.upper(), baz.upper()}
+        ...     @theindex.values(first_name, "last_name")
+        ...     def full_name(self, first, last):
+        ...         return {f"{first} {last}".lower()}
         ...
         >>> with sheraf.connection():
-        ...     m = Model.create(foo="Foo", bar="Bar", baz="Baz")
-        ...     assert m in Model.filter(theindex="foo")
-        ...     assert m in Model.filter(theindex="BAR")
-        ...     assert m in Model.filter(theindex="BAZ")
+        ...     m = Cowboy.create(first_name="George", last_name="Abitbol", surname="Georgy")
+        ...     assert m in Cowboy.filter(theindex="george abitbol")
+        ...     assert m in Cowboy.filter(theindex="georgy")
         """
 
         # Guess if the decorator has been called with or without parenthesis
