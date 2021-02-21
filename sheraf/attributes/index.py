@@ -181,21 +181,13 @@ class Index:
         return wrapper if not args else wrapper(args[0])
 
     def get_model_values(self, model):
-        if self.default_values_func not in self.values_funcs:
-            attrs_with_func = [
-                attr for attrs in self.values_funcs.values() for attr in attrs
-            ]
-            self.values_funcs[self.default_values_func] = [
-                attribute
-                for attribute in self.attributes
-                if attribute not in attrs_with_func
-            ]
         return {
             v
             for func, attributes in self.values_funcs.items()
             for attribute in attributes
             for v in self.get_values(model, attribute, func)
         }
+        return res
 
     def get_values(self, model, attribute, func):
         values = self.call_values_func(model, attribute, func)

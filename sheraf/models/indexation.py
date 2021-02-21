@@ -40,6 +40,7 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
                 new_attrs.append(a)
             index.attributes = new_attrs
 
+            # Get the attributes from the attribute names
             index.values_funcs = {
                 func: [
                     attributes[attr] if isinstance(attr, str) else attr
@@ -47,7 +48,6 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
                 ]
                 for func, attrs in index.values_funcs.items()
             }
-
             index.key = index.key or name
 
             for attribute in index.attributes:
@@ -56,6 +56,22 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
                     attribute.indexes[index.key] = index
 
                 attribute.lazy = False
+
+            # Assign the default values func to attributes without
+            # values func.
+            attrs_with_func = [
+                attr
+                for func, attrs in index.values_funcs.items()
+                if func is not index.default_values_func
+                for attr in attrs
+            ]
+
+            index.values_funcs[index.default_values_func] = [
+                attribute
+                for attribute in index.attributes
+                if attribute not in attrs_with_func
+            ]
+
             klass.indexes[index.key] = klass.index_manager(index)
 
         for name, index in attrs.items():
