@@ -147,8 +147,7 @@ class Index:
                     self.search_func = func
 
             # Else the method will be assigned to each attribute
-            for attribute in attributes:
-                self.values_funcs.setdefault(func, []).append([attribute])
+            self.values_funcs.setdefault(func, []).append(attributes)
 
             return func
 
