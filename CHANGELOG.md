@@ -4,9 +4,6 @@
 Added
 *****
 
-- :meth:`~sheraf.attributes.index.Index.values` can also be used as
-  a regular method.
-
 Changed
 *******
 
