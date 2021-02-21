@@ -540,7 +540,7 @@ def test_custom_indexation_method(sheraf_database, Model):
         m = Model.create(foo="FOO", bar="BAR")
         assert Model.indexes["foo"].details.default_values_func is not None
         assert {"foo"} == Model.indexes["foo"].details.get_values(
-            m, Model.attributes["foo"], "FOO"
+            m, Model.attributes["foo"]
         )
 
     with sheraf.connection() as conn:

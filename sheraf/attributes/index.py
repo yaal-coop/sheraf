@@ -204,11 +204,11 @@ class Index:
             v
             for attribute in self.attributes
             if attribute.is_created(model)
-            for v in self.get_values(model, attribute, attribute.read(model))
+            for v in self.get_values(model, attribute)
         }
 
-    def get_values(self, model, attribute, value):
-        values = self.call_values_func(model, attribute, value)
+    def get_values(self, model, attribute):
+        values = self.call_values_func(model, attribute)
 
         if not self.nullok:  # Empty values are not indexed
             return {v for v in values if v}
@@ -219,7 +219,8 @@ class Index:
         else:  # Everything is indexed
             return values
 
-    def call_values_func(self, model, attribute, value):
+    def call_values_func(self, model, attribute):
+        value = attribute.read(model)
         func = self.values_funcs.get(attribute, self.default_values_func)
 
         if not func:
