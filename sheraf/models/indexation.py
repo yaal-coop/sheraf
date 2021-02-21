@@ -43,10 +43,13 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
             # Get the attributes from the attribute names
             index.values_funcs = {
                 func: [
-                    attributes[attr] if isinstance(attr, str) else attr
-                    for attr in attrs
+                    [
+                        attributes[attr] if isinstance(attr, str) else attr
+                        for attr in attrs
+                    ]
+                    for attrs in attrs_groups
                 ]
-                for func, attrs in index.values_funcs.items()
+                for func, attrs_groups in index.values_funcs.items()
             }
             index.key = index.key or name
 
@@ -61,15 +64,18 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
             # values func.
             attrs_with_func = [
                 attr
-                for func, attrs in index.values_funcs.items()
+                for func, attr_groups in index.values_funcs.items()
                 if func is not index.default_values_func
+                for attrs in attr_groups
                 for attr in attrs
             ]
 
             index.values_funcs[index.default_values_func] = [
-                attribute
-                for attribute in index.attributes
-                if attribute not in attrs_with_func
+                [
+                    attribute
+                    for attribute in index.attributes
+                    if attribute not in attrs_with_func
+                ]
             ]
 
             klass.indexes[index.key] = klass.index_manager(index)

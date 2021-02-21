@@ -803,6 +803,7 @@ def test_common_index(sheraf_database):
 
     with sheraf.connection() as conn:
         index_table = conn.root()[Model.table]["theindex"]
+        assert {"foo", "bar"} == Model.indexes["theindex"].details.get_model_values(m)
         assert {"foo", "bar"} == set(index_table)
         assert [m.mapping] == list(index_table["foo"])
         assert [m.mapping] == list(index_table["bar"])
@@ -851,11 +852,12 @@ class CommonModelDifferentValuesMethodsB(tests.IntAutoModel):
 )
 def test_common_index_different_values_methods(sheraf_database, Model):
     assert Model.indexes["theindex"].details.values_funcs[Model.lower] == [
-        Model.attributes["foo"]
+        [Model.attributes["foo"]]
     ]
     assert Model.indexes["theindex"].details.values_funcs[Model.upper] == [
-        Model.attributes["bar"]
+        [Model.attributes["bar"]]
     ]
+    assert Model.indexes["theindex"].details.values_funcs[None] == [[]]
     assert Model.indexes["theindex"].details.default_values_func is None
     assert Model.indexes["theindex"].details.search_func is None
 
@@ -910,7 +912,7 @@ class CommonModelDefaultValuesMethodsB(tests.IntAutoModel):
 )
 def test_common_index_default_values_methods(sheraf_database, Model):
     assert Model.indexes["theindex"].details.values_funcs[Model.upper] == [
-        Model.attributes["bar"]
+        [Model.attributes["bar"]]
     ]
     assert Model.indexes["theindex"].details.default_values_func == Model.lower
     assert Model.indexes["theindex"].details.search_func == Model.lower

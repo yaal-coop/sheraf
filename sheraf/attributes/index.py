@@ -148,7 +148,7 @@ class Index:
 
             # Else the method will be assigned to each attribute
             for attribute in attributes:
-                self.values_funcs.setdefault(func, []).append(attribute)
+                self.values_funcs.setdefault(func, []).append([attribute])
 
             return func
 
@@ -183,11 +183,11 @@ class Index:
     def get_model_values(self, model):
         return {
             v
-            for func, attributes in self.values_funcs.items()
+            for func, attrs_groups in self.values_funcs.items()
+            for attributes in attrs_groups
             for attribute in attributes
             for v in self.get_values(model, attribute, func)
         }
-        return res
 
     def get_values(self, model, attribute, func):
         values = self.call_values_func(model, attribute, func)
