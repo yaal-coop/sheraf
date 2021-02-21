@@ -41,8 +41,11 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
             index.attributes = new_attrs
 
             index.values_funcs = {
-                attributes[k] if isinstance(k, str) else k: v
-                for k, v in index.values_funcs.items()
+                func: [
+                    attributes[attr] if isinstance(attr, str) else attr
+                    for attr in attrs
+                ]
+                for func, attrs in index.values_funcs.items()
             }
 
             index.key = index.key or name

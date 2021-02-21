@@ -31,6 +31,7 @@ def test_integer_unique_index_creation(sheraf_database, instance, mapping):
 
     with sheraf.connection() as conn:
         index_table = conn.root()[Model.table]["my_attribute"]
+        assert {22} == Model.indexes["my_attribute"].details.get_model_values(mfoo)
         assert {22} == set(index_table)
         assert mfoo.mapping == index_table[22]
 
@@ -538,9 +539,10 @@ class CustomIndexationModelE(tests.IntAutoModel):
 def test_custom_indexation_method(sheraf_database, Model):
     with sheraf.connection(commit=True):
         m = Model.create(foo="FOO", bar="BAR")
-        assert Model.indexes["foo"].details.default_values_func is not None
+        func = Model.indexes["foo"].details.default_values_func
+        assert func is not None
         assert {"foo"} == Model.indexes["foo"].details.get_values(
-            m, Model.attributes["foo"]
+            m, Model.attributes["foo"], func
         )
 
     with sheraf.connection() as conn:
@@ -871,14 +873,12 @@ class CommonModelDifferentValuesMethodsD(tests.IntAutoModel):
     ),
 )
 def test_common_index_different_values_methods(sheraf_database, Model):
-    assert (
-        Model.indexes["theindex"].details.values_funcs[Model.attributes["foo"]]
-        == Model.lower
-    )
-    assert (
-        Model.indexes["theindex"].details.values_funcs[Model.attributes["bar"]]
-        == Model.upper
-    )
+    assert Model.indexes["theindex"].details.values_funcs[Model.lower] == [
+        Model.attributes["foo"]
+    ]
+    assert Model.indexes["theindex"].details.values_funcs[Model.upper] == [
+        Model.attributes["bar"]
+    ]
     assert Model.indexes["theindex"].details.default_values_func is None
     assert Model.indexes["theindex"].details.search_func is None
 
@@ -932,11 +932,9 @@ class CommonModelDefaultValuesMethodsB(tests.IntAutoModel):
     "Model", (CommonModelDefaultValuesMethodsA, CommonModelDefaultValuesMethodsB)
 )
 def test_common_index_default_values_methods(sheraf_database, Model):
-    assert Model.attributes["foo"] not in Model.indexes["theindex"].details.values_funcs
-    assert (
-        Model.indexes["theindex"].details.values_funcs[Model.attributes["bar"]]
-        == Model.upper
-    )
+    assert Model.indexes["theindex"].details.values_funcs[Model.upper] == [
+        Model.attributes["bar"]
+    ]
     assert Model.indexes["theindex"].details.default_values_func == Model.lower
     assert Model.indexes["theindex"].details.search_func == Model.lower
 

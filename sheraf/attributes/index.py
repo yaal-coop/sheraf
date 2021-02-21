@@ -146,7 +146,7 @@ class Index:
 
         if kwargs:
             for attribute_name, func in kwargs.items():
-                self.values_funcs[attribute_name] = func
+                self.values_funcs.setdefault(func, []).append(attribute_name)
             return self
 
         # Guess if the decorator has been called with or without parenthesis
@@ -167,7 +167,7 @@ class Index:
 
             # Else the method will be assigned to each attribute
             for attribute in attributes:
-                self.values_funcs[attribute] = func
+                self.values_funcs.setdefault(func, []).append(attribute)
 
             return func
 
@@ -200,14 +200,24 @@ class Index:
         return wrapper if not args else wrapper(args[0])
 
     def get_model_values(self, model):
+        if self.default_values_func not in self.values_funcs:
+            attrs_with_func = [
+                attr for attrs in self.values_funcs.values() for attr in attrs
+            ]
+            self.values_funcs[self.default_values_func] = [
+                attribute
+                for attribute in self.attributes
+                if attribute not in attrs_with_func
+            ]
         return {
             v
-            for attribute in self.attributes
-            for v in self.get_values(model, attribute)
+            for func, attributes in self.values_funcs.items()
+            for attribute in attributes
+            for v in self.get_values(model, attribute, func)
         }
 
-    def get_values(self, model, attribute):
-        values = self.call_values_func(model, attribute)
+    def get_values(self, model, attribute, func):
+        values = self.call_values_func(model, attribute, func)
 
         if not self.nullok:  # Empty values are not indexed
             return {v for v in values if v}
@@ -218,12 +228,11 @@ class Index:
         else:  # Everything is indexed
             return values
 
-    def call_values_func(self, model, attribute):
+    def call_values_func(self, model, attribute, func):
         if not attribute.is_created(model):
             return {}
 
         value = attribute.read(model)
-        func = self.values_funcs.get(attribute, self.default_values_func)
 
         if not func:
             return {value}
