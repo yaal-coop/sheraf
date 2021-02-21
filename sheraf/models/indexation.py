@@ -54,7 +54,6 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
             index.key = index.key or name
 
             for attribute in index.attributes:
-
                 if add_to_attribute:
                     attribute.indexes[index.key] = index
 
@@ -71,11 +70,9 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
             ]
 
             index.values_funcs[index.default_values_func] = [
-                [
-                    attribute
-                    for attribute in index.attributes
-                    if attribute not in attrs_with_func
-                ]
+                [attribute]
+                for attribute in index.attributes
+                if attribute not in attrs_with_func
             ]
 
             klass.indexes[index.key] = klass.index_manager(index)

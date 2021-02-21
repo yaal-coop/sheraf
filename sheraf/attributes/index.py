@@ -107,6 +107,9 @@ class Index:
           index.
         - You can pass one or several attributes or attributes names to set a specific values method
           for those attributes.
+        - If you do set a specific values method for one or several attributes, the decorated function
+          will be given the attribute values as positionnal arguments, in the order they were passed
+          to the decorator.
 
         >>> class Model(sheraf.Model):
         ...     table = "any_table"
@@ -120,8 +123,8 @@ class Index:
         ...         return {values.lower()}
         ...
         ...     @theindex.values(bar, "baz")
-        ...     def the_baz_values_method(self, values):
-        ...         return {values.upper()}
+        ...     def the_baz_values_method(self, bar, baz):
+        ...         return {bar.upper(), baz.upper()}
         ...
         >>> with sheraf.connection():
         ...     m = Model.create(foo="Foo", bar="Bar", baz="Baz")
@@ -182,14 +185,13 @@ class Index:
     def get_model_values(self, model):
         return {
             v
-            for func, attrs_groups in self.values_funcs.items()
-            for attributes in attrs_groups
-            for attribute in attributes
-            for v in self.get_values(model, attribute, func)
+            for func, attr_groups in self.values_funcs.items()
+            for attributes in attr_groups
+            for v in self.get_values(model, attributes, func)
         }
 
-    def get_values(self, model, attribute, func):
-        values = self.call_values_func(model, attribute, func)
+    def get_values(self, model, attributes, func):
+        values = self.call_values_func(model, attributes, func)
 
         if not self.nullok:  # Empty values are not indexed
             return {v for v in values if v}
@@ -200,18 +202,19 @@ class Index:
         else:  # Everything is indexed
             return values
 
-    def call_values_func(self, model, attribute, func):
-        if not attribute.is_created(model):
+    def call_values_func(self, model, attributes, func):
+        if not all(attribute.is_created(model) for attribute in attributes):
             return {}
 
-        value = attribute.read(model)
+        values = [attribute.read(model) for attribute in attributes]
 
         if not func:
-            return {value}
+            return set(values)
+
         try:
-            return func(value)
+            return func(*values)
         except TypeError:
-            return func(model, value)
+            return func(model, *values)
 
     def call_search_func(self, model, value):
         if not self.search_func:

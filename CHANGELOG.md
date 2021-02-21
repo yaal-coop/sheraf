@@ -4,6 +4,10 @@
 Added
 *****
 
+- :meth:`~sheraf.attributes.index.Index.values` is given the attributes
+  values in positional argument if it is assigned to one or several
+  attributes.
+
 Changed
 *******
 

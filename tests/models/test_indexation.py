@@ -542,7 +542,7 @@ def test_custom_indexation_method(sheraf_database, Model):
         func = Model.indexes["foo"].details.default_values_func
         assert func is not None
         assert {"foo"} == Model.indexes["foo"].details.get_values(
-            m, Model.attributes["foo"], func
+            m, [Model.attributes["foo"]], func
         )
 
     with sheraf.connection() as conn:
@@ -815,18 +815,38 @@ def test_common_index(sheraf_database):
         assert [m] == Model.search(theindex="bar")
 
 
+def test_common_index_unique(sheraf_database):
+    class Model(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute()
+        bar = sheraf.SimpleAttribute()
+        theindex = sheraf.Index(foo, bar, unique=True)
+
+    with sheraf.connection(commit=True):
+        Model.create(foo="foo", bar="bar")
+
+        # This behavior can seem strange
+        Model.create(foo="anything", bar="anything")
+
+    with sheraf.connection():
+        with pytest.raises(sheraf.UniqueIndexException):
+            Model.create(foo="bar")
+
+        with pytest.raises(sheraf.UniqueIndexException):
+            Model.create(bar="foo")
+
+
 class CommonModelDifferentValuesMethodsA(tests.IntAutoModel):
     foo = sheraf.StringAttribute()
     bar = sheraf.SimpleAttribute()
     theindex = sheraf.Index(foo, bar)
 
     @theindex.values("foo")
-    def lower(self, value):
-        return {value.lower()}
+    def lower(self, foo):
+        return {foo.lower()}
 
     @theindex.values("bar")
-    def upper(self, value):
-        return {value.upper()}
+    def upper(self, bar):
+        return {bar.upper()}
 
 
 class CommonModelDifferentValuesMethodsB(tests.IntAutoModel):
@@ -835,12 +855,12 @@ class CommonModelDifferentValuesMethodsB(tests.IntAutoModel):
     theindex = sheraf.Index(foo, bar)
 
     @theindex.values(foo)
-    def lower(self, value):
-        return {value.lower()}
+    def lower(self, foo):
+        return {foo.lower()}
 
     @theindex.values(bar)
-    def upper(self, value):
-        return {value.upper()}
+    def upper(self, bar):
+        return {bar.upper()}
 
 
 @pytest.mark.parametrize(
@@ -857,7 +877,7 @@ def test_common_index_different_values_methods(sheraf_database, Model):
     assert Model.indexes["theindex"].details.values_funcs[Model.upper] == [
         [Model.attributes["bar"]]
     ]
-    assert Model.indexes["theindex"].details.values_funcs[None] == [[]]
+    assert Model.indexes["theindex"].details.values_funcs[None] == []
     assert Model.indexes["theindex"].details.default_values_func is None
     assert Model.indexes["theindex"].details.search_func is None
 
@@ -889,8 +909,8 @@ class CommonModelDefaultValuesMethodsA(tests.IntAutoModel):
     theindex = sheraf.Index(foo, bar, values=lower)
 
     @theindex.values(bar)
-    def upper(self, value):
-        return {value.upper()}
+    def upper(self, bar):
+        return {bar.upper()}
 
 
 class CommonModelDefaultValuesMethodsB(tests.IntAutoModel):
@@ -903,8 +923,8 @@ class CommonModelDefaultValuesMethodsB(tests.IntAutoModel):
         return {value.lower()}
 
     @theindex.values(bar)
-    def upper(self, value):
-        return {value.upper()}
+    def upper(self, bar):
+        return {bar.upper()}
 
 
 @pytest.mark.parametrize(
@@ -938,24 +958,60 @@ def test_common_index_default_values_methods(sheraf_database, Model):
         assert [] == Model.search(theindex="bAr")
 
 
-def test_common_index_unique(sheraf_database):
-    class Model(tests.IntAutoModel):
-        foo = sheraf.SimpleAttribute()
-        bar = sheraf.SimpleAttribute()
-        theindex = sheraf.Index(foo, bar, unique=True)
+class CommonValuesComputedSeparatelyModelA(tests.IntAutoModel):
+    foo = sheraf.SimpleAttribute()
+    bar = sheraf.SimpleAttribute()
+    theindex = sheraf.Index(foo, bar)
+
+    @theindex.values(foo)
+    @theindex.values(bar)
+    def values(self, x):
+        return {x.upper()}
+
+
+@pytest.mark.parametrize(
+    "Model",
+    (CommonValuesComputedSeparatelyModelA,),
+)
+def test_common_index_common_values_computed_separately(sheraf_database, Model):
 
     with sheraf.connection(commit=True):
-        Model.create(foo="foo", bar="bar")
+        m = Model.create(foo="Hello", bar="world!")
+        assert m in Model.filter(theindex="HELLO")
+        assert m in Model.filter(theindex="WORLD!")
 
-        # This behavior can seem strange
-        Model.create(foo="anything", bar="anything")
 
-    with sheraf.connection():
-        with pytest.raises(sheraf.UniqueIndexException):
-            Model.create(foo="bar")
+class CommonValuesComputedTogetherModelA(tests.IntAutoModel):
+    foo = sheraf.SimpleAttribute()
+    bar = sheraf.SimpleAttribute()
+    theindex = sheraf.Index(foo, bar)
 
-        with pytest.raises(sheraf.UniqueIndexException):
-            Model.create(bar="foo")
+    @theindex.values(foo, bar)
+    def theindex_values(self, foo, bar):
+        return {f"{foo} {bar}"}
+
+
+class CommonValuesComputedTogetherModelB(tests.IntAutoModel):
+    foo = sheraf.SimpleAttribute()
+    bar = sheraf.SimpleAttribute()
+    theindex = sheraf.Index(foo, bar)
+
+    @theindex.values(foo, bar)
+    def theindex_values(self, foo_, bar_):
+        return {f"{foo_} {bar_}"}
+
+
+@pytest.mark.parametrize(
+    "Model",
+    (
+        CommonValuesComputedTogetherModelA,
+        CommonValuesComputedTogetherModelB,
+    ),
+)
+def test_common_index_common_values_computed_together(sheraf_connection, Model):
+    m = Model.create(foo="Hello", bar="world!")
+    assert {"Hello world!"} == Model.indexes["theindex"].details.get_model_values(m)
+    assert m in Model.search(theindex="Hello world!")
 
 
 def test_common_index_complex(sheraf_database):
