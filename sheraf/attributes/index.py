@@ -203,7 +203,6 @@ class Index:
         return {
             v
             for attribute in self.attributes
-            if attribute.is_created(model)
             for v in self.get_values(model, attribute)
         }
 
@@ -220,6 +219,9 @@ class Index:
             return values
 
     def call_values_func(self, model, attribute):
+        if not attribute.is_created(model):
+            return {}
+
         value = attribute.read(model)
         func = self.values_funcs.get(attribute, self.default_values_func)
 
