@@ -89,7 +89,7 @@ class Attribute(object):
         return self.key(parent) in parent.mapping
 
     def key(self, parent):
-        """:return: the key that identifies this attribute in its owner object"""
+        # the key that identifies this attribute in its owner object
         if self._key is None:
             return self.attribute_name
 
@@ -122,39 +122,26 @@ class Attribute(object):
         return value
 
     def serialize(self, value):
-        """Get data and transform it into something ZODB can store.
+        # Get data and transform it into something ZODB can store.
 
-        :param value: The input data.
-        :return: The transformed data.
-        """
         return value
 
     def deserialize(self, value):
-        """Get raw data and transform it into something more convenient to use.
+        # Get raw data and transform it into something more convenient to use.
 
-        :param value: The input data.
-        :return: The transformed data.
-        """
         return value
 
     def read(self, parent):
-        """Reads some raw data from the parent model and transform it into
-        something more convenient to use. Most of the time, you should use
-        :func:`~sheraf.attributes.Attribute.deserialize`.
+        # Reads some raw data from the parent model and transform it into
+        # something more convenient to use. Most of the time, you should use
+        # Attribute.deserialize
 
-        :param parent: The model parent.
-        :return: the transformed value of this attribute
-        """
         return self.deserialize(self.read_raw(parent))
 
     def write(self, parent, value):
-        """Takes user data, transform it into something ZODB can store, and
-        store it into the model parent persistent.
+        # Takes user data, transform it into something ZODB can store, and
+        # store it into the model parent persistent.
 
-        :param parent: The owner object of this attribute
-        :param value: The user data to store.
-        :return: The stored and reread data. In some cases it may be different that the input data.
-        """
         written_value = self.write_raw(parent, self.serialize(value))
         return self.deserialize(written_value)
 
