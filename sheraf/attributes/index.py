@@ -112,7 +112,7 @@ class Index:
           to the decorator.
 
         >>> class Cowboy(sheraf.Model):
-        ...     table = "any_table"
+        ...     table = "any_values_table"
         ...     first_name = sheraf.StringAttribute()
         ...     last_name = sheraf.StringAttribute()
         ...     surname = sheraf.StringAttribute()
@@ -160,7 +160,7 @@ class Index:
         This decorator sets the search method for the index.
 
         >>> class Model(sheraf.Model):
-        ...     table = "any_table"
+        ...     table = "any_search_table"
         ...     foo = sheraf.StringAttribute()
         ...     bar = sheraf.StringAttribute()
         ...     theindex = sheraf.Index(foo, bar)
