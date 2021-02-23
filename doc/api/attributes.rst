@@ -1,9 +1,11 @@
 Attributes
 ==========
 
-.. automodule:: sheraf.attributes
-    :members:
-    :show-inheritance:
+.. contents::
+   :local:
+
+Base
+----
 
 .. automodule:: sheraf.attributes
     :members:
@@ -13,6 +15,10 @@ Simple attributes
 -----------------
 
 .. automodule:: sheraf.attributes.simples
+    :members:
+    :show-inheritance:
+
+.. automodule:: sheraf.attributes.password
     :members:
     :show-inheritance:
 

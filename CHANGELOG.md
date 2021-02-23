@@ -1,4 +1,12 @@
-[0.4.2] - 2021-xx-xx
+[0.4.3] - 2021-02-23
+====================
+
+Added
+*****
+
+- Implemented :class:`~sheraf.attributes.password.PasswordAttribute`. :issue:`5`
+
+[0.4.2] - 2021-02-21
 ====================
 
 Added

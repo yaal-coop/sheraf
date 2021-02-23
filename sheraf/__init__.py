@@ -28,6 +28,7 @@ from .attributes.models import (
     InlineModelAttribute,
     IndexedModelAttribute,
 )
+from .attributes.password import PasswordAttribute
 from .attributes.simples import (
     BooleanAttribute,
     DateAttribute,
