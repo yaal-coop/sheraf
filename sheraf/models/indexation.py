@@ -404,11 +404,15 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         return cls.filter(*args, **kwargs).get()
 
     def __repr__(self):
-        identifier = (
-            self.identifier
-            if self.mapping is not None and self.primary_key() in self.mapping
-            else None
-        )
+        try:
+            identifier = (
+                self.identifier
+                if self.mapping is not None and self.primary_key() in self.mapping
+                else None
+            )
+        except sheraf.NotConnectedException:
+            identifier = "???"
+
         return "<{} {}={}>".format(
             self.__class__.__name__, self.primary_key(), identifier
         )

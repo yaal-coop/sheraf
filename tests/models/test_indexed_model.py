@@ -82,13 +82,13 @@ def test_default_id(sheraf_database):
             N.create()
 
 
-def test_model_with_id(sheraf_database):
+def test_repr_model_with_id(sheraf_database):
     with sheraf.connection():
         m = MyModel.create()
         assert "<MyModel id={}>".format(m.id) == repr(m)
 
 
-def test_model_without_id(sheraf_database):
+def test_repr_model_without_id(sheraf_database):
     assert "<MyModel id=None>" == repr(MyModel())
 
 
