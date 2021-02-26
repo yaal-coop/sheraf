@@ -18,9 +18,10 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
             # Get the real attributes objects when string have been passed as attributes
             # in the index.
 
+            index.key = index.key or name
             if not index.attributes:
                 raise sheraf.exceptions.SherafException(
-                    f"The {index.key} must have at least one attribute."
+                    f"The {index.key} index must have at least one attribute."
                 )
 
             new_attrs = []
@@ -51,7 +52,6 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
                 ]
                 for func, attrs_groups in index.values_funcs.items()
             }
-            index.key = index.key or name
 
             for attribute in index.attributes:
                 if add_to_attribute:
