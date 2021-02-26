@@ -286,19 +286,21 @@ class QuerySet(object):
             return sum(1 for _ in self)
 
         index_name = list(self.filters.keys())[0]
-        index_value = list(self.filters.values())[0][1]
+        _, filter_value, filter_transformation = list(self.filters.values())[0]
         if index_name not in self.model.indexes:
             return sum(1 for _ in self)
 
         index = self.model.indexes[index_name]
-        if not index.has_item(index_value):
-            return 0
+        if filter_transformation:
+            index_values = index.details.call_search_func(self.model, filter_value)
 
         if index.details.unique:
-            return 1
+            return sum(int(index.has_item(v)) for v in index_values)
 
         else:
-            return len(index.get_item(index_value))
+            return sum(
+                len(index.get_item(v)) for v in index_values if index.has_item(v)
+            )
 
     def copy(self):
         """Copies the :class:`~sheraf.queryset.QuerySet` without consuming it.

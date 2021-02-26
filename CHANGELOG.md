@@ -1,3 +1,11 @@
+[0.4.5] - 2021-02-26
+====================
+
+Fixed
+*****
+- QuerySet :meth:`~sheraf.queryset.QuerySet.count` shortcuts do transform input values.
+
+
 [0.4.4] - 2021-02-26
 ====================
 
