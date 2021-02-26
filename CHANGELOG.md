@@ -4,8 +4,10 @@
 Added
 *****
 
-- :meth:`~sheraf.models.indexation.IndexedModel.count` method can take an index name
+- Model :meth:`~sheraf.models.indexation.IndexedModel.count` method can take an index name
   as a parameter.
+- QuerySet :meth:`~sheraf.queryset.QuerySet.count` method is far more quicker when there is
+  only one indexed filter.
 
 [0.4.3] - 2021-02-23
 ====================

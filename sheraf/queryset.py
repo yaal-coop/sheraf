@@ -109,25 +109,6 @@ class QuerySet(object):
 
         return "<QuerySet>"
 
-    def _model_has_expected_values(self, model):
-        for filter_name, expected_value, filter_transformation in self.filters.values():
-            if filter_name in model.indexes:
-                index = model.indexes[filter_name]
-
-                if filter_transformation:
-                    if not set(
-                        index.details.call_search_func(model, expected_value)
-                    ) & set(index.details.get_model_values(model)):
-                        return False
-                else:
-                    if expected_value not in index.details.get_model_values(model):
-                        return False
-
-            elif filter_name in model.attributes:
-                if getattr(model, filter_name) != expected_value:
-                    return False
-        return True
-
     def __next__(self):
         if not self._iterator:
             self._init_iterator()
@@ -161,19 +142,6 @@ class QuerySet(object):
 
     def __xor__(self, other):
         return QuerySet(difference(OOTreeSet(self), OOTreeSet(other)))
-
-    def count(self):
-        """
-        :return: The number of objects in the
-            :class:`~sheraf.queryset.QuerySet`, but consumes it.
-
-        >>> with sheraf.connection():
-        ...     assert Cowboy.create()
-        ...     qs = Cowboy.all()
-        ...     assert qs.count() == 1
-        ...     assert qs.count() == 0
-        """
-        return sum(1 for _ in self)
 
     def __getitem__(self, item):
         self._init_iterator()
@@ -277,6 +245,60 @@ class QuerySet(object):
             )
 
         self._iterator = iter(self._iterable)
+
+    def _model_has_expected_values(self, model):
+        for filter_name, expected_value, filter_transformation in self.filters.values():
+            if filter_name in model.indexes:
+                index = model.indexes[filter_name]
+
+                if filter_transformation:
+                    if not set(
+                        index.details.call_search_func(model, expected_value)
+                    ) & set(index.details.get_model_values(model)):
+                        return False
+                else:
+                    if expected_value not in index.details.get_model_values(model):
+                        return False
+
+            elif filter_name in model.attributes:
+                if getattr(model, filter_name) != expected_value:
+                    return False
+        return True
+
+    def count(self):
+        """
+        :return: The number of objects in the
+            :class:`~sheraf.queryset.QuerySet`, but consumes it.
+
+        >>> with sheraf.connection():
+        ...     assert Cowboy.create()
+        ...     qs = Cowboy.all()
+        ...     assert qs.count() == 1
+        ...     assert qs.count() == 0
+        """
+        # No shortcut possible when there is a predicate
+        if (
+            self._predicate
+            or not self.model
+            or len(self.filters) > 1
+            or not self.filters
+        ):
+            return sum(1 for _ in self)
+
+        index_name = list(self.filters.keys())[0]
+        index_value = list(self.filters.values())[0][1]
+        if index_name not in self.model.indexes:
+            return sum(1 for _ in self)
+
+        index = self.model.indexes[index_name]
+        if not index.has_item(index_value):
+            return 0
+
+        if index.details.unique:
+            return 1
+
+        else:
+            return len(index.get_item(index_value))
 
     def copy(self):
         """Copies the :class:`~sheraf.queryset.QuerySet` without consuming it.
