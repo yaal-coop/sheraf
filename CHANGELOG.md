@@ -1,3 +1,12 @@
+[0.4.4] - 2021-02-26
+====================
+
+Added
+*****
+
+- :meth:`~sheraf.models.indexation.IndexedModel.count` method can take an index name
+  as a parameter.
+
 [0.4.3] - 2021-02-23
 ====================
 

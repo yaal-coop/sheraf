@@ -48,15 +48,19 @@ def test_read_these_invalid_calls(sheraf_connection):
         MyModel.read_these(yolo=["foo"])
 
 
-def test_count(sheraf_database):
+def test_count(sheraf_connection):
     class M(tests.UUIDAutoModel):
-        pass
+        foo = sheraf.IntegerAttribute()
+        evens = sheraf.Index(foo, values=lambda x: {x} if x % 2 == 0 else {})
 
-    with sheraf.connection():
-        assert 0 == M.count()
-        M.create()
-        M.create()
-        assert 2 == M.count()
+    assert 0 == M.count()
+    assert 0 == M.count("evens")
+
+    M.create(foo=1)
+    M.create(foo=2)
+
+    assert 2 == M.count()
+    assert 1 == M.count("evens")
 
 
 def test_default_id(sheraf_database):
