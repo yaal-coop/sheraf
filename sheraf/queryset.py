@@ -476,18 +476,7 @@ class QuerySet(object):
         Several order parameters can be passed, either as arguments of the
         function, or by calling :func:`~sheraf.queryset.QuerySet.order` calls.
 
-        .. warning:: Arguments order is only kept since ``Python 3.6``, so
-            using multiple `order` parameters will result on undefined order
-            for ``Python 3.5-``. If you are using ``Python 3.5-`` and need
-            several :class:`~sheraf.queryset.QuerySet` orders, prefer chaining
-            `order` method calls.
-
-        >>> with sheraf.connection(): # TODO: not skip # doctest: +SKIP
-        ...     assert [george, peter, steven] == Cowboy.all().order(age=sheraf.DESC)
-        ...     assert [george, steven, peter] == Cowboy.all().order(age=sheraf.DESC) \\
-        ...                                                   .order(name=sheraf.ASC)
-        >>> # Only since Python 3.6 # doctest: +SKIP
-        ... with sheraf.connection():
+        >>> with sheraf.connection():
         ...     assert [george, steven, peter] == Cowboy.all().order(age=sheraf.DESC, name=sheraf.ASC)
 
         .. note:: Sorting on indexed attributes is more performant than
