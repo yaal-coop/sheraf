@@ -156,6 +156,7 @@ def commit(f=None):
         if not connection:
             raise sheraf.exceptions.NotConnectedException()
         connection.transaction_manager.commit()
+        return
 
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
