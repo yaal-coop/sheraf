@@ -461,9 +461,9 @@ class QuerySet(object):
         The default order is the ascending model ids.
 
         >>> with sheraf.connection(commit=True):
-        ...     peter = Cowboy.create(name="Peter")
-        ...     steven = Cowboy.create(name="Steven")
-        ...     george = Cowboy.create(name="George")
+        ...     peter = Cowboy.create(name="Peter", age=35)
+        ...     steven = Cowboy.create(name="Steven", age=35)
+        ...     george = Cowboy.create(name="George", age=50)
         ...
         >>> with sheraf.connection():
         ...     assert [peter, steven, george] == Cowboy.all()
@@ -477,7 +477,7 @@ class QuerySet(object):
         function, or by calling :func:`~sheraf.queryset.QuerySet.order` calls.
 
         >>> with sheraf.connection():
-        ...     assert [george, steven, peter] == Cowboy.all().order(age=sheraf.DESC, name=sheraf.ASC)
+        ...     assert [george, peter, steven] == Cowboy.all().order(age=sheraf.DESC, name=sheraf.ASC)
 
         .. note:: Sorting on indexed attributes is more performant than
             sorting on other attributes. See
