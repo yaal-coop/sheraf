@@ -410,7 +410,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 if self.mapping is not None and self.primary_key() in self.mapping
                 else None
             )
-        except sheraf.NotConnectedException:
+        except:
             identifier = "???"
 
         return "<{} {}={}>".format(
