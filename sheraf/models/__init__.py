@@ -45,6 +45,23 @@ class IntIndexedModel:
     )
 
 
+class IntOrderedIndexedModel:
+    """Model using increasing integers as ids.
+
+
+    >>> class MyIntModel(sheraf.IntOrderedIndexedModel):
+    ...     table = "my_int_model"
+    ...
+    >>> with sheraf.connection():  # doctest: +SKIP
+    ...     MyIntModel.create().id
+    ...     MyIntModel.create().id
+    0
+    1
+    """
+
+    id = IntegerAttribute(default=lambda m: m.count()).index(primary=True)
+
+
 class IntIndexedNamedAttributesModel(
     NamedAttributesModel, IntIndexedModel, IndexedModel
 ):
@@ -52,11 +69,9 @@ class IntIndexedNamedAttributesModel(
 
 
 class IntOrderedNamedAttributesModel(
-    NamedAttributesModel, IntIndexedModel, IndexedModel
+    NamedAttributesModel, IntOrderedIndexedModel, IndexedModel
 ):
     """The ids are 64bits integers, distributed ascendently starting at 0."""
-
-    id = IntegerAttribute(default=lambda m: m.count()).index(primary=True)
 
 
 class UUIDIndexedNamedAttributesModel(

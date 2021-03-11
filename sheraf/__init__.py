@@ -64,6 +64,7 @@ from .models import (
     IntIndexedModel,
     IntIndexedNamedAttributesModel,
     IntOrderedNamedAttributesModel,
+    IntOrderedIndexedModel,
     Model,
     UUIDIndexedDatedNamedAttributesModel,
     UUIDIndexedModel,
