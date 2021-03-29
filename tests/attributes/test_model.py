@@ -64,13 +64,26 @@ def test_set_to_none(sheraf_connection):
 
 
 def test_create(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel1)
 
-    model = ModelForTest.create(submodel={"name": "A"})
+    model = Model.create(submodel={"name": "A"})
     assert isinstance(model.submodel, Submodel1)
     assert isinstance(model.submodel.mapping, sheraf.types.SmallDict)
     assert "A" == model.submodel.name
+
+
+def test_delete(sheraf_connection):
+    class Model(tests.UUIDAutoModel):
+        submodel = sheraf.ModelAttribute(Submodel1)
+
+    sub1 = Submodel1.create(name="foobar")
+    m = Model.create(submodel=sub1)
+    assert m.submodel.name == "foobar"
+
+    sub1.delete()
+
+    assert m.submodel is None
 
 
 def test_update_edition(sheraf_database):

@@ -162,19 +162,14 @@ class Attribute(object):
         """
         return new_value if edition else old_value
 
-    def delattr(self, parent):
-        # Internal. delete attribute from its owner
-        # TODO: We should remove this try/except
-        try:
-            del parent.mapping[self.key(parent)]
-        except KeyError:
-            pass
-
     def save(self, parent):
         pass
 
     def delete(self, parent):
-        pass
+        try:
+            del parent.mapping[self.key(parent)]
+        except KeyError:
+            pass
 
     def index(
         self,

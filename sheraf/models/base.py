@@ -152,7 +152,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
     def __delattr__(self, name):
         if name in self.attributes:
-            self.attributes[name].delattr(self)
+            self.attributes[name].delete(self)
             try:
                 super().__delattr__(name)
             except AttributeError:

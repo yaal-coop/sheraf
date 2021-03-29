@@ -140,6 +140,8 @@ class ModelAttribute(ModelLoader, Attribute):
             raise sheraf.exceptions.SherafException(
                 "ModelAttribute requires model parameter."
             )
+        kwargs["read_memoization"] = False
+        kwargs["write_memoization"] = False
         super().__init__(default=None, model=model, **kwargs)
 
     def values(self, model):
