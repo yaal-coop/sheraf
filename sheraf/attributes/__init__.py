@@ -3,18 +3,12 @@ from BTrees.OOBTree import OOBTree
 from sheraf.attributes.index import Index
 
 
-READ_MEMOIZATION = False
-WRITE_MEMOIZATION = True
-
-
 def set_read_memoization(should_memoize_read):
-    global READ_MEMOIZATION
-    READ_MEMOIZATION = should_memoize_read
+    Attribute.read_memoization = should_memoize_read
 
 
 def set_write_memoization(should_memoize_write):
-    global WRITE_MEMOIZATION
-    WRITE_MEMOIZATION = should_memoize_write
+    Attribute.write_memoization = should_memoize_write
 
 
 class Attribute(object):
@@ -43,6 +37,8 @@ class Attribute(object):
     default_index_mapping = OOBTree
     nullok = True
     noneok = False
+    read_memoization = False
+    write_memoization = True
 
     def __init__(
         self,
@@ -56,12 +52,13 @@ class Attribute(object):
         self._default_value = default
         self.attribute_name = None
         self._key = key
-        self.read_memoization = (
-            READ_MEMOIZATION if read_memoization is None else read_memoization
-        )
-        self.write_memoization = (
-            WRITE_MEMOIZATION if write_memoization is None else write_memoization
-        )
+
+        if read_memoization is not None:
+            self.read_memoization = read_memoization
+
+        if write_memoization is not None:
+            self.write_memoization = write_memoization
+
         self.lazy = lazy
         self.store_default_value = store_default_value
         self.indexes = {}
