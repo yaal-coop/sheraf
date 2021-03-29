@@ -164,11 +164,14 @@ def test_delete_model_with_file_attribute(sheraf_temp_dir, sheraf_connection):
     s = FileStorable.create()
     s.logo = {"extension": "EXT", "stream": b"STREAM"}
     s.save()
+
+    rel_path = os.path.join(FileStorable.table, "logo", s.id + ".EXT")
+    abs_path = os.path.join(sheraf.attributes.files.FILES_ROOT_DIR, rel_path)
+    assert os.path.exists(abs_path)
+
     s.delete()
 
     assert FileStorable.count() == 0
-    rel_path = os.path.join(FileStorable.table, "logo", s.id + ".EXT")
-    abs_path = os.path.join(sheraf.attributes.files.FILES_ROOT_DIR, rel_path)
     assert os.path.exists(abs_path)
     assert rel_path in sheraf.FilesGarbageCollector.instance()
     assert abs_path in sheraf.FilesGarbageCollector.instance()
@@ -189,10 +192,13 @@ def test_delete_model_with_file_attribute_and_relative_root_file_dir(
     s = FileStorable.create()
     s.my_file = sheraf.FileObject(stream=b"yolo", extension="txt")
     s.save()
-    s.delete()
 
     rel_path = os.path.join(FileStorable.table, "my_file", s.id + ".txt")
     abs_path = os.path.join(sheraf.attributes.files.FILES_ROOT_DIR, rel_path)
+    assert os.path.exists(abs_path)
+
+    s.delete()
+
     assert os.path.exists(abs_path)
     assert rel_path in sheraf.FilesGarbageCollector.instance()
     assert abs_path in sheraf.FilesGarbageCollector.instance()
