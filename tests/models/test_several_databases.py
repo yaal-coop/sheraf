@@ -16,7 +16,7 @@ def db2(request):
 
 
 def test_model_create_in_default_connection(sheraf_database, db2):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         pass
 
     class MyDefaultModel(tests.UUIDAutoModel):
@@ -27,7 +27,7 @@ def test_model_create_in_default_connection(sheraf_database, db2):
 
     with sheraf.connection(commit=True) as connection:
         rootd = connection.root()
-        m = MyModel.create()
+        m = Model.create()
         md = MyDefaultModel.create()
         m2 = MyDB2Model.create()
 
@@ -35,11 +35,11 @@ def test_model_create_in_default_connection(sheraf_database, db2):
         rootd = connection.root()
         root2 = connection.get_connection("db2").root()
 
-        assert m.id in rootd[MyModel.table]["id"]
+        assert m.id in rootd[Model.table]["id"]
         assert md.id in rootd[MyDefaultModel.table]["id"]
         assert m2.id in root2[MyDB2Model.table]["id"]
 
-        assert MyModel.table not in root2
+        assert Model.table not in root2
         assert MyDefaultModel.table not in root2
         assert MyDB2Model.table not in rootd
 
@@ -71,36 +71,36 @@ def test_database_retrocompatibility(sheraf_database, db2):
     be able to delete instances created in the old database.
     """
 
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         pass
 
     with sheraf.connection(commit=True):
-        m1 = MyModel.create()
+        m1 = Model.create()
 
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         database_name = "db2"
 
     with sheraf.connection() as connection:
         root1 = connection.root()
         root2 = connection.get_connection("db2").root()
 
-        m2 = MyModel.create()
-        assert root1[MyModel.table]["id"][m1.id] is m1.mapping
-        assert m1.id not in root2[MyModel.table]["id"]
-        assert m1.mapping == MyModel.read(m1.id).mapping
-        assert MyModel.count() == 2
-        assert list(MyModel.all()) == [m2, m1]
+        m2 = Model.create()
+        assert root1[Model.table]["id"][m1.id] is m1.mapping
+        assert m1.id not in root2[Model.table]["id"]
+        assert m1.mapping == Model.read(m1.id).mapping
+        assert Model.count() == 2
+        assert list(Model.all()) == [m2, m1]
 
         m1.delete()
-        assert m1.id not in root1[MyModel.table]["id"]
-        assert MyModel.count() == 1
+        assert m1.id not in root1[Model.table]["id"]
+        assert Model.count() == 1
 
 
 def test_make_id(sheraf_database, db2):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         pass
 
-    class ModelWithProposeId(MyModel):
+    class ModelWithProposeId(Model):
         table = "modelwithproposeid"
         id = sheraf.IntegerAttribute(default=lambda m: m.count()).index(primary=True)
 
@@ -110,10 +110,10 @@ def test_make_id(sheraf_database, db2):
         assert m0.id == 0
         assert m1.id == 1
 
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         database_name = "db2"
 
-    class ModelWithProposeId(MyModel):
+    class ModelWithProposeId(Model):
         table = "modelwithproposeid"
         id = sheraf.IntegerAttribute(default=lambda m: m.count()).index(primary=True)
 

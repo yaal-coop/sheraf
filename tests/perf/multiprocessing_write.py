@@ -12,8 +12,8 @@ class PerfConcurrentDB:
 
     @classmethod
     def concurrent_creation(cls):
-        class ModelForTest(sheraf.Model):
-            table = "ModelForTest"
+        class Model(sheraf.Model):
+            table = "Model"
             status = sheraf.SimpleAttribute()
 
         first_id = None
@@ -22,15 +22,15 @@ class PerfConcurrentDB:
 
         try:
             with sheraf.connection(commit=True) as conn:
-                if conn.root().get(ModelForTest.table) is None:
-                    first_id = ModelForTest.create(status=1)
+                if conn.root().get(Model.table) is None:
+                    first_id = Model.create(status=1)
 
             def process(uri, barrier):
                 sheraf.Database(uri)
                 with sheraf.connection(commit=True):
-                    ModelForTest.read(first_id.id)
+                    Model.read(first_id.id)
                     barrier.wait()
-                    ModelForTest.create(status=1)
+                    Model.create(status=1)
 
             processes = []
 

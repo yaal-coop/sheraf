@@ -8,12 +8,12 @@ import tests
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_list_attribute(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         list = sheraf.ListAttribute(
             attribute=subattribute, persistent_type=persistent_type
         )
 
-    m = ModelTest.create()
+    m = Model.create()
     assert len(m.list) == 0
     assert not m.list
     m.list.append(1)
@@ -59,12 +59,12 @@ def test_list_attribute(sheraf_connection, persistent_type, subattribute):
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.SimpleAttribute()])
 def test_primitive_type(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         _list = sheraf.ListAttribute(
             attribute=subattribute, persistent_type=persistent_type
         )
 
-    m = ModelTest.create()
+    m = Model.create()
     m._list = list()
     assert isinstance(m.mapping["_list"], persistent_type)
 
@@ -74,12 +74,12 @@ def test_primitive_type(sheraf_connection, persistent_type, subattribute):
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.SimpleAttribute()])
 def test_sherafmapping_type(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         _list = sheraf.ListAttribute(
             attribute=subattribute, persistent_type=persistent_type
         )
 
-    m = ModelTest.create()
+    m = Model.create()
     m._list = persistent_type([1, 2])
     assert isinstance(m.mapping["_list"], persistent_type)
 
@@ -89,12 +89,12 @@ def test_sherafmapping_type(sheraf_connection, persistent_type, subattribute):
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_list_attribute_update(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         list = sheraf.ListAttribute(
             attribute=subattribute, persistent_type=persistent_type
         )
 
-    m = ModelTest.create()
+    m = Model.create()
     m.list = [1, 2, 3]
 
     m.edit({"list": [1, 2]}, deletion=True)
@@ -112,7 +112,7 @@ def test_list_attribute_update(sheraf_connection, persistent_type, subattribute)
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_nested(sheraf_database, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         list = sheraf.ListAttribute(
             attribute=sheraf.ListAttribute(
                 attribute=subattribute, persistent_type=persistent_type
@@ -121,7 +121,7 @@ def test_nested(sheraf_database, persistent_type, subattribute):
         )
 
     with sheraf.connection(commit=True):
-        m = ModelTest.create(list=[[0, 1], [2, 3]])
+        m = Model.create(list=[[0, 1], [2, 3]])
 
         assert 0 == m.list[0][0]
         assert 1 == m.list[0][1]
@@ -132,7 +132,7 @@ def test_nested(sheraf_database, persistent_type, subattribute):
         assert [0, 1] == list(m.list[0])
 
     with sheraf.connection(commit=True):
-        m = ModelTest.read(m.id)
+        m = Model.read(m.id)
 
         assert 0 == m.list[0][0]
         assert 1 == m.list[0][1]
@@ -148,22 +148,22 @@ def test_nested(sheraf_database, persistent_type, subattribute):
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.StringAttribute()])
 def test_indexation(sheraf_database, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         list = sheraf.ListAttribute(
             subattribute,
             persistent_type=persistent_type,
         ).index()
 
     with sheraf.connection(commit=True) as conn:
-        m = ModelTest.create(list=["foo", "bar"])
-        assert m.mapping in conn.root()[ModelTest.table]["list"]["foo"]
-        assert m.mapping in conn.root()[ModelTest.table]["list"]["bar"]
-        assert [m] == list(ModelTest.search(list="foo"))
+        m = Model.create(list=["foo", "bar"])
+        assert m.mapping in conn.root()[Model.table]["list"]["foo"]
+        assert m.mapping in conn.root()[Model.table]["list"]["bar"]
+        assert [m] == list(Model.search(list="foo"))
 
         m.list = ["bar", "baz"]
-        assert m.mapping in conn.root()[ModelTest.table]["list"]["bar"]
-        assert m.mapping in conn.root()[ModelTest.table]["list"]["baz"]
-        assert "foo" not in conn.root()[ModelTest.table]["list"]
+        assert m.mapping in conn.root()[Model.table]["list"]["bar"]
+        assert m.mapping in conn.root()[Model.table]["list"]["baz"]
+        assert "foo" not in conn.root()[Model.table]["list"]
 
 
 @pytest.mark.parametrize(
@@ -171,19 +171,19 @@ def test_indexation(sheraf_database, persistent_type, subattribute):
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.StringAttribute()])
 def test_indexation_limitation(sheraf_database, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         list = sheraf.ListAttribute(
             subattribute,
             persistent_type=persistent_type,
         ).index()
 
     with sheraf.connection(commit=True) as conn:
-        m = ModelTest.create(list=["foo", "bar"])
-        assert m.mapping in conn.root()[ModelTest.table]["list"]["foo"]
-        assert m.mapping in conn.root()[ModelTest.table]["list"]["bar"]
-        assert [m] == list(ModelTest.search(list="foo"))
-        assert [m] == list(ModelTest.search(list="bar"))
-        assert [] == list(ModelTest.search(list="baz"))
+        m = Model.create(list=["foo", "bar"])
+        assert m.mapping in conn.root()[Model.table]["list"]["foo"]
+        assert m.mapping in conn.root()[Model.table]["list"]["bar"]
+        assert [m] == list(Model.search(list="foo"))
+        assert [m] == list(Model.search(list="bar"))
+        assert [] == list(Model.search(list="baz"))
 
         # TODO: This behavior should be fixed one day.
         # https://gitlab.com/yaal/sheraf/-/issues/14
@@ -192,20 +192,20 @@ def test_indexation_limitation(sheraf_database, persistent_type, subattribute):
         m.list.append("baz")
         assert ["bar", "baz"] == list(m.list)
 
-        assert m.mapping in conn.root()[ModelTest.table]["list"]["foo"]
-        assert m.mapping in conn.root()[ModelTest.table]["list"]["bar"]
-        assert "baz" not in conn.root()[ModelTest.table]["list"]
+        assert m.mapping in conn.root()[Model.table]["list"]["foo"]
+        assert m.mapping in conn.root()[Model.table]["list"]["bar"]
+        assert "baz" not in conn.root()[Model.table]["list"]
 
-        assert [] == list(ModelTest.search(list="foo"))
-        assert [m] == list(ModelTest.search(list="bar"))
-        assert [] == list(ModelTest.search(list="baz"))
+        assert [] == list(Model.search(list="foo"))
+        assert [m] == list(Model.search(list="bar"))
+        assert [] == list(Model.search(list="baz"))
 
 
 @pytest.mark.parametrize(
     "persistent_type", [sheraf.types.SmallList, sheraf.types.LargeList]
 )
 def test_nested_indexation(sheraf_database, persistent_type):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         list = sheraf.ListAttribute(
             sheraf.ListAttribute(
                 sheraf.StringAttribute(),
@@ -215,11 +215,11 @@ def test_nested_indexation(sheraf_database, persistent_type):
         ).index()
 
     with sheraf.connection(commit=True) as conn:
-        m = ModelTest.create(list=[["foo", "bar"], ["baz"]])
-        assert m.mapping in conn.root()[ModelTest.table]["list"]["foo"]
-        assert m.mapping in conn.root()[ModelTest.table]["list"]["bar"]
-        assert m.mapping in conn.root()[ModelTest.table]["list"]["baz"]
-        assert [m] == list(ModelTest.search(list="foo"))
+        m = Model.create(list=[["foo", "bar"], ["baz"]])
+        assert m.mapping in conn.root()[Model.table]["list"]["foo"]
+        assert m.mapping in conn.root()[Model.table]["list"]["bar"]
+        assert m.mapping in conn.root()[Model.table]["list"]["baz"]
+        assert [m] == list(Model.search(list="foo"))
 
 
 @pytest.mark.parametrize(

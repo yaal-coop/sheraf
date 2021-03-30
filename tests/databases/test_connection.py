@@ -9,7 +9,7 @@ import sheraf
 import tests
 
 
-class AModel(tests.UUIDAutoModel):
+class Model(tests.UUIDAutoModel):
     field = sheraf.SimpleAttribute()
 
 
@@ -23,11 +23,11 @@ def test_connection(sheraf_database):
             reuse=False,
             _trackeback_shift=2,
         )
-        m = AModel.create(field="foo")
+        m = Model.create(field="foo")
 
     @sheraf.connection()
     def read(mid):
-        m = AModel.read(mid)
+        m = Model.read(mid)
         assert "foo" == m.field
 
     read(m.id)
@@ -40,7 +40,7 @@ def test_connection(sheraf_database):
 
     @sheraf.connection(commit=True, cache_minimize=True)
     def update(mid):
-        m = AModel.read(mid)
+        m = Model.read(mid)
         assert "foo" == m.field
         m.field = "bar"
 
@@ -60,7 +60,7 @@ def test_connection(sheraf_database):
             _trackeback_shift=2,
         )
 
-        m = AModel.read(m.id)
+        m = Model.read(m.id)
         assert "bar" == m.field
 
 
@@ -87,13 +87,13 @@ def test_current_connection(cacheMinimize, sheraf_database):
 @mock.patch("ZODB.Connection.Connection.cacheMinimize")
 def test_without_args(cacheMinimize, sheraf_database):
     with sheraf.connection(commit=True):
-        m = AModel.create()
+        m = Model.create()
 
     with sheraf.connection():
         m.field = "yeah"
 
     with sheraf.connection():
-        m = AModel.read(m.id)
+        m = Model.read(m.id)
         assert not m.field
     assert not cacheMinimize.called
 
@@ -101,7 +101,7 @@ def test_without_args(cacheMinimize, sheraf_database):
 @mock.patch("ZODB.Connection.Connection.cacheMinimize")
 def test_without_args_and_with_exception(cacheMinimize, sheraf_database):
     with sheraf.connection(commit=True):
-        m = AModel.create()
+        m = Model.create()
 
     try:
         with sheraf.connection():
@@ -111,7 +111,7 @@ def test_without_args_and_with_exception(cacheMinimize, sheraf_database):
         pass
 
     with sheraf.connection():
-        m = AModel.read(m.id)
+        m = Model.read(m.id)
         assert not m.field
     assert not cacheMinimize.called
 
@@ -119,13 +119,13 @@ def test_without_args_and_with_exception(cacheMinimize, sheraf_database):
 @mock.patch("ZODB.Connection.Connection.cacheMinimize")
 def test_with_commit(cacheMinimize, sheraf_database):
     with sheraf.connection(commit=True):
-        m = AModel.create()
+        m = Model.create()
 
     with sheraf.connection(commit=True):
         m.field = "yeah"
 
     with sheraf.connection():
-        m = AModel.read(m.id)
+        m = Model.read(m.id)
         assert "yeah" == m.field
     assert not cacheMinimize.called
 
@@ -133,7 +133,7 @@ def test_with_commit(cacheMinimize, sheraf_database):
 @mock.patch("ZODB.Connection.Connection.cacheMinimize")
 def test_with_commit_and_exception(cacheMinimize, sheraf_database):
     with sheraf.connection(commit=True):
-        m = AModel.create()
+        m = Model.create()
 
     try:
         with sheraf.connection(commit=True):
@@ -143,7 +143,7 @@ def test_with_commit_and_exception(cacheMinimize, sheraf_database):
         pass
 
     with sheraf.connection():
-        m = AModel.read(m.id)
+        m = Model.read(m.id)
         assert not m.field
     assert not cacheMinimize.called
 

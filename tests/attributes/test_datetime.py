@@ -8,13 +8,13 @@ import tests
 
 
 def test_datetime_timestamp(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         date = sheraf.DateTimeAttribute()
 
-    m = ModelForTest.create()
+    m = Model.create()
     assert m.date is None
 
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     test_date = datetime.datetime(2014, 8, 16, 10, 10, 1, 1)
     m.date = test_date
     assert test_date == m.date
@@ -26,21 +26,21 @@ def test_datetime_timestamp(sheraf_connection):
     m.toto = test_date2
     assert test_date2 == m.toto
 
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     with pytest.raises(AttributeError):
         m.toto
     assert test_date == m.date
 
     m.date = None
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     assert m.date is None
 
 
 def test_datetime_timezoned_timestamp(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         date = sheraf.DateTimeAttribute()
 
-    m = ModelForTest.create()
+    m = Model.create()
     test_date = datetime.datetime(
         2014, 8, 16, 10, 10, 1, 1, tzinfo=pytz.timezone("US/Eastern")
     )
@@ -48,7 +48,7 @@ def test_datetime_timezoned_timestamp(sheraf_connection):
 
     sanitized_test_date = test_date.replace(tzinfo=None)
     assert sanitized_test_date == m.date
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     assert sanitized_test_date == m.date
     assert (
         sanitized_test_date - datetime.datetime(1970, 1, 1)
@@ -58,13 +58,13 @@ def test_datetime_timezoned_timestamp(sheraf_connection):
 def test_datetime_default(sheraf_connection):
     _default_test_date = datetime.datetime(2016, 8, 16, 10, 10, 1, 1)
 
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         _date = sheraf.DateTimeAttribute(default=_default_test_date)
 
-    m = ModelForTest.create()
+    m = Model.create()
     assert _default_test_date == m._date
 
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     _test_date = datetime.datetime(2014, 8, 16, 10, 10, 1, 1)
     m._date = _test_date
     assert _test_date == m._date
@@ -73,7 +73,7 @@ def test_datetime_default(sheraf_connection):
     m.toto = _test_date2
     assert _test_date2 == m.toto
 
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     with pytest.raises(AttributeError):
         m.toto
     assert _test_date == m._date
@@ -83,12 +83,12 @@ def test_datetime_default(sheraf_connection):
 def test_datetime_creation_datetime(sheraf_database):
     sheraf_database.reset()
 
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         something = sheraf.SimpleAttribute()
 
     with libfaketime.fake_time("2014-08-04 02:00:00") as fk:
         with sheraf.connection() as conn:
-            m = ModelForTest.create()
+            m = Model.create()
             fk.tick()
             assert m.creation_datetime() is None
             conn.transaction_manager.commit()
@@ -97,7 +97,7 @@ def test_datetime_creation_datetime(sheraf_database):
 
     with libfaketime.fake_time("2014-08-04 03:00:00"):
         with sheraf.connection():
-            m = ModelForTest.read(m.id)
+            m = Model.read(m.id)
             assert datetime.datetime(2014, 8, 4, 2, 0, 0) == m.creation_datetime()
 
 
@@ -106,12 +106,12 @@ def test_datetime_creation_datetime_deprecated_format(sheraf_database):
     """Pour les vieux models avec l'ancien format de meta dates."""
     sheraf_database.reset()
 
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         pass
 
     with sheraf.connection() as conn:
         _datetime = datetime.datetime(2014, 8, 4, 1, 1)
-        m = ModelForTest.create()
+        m = Model.create()
         conn.transaction_manager.commit()
 
         for date_format in ("%d/%m/%Y %H:%M:%S:%f", "%d/%m/%Y %H:%M"):
@@ -123,24 +123,24 @@ def test_datetime_creation_datetime_deprecated_format(sheraf_database):
 def test_datetime_lastupdate_datetime(sheraf_database):
     sheraf_database.reset()
 
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         pass
 
     with libfaketime.fake_time("2014-08-04 02:00:00") as fk:
         with sheraf.connection(commit=True) as conn:
-            m = ModelForTest.create()
+            m = Model.create()
             fk.tick()
             assert m.last_update_datetime() is None
             conn.transaction_manager.commit()
             assert datetime.datetime(2014, 8, 4, 2, 0, 1) == m.last_update_datetime()
 
     with sheraf.connection():
-        m = ModelForTest.read(m.id)
+        m = Model.read(m.id)
         assert datetime.datetime(2014, 8, 4, 2, 0, 1) == m.last_update_datetime()
 
     with libfaketime.fake_time("2014-08-04 08:00:00") as fk:
         with sheraf.connection(commit=True) as conn:
-            m = ModelForTest.read(m.id)
+            m = Model.read(m.id)
             m.save()
             fk.tick()
             assert datetime.datetime(2014, 8, 4, 2, 0, 1) == m.last_update_datetime()
@@ -152,23 +152,23 @@ def test_datetime_lastupdate_datetime(sheraf_database):
 def test_datetime_lastupdate_datetime_setattr(sheraf_database):
     sheraf_database.reset()
 
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         attr = sheraf.SimpleAttribute()
 
     with libfaketime.fake_time("2014-08-04 02:00:00"):
         with sheraf.connection(commit=True):
-            m = ModelForTest.create()
+            m = Model.create()
 
     with libfaketime.fake_time("2014-08-04 06:00:00"):
         with sheraf.connection() as conn:
-            m = ModelForTest.read(m.id)
+            m = Model.read(m.id)
             m.attr = 42
             assert datetime.datetime(2014, 8, 4, 2) == m.last_update_datetime()
             conn.transaction_manager.commit()
             assert datetime.datetime(2014, 8, 4, 6) == m.last_update_datetime()
 
     with sheraf.connection():
-        m = ModelForTest.read(m.id)
+        m = Model.read(m.id)
         assert datetime.datetime(2014, 8, 4, 6) == m.last_update_datetime()
 
 
@@ -177,11 +177,11 @@ def test_datetime_default_meta_datetimes(sheraf_database):
     sheraf_database.reset()
     """ Pour les vieux models ne possèdant pas de meta dates (création et dernière mise à jour) """
 
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         pass
 
     with sheraf.connection():
-        m = ModelForTest.create()
+        m = Model.create()
         assert m.creation_datetime() is None
         assert m.last_update_datetime() is None
 
@@ -190,11 +190,11 @@ def test_datetime_default_meta_datetimes(sheraf_database):
 def test_datetime_auto_initialization(sheraf_database):
     sheraf_database.reset()
 
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         dta = sheraf.DateTimeAttribute(lazy=False, default=datetime.datetime.now)
 
     with sheraf.connection():
-        assert datetime.datetime(2014, 8, 4, 1, 1, 1) == MyModel.create().dta
+        assert datetime.datetime(2014, 8, 4, 1, 1, 1) == Model.create().dta
 
 
 def test_time_attribute(sheraf_database):

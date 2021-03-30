@@ -5,20 +5,20 @@ import tests
 
 
 def test_boolean(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         opt = sheraf.BooleanAttribute()
 
-    m = ModelForTest.create()
+    m = Model.create()
     assert m.opt is False
 
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     m.opt = True
     assert m.opt is True
 
     m.toto = mock.sentinel.TOTO
     assert mock.sentinel.TOTO == m.toto
 
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     with pytest.raises(AttributeError):
         m.toto
     assert m.opt is True
@@ -44,8 +44,8 @@ def test_int_casting(sheraf_database):
 
 
 def test_True_is_settable(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         opt = sheraf.BooleanAttribute(default=True)
 
-    m = ModelForTest.create()
+    m = Model.create()
     assert m.opt is True

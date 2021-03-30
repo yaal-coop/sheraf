@@ -8,12 +8,12 @@ import tests
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_dict_attribute(sheraf_connection, persistent_type, subattribute):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         dict = sheraf.DictAttribute(
             attribute=subattribute, persistent_type=persistent_type
         )
 
-    m = ModelForTest.create()
+    m = Model.create()
     assert not m.dict
     assert 0 == len(m.dict)
 
@@ -35,7 +35,7 @@ def test_dict_attribute(sheraf_connection, persistent_type, subattribute):
         assert "a" == m.dict.minKey()
         assert "b" == m.dict.maxKey()
 
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     assert 0 == m.dict["a"]
     assert 1 == m.dict["b"]
 
@@ -62,12 +62,12 @@ def test_dict_attribute(sheraf_connection, persistent_type, subattribute):
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_primitive_type(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         _dict = sheraf.DictAttribute(
             attribute=subattribute, persistent_type=persistent_type
         )
 
-    m = ModelTest.create()
+    m = Model.create()
     m._dict = dict()
     assert isinstance(m.mapping["_dict"], persistent_type)
 
@@ -77,12 +77,12 @@ def test_primitive_type(sheraf_connection, persistent_type, subattribute):
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_sheraf_type_dict(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         _dict = sheraf.DictAttribute(
             attribute=subattribute, persistent_type=persistent_type
         )
 
-    m = ModelTest.create()
+    m = Model.create()
     m._dict = sheraf.types.LargeDict({})
     assert isinstance(m.mapping["_dict"], persistent_type)
 
@@ -92,12 +92,12 @@ def test_sheraf_type_dict(sheraf_connection, persistent_type, subattribute):
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_dict_attribute_update(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         dict = sheraf.DictAttribute(
             attribute=subattribute, persistent_type=persistent_type
         )
 
-    m = ModelTest.create()
+    m = Model.create()
     m.dict = {"a": 0, "b": 1, "c": 2}
 
     m.edit({"dict": {"a": 0, "b": 1}}, deletion=True)
@@ -115,7 +115,7 @@ def test_dict_attribute_update(sheraf_connection, persistent_type, subattribute)
 )
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_nested(sheraf_database, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         dict = sheraf.DictAttribute(
             attribute=sheraf.DictAttribute(
                 attribute=subattribute, persistent_type=persistent_type
@@ -124,7 +124,7 @@ def test_nested(sheraf_database, persistent_type, subattribute):
         )
 
     with sheraf.connection(commit=True):
-        m = ModelTest.create(dict={"foo": {"bar": 0, "baz": 1}})
+        m = Model.create(dict={"foo": {"bar": 0, "baz": 1}})
 
         assert 0 == m.dict["foo"]["bar"]
         assert 1 == m.dict["foo"]["baz"]
@@ -134,7 +134,7 @@ def test_nested(sheraf_database, persistent_type, subattribute):
         assert {0, 1} == set(m.dict["foo"].values())
 
     with sheraf.connection(commit=True):
-        m = ModelTest.read(m.id)
+        m = Model.read(m.id)
 
         assert 0 == m.dict["foo"]["bar"]
         assert 1 == m.dict["foo"]["baz"]

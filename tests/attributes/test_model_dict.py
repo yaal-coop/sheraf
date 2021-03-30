@@ -4,28 +4,26 @@ import sheraf
 import tests
 
 
-class AModelForTest(tests.UUIDAutoModel):
+class AModel(tests.UUIDAutoModel):
     name = sheraf.SimpleAttribute()
 
 
 @pytest.mark.parametrize(
     "model",
     [
-        AModelForTest,
-        "{}.{}".format(AModelForTest.__module__, AModelForTest.__name__),
-        "{}.{}".format(AModelForTest.__module__, AModelForTest.__name__).encode(
-            "utf-8"
-        ),
+        AModel,
+        "{}.{}".format(AModel.__module__, AModel.__name__),
+        "{}.{}".format(AModel.__module__, AModel.__name__).encode("utf-8"),
     ],
 )
 def test_model_dict(sheraf_connection, model):
-    class AnotherModelForTest(tests.UUIDAutoModel):
+    class AnotherModel(tests.UUIDAutoModel):
         a_dict_for_test = sheraf.LargeDictAttribute(sheraf.ModelAttribute(model))
 
-    a = AModelForTest.create()
-    b = AModelForTest.create()
+    a = AModel.create()
+    b = AModel.create()
 
-    another = AnotherModelForTest.create()
+    another = AnotherModel.create()
     assert {} == dict(another.a_dict_for_test)
     another.a_dict_for_test.clear()
     assert {} == dict(another.a_dict_for_test)
@@ -36,7 +34,7 @@ def test_model_dict(sheraf_connection, model):
     another.a_dict_for_test["a"] = a
     another.a_dict_for_test["b"] = b
 
-    _another = AnotherModelForTest.read(another.id)
+    _another = AnotherModel.read(another.id)
     assert _another.a_dict_for_test["a"] == a
     assert _another.a_dict_for_test["b"] == b
     assert {"a": a, "b": b} == dict(_another.a_dict_for_test)
@@ -59,43 +57,41 @@ def test_model_dict(sheraf_connection, model):
     assert {} == dict(_another.a_dict_for_test)
 
     another.a_dict_for_test = {"a": a, "b": b}
-    _another = AnotherModelForTest.read(another.id)
+    _another = AnotherModel.read(another.id)
     assert {"a": a, "b": b} == dict(_another.a_dict_for_test)
 
 
 def test_error_if_delete_a_nonexisting_key(sheraf_connection):
-    class _AnotherModelForTest(tests.UUIDAutoModel):
-        a_dict_for_test = sheraf.LargeDictAttribute(
-            sheraf.ModelAttribute(AModelForTest)
-        )
+    class _AnotherModel(tests.UUIDAutoModel):
+        a_dict_for_test = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModel))
 
-    another = _AnotherModelForTest.create()
+    another = _AnotherModel.create()
     with pytest.raises(KeyError):
         del another.a_dict_for_test["a"]
 
 
 def test_create(sheraf_database):
-    class ModelForTest(tests.UUIDAutoModel):
-        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
+    class Model(tests.UUIDAutoModel):
+        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
-        model = ModelForTest.create(models={"a": {"name": "A"}, "b": {"name": "B"}})
+        model = Model.create(models={"a": {"name": "A"}, "b": {"name": "B"}})
         assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
-        assert isinstance(model.models["a"], AModelForTest)
+        assert isinstance(model.models["a"], AModel)
         assert isinstance(model.models["a"].mapping, sheraf.types.SmallDict)
         assert "A" == model.models["a"].name
 
     with sheraf.connection():
-        model = ModelForTest.read(model.id)
+        model = Model.read(model.id)
         assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
-        assert isinstance(model.models["a"], AModelForTest)
+        assert isinstance(model.models["a"], AModel)
         assert isinstance(model.models["a"].mapping, sheraf.types.SmallDict)
         assert "A" == model.models["a"].name
 
 
 def test_update_edition(sheraf_database):
     class Model(tests.UUIDAutoModel):
-        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
+        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models={"a": {"name": "c"}, "b": {"name": "c"}})
@@ -104,8 +100,8 @@ def test_update_edition(sheraf_database):
     with sheraf.connection(commit=True):
         model.edit(value={"models": {"a": {"name": "a"}, "b": {"name": "b"}}})
 
-        assert isinstance(model.models["a"], AModelForTest)
-        assert isinstance(model.models["b"], AModelForTest)
+        assert isinstance(model.models["a"], AModel)
+        assert isinstance(model.models["b"], AModel)
         assert "a" == model.models["a"].name
         assert "b" == model.models["b"].name
         assert last_sub_id == model.models["a"].id
@@ -113,8 +109,8 @@ def test_update_edition(sheraf_database):
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model.models["a"], AModelForTest)
-        assert isinstance(model.models["b"], AModelForTest)
+        assert isinstance(model.models["a"], AModel)
+        assert isinstance(model.models["b"], AModel)
         assert "a" == model.models["a"].name
         assert "b" == model.models["b"].name
         assert last_sub_id == model.models["a"].id
@@ -122,7 +118,7 @@ def test_update_edition(sheraf_database):
 
 def test_update_no_edition(sheraf_database):
     class Model(tests.UUIDAutoModel):
-        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
+        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models={"a": {"name": "c"}, "b": {"name": "c"}})
@@ -136,7 +132,7 @@ def test_update_no_edition(sheraf_database):
         new_submapping = model.models["a"].mapping
 
         assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
-        assert isinstance(model.models["a"], AModelForTest)
+        assert isinstance(model.models["a"], AModel)
         assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "c" == model.models["a"].name
         assert "c" == model.models["b"].name
@@ -147,7 +143,7 @@ def test_update_no_edition(sheraf_database):
         model = Model.read(model.id)
 
         assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
-        assert isinstance(model.models["a"], AModelForTest)
+        assert isinstance(model.models["a"], AModel)
         assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "c" == model.models["a"].name
         assert "c" == model.models["b"].name
@@ -157,7 +153,7 @@ def test_update_no_edition(sheraf_database):
 
 def test_update_replacement(sheraf_database):
     class Model(tests.UUIDAutoModel):
-        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
+        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models={"a": {"name": "c"}, "b": {"name": "c"}})
@@ -173,7 +169,7 @@ def test_update_replacement(sheraf_database):
         new_submapping = model.models["a"].mapping
 
         assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
-        assert isinstance(model.models["a"], AModelForTest)
+        assert isinstance(model.models["a"], AModel)
         assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "a" == model.models["a"].name
         assert "b" == model.models["b"].name
@@ -184,7 +180,7 @@ def test_update_replacement(sheraf_database):
         model = Model.read(model.id)
 
         assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
-        assert isinstance(model.models["a"], AModelForTest)
+        assert isinstance(model.models["a"], AModel)
         assert isinstance(new_submapping, sheraf.types.SmallDict)
         assert "a" == model.models["a"].name
         assert "b" == model.models["b"].name
@@ -194,7 +190,7 @@ def test_update_replacement(sheraf_database):
 
 def test_update_addition(sheraf_database):
     class Model(tests.UUIDAutoModel):
-        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
+        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models={"a": {"name": "a"}})
@@ -214,7 +210,7 @@ def test_update_addition(sheraf_database):
 
 def test_update_no_addition(sheraf_database):
     class Model(tests.UUIDAutoModel):
-        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
+        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models={"a": {"name": "a"}})
@@ -223,7 +219,7 @@ def test_update_no_addition(sheraf_database):
         model.edit(value={"models": {"b": {"name": "b"}}}, addition=True)
 
         assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
-        assert isinstance(model.models["b"], AModelForTest)
+        assert isinstance(model.models["b"], AModel)
         assert isinstance(model.models["b"].mapping, sheraf.types.SmallDict)
         assert "a" == model.models["a"].name
         assert "b" == model.models["b"].name
@@ -232,7 +228,7 @@ def test_update_no_addition(sheraf_database):
         model = Model.read(model.id)
 
         assert isinstance(model.mapping["models"], sheraf.types.LargeDict)
-        assert isinstance(model.models["b"], AModelForTest)
+        assert isinstance(model.models["b"], AModel)
         assert isinstance(model.models["b"].mapping, sheraf.types.SmallDict)
         assert "a" == model.models["a"].name
         assert "b" == model.models["b"].name
@@ -240,7 +236,7 @@ def test_update_no_addition(sheraf_database):
 
 def test_update_deletion(sheraf_database):
     class Model(tests.UUIDAutoModel):
-        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
+        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models={"a": {"name": "a"}})
@@ -260,7 +256,7 @@ def test_update_deletion(sheraf_database):
 
 def test_update_no_deletion(sheraf_database):
     class Model(tests.UUIDAutoModel):
-        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModelForTest))
+        models = sheraf.LargeDictAttribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models={"a": {"name": "a"}})

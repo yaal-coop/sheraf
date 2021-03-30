@@ -9,7 +9,7 @@ class MyInlineModel(sheraf.InlineModel):
     pass
 
 
-class MyModel(tests.UUIDAutoModel):
+class Model(tests.UUIDAutoModel):
     inline_model = sheraf.InlineModelAttribute(MyInlineModel)
 
 
@@ -29,23 +29,23 @@ def test_read_invalid_parameters(sheraf_connection):
 
 def test_read_these_invalid_index(sheraf_connection):
     with pytest.raises(sheraf.exceptions.ModelObjectNotFoundException):
-        list(MyModel.read_these(["invalid"]))
+        list(Model.read_these(["invalid"]))
 
 
 def test_read_these_valid_index(sheraf_connection):
-    m = MyModel.create()
-    assert [m] == list(MyModel.read_these([m.id]))
+    m = Model.create()
+    assert [m] == list(Model.read_these([m.id]))
 
 
 def test_read_these_invalid_calls(sheraf_connection):
     with pytest.raises(TypeError):
-        MyModel.read_these()
+        Model.read_these()
 
     with pytest.raises(TypeError):
-        MyModel.read_these(id=["foo"], inline_model=["bar"])
+        Model.read_these(id=["foo"], inline_model=["bar"])
 
     with pytest.raises(sheraf.exceptions.InvalidIndexException):
-        MyModel.read_these(yolo=["foo"])
+        Model.read_these(yolo=["foo"])
 
 
 def test_count(sheraf_connection):
@@ -84,37 +84,37 @@ def test_default_id(sheraf_database):
 
 def test_repr_model_with_id(sheraf_database):
     with sheraf.connection():
-        m = MyModel.create()
-        assert "<MyModel id={}>".format(m.id) == repr(m)
+        m = Model.create()
+        assert "<Model id={}>".format(m.id) == repr(m)
 
 
 def test_repr_model_without_id(sheraf_database):
-    assert "<MyModel id=None>" == repr(MyModel())
+    assert "<Model id=None>" == repr(Model())
 
 
 def test_all(sheraf_database):
-    class MyModel(sheraf.IntOrderedNamedAttributesModel):
+    class Model(sheraf.IntOrderedNamedAttributesModel):
         table = "my_test_all_model"
 
     with sheraf.connection(commit=True):
-        m0 = MyModel.create()
-        m1 = MyModel.create()
-        m2 = MyModel.create()
+        m0 = Model.create()
+        m1 = Model.create()
+        m2 = Model.create()
 
     with sheraf.connection():
-        all_queryset = MyModel.all()
+        all_queryset = Model.all()
         assert sheraf.queryset.QuerySet([m0, m1, m2]) == all_queryset
         assert sheraf.queryset.QuerySet() == all_queryset
 
-        assert sheraf.queryset.QuerySet([m0, m1, m2]) == MyModel.all()
+        assert sheraf.queryset.QuerySet([m0, m1, m2]) == Model.all()
 
 
 def test_single_database(sheraf_database):
     with sheraf.connection(commit=True):
-        m = MyModel.create()
+        m = Model.create()
 
     with sheraf.connection() as connection:
-        assert connection.root()[MyModel.table]["id"][m.id] is m.mapping
+        assert connection.root()[Model.table]["id"][m.id] is m.mapping
 
 
 def test_id_inmapping_uuid_model(sheraf_database):

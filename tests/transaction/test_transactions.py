@@ -84,15 +84,15 @@ def test_no_commit(sheraf_database):
 
 
 def test_empty_commit(sheraf_database):
-    class MyModel(tests.IntAutoModel):
+    class Model(tests.IntAutoModel):
         pass
 
     with sheraf.connection():
-        m = MyModel.create()
+        m = Model.create()
         sheraf.commit()
 
     with sheraf.connection():
-        assert MyModel.read(m.id)
+        assert Model.read(m.id)
 
 
 def test_commit_no_db():

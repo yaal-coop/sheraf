@@ -18,17 +18,17 @@ import tests
 def test_empty_model_no_conflict(database):
     database.nestable = True
 
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         pass
 
     with sheraf.connection(commit=True):
-        m = MyModel.create()
+        m = Model.create()
 
     with sheraf.connection(commit=True):
-        m1 = MyModel.read(m.id)
+        m1 = Model.read(m.id)
 
         with sheraf.connection(commit=True):
-            m2 = MyModel.read(m.id)
+            m2 = Model.read(m.id)
             m2.save()
 
         m1.save()
@@ -45,18 +45,18 @@ def test_empty_model_no_conflict(database):
 def test_same_simple_attribute_same_modification_no_conflict(database):
     database.nestable = True
 
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         something = sheraf.attributes.simples.SimpleAttribute()
         stuff = sheraf.LargeListAttribute(lazy=False)
 
     with sheraf.connection(commit=True):
-        m = MyModel.create()
+        m = Model.create()
 
     with sheraf.connection(commit=True):
-        m1 = MyModel.read(m.id)
+        m1 = Model.read(m.id)
 
         with sheraf.connection(commit=True):
-            m2 = MyModel.read(m.id)
+            m2 = Model.read(m.id)
             m2.something = "YOLO"
 
         m1.something = "YOLO"
@@ -73,19 +73,19 @@ def test_same_simple_attribute_same_modification_no_conflict(database):
 def test_different_simple_attribute_modification_no_conflict(database):
     database.nestable = True
 
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         something = sheraf.attributes.simples.SimpleAttribute()
         something_else = sheraf.attributes.simples.SimpleAttribute()
         stuff = sheraf.LargeListAttribute(lazy=False)
 
     with sheraf.connection(commit=True):
-        m = MyModel.create()
+        m = Model.create()
 
     with sheraf.connection(commit=True):
-        m1 = MyModel.read(m.id)
+        m1 = Model.read(m.id)
 
         with sheraf.connection(commit=True):
-            m2 = MyModel.read(m.id)
+            m2 = Model.read(m.id)
             m2.something = "YOLO"
 
         m1.something_else = "YEAH"
@@ -102,26 +102,26 @@ def test_different_simple_attribute_modification_no_conflict(database):
 def test_same_simple_attribute_different_modification_conflict(database):
     database.nestable = True
 
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         something = sheraf.attributes.simples.SimpleAttribute()
         stuff = sheraf.LargeListAttribute(lazy=False)
 
     with sheraf.connection(commit=True):
-        m = MyModel.create()
+        m = Model.create()
         mid = m.id
 
     with pytest.raises(ZODB.POSException.ConflictError):
         with sheraf.connection(commit=True):
-            m1 = MyModel.read(m.id)
+            m1 = Model.read(m.id)
 
             with sheraf.connection(commit=True):
-                m2 = MyModel.read(m.id)
+                m2 = Model.read(m.id)
                 m2.something = "connection 2"
 
             m1.something = "connection 1"
 
     with sheraf.connection():
-        m = MyModel.read(mid)
+        m = Model.read(mid)
         assert "connection 2" == m.something
 
 
@@ -133,19 +133,19 @@ def test_same_simple_attribute_different_modification_conflict(database):
     ],
 )
 def test_empty_model_no_conflict_mp(database):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         pass
 
     def process(uri, model_id, barrier):
         sheraf.Database(uri)
 
         with sheraf.connection(commit=True):
-            m = ModelForTest.read(model_id)
+            m = Model.read(model_id)
             barrier.wait()
             m.save()
 
     with sheraf.connection(commit=True):
-        m = ModelForTest.create()
+        m = Model.create()
 
     barrier = multiprocessing.Barrier(2)
     process1 = multiprocessing.Process(
@@ -173,7 +173,7 @@ def test_empty_model_no_conflict_mp(database):
     ],
 )
 def test_same_simple_attribute_same_modification_conflict_mp(database):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         order = sheraf.SimpleAttribute()
         stuff = sheraf.LargeListAttribute(lazy=False)
 
@@ -181,12 +181,12 @@ def test_same_simple_attribute_same_modification_conflict_mp(database):
         sheraf.Database(uri)
 
         with sheraf.connection(commit=True):
-            m = ModelForTest.read(model_id)
+            m = Model.read(model_id)
             barrier.wait()
             m.order = "YOLO"
 
     with sheraf.connection(commit=True):
-        m = ModelForTest.create()
+        m = Model.create()
 
     barrier = multiprocessing.Barrier(2)
     process1 = multiprocessing.Process(
@@ -214,7 +214,7 @@ def test_same_simple_attribute_same_modification_conflict_mp(database):
     ],
 )
 def test_different_simple_attribute_modification_no_conflict_mp(database):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         something = sheraf.SimpleAttribute()
         something_else = sheraf.SimpleAttribute()
         stuff = sheraf.LargeListAttribute(lazy=False)
@@ -223,7 +223,7 @@ def test_different_simple_attribute_modification_no_conflict_mp(database):
         sheraf.Database(uri)
 
         with sheraf.connection(commit=True):
-            m = ModelForTest.read(model_id)
+            m = Model.read(model_id)
             barrier.wait()
 
             with lock:
@@ -236,7 +236,7 @@ def test_different_simple_attribute_modification_no_conflict_mp(database):
                     m.something_else = "YOH"
 
     with sheraf.connection(commit=True):
-        m = ModelForTest.create()
+        m = Model.create()
 
     barrier = multiprocessing.Barrier(2)
     lock = multiprocessing.Lock()
@@ -268,7 +268,7 @@ def test_different_simple_attribute_modification_no_conflict_mp(database):
     ],
 )
 def test_same_simple_attribute_different_modification_conflict_mp(database):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         order = sheraf.SimpleAttribute()
         stuff = sheraf.LargeListAttribute(lazy=False)
 
@@ -276,7 +276,7 @@ def test_same_simple_attribute_different_modification_conflict_mp(database):
         sheraf.Database(uri)
 
         with sheraf.connection() as conn:
-            m = ModelForTest.read(model_id)
+            m = Model.read(model_id)
             barrier.wait()
 
             with lock:
@@ -291,7 +291,7 @@ def test_same_simple_attribute_different_modification_conflict_mp(database):
                         conn.transaction_manager.commit()
 
     with sheraf.connection(commit=True):
-        m = ModelForTest.create()
+        m = Model.create()
 
     barrier = multiprocessing.Barrier(2)
     lock = multiprocessing.Lock()

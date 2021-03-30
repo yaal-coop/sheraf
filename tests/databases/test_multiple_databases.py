@@ -64,35 +64,35 @@ def test_abort(sheraf_database, other_nested_database):
 
 
 def test_default_database(sheraf_database, other_nested_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         anything = sheraf.SimpleAttribute(lazy=False)
 
     with sheraf.connection(sheraf.Database.DEFAULT_DATABASE_NAME, commit=True):
-        m1 = MyModel.create()
+        m1 = Model.create()
 
     with sheraf.connection("other_nested_database", commit=True):
-        m2 = MyModel.create()
+        m2 = Model.create()
 
     with sheraf.connection(sheraf.Database.DEFAULT_DATABASE_NAME):
-        assert MyModel.read(m1.id)
+        assert Model.read(m1.id)
         with pytest.raises(ObjectNotFoundException):
-            MyModel.read(m2.id)
+            Model.read(m2.id)
 
     with sheraf.connection("other_nested_database"):
-        assert MyModel.read(m2.id)
+        assert Model.read(m2.id)
         with pytest.raises(ObjectNotFoundException):
-            MyModel.read(m1.id)
+            Model.read(m1.id)
 
 
 def test_successive_connections(sheraf_database, other_nested_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         anything = sheraf.SimpleAttribute(lazy=False)
 
     with sheraf.connection(commit=True):
-        campaign = MyModel.create()
+        campaign = Model.create()
 
     with sheraf.connection("other_nested_database"):
-        MyModel.create()
+        Model.create()
 
     with sheraf.connection():
         campaign.anything = "foobar"

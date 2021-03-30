@@ -15,10 +15,10 @@ class ListInlineModel(sheraf.InlineModel):
     ],
 )
 def test_inline_model_list(sheraf_connection, attribute, list_type):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
-    _model = ModelForTest.create()
+    _model = Model.create()
     assert not _model.inlines
     assert list() == list(_model.inlines)
     assert 0 == len(_model.inlines)
@@ -58,16 +58,16 @@ def test_inline_model_list(sheraf_connection, attribute, list_type):
     ],
 )
 def test_model_absolute_string(sheraf_connection, attribute, list_type):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inline = attribute(
             sheraf.InlineModelAttribute(
                 "{}.{}".format(ListInlineModel.__module__, ListInlineModel.__name__)
             )
         )
 
-    _model = ModelForTest.create()
+    _model = Model.create()
     _model.inline.append(ListInlineModel.create())
-    _model = ModelForTest.read(_model.id)
+    _model = Model.read(_model.id)
     assert isinstance(_model.inline[0], ListInlineModel)
 
 
@@ -79,10 +79,10 @@ def test_model_absolute_string(sheraf_connection, attribute, list_type):
     ],
 )
 def test_model_invalid_string(sheraf_connection, attribute, list_type):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inline = attribute(sheraf.InlineModelAttribute("anticonstitutionnellement"))
 
-    model = ModelForTest.create()
+    model = Model.create()
     with pytest.raises(ImportError):
         model.inline.append({"name": "YEAH"})
 
@@ -95,10 +95,10 @@ def test_model_invalid_string(sheraf_connection, attribute, list_type):
     ],
 )
 def test_extend(sheraf_connection, attribute, list_type):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
-    model = MyModel.create()
+    model = Model.create()
     inline = ListInlineModel.create()
     model.inlines.append(inline)
     extend_inlines = [ListInlineModel.create(), ListInlineModel.create()]
@@ -117,10 +117,10 @@ def test_extend(sheraf_connection, attribute, list_type):
     ],
 )
 def test_indices(sheraf_connection, attribute, list_type):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
-    model = MyModel.create()
+    model = Model.create()
     with pytest.raises(IndexError):
         model.inlines[0]
 
@@ -153,11 +153,11 @@ def test_indices(sheraf_connection, attribute, list_type):
     ],
 )
 def test_create(sheraf_database, attribute, list_type):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = attribute(sheraf.InlineModelAttribute(ListInlineModel))
 
     with sheraf.connection(commit=True):
-        model = ModelForTest.create(inlines=[{"name": "A"}, {"name": "B"}])
+        model = Model.create(inlines=[{"name": "A"}, {"name": "B"}])
 
         assert isinstance(model.mapping["inlines"], list_type)
         assert isinstance(model.mapping["inlines"][0], sheraf.types.SmallDict)
@@ -165,7 +165,7 @@ def test_create(sheraf_database, attribute, list_type):
         assert "A" == model.inlines[0].name
 
     with sheraf.connection():
-        model = ModelForTest.read(model.id)
+        model = Model.read(model.id)
 
         assert isinstance(model.mapping["inlines"], list_type)
         assert isinstance(model.mapping["inlines"][0], sheraf.types.SmallDict)

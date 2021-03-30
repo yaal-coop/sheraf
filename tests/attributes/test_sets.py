@@ -7,10 +7,10 @@ import tests
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_set_attribute(sheraf_connection, persistent_type, subattribute):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(subattribute, persistent_type=persistent_type)
 
-    a = ModelForTest.create()
+    a = Model.create()
     assert len(a.set) == 0
     assert not a.set
     a.set.add(12)
@@ -36,7 +36,7 @@ def test_set_attribute(sheraf_connection, persistent_type, subattribute):
         a.set &= {12, 15}
         assert {12, 15} == set(a.set)
 
-    a = ModelForTest.read(a.id)
+    a = Model.read(a.id)
     assert {12, 15} == set(a.set)
 
     a.set.remove(12)
@@ -54,10 +54,10 @@ def test_set_attribute(sheraf_connection, persistent_type, subattribute):
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_primitive_type(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(subattribute, persistent_type=persistent_type)
 
-    m = ModelTest.create()
+    m = Model.create()
     m.set = {1, 2}
     assert isinstance(m.mapping["set"], persistent_type)
 
@@ -65,10 +65,10 @@ def test_primitive_type(sheraf_connection, persistent_type, subattribute):
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
 @pytest.mark.parametrize("subattribute", [None, sheraf.IntegerAttribute()])
 def test_sheraf_typeset(sheraf_connection, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(subattribute, persistent_type=persistent_type)
 
-    m = ModelTest.create()
+    m = Model.create()
     m.set = sheraf.types.Set([1, 2])
     assert isinstance(m.mapping["set"], persistent_type)
 
@@ -78,13 +78,13 @@ def test_sheraf_typeset(sheraf_connection, persistent_type, subattribute):
 def test_enum_type(sheraf_connection, persistent_type, subattribute):
     import enum
 
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(subattribute, persistent_type=persistent_type)
 
     class E(enum.IntEnum):
         CONST = 1
 
-    m = ModelTest.create()
+    m = Model.create()
     m.set = sheraf.types.Set([E.CONST])
 
     assert isinstance(m.mapping["set"], persistent_type)
@@ -92,12 +92,12 @@ def test_enum_type(sheraf_connection, persistent_type, subattribute):
 
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
 def test_set_attribute_update(sheraf_connection, persistent_type):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(
             attribute=sheraf.IntegerAttribute(), persistent_type=persistent_type
         )
 
-    m = ModelTest.create()
+    m = Model.create()
     m.set = {1, 2, 3}
 
     m.edit({"set": {1, 2}}, deletion=True)
@@ -113,23 +113,23 @@ def test_set_attribute_update(sheraf_connection, persistent_type):
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
 @pytest.mark.parametrize("subattribute", [None, sheraf.StringAttribute()])
 def test_indexation(sheraf_database, persistent_type, subattribute):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(
             subattribute,
             persistent_type=persistent_type,
         ).index()
 
     with sheraf.connection(commit=True) as conn:
-        m = ModelTest.create(set=["foo", "bar"])
-        assert m.mapping in conn.root()[ModelTest.table]["set"]["foo"]
-        assert m.mapping in conn.root()[ModelTest.table]["set"]["bar"]
-        assert [m] == list(ModelTest.search(set="foo"))
+        m = Model.create(set=["foo", "bar"])
+        assert m.mapping in conn.root()[Model.table]["set"]["foo"]
+        assert m.mapping in conn.root()[Model.table]["set"]["bar"]
+        assert [m] == list(Model.search(set="foo"))
 
 
 @pytest.mark.skip
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
 def test_nested_indexation(sheraf_database, persistent_type):
-    class ModelTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         set = sheraf.SetAttribute(
             sheraf.SetAttribute(
                 sheraf.StringAttribute(),
@@ -139,11 +139,11 @@ def test_nested_indexation(sheraf_database, persistent_type):
         ).index()
 
     with sheraf.connection(commit=True) as conn:
-        m = ModelTest.create(set=[["foo", "bar"], ["baz"]])
-        assert m.mapping in conn.root()[ModelTest.table]["set"]["foo"]
-        assert m.mapping in conn.root()[ModelTest.table]["set"]["bar"]
-        assert m.mapping in conn.root()[ModelTest.table]["set"]["baz"]
-        assert [m] == list(ModelTest.search(set="foo"))
+        m = Model.create(set=[["foo", "bar"], ["baz"]])
+        assert m.mapping in conn.root()[Model.table]["set"]["foo"]
+        assert m.mapping in conn.root()[Model.table]["set"]["bar"]
+        assert m.mapping in conn.root()[Model.table]["set"]["baz"]
+        assert [m] == list(Model.search(set="foo"))
 
 
 @pytest.mark.skip

@@ -9,12 +9,12 @@ class DictInlineModel(sheraf.InlineModel):
 
 
 def test_inline_model_dict(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
 
-    _model = ModelForTest.create()
+    _model = Model.create()
     assert not _model.inlines
     assert 0 == len(_model.inlines)
     assert [] == [_inline for _inline in _model.inlines.values()]
@@ -35,7 +35,7 @@ def test_inline_model_dict(sheraf_connection):
     assert _model.inlines.get("b") is None
     assert "DUMMY" == _model.inlines.get("b", "DUMMY")
 
-    _another = ModelForTest.read(_model.id)
+    _another = Model.read(_model.id)
     assert _inline == _another.inlines["a"]
     assert "Coucou" == _another.inlines["a"].name
 
@@ -50,20 +50,20 @@ def test_inline_model_dict(sheraf_connection):
 
 
 def test_create(sheraf_database):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
 
     with sheraf.connection(commit=True):
-        model = ModelForTest.create(inlines={"a": {"name": "A"}, "b": {"name": "B"}})
+        model = Model.create(inlines={"a": {"name": "A"}, "b": {"name": "B"}})
         assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert isinstance(model.mapping["inlines"]["a"], sheraf.types.SmallDict)
         assert isinstance(model.inlines["a"], DictInlineModel)
         assert "A" == model.inlines["a"].name
 
     with sheraf.connection():
-        model = ModelForTest.read(model.id)
+        model = Model.read(model.id)
         assert isinstance(model.mapping["inlines"], sheraf.types.LargeDict)
         assert isinstance(model.mapping["inlines"]["a"], sheraf.types.SmallDict)
         assert isinstance(model.inlines["a"], DictInlineModel)
@@ -82,12 +82,12 @@ def test_default_parameter(sheraf_connection):
 
 
 def test_clear(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
 
-    _model = ModelForTest.create()
+    _model = Model.create()
     _inline = DictInlineModel.create()
     _inline.name = "Coucou"
     _model.inlines["a"] = _inline
@@ -99,12 +99,12 @@ def test_clear(sheraf_connection):
 
 
 def test_keys_and_items(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
 
-    _model = ModelForTest.create()
+    _model = Model.create()
     _inlineA = DictInlineModel.create()
     _inlineA.name = "Coucou"
     _model.inlines["a"] = _inlineA
@@ -121,38 +121,38 @@ def test_keys_and_items(sheraf_connection):
 
 
 def test_model_absolute_string(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inline = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(
                 "tests.attributes.test_inline_model_dict.DictInlineModel"
             )
         )
 
-    _model = ModelForTest.create()
+    _model = Model.create()
     _model.inline["key"] = DictInlineModel.create()
-    _model = ModelForTest.read(_model.id)
+    _model = Model.read(_model.id)
     assert isinstance(_model.inline["key"], DictInlineModel)
 
 
 def test_model_invalid_string(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inline = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute("anticonstitutionnellement")
         )
 
-    model = ModelForTest.create()
+    model = Model.create()
     model.inline[0] = DictInlineModel.create()
     with pytest.raises(ImportError):
         dict(model.inline)
 
 
 def test_minKey_and_maxKey(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.LargeDictAttribute(
             sheraf.InlineModelAttribute(DictInlineModel)
         )
 
-    _model = ModelForTest.create()
+    _model = Model.create()
     _inlineA = DictInlineModel.create()
     _model.inlines["a"] = _inlineA
     _inlineB = DictInlineModel.create()

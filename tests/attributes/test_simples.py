@@ -6,20 +6,20 @@ import tests
 
 
 def test_simple(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         opt = sheraf.SimpleAttribute()
 
-    m = ModelForTest.create()
+    m = Model.create()
     assert m.opt is None
 
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     m.opt = mock.sentinel.OPT
     assert mock.sentinel.OPT == m.opt
 
     m.toto = mock.sentinel.TOTO
     assert mock.sentinel.TOTO == m.toto
 
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     with pytest.raises(AttributeError):
         m.toto
     assert mock.sentinel.OPT == m.opt
@@ -58,21 +58,21 @@ def test_string(sheraf_database):
 
 
 def test_default_value(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         opt_false = sheraf.SimpleAttribute(default=bool)
         opt_true = sheraf.SimpleAttribute(default=True)
         opt_none = sheraf.SimpleAttribute()
         opt_str = sheraf.SimpleAttribute(default=str)
         opt_empty_str = sheraf.SimpleAttribute(default="")
 
-    m = ModelForTest.create()
+    m = Model.create()
     assert False == m.opt_false
     assert True == m.opt_true
     assert m.opt_none is None
     assert "" == m.opt_str
     assert "" == m.opt_empty_str
     m.opt_empty_str += "a"
-    m_bis = ModelForTest.create()
+    m_bis = Model.create()
     assert "" == m_bis.opt_empty_str
 
 
@@ -85,21 +85,21 @@ def test_model_default_value(sheraf_connection):
 
 
 def test_not_store_deault_value(sheraf_connection):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         my_attr = sheraf.SimpleAttribute(store_default_value=False)
 
-    model = MyModel.create()
+    model = Model.create()
     model.my_attr
     assert "my_attr" not in model.mapping
 
 
 def test_define_keyname(sheraf_connection):
-    class ModelForTest(sheraf.Model):
+    class Model(sheraf.Model):
         table = "model_test_with_simple_attribute_3"
         unique_table_name = False
         opt = sheraf.SimpleAttribute(key="defined_key_in_db")
 
-    m = ModelForTest.create()
+    m = Model.create()
     m.opt = "data"
 
     class ModifiedModel(sheraf.Model):
@@ -138,20 +138,20 @@ def test_inherit_define_keyname(sheraf_connection):
 
 
 def test_define_keyname_list(sheraf_connection):
-    class ModelForTest(sheraf.Model):
+    class Model(sheraf.Model):
         table = "model_test__define_keyname_list"
         a = sheraf.SimpleAttribute(key=("a", "old_a"))
         b = sheraf.SimpleAttribute(key=[0, "b"])
 
-    m = ModelForTest.create()
+    m = Model.create()
     m.mapping["old_a"] = "a_value"
     m.mapping["b"] = "b_value"
 
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     assert "a_value" == m.a
     assert "b_value" == m.b
 
-    m = ModelForTest.create()
+    m = Model.create()
     m.a = 1
     m.b = 2
     assert 1 == m.mapping["a"]
@@ -159,10 +159,10 @@ def test_define_keyname_list(sheraf_connection):
 
 
 def test_del(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         attr = sheraf.SimpleAttribute(default="default")
 
-    m = ModelForTest.create()
+    m = Model.create()
     m.attr = "yolo"
     del m.attr
 
@@ -171,12 +171,12 @@ def test_del(sheraf_connection):
 
 
 def test_del_after_read(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         attr = sheraf.SimpleAttribute(default="default")
 
-    m = ModelForTest.create()
+    m = Model.create()
     m.attr = "yolo"
-    m = ModelForTest.read(m.id)
+    m = Model.read(m.id)
     del m.attr
 
     assert "attr" not in m.mapping
@@ -184,10 +184,10 @@ def test_del_after_read(sheraf_connection):
 
 
 def test_del_on_unsetted_attr(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         attr = sheraf.SimpleAttribute(default="default")
 
-    m = ModelForTest.create()
+    m = Model.create()
     del m.attr
 
     assert "attr" not in m.mapping
@@ -195,10 +195,10 @@ def test_del_on_unsetted_attr(sheraf_connection):
 
 
 def test_del_on_specifed_key_attr(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         attr = sheraf.SimpleAttribute(default="default", key="other_key")
 
-    m = ModelForTest.create()
+    m = Model.create()
     m.attr = "yolo"
     del m.attr
 

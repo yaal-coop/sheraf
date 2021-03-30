@@ -8,10 +8,10 @@ class SetInlineModel(sheraf.InlineModel):
 
 
 def test_inline_model_set(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inlines = sheraf.SetAttribute(sheraf.InlineModelAttribute(SetInlineModel))
 
-    _model = ModelForTest.create()
+    _model = Model.create()
     assert not _model.inlines
     assert set() == set(_model.inlines)
 
@@ -35,26 +35,26 @@ def test_inline_model_set(sheraf_connection):
 
 
 def test_model_absolute_string(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inline = sheraf.SetAttribute(
             sheraf.InlineModelAttribute(
                 "tests.attributes.test_inline_model_set.SetInlineModel"
             )
         )
 
-    _model = ModelForTest.create()
+    _model = Model.create()
     _model.inline.add(SetInlineModel.create())
-    _model = ModelForTest.read(_model.id)
+    _model = Model.read(_model.id)
     assert isinstance(list(_model.inline)[0], SetInlineModel)
 
 
 def test_model_invalid_string(sheraf_connection):
-    class ModelForTest(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         inline = sheraf.SetAttribute(
             sheraf.InlineModelAttribute("anticonstitutionnellement")
         )
 
-    model = ModelForTest.create()
+    model = Model.create()
 
     with pytest.raises(ImportError):
         model.inline.add({"name": "YOLO"})

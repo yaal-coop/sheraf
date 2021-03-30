@@ -4,7 +4,7 @@ import sheraf
 import tests
 
 
-class AModelForTest(tests.UUIDAutoModel):
+class AModel(tests.UUIDAutoModel):
     name = sheraf.SimpleAttribute()
 
 
@@ -18,21 +18,19 @@ class AModelForTest(tests.UUIDAutoModel):
 @pytest.mark.parametrize(
     "model",
     [
-        AModelForTest,
-        "{}.{}".format(AModelForTest.__module__, AModelForTest.__name__),
-        "{}.{}".format(AModelForTest.__module__, AModelForTest.__name__).encode(
-            "utf-8"
-        ),
+        AModel,
+        "{}.{}".format(AModel.__module__, AModel.__name__),
+        "{}.{}".format(AModel.__module__, AModel.__name__).encode("utf-8"),
     ],
 )
 def test_model_dict(sheraf_connection, attribute, list_type, model):
-    class AnotherModelForTest(tests.UUIDAutoModel):
-        a_list_for_test = attribute(sheraf.ModelAttribute(AModelForTest))
+    class AnotherModel(tests.UUIDAutoModel):
+        a_list_for_test = attribute(sheraf.ModelAttribute(AModel))
 
-    a = AModelForTest.create()
-    b = AModelForTest.create()
+    a = AModel.create()
+    b = AModel.create()
 
-    another = AnotherModelForTest.create()
+    another = AnotherModel.create()
     assert [] == list(another.a_list_for_test)
     assert 0 == len(another.a_list_for_test)
     assert not another.a_list_for_test
@@ -42,22 +40,22 @@ def test_model_dict(sheraf_connection, attribute, list_type, model):
     another.a_list_for_test.append(a)
     another.a_list_for_test.append(b)
 
-    _another = AnotherModelForTest.read(another.id)
+    _another = AnotherModel.read(another.id)
     assert [a, b] == list(_another.a_list_for_test)
     assert 2 == len(_another.a_list_for_test)
     assert b == _another.a_list_for_test[1]
     assert [b] == list(_another.a_list_for_test[1:])
     assert a in _another.a_list_for_test
     assert b in _another.a_list_for_test
-    assert not (AModelForTest.create() in _another.a_list_for_test)
+    assert not (AModel.create() in _another.a_list_for_test)
     assert another.a_list_for_test
 
-    c = AModelForTest.create()
-    d = AModelForTest.create()
+    c = AModel.create()
+    d = AModel.create()
     _another.a_list_for_test.extend([c, d])
     assert [a, b, c, d] == list(_another.a_list_for_test)
 
-    other = AnotherModelForTest.create()
+    other = AnotherModel.create()
     other.a_list_for_test.extend([b, c])
     assert [b, c] == list(other.a_list_for_test)
 
@@ -65,7 +63,7 @@ def test_model_dict(sheraf_connection, attribute, list_type, model):
     assert [c] == list(other.a_list_for_test)
 
     another.a_list_for_test = [a, b]
-    _another = AnotherModelForTest.read(another.id)
+    _another = AnotherModel.read(another.id)
     assert [a, b] == list(_another.a_list_for_test)
 
     assert b == another.a_list_for_test.pop()
@@ -83,38 +81,38 @@ def test_model_dict(sheraf_connection, attribute, list_type, model):
     ],
 )
 def test_indices(sheraf_connection, attribute, list_type):
-    class MyModel(tests.UUIDAutoModel):
-        models = attribute(sheraf.ModelAttribute(AModelForTest))
+    class Model(tests.UUIDAutoModel):
+        models = attribute(sheraf.ModelAttribute(AModel))
 
-    model = MyModel.create()
+    model = Model.create()
     with pytest.raises(IndexError):
         model.models[0]
 
     with pytest.raises(IndexError):
-        model.models[0] = AModelForTest.create()
+        model.models[0] = AModel.create()
 
     with pytest.raises(IndexError):
         model.models[-1]
 
     with pytest.raises(IndexError):
-        model.models[-1] = AModelForTest.create()
+        model.models[-1] = AModel.create()
 
-    submodel = AModelForTest.create()
+    submodel = AModel.create()
     model.models.append(submodel)
     assert model.models[0] == submodel
-    model.models[0] = AModelForTest.create()
+    model.models[0] = AModel.create()
 
     with pytest.raises(IndexError):
         model.models[1]
 
     with pytest.raises(IndexError):
-        model.models[1] = AModelForTest.create()
+        model.models[1] = AModel.create()
 
     with pytest.raises((TypeError, IndexError)):
         model.models["foo"]
 
     with pytest.raises((TypeError, IndexError)):
-        model.models["foo"] = AModelForTest.create()
+        model.models["foo"] = AModel.create()
 
 
 @pytest.mark.parametrize(
@@ -125,20 +123,20 @@ def test_indices(sheraf_connection, attribute, list_type):
     ],
 )
 def test_create(sheraf_database, attribute, list_type):
-    class ModelForTest(tests.UUIDAutoModel):
-        models = attribute(sheraf.ModelAttribute(AModelForTest))
+    class Model(tests.UUIDAutoModel):
+        models = attribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
-        model = ModelForTest.create(models=[{"name": "A"}, {"name": "B"}])
+        model = Model.create(models=[{"name": "A"}, {"name": "B"}])
         assert isinstance(model.mapping["models"], list_type)
-        assert isinstance(model.models[0], AModelForTest)
+        assert isinstance(model.models[0], AModel)
         assert isinstance(model.models[0].mapping, sheraf.types.SmallDict)
         assert "A" == model.models[0].name
 
     with sheraf.connection():
-        model = ModelForTest.read(model.id)
+        model = Model.read(model.id)
         assert isinstance(model.mapping["models"], list_type)
-        assert isinstance(model.models[0], AModelForTest)
+        assert isinstance(model.models[0], AModel)
         assert isinstance(model.models[0].mapping, sheraf.types.SmallDict)
         assert "A" == model.models[0].name
 
@@ -152,7 +150,7 @@ def test_create(sheraf_database, attribute, list_type):
 )
 def test_update_edition(sheraf_database, attribute, list_type):
     class Model(tests.UUIDAutoModel):
-        models = attribute(sheraf.ModelAttribute(AModelForTest))
+        models = attribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models=[{"name": "c"}, {"name": "c"}])
@@ -161,8 +159,8 @@ def test_update_edition(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"models": [{"name": "a"}, {"name": "b"}]}, edition=True)
 
-        assert isinstance(model.models[0], AModelForTest)
-        assert isinstance(model.models[1], AModelForTest)
+        assert isinstance(model.models[0], AModel)
+        assert isinstance(model.models[1], AModel)
         x, y = list(model.models)
         assert "a" == x.name
         assert "b" == y.name
@@ -171,8 +169,8 @@ def test_update_edition(sheraf_database, attribute, list_type):
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model.models[0], AModelForTest)
-        assert isinstance(model.models[1], AModelForTest)
+        assert isinstance(model.models[0], AModel)
+        assert isinstance(model.models[1], AModel)
         x, y = list(model.models)
         assert "a" == x.name
         assert "b" == y.name
@@ -188,7 +186,7 @@ def test_update_edition(sheraf_database, attribute, list_type):
 )
 def test_update_no_edition(sheraf_database, attribute, list_type):
     class Model(tests.UUIDAutoModel):
-        models = attribute(sheraf.ModelAttribute(AModelForTest))
+        models = attribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models=[{"name": "c"}, {"name": "c"}])
@@ -197,8 +195,8 @@ def test_update_no_edition(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"models": [{"name": "a"}, {"name": "b"}]}, edition=False)
 
-        assert isinstance(model.models[0], AModelForTest)
-        assert isinstance(model.models[1], AModelForTest)
+        assert isinstance(model.models[0], AModel)
+        assert isinstance(model.models[1], AModel)
         x, y = list(model.models)
         assert "c" == x.name
         assert "c" == y.name
@@ -207,8 +205,8 @@ def test_update_no_edition(sheraf_database, attribute, list_type):
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model.models[0], AModelForTest)
-        assert isinstance(model.models[1], AModelForTest)
+        assert isinstance(model.models[0], AModel)
+        assert isinstance(model.models[1], AModel)
         x, y = list(model.models)
         assert "c" == x.name
         assert "c" == y.name
@@ -224,7 +222,7 @@ def test_update_no_edition(sheraf_database, attribute, list_type):
 )
 def test_update_replacement(sheraf_database, attribute, list_type):
     class Model(tests.UUIDAutoModel):
-        models = attribute(sheraf.ModelAttribute(AModelForTest))
+        models = attribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models=[{"name": "c"}, {"name": "c"}])
@@ -233,8 +231,8 @@ def test_update_replacement(sheraf_database, attribute, list_type):
     with sheraf.connection(commit=True):
         model.edit(value={"models": [{"name": "a"}, {"name": "b"}]}, replacement=True)
 
-        assert isinstance(model.models[0], AModelForTest)
-        assert isinstance(model.models[1], AModelForTest)
+        assert isinstance(model.models[0], AModel)
+        assert isinstance(model.models[1], AModel)
         x, y = list(model.models)
         assert "a" == x.name
         assert "b" == y.name
@@ -243,8 +241,8 @@ def test_update_replacement(sheraf_database, attribute, list_type):
     with sheraf.connection():
         model = Model.read(model.id)
 
-        assert isinstance(model.models[0], AModelForTest)
-        assert isinstance(model.models[1], AModelForTest)
+        assert isinstance(model.models[0], AModel)
+        assert isinstance(model.models[1], AModel)
         x, y = list(model.models)
         assert "a" == x.name
         assert "b" == y.name
@@ -260,7 +258,7 @@ def test_update_replacement(sheraf_database, attribute, list_type):
 )
 def test_update_addition(sheraf_database, attribute, list_type):
     class Model(tests.UUIDAutoModel):
-        models = attribute(sheraf.ModelAttribute(AModelForTest))
+        models = attribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models=[{"name": "a"}])
@@ -269,7 +267,7 @@ def test_update_addition(sheraf_database, attribute, list_type):
         model.edit(value={"models": [{"name": "a"}, {"name": "b"}]}, addition=True)
 
         assert isinstance(model.mapping["models"], list_type)
-        assert isinstance(model.models[1], AModelForTest)
+        assert isinstance(model.models[1], AModel)
         assert isinstance(model.models[1].mapping, sheraf.types.SmallDict)
         assert "a" == model.models[0].name
         assert "b" == model.models[1].name
@@ -278,7 +276,7 @@ def test_update_addition(sheraf_database, attribute, list_type):
         model = Model.read(model.id)
 
         assert isinstance(model.mapping["models"], list_type)
-        assert isinstance(model.models[1], AModelForTest)
+        assert isinstance(model.models[1], AModel)
         assert isinstance(model.models[1].mapping, sheraf.types.SmallDict)
         assert "a" == model.models[0].name
         assert "b" == model.models[1].name
@@ -293,7 +291,7 @@ def test_update_addition(sheraf_database, attribute, list_type):
 )
 def test_update_no_addition(sheraf_database, attribute, list_type):
     class Model(tests.UUIDAutoModel):
-        models = attribute(sheraf.ModelAttribute(AModelForTest))
+        models = attribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models=[{"name": "a"}])
@@ -322,7 +320,7 @@ def test_update_no_addition(sheraf_database, attribute, list_type):
 )
 def test_update_deletion(sheraf_database, attribute, list_type):
     class Model(tests.UUIDAutoModel):
-        models = attribute(sheraf.ModelAttribute(AModelForTest))
+        models = attribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models=[{"name": "a"}])
@@ -349,7 +347,7 @@ def test_update_deletion(sheraf_database, attribute, list_type):
 )
 def test_update_no_deletion(sheraf_database, attribute, list_type):
     class Model(tests.UUIDAutoModel):
-        models = attribute(sheraf.ModelAttribute(AModelForTest))
+        models = attribute(sheraf.ModelAttribute(AModel))
 
     with sheraf.connection(commit=True):
         model = Model.create(models=[{"name": "a"}])

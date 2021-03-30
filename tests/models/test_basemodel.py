@@ -30,7 +30,7 @@ class MyInlineModel(sheraf.InlineModel):
     pass
 
 
-class MyModel(tests.UUIDAutoModel):
+class Model(tests.UUIDAutoModel):
     inline_model = sheraf.InlineModelAttribute(MyInlineModel)
 
 
@@ -130,33 +130,33 @@ def test_lazy_create_parameters(sheraf_database):
 
 
 def test_lazy(sheraf_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         myattribute = sheraf.attributes.simples.SimpleAttribute()
 
     with sheraf.connection(commit=True):
-        m = MyModel.create()
+        m = Model.create()
 
     with sheraf.connection():
         assert not m.attributes["myattribute"].is_created(m)
 
 
 def test_not_lazy(sheraf_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         myattribute = sheraf.attributes.simples.SimpleAttribute(lazy=False)
 
     with sheraf.connection(commit=True):
-        m = MyModel.create()
+        m = Model.create()
 
     with sheraf.connection():
         assert m.attributes["myattribute"].is_created(m)
 
 
 def test_dict_interface(sheraf_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute()
 
     with sheraf.connection():
-        m = MyModel.create(foo="bar")
+        m = Model.create(foo="bar")
 
         assert "bar" == m["foo"]
         m["foo"] = "foobar"
@@ -175,12 +175,12 @@ def test_dict_interface(sheraf_database):
 
 
 def test_model_as_simple_dict(sheraf_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute()
         mylist = sheraf.LargeListAttribute()
 
     with sheraf.connection():
-        m = MyModel.create(foo="bar", mylist=[0, 1, 2])
+        m = Model.create(foo="bar", mylist=[0, 1, 2])
 
         assert {
             "_creation": mock.ANY,
@@ -196,13 +196,13 @@ def test_model_as_nested_dicts(sheraf_database):
     class DummyModel(tests.UUIDAutoModel):
         pass
 
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         other = sheraf.ModelAttribute(DummyModel)
 
     with sheraf.connection():
         dummy = DummyModel.create()
-        m = MyModel.create(other=dummy)
-        n = MyModel.create()
+        m = Model.create(other=dummy)
+        n = Model.create()
 
         assert {"_creation": mock.ANY, "other": dummy, "id": mock.ANY} == dict(m)
         assert {"_creation": mock.ANY, "other": None, "id": mock.ANY} == dict(n)
@@ -212,48 +212,48 @@ def test_model_as_nested_inline_dicts(sheraf_database):
     class DummyModel(sheraf.InlineModel):
         pass
 
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         other = sheraf.InlineModelAttribute(DummyModel)
 
     with sheraf.connection():
         dummy = DummyModel.create()
-        m = MyModel.create(other=dummy)
+        m = Model.create(other=dummy)
 
         assert {"_creation": mock.ANY, "other": dummy, "id": mock.ANY} == dict(m)
 
 
 def test_simple_edit(sheraf_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
-        m = MyModel.create(foo="bar")
+        m = Model.create(foo="bar")
         m.edit({"foo": "foobar"})
 
     with sheraf.connection():
-        m = MyModel.read(m.id)
+        m = Model.read(m.id)
         assert "foobar" == m.foo
 
 
 def test_simple_update(sheraf_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute()
 
     with sheraf.connection(commit=True):
-        m = MyModel.create(foo="bar")
+        m = Model.create(foo="bar")
         m.update(foo="foobar")
 
     with sheraf.connection():
-        m = MyModel.read(m.id)
+        m = Model.read(m.id)
         assert "foobar" == m.foo
 
 
 def test_simple_update_wrong_attribute_strict(sheraf_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         pass
 
     with sheraf.connection(commit=True):
-        m = MyModel.create()
+        m = Model.create()
 
         with pytest.raises(TypeError):
             m.edit(dict(foo="foobar"), strict=True)
@@ -262,19 +262,19 @@ def test_simple_update_wrong_attribute_strict(sheraf_database):
 
 
 def test_list_update(sheraf_database):
-    class MyModel(tests.UUIDAutoModel):
+    class Model(tests.UUIDAutoModel):
         foo = sheraf.SmallListAttribute()
 
     with sheraf.connection(commit=True):
-        m_up = MyModel.create(foo=[1])
-        m_add = MyModel.create(foo=[1])
+        m_up = Model.create(foo=[1])
+        m_add = Model.create(foo=[1])
 
         m_up.update(foo=[2])
         m_add.update(foo=[1, 2])
 
     with sheraf.connection():
-        assert [2] == MyModel.read(m_up.id).foo
-        assert [1, 2] == MyModel.read(m_add.id).foo
+        assert [2] == Model.read(m_up.id).foo
+        assert [1, 2] == Model.read(m_add.id).foo
 
 
 def test_attribute_inheritance(sheraf_connection):
