@@ -50,6 +50,8 @@ def test_list_attribute(sheraf_connection, persistent_type, subattribute):
 
     m.list = [1, 2]
     assert list(m.list) == [1, 2]
+    assert m.list == [1, 2]
+
     m.list = None
     assert len(m.list) == 0
 

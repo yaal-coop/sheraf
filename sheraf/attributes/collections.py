@@ -103,6 +103,9 @@ class ListAttributeAccessor:
             self._attribute.deserialize(item) for item in self.mapping.__getitem__(key)
         )
 
+    def __eq__(self, other):
+        return list(self) == other
+
     def append(self, item):
         self.mapping.append(self._attribute.serialize(item))
 
