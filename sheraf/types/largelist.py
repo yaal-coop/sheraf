@@ -27,6 +27,9 @@ class LargeList(IOBTree):
     def __len__(self):
         return IOBTree.get(self, self.LENGTH_KEY, self.LENGTH_KEY + 1)
 
+    def __add__(self, other):
+        return LargeList(list(self) + other)
+
     def _set_length(self, length):
         IOBTree.__setitem__(self, self.LENGTH_KEY, length)
 

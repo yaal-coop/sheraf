@@ -88,3 +88,11 @@ def test_append():
     assert [1, 2, 2] == a
     a.append(2, unique=True)
     assert [1, 2, 2] == a
+
+
+def test_add():
+    a = sheraf.types.LargeList([1])
+    assert list(a + [2]) == [1, 2]
+
+    a += [2]
+    assert list(a) == [1, 2]

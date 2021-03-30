@@ -106,6 +106,9 @@ class ListAttributeAccessor:
     def __eq__(self, other):
         return list(self) == other
 
+    def __add__(self, other):
+        return list(self) + other
+
     def append(self, item):
         self.mapping.append(self._attribute.serialize(item))
 
