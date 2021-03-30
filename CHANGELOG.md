@@ -1,3 +1,11 @@
+[0.x.x] - 2021-xx-xx
+====================
+
+Added
+*****
+- Implemented :class:`~sheraf.attributes.models.ReverseModelAttribute`. :issue:`35`
+
+
 [0.4.5] - 2021-02-26
 ====================
 

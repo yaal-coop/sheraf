@@ -27,6 +27,7 @@ from .attributes.models import (
     ModelAttribute,
     InlineModelAttribute,
     IndexedModelAttribute,
+    ReverseModelAttribute,
 )
 from .attributes.password import PasswordAttribute
 from .attributes.simples import (

@@ -1,6 +1,7 @@
 import sheraf
 from sheraf.models.indexation import model_from_table
 from sheraf.attributes import Attribute
+from sheraf.attributes.collections import ListAttribute, SetAttribute
 
 
 class ModelLoader(object):
@@ -76,6 +77,35 @@ class ModelLoader(object):
 
         else:
             return model
+
+
+class AttributeLoader(ModelLoader):
+    def __init__(self, attribute=None, **kwargs):
+        self._attribute = attribute
+        super().__init__(**kwargs)
+
+    def check_attribute(self, attribute_name, parent):
+        if attribute_name not in self._model.attributes:
+            raise sheraf.SherafException(
+                f"'{attribute_name}' is not an attribute of {self._model.__name__}"
+            )
+
+        attribute = self._model.attributes[attribute_name]
+        if isinstance(attribute, (ListAttribute, SetAttribute)):
+            if not isinstance(attribute.attribute, ModelAttribute):
+                raise sheraf.SherafException(
+                    f"'{self._model.__name__}.{attribute}' attribute should hold a 'ModelAttribute' to be referenced by a 'ReverseModelAttribute'"
+                )
+
+        elif not isinstance(attribute, ModelAttribute):
+            raise sheraf.SherafException(
+                f"'{self._model.__name__}.{attribute}' should be a 'ModelAttribute' or a collection of 'ModelAttribute' to be referenced by a 'ReversedModelAttribute'"
+            )
+
+        if attribute_name not in self.model.indexes:
+            raise sheraf.SherafException(
+                f"'{self._model.__name__}.{attribute}' should have an index to be referenced by a 'ReversedModelAttribute'"
+            )
 
 
 class ModelAttribute(ModelLoader, Attribute):
@@ -203,6 +233,125 @@ class ModelAttribute(ModelLoader, Attribute):
             return self.serialize(new_value)
 
         return old_value.edit(new_value, addition, edition, deletion, replacement)
+
+
+class ReverseModelAttribute(AttributeLoader, Attribute):
+    """
+    Inverse reference to a :class:`~sheraf.attributes.models.ModelAttribute`.
+
+    :param model: The :class:`~sheraf.models.Model` to refer to.
+    :param attribute: The :class:`~sheraf.attributes.Attribute` in the model to refer to.
+        This model must be a :class:`~sheraf.attributes.models.ModelAttribute` or a
+        collection of :class:`~sheraf.attributes.models.ModelAttribute`.
+
+    The referenced attribute must be indexed.
+
+    >>> class Cowboy(sheraf.Model):  # doctest: +SKIP
+    ...     table = "reverse_cowboys"
+    ...     name = sheraf.StringAttribute()
+    ...     horse = sheraf.ModelAttribute("Horse").index()
+    ...
+    >>> class Horse(sheraf.Model):  # doctest: +SKIP
+    ...     table = "reverse_horses"
+    ...     name = sheraf.StringAttribute()
+    ...     cowboy = sheraf.ReverseModelAttribute("Cowboy", "horse")
+    ...
+    >>> with sheraf.connection():  # doctest: +SKIP
+    ...     george = Cowboy.create(name="George")
+    ...     horse = Horse.create(name="Jolly", cowboy=george)
+    ...     george.horse.name
+    "Jolly"
+
+    Collection attributes are also supported:
+
+    >>> class Cowboy(sheraf.Model):  # doctest: +SKIP
+    ...     table = "reverse_multicowboys"
+    ...     name = sheraf.StringAttribute()
+    ...     horses = sheraf.LargeListAttribute(ModelAttribute("Horse").index())
+    ...
+    >>> class Horse(sheraf.Model):  # doctest: +SKIP
+    ...     table = "reverse_multihorses"
+    ...     name = sheraf.StringAttribute()
+    ...     cowboy = sheraf.ReverseModelAttribute("Cowboy", "horses")
+    ...
+    >>> with sheraf.connection():  # doctest: +SKIP
+    ...     george = Cowboy.create(name="George")
+    ...     jolly = Horse.create(name="Jolly", cowboy=george)
+    ...     polly = Horse.create(name="Polly", cowboy=george)
+    ...     george.horses[0].name
+    ...     george.horses[1].name
+    "Jolly"
+    "Polly"
+    """
+
+    def __init__(self, model, attribute, **kwargs):
+        kwargs["read_memoization"] = False
+        kwargs["write_memoization"] = False
+        super().__init__(default=None, model=model, attribute=attribute, **kwargs)
+
+    def read(self, parent):
+        self.check_model(parent)
+        self.check_attribute(self._attribute, parent)
+        search_args = {self._attribute: parent}
+
+        if not self.model.indexes[self._attribute].details.unique:
+            return self.model.search(**search_args)
+
+        try:
+            return self.model.search(**search_args).get()
+        except sheraf.QuerySetUnpackException:
+            return None
+
+    def write(self, parent, value):
+        self.check_model(parent)
+        self.check_attribute(self._attribute, parent)
+
+        self.delete(parent)
+
+        if value is None:
+            return None
+
+        if isinstance(value, self.model):
+            value = [value]
+
+        for referent in value:
+            if isinstance(self.model.attributes[self._attribute], ModelAttribute):
+                setattr(referent, self._attribute, parent)
+
+            if isinstance(self.model.attributes[self._attribute], sheraf.ListAttribute):
+                setattr(
+                    referent,
+                    self._attribute,
+                    getattr(referent, self._attribute) + [parent],
+                )
+
+        return value
+
+    def delete(self, parent):
+        referents = self.read(parent)
+
+        if referents is None:
+            return
+
+        if isinstance(referents, self.model):
+            referents = [referents]
+
+        for referent in list(referents):
+            if isinstance(self.model.attributes[self._attribute], ModelAttribute):
+                delattr(referent, self._attribute)
+
+            if isinstance(
+                self.model.attributes[self._attribute],
+                sheraf.ListAttribute,
+            ):
+                new_values = [
+                    e for e in getattr(referent, self._attribute) if e != parent
+                ]
+                setattr(
+                    referent,
+                    self._attribute,
+                    new_values,
+                )
 
 
 class InlineModelAttribute(ModelLoader, Attribute):
