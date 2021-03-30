@@ -39,8 +39,9 @@ def test_create_indexed_one_recreated_instance(sheraf_database):
     class Model(tests.UUIDAutoModel):
         my_simple_attribute = sheraf.SimpleAttribute(default="").index()
 
-    with sheraf.connection(commit=True):
+    with sheraf.connection(commit=True) as conn:
         Model.read(m.id).delete()
+        assert Model.table not in conn.root()
 
     with sheraf.connection(commit=True):
         Model.create(my_simple_attribute="foo_indexed")

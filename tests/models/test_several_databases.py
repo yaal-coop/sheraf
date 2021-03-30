@@ -50,6 +50,7 @@ def test_model_with_database_name_specified(sheraf_database, db2):
 
     with sheraf.connection(commit=True):
         m = Db2Model.create()
+        n = Db2Model.create()
 
     with sheraf.connection() as connection:
         assert m.id not in connection.root().get(Db2Model.table, {})
@@ -57,11 +58,16 @@ def test_model_with_database_name_specified(sheraf_database, db2):
         connection_2 = connection.get_connection("db2")
         assert connection_2.root()[Db2Model.table]["id"][m.id] is m.mapping
         assert Db2Model.read(m.id) == m
-        assert Db2Model.count() == 1
-        assert Db2Model.all() == [m]
+        assert Db2Model.count() == 2
+        assert m in Db2Model.all()
+        assert n in Db2Model.all()
 
         m.delete()
         assert m.id not in connection_2.root()[Db2Model.table]["id"]
+        assert Db2Model.count() == 1
+
+        n.delete()
+        assert Db2Model not in connection_2.root()
         assert Db2Model.count() == 0
 
 
@@ -75,6 +81,7 @@ def test_database_retrocompatibility(sheraf_database, db2):
         pass
 
     with sheraf.connection(commit=True):
+        m0 = Model.create()
         m1 = Model.create()
 
     class Model(tests.UUIDAutoModel):
@@ -88,11 +95,17 @@ def test_database_retrocompatibility(sheraf_database, db2):
         assert root1[Model.table]["id"][m1.id] is m1.mapping
         assert m1.id not in root2[Model.table]["id"]
         assert m1.mapping == Model.read(m1.id).mapping
-        assert Model.count() == 2
-        assert list(Model.all()) == [m2, m1]
+        assert Model.count() == 3
+        assert m0 in Model.all()
+        assert m1 in Model.all()
+        assert m2 in Model.all()
 
         m1.delete()
         assert m1.id not in root1[Model.table]["id"]
+        assert Model.count() == 2
+
+        m0.delete()
+        assert Model.table not in root1
         assert Model.count() == 1
 
 

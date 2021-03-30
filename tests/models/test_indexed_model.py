@@ -177,7 +177,7 @@ def test_delete_last_model(sheraf_connection):
     assert m.id in sheraf_connection.root()[Model.table]["id"]
 
     m.delete()
-    assert m.id not in sheraf_connection.root()[Model.table]["id"]
+    assert Model.table not in sheraf_connection.root()
 
 
 def test_delete_last_model_with_another_simple_index_without_data(sheraf_connection):
@@ -189,8 +189,7 @@ def test_delete_last_model_with_another_simple_index_without_data(sheraf_connect
     assert None not in sheraf_connection.root()[Model.table]["foo"]
 
     m.delete()
-    assert m.id not in sheraf_connection.root()[Model.table]["id"]
-    assert None not in sheraf_connection.root()[Model.table]["foo"]
+    assert Model.table not in sheraf_connection.root()
 
 
 def test_delete_last_model_with_another_simple_index_with_data(sheraf_connection):
@@ -202,8 +201,7 @@ def test_delete_last_model_with_another_simple_index_with_data(sheraf_connection
     assert "bar" in sheraf_connection.root()[Model.table]["foo"]
 
     m.delete()
-    assert m.id not in sheraf_connection.root()[Model.table]["id"]
-    assert "bar" not in sheraf_connection.root()[Model.table]["foo"]
+    assert Model.table not in sheraf_connection.root()
 
 
 def test_first_instance_no_index_second_instance_index(sheraf_connection):

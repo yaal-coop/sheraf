@@ -53,6 +53,8 @@ class IndexManager:
             else:
                 self._table_del_multiple(table, key, model.mapping)
 
+        self._root_check()
+
     def update_item(self, model, old_values, new_values):
         if old_values and new_values:
             del_values = old_values - new_values
@@ -91,12 +93,25 @@ class IndexManager:
         index_list = table.setdefault(key, self.index_multiple_default())
         index_list.append(value)
 
+    def _root_check(self):
+        if all((not table for table in self.root().values())):
+            self.delete_root()
+
 
 class SimpleIndexManager(IndexManager):
     persistent = None
 
+    def root(self):
+        return self.persistent
+
+    def delete_root(self):
+        pass
+
     def initialized(self):
         return self.persistent is not None
+
+    def delete(self):
+        del self.persistent[self.details.key]
 
     def table_initialized(self):
         return self.details.key in self.persistent
@@ -150,6 +165,9 @@ class MultipleDatabaseIndexManager(IndexManager):
             if not setdefault:
                 raise
             return root.setdefault(self.table_name, self.root_default())
+
+    def delete_root(self, database_name=None):
+        del self.database_root(database_name)[self.table_name]
 
     def delete(self):
         try:
