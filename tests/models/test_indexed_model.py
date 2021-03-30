@@ -167,3 +167,54 @@ def test_model_from_table():
 
     assert model_from_table("tablem") is M
     assert model_from_table("invalid") is None
+
+
+def test_delete_last_model(sheraf_connection):
+    class Model(tests.UUIDAutoModel):
+        pass
+
+    m = Model.create()
+    assert m.id in sheraf_connection.root()[Model.table]["id"]
+
+    m.delete()
+    assert m.id not in sheraf_connection.root()[Model.table]["id"]
+
+
+def test_delete_last_model_with_another_simple_index_without_data(sheraf_connection):
+    class Model(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute().index(noneok=False, nullok=True)
+
+    m = Model.create(foo=None)
+    assert m.id in sheraf_connection.root()[Model.table]["id"]
+    assert None not in sheraf_connection.root()[Model.table]["foo"]
+
+    m.delete()
+    assert m.id not in sheraf_connection.root()[Model.table]["id"]
+    assert None not in sheraf_connection.root()[Model.table]["foo"]
+
+
+def test_delete_last_model_with_another_simple_index_with_data(sheraf_connection):
+    class Model(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute().index(noneok=False, nullok=True)
+
+    m = Model.create(foo="bar")
+    assert m.id in sheraf_connection.root()[Model.table]["id"]
+    assert "bar" in sheraf_connection.root()[Model.table]["foo"]
+
+    m.delete()
+    assert m.id not in sheraf_connection.root()[Model.table]["id"]
+    assert "bar" not in sheraf_connection.root()[Model.table]["foo"]
+
+
+def test_first_instance_no_index_second_instance_index(sheraf_connection):
+    class ModelSimple(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute().index(noneok=False, nullok=True)
+
+    m = ModelSimple.create(foo=None)
+
+    assert None not in sheraf_connection.root()[ModelSimple.table]["foo"]
+    assert m not in ModelSimple.search(foo=None)
+
+    n = ModelSimple.create(foo="bar")
+    assert "bar" in sheraf_connection.root()[ModelSimple.table]["foo"]
+    assert n in ModelSimple.search(foo="bar")
