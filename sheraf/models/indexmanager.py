@@ -53,8 +53,6 @@ class IndexManager:
             else:
                 self._table_del_multiple(table, key, model.mapping)
 
-        self._root_check()
-
     def update_item(self, model, old_values, new_values):
         if old_values and new_values:
             del_values = old_values - new_values
@@ -71,6 +69,8 @@ class IndexManager:
 
         elif not new_values:
             self.delete_item(model, old_values)
+
+        self._root_check()
 
     def _table_del_unique(self, table, key, value):
         del table[key]

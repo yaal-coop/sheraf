@@ -40,7 +40,8 @@ def test_create_indexed_one_recreated_instance(sheraf_database):
         my_simple_attribute = sheraf.SimpleAttribute(default="").index()
 
     with sheraf.connection(commit=True) as conn:
-        Model.read(m.id).delete()
+        with warnings.catch_warnings(record=True):
+            Model.read(m.id).delete()
         assert Model.table not in conn.root()
 
     with sheraf.connection(commit=True):

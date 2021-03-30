@@ -553,11 +553,8 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             ...
         sheraf.exceptions.ModelObjectNotFoundException: Id '...' not found in MyModel
         """
-        for index in self.indexes.values():
-            index.delete_item(self)
-
-        for attr in self.attributes.values():
-            attr.delete(self)
+        for attr_name in self.attributes.keys():
+            delattr(self, attr_name)
 
     @classmethod
     def count(cls, index_name=None):
