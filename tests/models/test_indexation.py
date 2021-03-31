@@ -45,16 +45,19 @@ def test_integer_unique_index_creation(sheraf_database, instance, mapping):
 
 class UniqueModelA(tests.IntAutoModel):
     my_attribute = sheraf.SimpleAttribute().index(unique=True)
+    other = sheraf.SimpleAttribute()
 
 
 class UniqueModelB(tests.IntAutoModel):
     my_attribute = sheraf.SimpleAttribute()
     my_attribute_index = sheraf.Index("my_attribute", unique=True, key="my_attribute")
+    other = sheraf.SimpleAttribute()
 
 
 class UniqueModelC(tests.IntAutoModel):
     my_attribute = sheraf.SimpleAttribute()
     my_attribute_index = sheraf.Index(my_attribute, unique=True, key="my_attribute")
+    other = sheraf.SimpleAttribute()
 
 
 @pytest.mark.parametrize(
@@ -193,10 +196,22 @@ def test_unique_index_creation_and_attribute_deletion(sheraf_database, Model):
 def test_unique_index_double_value(sheraf_database, Model):
     with sheraf.connection(commit=True):
         Model.create(my_attribute="foo")
+        assert Model.count() == 1
 
     with sheraf.connection():
         with pytest.raises(sheraf.exceptions.UniqueIndexException):
             Model.create(my_attribute="foo")
+        assert Model.count() == 1
+
+    with sheraf.connection(commit=True):
+        other = Model.create(my_attribute="anything", other="old")
+        assert Model.count() == 2
+
+        with pytest.raises(sheraf.exceptions.UniqueIndexException):
+            other.other = "new"
+            other.my_attribute = "foo"
+
+        assert other.other == "new"
 
 
 def test_unique_indexation_on_model_attribute(sheraf_database):

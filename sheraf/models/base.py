@@ -103,12 +103,17 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         ...     cowboy.horse.name
         'Jolly Jumper'
         """
-        mapping = (default or cls.default_mapping)()
-        instance = cls._decorate(mapping)
-        instance.initialize(*args, **kwargs)
-        return instance
 
-    def initialize(self, *args, **kwargs):
+        try:
+            mapping = (default or cls.default_mapping)()
+            instance = cls._decorate(mapping)
+            instance.initialize(**kwargs)
+            return instance
+        except Exception:
+            instance.delete()
+            raise
+
+    def initialize(self, **kwargs):
         for attribute, value in kwargs.items():
             if attribute not in self.attributes:
                 raise TypeError(
@@ -119,7 +124,11 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
             self.__setattr__(attribute, value)
 
         for name, attribute in self.attributes.items():
-            if not attribute.lazy and name not in kwargs:
+            if (
+                not attribute.lazy
+                and name not in kwargs
+                and not attribute.is_created(self)
+            ):
                 self.__setattr__(name, attribute.create(self))
 
     @classmethod

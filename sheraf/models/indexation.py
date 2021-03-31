@@ -132,7 +132,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         return sheraf.queryset.QuerySet(model_class=cls)
 
     @classmethod
-    def create(cls, *args, **kwargs):
+    def create(cls, **kwargs):
         if not cls.primary_key():
             raise sheraf.exceptions.PrimaryKeyException(
                 "{} inherit from IndexedModel but has no primary key. Cannot create.".format(
@@ -140,7 +140,18 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 )
             )
 
-        return super().create(*args, **kwargs)
+        return super().create(**kwargs)
+
+    def initialize(self, **kwargs):
+        if self.primary_key() in kwargs:
+            identifier = kwargs[self.primary_key()]
+            del kwargs[self.primary_key()]
+        else:
+            identifier = self.attributes[self.primary_key()].create(self)
+
+        self.__setattr__(self.primary_key(), identifier)
+
+        super().initialize(**kwargs)
 
     @classmethod
     def _check_args(cls, *args, **kwargs):
