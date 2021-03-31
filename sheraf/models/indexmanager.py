@@ -58,6 +58,9 @@ class IndexManager:
             del_values = old_values - new_values
             add_values = new_values - old_values
 
+            if add_values:
+                self.check_item(model, add_values)
+
             if del_values:
                 self.delete_item(model, del_values)
 
@@ -65,12 +68,25 @@ class IndexManager:
                 self.add_item(model, add_values)
 
         elif not old_values:
+            self.check_item(model, new_values)
             self.add_item(model, new_values)
 
         elif not new_values:
             self.delete_item(model, old_values)
 
         self._root_check()
+
+    def check_item(self, model, values):
+        if not self.details.unique or not self.initialized():
+            return
+
+        for value in values:
+            if value in self.table():
+                raise sheraf.exceptions.UniqueIndexException(
+                    "The key '{}' is already present in the index '{}'".format(
+                        value, self.details.key
+                    )
+                )
 
     def _table_del_unique(self, table, key, value):
         del table[key]
@@ -81,12 +97,6 @@ class IndexManager:
             del table[key]
 
     def _table_set_unique(self, table, key, value):
-        if key in table:
-            raise sheraf.exceptions.UniqueIndexException(
-                "The key '{}' is already present in the index '{}'".format(
-                    key, self.details.key
-                )
-            )
         table[key] = value
 
     def _table_set_multiple(self, table, key, value):

@@ -441,12 +441,22 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
     def __setattr__(self, name, value):
         attribute = self.attributes.get(name)
         if attribute:
+            was_created = attribute.is_created(self)
+            if was_created:
+                prev_value = getattr(self, name)
             old_values = self.before_index_edition(attribute)
 
         super().__setattr__(name, value)
 
         if attribute:
-            self.after_index_edition(attribute, old_values)
+            try:
+                self.after_index_edition(attribute, old_values)
+            except sheraf.SherafException:
+                if not was_created:
+                    super().__delattr__(name)
+                else:
+                    super().__setattr__(name, prev_value)
+                raise
 
     def __delattr__(self, name):
         attribute = self.attributes.get(name)

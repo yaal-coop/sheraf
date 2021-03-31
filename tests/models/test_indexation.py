@@ -193,7 +193,7 @@ def test_unique_index_creation_and_attribute_deletion(sheraf_database, Model):
         UniqueModelC,
     ],
 )
-def test_unique_index_double_value(sheraf_database, Model):
+def test_unique_index_double_value_create(sheraf_database, Model):
     with sheraf.connection(commit=True):
         Model.create(my_attribute="foo")
         assert Model.count() == 1
@@ -203,15 +203,68 @@ def test_unique_index_double_value(sheraf_database, Model):
             Model.create(my_attribute="foo")
         assert Model.count() == 1
 
-    with sheraf.connection(commit=True):
-        other = Model.create(my_attribute="anything", other="old")
-        assert Model.count() == 2
 
-        with pytest.raises(sheraf.exceptions.UniqueIndexException):
-            other.other = "new"
-            other.my_attribute = "foo"
+def test_unique_index_double_value_create_another_index_create(sheraf_connection):
+    class Model(tests.UUIDAutoModel):
+        foo = sheraf.SimpleAttribute().index(unique=True)
+        bar = sheraf.SimpleAttribute().index(unique=True)
 
-        assert other.other == "new"
+    a = Model.create(foo="a", bar="same")
+    assert Model.count() == 1
+    assert a == Model.read(foo="a")
+    assert a == Model.read(bar="same")
+
+    with pytest.raises(sheraf.exceptions.UniqueIndexException):
+        Model.create(foo="b", bar="same")
+
+    assert Model.count() == 1
+    assert a == Model.read(foo="a")
+    assert a == Model.read(bar="same")
+
+
+def test_unique_index_double_value_create_another_index_set(sheraf_connection):
+    class Model(tests.UUIDAutoModel):
+        foo = sheraf.SimpleAttribute().index(unique=True)
+        bar = sheraf.SimpleAttribute().index(unique=True)
+
+    a = Model.create(foo="a", bar="same")
+    b = Model.create(foo="b", bar="other")
+
+    assert Model.count() == 2
+    assert a == Model.read(foo="a")
+    assert a == Model.read(bar="same")
+    assert b == Model.read(foo="b")
+    assert b == Model.read(bar="other")
+
+    with pytest.raises(sheraf.exceptions.UniqueIndexException):
+        b.bar = "same"
+
+    assert b.bar == "other"
+    assert Model.count() == 2
+    assert a == Model.read(foo="a")
+    assert a == Model.read(bar="same")
+    assert b == Model.read(foo="b")
+    assert b == Model.read(bar="other")
+
+
+@pytest.mark.parametrize(
+    "Model",
+    [
+        UniqueModelA,
+        UniqueModelB,
+        UniqueModelC,
+    ],
+)
+def test_unique_index_double_value_set(sheraf_connection, Model):
+    Model.create(my_attribute="foo")
+    other = Model.create(my_attribute="anything", other="old")
+    assert Model.count() == 2
+
+    with pytest.raises(sheraf.exceptions.UniqueIndexException):
+        other.other = "new"
+        other.my_attribute = "foo"
+
+    assert other.other == "new"
 
 
 def test_unique_indexation_on_model_attribute(sheraf_database):
