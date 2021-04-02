@@ -16,6 +16,7 @@ from .attributes.collections import (
     SmallListAttribute,
 )
 from .attributes.counter import CounterAttribute
+from .attributes.enum import EnumAttribute
 from .attributes.files import (
     FileAttribute,
     FileObject,
