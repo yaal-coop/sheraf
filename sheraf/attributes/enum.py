@@ -56,6 +56,9 @@ class EnumAttribute(sheraf.Attribute):
         super().__init__(**kwargs)
 
     def serialize(self, value):
+        if not isinstance(value, EnumAccessor):
+            value = self.attribute.serialize(value)
+
         enum_value = self.enum(value).value
         return self.attribute.serialize(enum_value)
 
