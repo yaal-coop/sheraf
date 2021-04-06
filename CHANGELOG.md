@@ -1,3 +1,10 @@
+[0.4.7] - 2021-xx-xx
+====================
+
+Added
+*****
+- Implemented :class:`~sheraf.attributes.enum.EnumAttribute`.
+
 [0.4.6] - 2021-03-31
 ====================
 

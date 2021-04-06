@@ -22,6 +22,10 @@ Simple attributes
     :members:
     :show-inheritance:
 
+.. automodule:: sheraf.attributes.enum
+    :members:
+    :show-inheritance:
+
 .. automodule:: sheraf.attributes.counter
     :members:
     :show-inheritance:
