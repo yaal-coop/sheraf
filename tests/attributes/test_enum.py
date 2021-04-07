@@ -86,3 +86,15 @@ def test_cast(sheraf_connection):
 
     assert m.status == 1
     assert m.status == Enum.FOO
+
+
+def test_hash(sheraf_connection):
+    class Enum(enum.IntEnum):
+        FOO = 1
+        BAR = 2
+
+    class Model(tests.UUIDAutoModel):
+        status = sheraf.EnumAttribute(Enum, sheraf.IntegerAttribute())
+
+    m = Model.create(status=Enum.FOO)
+    {m.status}

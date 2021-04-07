@@ -19,6 +19,9 @@ class EnumAccessor:
     def __eq__(self, other):
         return self.enum == other
 
+    def __hash__(self):
+        return hash(self.enum)
+
 
 class EnumAttribute(sheraf.Attribute):
     """

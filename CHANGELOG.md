@@ -1,7 +1,14 @@
+[0.4.9] - 2021-04-07
+====================
+
+Fixed
+*****
+- Fixed :class:`~sheraf.attributes.enum.EnumAttribute` hashability.
+
 [0.4.8] - 2021-04-06
 ====================
 
-Added
+Fixed
 *****
 - Fixed :class:`~sheraf.attributes.enum.EnumAttribute` casting.
 
