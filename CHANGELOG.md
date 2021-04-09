@@ -1,3 +1,10 @@
+[0.4.10] - 2021-04-09
+=====================
+
+Fixed
+*****
+- Fixed :class:`~sheraf.attributes.enum.EnumAttribute` can handle :class:`None` values.
+
 [0.4.9] - 2021-04-07
 ====================
 

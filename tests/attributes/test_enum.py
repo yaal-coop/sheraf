@@ -98,3 +98,15 @@ def test_hash(sheraf_connection):
 
     m = Model.create(status=Enum.FOO)
     {m.status}
+
+
+def test_none(sheraf_connection):
+    class Enum(enum.IntEnum):
+        FOO = 1
+        BAR = 2
+
+    class Model(tests.UUIDAutoModel):
+        status = sheraf.EnumAttribute(Enum, sheraf.IntegerAttribute())
+
+    m = Model.create(status=None)
+    assert m.status == None

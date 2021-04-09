@@ -59,6 +59,9 @@ class EnumAttribute(sheraf.Attribute):
         super().__init__(**kwargs)
 
     def serialize(self, value):
+        if value is None:
+            return None
+
         if not isinstance(value, EnumAccessor):
             value = self.attribute.serialize(value)
 
@@ -66,5 +69,8 @@ class EnumAttribute(sheraf.Attribute):
         return self.attribute.serialize(enum_value)
 
     def deserialize(self, value):
+        if value is None:
+            return None
+
         data = self.attribute.deserialize(value)
         return EnumAccessor(self.enum(data))
