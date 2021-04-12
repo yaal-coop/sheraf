@@ -1,3 +1,10 @@
+[0.4.11] - 2021-04-12
+=====================
+
+Fixed
+*****
+- Fixed a bug with :class:`~sheraf.attributes.enum.EnumAttribute` equality.
+
 [0.4.10] - 2021-04-09
 =====================
 

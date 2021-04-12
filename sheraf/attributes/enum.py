@@ -17,7 +17,7 @@ class EnumAccessor:
             return getattr(self.enum, name)
 
     def __eq__(self, other):
-        return self.enum == other
+        return self.enum.value == other
 
     def __hash__(self):
         return hash(self.enum)
