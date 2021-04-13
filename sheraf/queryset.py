@@ -177,15 +177,15 @@ class QuerySet(object):
         # TODO: Avoid to recreate a QuerySet and avoid itertools.islice
         return QuerySet(itertools.islice(self._iterator, start, stop, step))
 
-    def _init_indexed_iterator(self, filter_name, filter_value, filter_transformation):
+    def _init_indexed_iterator(self, filter_name, filter_value, filter_search_func):
         index = self.model.indexes[filter_name]
-        index_values = (
+        index_keys = (
             index.details.call_search_func(self.model, filter_value)
-            if filter_transformation
+            if filter_search_func
             else [filter_value]
         )
 
-        self._iterator = self.model.read_these_valid(**{filter_name: index_values})
+        self._iterator = self.model.read_these_valid(**{filter_name: index_keys})
 
         if not index.details.unique:
             self._iterator = unique_everseen(self._iterator, lambda m: m.identifier)
@@ -196,13 +196,13 @@ class QuerySet(object):
             return
 
         indexed_filters = (
-            (name, value, transformation)
-            for (name, value, transformation) in self.filters.values()
+            (name, value, search_func)
+            for (name, value, search_func) in self.filters.values()
             if name in self.model.indexes
         )
 
-        for name, value, transformation in indexed_filters:
-            self._init_indexed_iterator(name, value, transformation)
+        for name, value, search_func in indexed_filters:
+            self._init_indexed_iterator(name, value, search_func)
 
             if self._iterator:
                 return
@@ -247,11 +247,11 @@ class QuerySet(object):
         self._iterator = iter(self._iterable)
 
     def _model_has_expected_values(self, model):
-        for filter_name, expected_value, filter_transformation in self.filters.values():
+        for filter_name, expected_value, filter_search_func in self.filters.values():
             if filter_name in model.indexes:
                 index = model.indexes[filter_name]
 
-                if filter_transformation:
+                if filter_search_func:
                     if not set(
                         index.details.call_search_func(model, expected_value)
                     ) & set(index.details.get_model_values(model)):
@@ -286,12 +286,12 @@ class QuerySet(object):
             return sum(1 for _ in self)
 
         index_name = list(self.filters.keys())[0]
-        _, filter_value, filter_transformation = list(self.filters.values())[0]
+        _, filter_value, filter_search_func = list(self.filters.values())[0]
         if index_name not in self.model.indexes:
             return sum(1 for _ in self)
 
         index = self.model.indexes[index_name]
-        if filter_transformation:
+        if filter_search_func:
             index_values = index.details.call_search_func(self.model, filter_value)
 
         if index.details.unique:
@@ -381,9 +381,9 @@ class QuerySet(object):
         values it takes are transformed with the same way values are transformed at indexation.
         TODO: pas très clair
 
-        For instance, if an attribute indexes its values with a lowercase transformation, the
+        For instance, if an attribute indexes its values with a lowercase search_func, the
         :func:`~sheraf.queryset.QuerySet.search` attributes will go through the same
-        transformation. Hence it allows to pass uppercase filter values, while
+        search_func. Hence it allows to pass uppercase filter values, while
         :func:`~sheraf.queryset.QuerySet.filter` does not allow this.
 
         >>> class MyCustomModel(sheraf.Model):
@@ -405,7 +405,7 @@ class QuerySet(object):
 
         return self._filter(True, **kwargs)
 
-    def _filter(self, transformation, predicate=None, **kwargs):
+    def _filter(self, search_func, predicate=None, **kwargs):
         qs = self.copy()
         if self.model:
             for filter_name in kwargs.keys():
@@ -420,7 +420,7 @@ class QuerySet(object):
                     )
         kwargs_values = OrderedDict(
             {
-                filter_name: (filter_name, filter_value, transformation)
+                filter_name: (filter_name, filter_value, search_func)
                 for filter_name, filter_value in kwargs.items()
             }
         )
