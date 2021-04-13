@@ -1,3 +1,10 @@
+[0.4.12] - 2021-04-13
+=====================
+
+Fixed
+*****
+- Fixed a bug with :class:`~sheraf.attributes.enum.EnumAttribute` string casting.
+
 [0.4.11] - 2021-04-12
 =====================
 

@@ -22,6 +22,9 @@ class EnumAccessor:
     def __hash__(self):
         return hash(self.enum)
 
+    def __str__(self):
+        return str(self.enum.value)
+
 
 class EnumAttribute(sheraf.Attribute):
     """
