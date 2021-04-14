@@ -172,6 +172,27 @@ class QuerySet(object):
         # TODO: Avoid to recreate a QuerySet and avoid itertools.islice
         return QuerySet(itertools.islice(self._iterator, start, stop, step))
 
+    @property
+    def indexed_filters(self):
+        return [
+            (
+                name,
+                value,
+                search_func,
+                self.orders.get(name) == sheraf.constants.DESC,
+            )
+            for (name, value, search_func) in self.filters.values()
+            if name in self.model.indexes
+        ]
+
+    @property
+    def non_indexed_filters(self):
+        return [
+            (name, value)
+            for (name, value, _) in self.filters.values()
+            if name not in self.model.indexes and name in self.model.attributes
+        ]
+
     def _init_indexed_iterator(self, filter_name, filter_value, filter_search_func):
         index = self.model.indexes[filter_name]
         index_keys = (
@@ -191,13 +212,7 @@ class QuerySet(object):
         if not self.model:
             return iter(self._iterable)
 
-        indexed_filters = (
-            (name, value, search_func)
-            for (name, value, search_func) in self.filters.values()
-            if name in self.model.indexes
-        )
-
-        for name, value, search_func in indexed_filters:
+        for name, value, search_func, _ in self.indexed_filters:
             return self._init_indexed_iterator(name, value, search_func)
 
         identifier_index = self.model.indexes[self.model.primary_key()]
@@ -243,22 +258,22 @@ class QuerySet(object):
         )
 
     def _model_has_expected_values(self, model):
-        for filter_name, expected_value, filter_search_func in self.filters.values():
-            if filter_name in model.indexes:
-                index = model.indexes[filter_name]
+        if not all(
+            getattr(model, filter_name) == expected_value
+            for filter_name, expected_value in self.non_indexed_filters
+        ):
+            return False
 
-                if filter_search_func:
-                    if not set(
-                        index.details.call_search_func(model, expected_value)
-                    ) & set(index.details.get_model_values(model)):
-                        return False
-                else:
-                    if expected_value not in index.details.get_model_values(model):
-                        return False
-
-            elif filter_name in model.attributes:
-                if getattr(model, filter_name) != expected_value:
-                    return False
+        if not all(
+            (
+                set(model.indexes[name].details.call_search_func(model, value))
+                & set(model.indexes[name].details.get_model_values(model))
+            )
+            if search_func
+            else (value in model.indexes[name].details.get_model_values(model))
+            for name, value, search_func, _ in self.indexed_filters
+        ):
+            return False
 
         return not self._predicate or self._predicate(model)
 
