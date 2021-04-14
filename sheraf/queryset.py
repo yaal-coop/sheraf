@@ -115,14 +115,9 @@ class QuerySet(object):
 
         while True:
             try:
-                model = next(self._iterator)
+                return next(self._iterator)
             except sheraf.exceptions.ModelObjectNotFoundException:
                 continue
-
-            if self._model_has_expected_values(model) and (
-                not self._predicate or self._predicate(model)
-            ):
-                return model
 
     def __eq__(self, other):
         if isinstance(other, Iterable):
@@ -243,7 +238,9 @@ class QuerySet(object):
 
             iterator = iter(self._iterable)
 
-        self._iterator = iterator
+        self._iterator = (
+            model for model in iterator if self._model_has_expected_values(model)
+        )
 
     def _model_has_expected_values(self, model):
         for filter_name, expected_value, filter_search_func in self.filters.values():
@@ -262,7 +259,8 @@ class QuerySet(object):
             elif filter_name in model.attributes:
                 if getattr(model, filter_name) != expected_value:
                     return False
-        return True
+
+        return not self._predicate or self._predicate(model)
 
     def count(self):
         """
