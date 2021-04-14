@@ -132,8 +132,11 @@ class SimpleIndexManager(IndexManager):
         except KeyError:
             return self.persistent.setdefault(self.details.key, self.details.mapping())
 
-    def get_item(self, key):
-        return self.persistent[self.details.key][key]
+    def get_item(self, key, silent_errors=False):
+        try:
+            return self.persistent[self.details.key][key]
+        except KeyError:
+            return None
 
     def has_item(self, key):
         return self.persistent[self.details.key].has_key(key)
@@ -235,13 +238,16 @@ class MultipleDatabaseIndexManager(IndexManager):
 
         return False
 
-    def get_item(self, key):
+    def get_item(self, key, silent_errors=False):
         last_exc = None
         for table in self.tables():
             try:
                 return table[key]
             except KeyError as exc:
                 last_exc = exc
+
+        if silent_errors:
+            return None
 
         if last_exc:
             raise last_exc

@@ -202,7 +202,7 @@ def test_indexation_limitation(sheraf_database, persistent_type, subattribute):
         assert m.mapping in conn.root()[Model.table]["list"]["bar"]
         assert "baz" not in conn.root()[Model.table]["list"]
 
-        assert [] == list(Model.search(list="foo"))
+        assert [m] == list(Model.search(list="foo"))
         assert [m] == list(Model.search(list="bar"))
         assert [] == list(Model.search(list="baz"))
 

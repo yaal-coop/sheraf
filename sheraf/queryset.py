@@ -8,7 +8,6 @@ import sheraf.constants
 from sheraf.exceptions import InvalidFilterException, InvalidOrderException
 
 from collections.abc import Iterable, Sized
-from sheraf.tools.more_itertools import unique_everseen
 
 
 class QuerySet(object):
@@ -113,16 +112,7 @@ class QuerySet(object):
         if not self._iterator:
             self._init_iterator()
 
-        while True:
-            try:
-                model = next(self._iterator)
-            except sheraf.exceptions.ModelObjectNotFoundException:
-                continue
-
-            if self._model_has_expected_values(model) and (
-                not self._predicate or self._predicate(model)
-            ):
-                return model
+        return next(self._iterator)
 
     def __eq__(self, other):
         if isinstance(other, Iterable):
@@ -177,93 +167,113 @@ class QuerySet(object):
         # TODO: Avoid to recreate a QuerySet and avoid itertools.islice
         return QuerySet(itertools.islice(self._iterator, start, stop, step))
 
-    def _init_indexed_iterator(self, filter_name, filter_value, filter_transformation):
-        index = self.model.indexes[filter_name]
-        index_values = (
-            index.details.call_search_func(self.model, filter_value)
-            if filter_transformation
-            else [filter_value]
+    @property
+    def indexed_filters(self):
+        return [
+            (
+                name,
+                value,
+                search_func,
+                self.orders.get(name) == sheraf.constants.DESC,
+            )
+            for (name, value, search_func) in self.filters.values()
+            if name in self.model.indexes
+        ]
+
+    @property
+    def non_indexed_filters(self):
+        return [
+            (name, value)
+            for (name, value, _) in self.filters.values()
+            if name not in self.model.indexes and name in self.model.attributes
+        ]
+
+    def _index_keys(self, index, value, search_func):
+        return (
+            index.details.call_search_func(self.model, value)
+            if search_func
+            else [value]
         )
 
-        self._iterator = self.model.read_these_valid(**{filter_name: index_values})
+    def _index_objects_ids(self, name, value, search_func, reverse):
+        index = self.model.indexes[name]
+        keys = self._index_keys(index, value, search_func)
 
-        if not index.details.unique:
-            self._iterator = unique_everseen(self._iterator, lambda m: m.identifier)
+        if index.details.unique:
+            mappings = (index.get_item(key, True) for key in keys)
+
+        else:
+            mappings_lists = (index.get_item(key, True) for key in keys)
+            mappings = (m for l in mappings_lists if l for m in l)
+
+        return {m[self.model.primary_key()] for m in mappings if m}
+
+    def _init_indexed_iterator(self):
+        ids_sets = (self._index_objects_ids(*index) for index in self.indexed_filters)
+        raw_ids = set.intersection(*ids_sets)
+
+        pk_attribute = self.model.attributes[self.model.primary_key()]
+        ids = (pk_attribute.deserialize(id_) for id_ in raw_ids)
+        objects = self.model.read_these(ids)
+        return objects
 
     def _init_default_iterator(self, reverse=False):
         if not self.model:
-            self._iterator = iter(self._iterable)
-            return
+            return iter(self._iterable)
 
-        indexed_filters = (
-            (name, value, transformation)
-            for (name, value, transformation) in self.filters.values()
-            if name in self.model.indexes
-        )
+        # if there are some indexed filters, then iterate
+        # on those indexes.
+        if self.indexed_filters:
+            return self._init_indexed_iterator()
 
-        for name, value, transformation in indexed_filters:
-            self._init_indexed_iterator(name, value, transformation)
-
-            if self._iterator:
-                return
-
-        if not self._iterator:
-            identifier_index = self.model.indexes[self.model.primary_key()]
-            keys = identifier_index.iterkeys(reverse)
-            self._iterator = self.model.read_these(keys)
+        # iterate all items on the primary key
+        identifier_index = self.model.indexes[self.model.primary_key()]
+        keys = identifier_index.iterkeys(reverse)
+        iterator = self.model.read_these(keys)
+        return iterator
 
     def _init_iterator(self):
         # The default sort order is by ascending identifier
         if not self.orders:
-            self._init_default_iterator()
-            return
+            iterator = self._init_default_iterator()
 
         # If there is only one sort option, and it is over the primary key
         # we can use iterators instead of sorting the whole collection.
-        if (
+        elif (
             self.model
             and len(self.orders) == 1
             and self.model.primary_key() in self.orders
         ):
-            self._init_default_iterator(
+            iterator = self._init_default_iterator(
                 self.orders[self.model.primary_key()] == sheraf.constants.DESC
             )
-            return
 
         # Else we need to sort the collection.
         # So we successively sort the list from the less important
         # order to the most important order.
-        if self._iterable is None:
-            keys = self.model.indexes[self.model.primary_key()].iterkeys()
-            self._iterable = self.model.read_these(keys)
+        else:
+            if self._iterable is None:
+                keys = self.model.indexes[self.model.primary_key()].iterkeys()
+                self._iterable = self.model.read_these(keys)
 
-        for attribute, order in reversed(self.orders.items()):
-            self._iterable = sorted(
-                self._iterable,
-                key=operator.attrgetter(attribute),
-                reverse=(order == sheraf.constants.DESC),
-            )
+            for attribute, order in reversed(self.orders.items()):
+                self._iterable = sorted(
+                    self._iterable,
+                    key=operator.attrgetter(attribute),
+                    reverse=(order == sheraf.constants.DESC),
+                )
 
-        self._iterator = iter(self._iterable)
+            iterator = iter(self._iterable)
+
+        self._iterator = (
+            model for model in iterator if self._model_has_expected_values(model)
+        )
 
     def _model_has_expected_values(self, model):
-        for filter_name, expected_value, filter_transformation in self.filters.values():
-            if filter_name in model.indexes:
-                index = model.indexes[filter_name]
-
-                if filter_transformation:
-                    if not set(
-                        index.details.call_search_func(model, expected_value)
-                    ) & set(index.details.get_model_values(model)):
-                        return False
-                else:
-                    if expected_value not in index.details.get_model_values(model):
-                        return False
-
-            elif filter_name in model.attributes:
-                if getattr(model, filter_name) != expected_value:
-                    return False
-        return True
+        return all(
+            getattr(model, filter_name) == expected_value
+            for filter_name, expected_value in self.non_indexed_filters
+        ) and (not self._predicate or self._predicate(model))
 
     def count(self):
         """
@@ -286,12 +296,12 @@ class QuerySet(object):
             return sum(1 for _ in self)
 
         index_name = list(self.filters.keys())[0]
-        _, filter_value, filter_transformation = list(self.filters.values())[0]
+        _, filter_value, filter_search_func = list(self.filters.values())[0]
         if index_name not in self.model.indexes:
             return sum(1 for _ in self)
 
         index = self.model.indexes[index_name]
-        if filter_transformation:
+        if filter_search_func:
             index_values = index.details.call_search_func(self.model, filter_value)
 
         if index.details.unique:
@@ -381,9 +391,9 @@ class QuerySet(object):
         values it takes are transformed with the same way values are transformed at indexation.
         TODO: pas très clair
 
-        For instance, if an attribute indexes its values with a lowercase transformation, the
+        For instance, if an attribute indexes its values with a lowercase search_func, the
         :func:`~sheraf.queryset.QuerySet.search` attributes will go through the same
-        transformation. Hence it allows to pass uppercase filter values, while
+        search_func. Hence it allows to pass uppercase filter values, while
         :func:`~sheraf.queryset.QuerySet.filter` does not allow this.
 
         >>> class MyCustomModel(sheraf.Model):
@@ -405,7 +415,7 @@ class QuerySet(object):
 
         return self._filter(True, **kwargs)
 
-    def _filter(self, transformation, predicate=None, **kwargs):
+    def _filter(self, search_func, predicate=None, **kwargs):
         qs = self.copy()
         if self.model:
             for filter_name in kwargs.keys():
@@ -420,7 +430,7 @@ class QuerySet(object):
                     )
         kwargs_values = OrderedDict(
             {
-                filter_name: (filter_name, filter_value, transformation)
+                filter_name: (filter_name, filter_value, search_func)
                 for filter_name, filter_value in kwargs.items()
             }
         )

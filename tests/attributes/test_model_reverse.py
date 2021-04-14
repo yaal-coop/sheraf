@@ -166,7 +166,7 @@ def test_multiple_string_model_setattr(sheraf_connection):
 
     assert mom.child == child
     assert dad.child == child
-    assert child.parents == [mom, dad]
+    assert set(child.parents) == {mom, dad}
 
     remom = MultipleParent.read(mom.id)
     redad = MultipleParent.read(dad.id)
@@ -174,12 +174,12 @@ def test_multiple_string_model_setattr(sheraf_connection):
 
     assert remom.child == child
     assert redad.child == child
-    assert rechild.parents == [mom, dad]
+    assert set(rechild.parents) == {mom, dad}
 
     child.parents = [dad]
     assert dad.child == child
     assert mom.child is None
-    assert child.parents == [dad]
+    assert set(child.parents) == {dad}
 
     remom = MultipleParent.read(mom.id)
     redad = MultipleParent.read(dad.id)
@@ -187,7 +187,7 @@ def test_multiple_string_model_setattr(sheraf_connection):
 
     assert redad.child == child
     assert remom.child is None
-    assert rechild.parents == [dad]
+    assert set(rechild.parents) == {dad}
 
 
 def test_multiple_string_model_create(sheraf_connection):
@@ -197,7 +197,7 @@ def test_multiple_string_model_create(sheraf_connection):
 
     assert mom.child == child
     assert dad.child == child
-    assert child.parents == [mom, dad]
+    assert set(child.parents) == {mom, dad}
 
     remom = MultipleParent.read(mom.id)
     redad = MultipleParent.read(dad.id)
@@ -205,12 +205,12 @@ def test_multiple_string_model_create(sheraf_connection):
 
     assert remom.child == child
     assert redad.child == child
-    assert rechild.parents == [mom, dad]
+    assert set(rechild.parents) == {mom, dad}
 
     child.parents = [dad]
     assert dad.child == child
     assert mom.child is None
-    assert child.parents == [dad]
+    assert set(child.parents) == {dad}
 
     remom = MultipleParent.read(mom.id)
     redad = MultipleParent.read(dad.id)
@@ -218,7 +218,7 @@ def test_multiple_string_model_create(sheraf_connection):
 
     assert redad.child == child
     assert remom.child is None
-    assert rechild.parents == [dad]
+    assert set(rechild.parents) == {dad}
 
 
 def test_multiple_delete_child(sheraf_connection):
@@ -228,7 +228,7 @@ def test_multiple_delete_child(sheraf_connection):
     child = MultipleParentChild.create(parents=[mom, dad])
     assert mom.child == child
     assert dad.child == child
-    assert child.parents == [mom, dad]
+    assert set(child.parents) == {mom, dad}
 
     child.delete()
     assert mom.child is None
@@ -244,16 +244,16 @@ def test_multiple_delete_parent(sheraf_connection):
 
     assert mom.child == child
     assert dad.child == child
-    assert child.parents == [mom, dad]
+    assert set(child.parents) == {mom, dad}
 
     mom.delete()
 
-    assert child.parents == [dad]
+    assert set(child.parents) == {dad}
     assert dad.child == child
 
     dad.delete()
 
-    assert child.parents == []
+    assert set(child.parents) == set()
 
 
 # ----------------------------------------------------------------------------

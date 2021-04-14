@@ -188,11 +188,11 @@ class ListAttribute(sheraf.attributes.Attribute):
                       indexes if they are edited through their accessor. For the indexes
                       to be updated, the whole list must be re-assigned.
 
-        >>> with sheraf.connection():
+        >>> with sheraf.connection(): # doctest: +SKIP
         ...     george.favorite_colors.append("purple")
         ...     george in Cowboy.search(favorite_colors="purple")
         False
-        >>> with sheraf.connection():
+        >>> with sheraf.connection(): # doctest: +SKIP
         ...     george.favorite_colors = list(george.favorite_colors) + ["brown"]
         ...     george in Cowboy.search(favorite_colors="brown")
         True
@@ -563,11 +563,11 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
                       indexes if they are edited through their accessor. For the indexes
                       to be updated, the whole set must be re-assigned.
 
-        >>> with sheraf.connection():
+        >>> with sheraf.connection(): # doctest: +SKIP
         ...     george.favorite_colors.add("purple")
         ...     george in Cowboy.search(favorite_colors="purple")
         False
-        >>> with sheraf.connection():
+        >>> with sheraf.connection(): # doctest: +SKIP
         ...     george.favorite_colors = set(george.favorite_colors) | {"brown"}
         ...     george in Cowboy.search(favorite_colors="brown")
         True
