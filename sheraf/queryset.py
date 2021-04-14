@@ -195,7 +195,7 @@ class QuerySet(object):
             else [value]
         )
 
-    def _index_objects_ids(self, name, value, search_func, reverse):
+    def _objects_ids(self, name, value, search_func, reverse):
         index = self.model.indexes[name]
         keys = self._index_keys(index, value, search_func)
 
@@ -206,10 +206,10 @@ class QuerySet(object):
             mappings_lists = (index.get_item(key, True) for key in keys)
             mappings = (m for l in mappings_lists if l for m in l)
 
-        return {m[self.model.primary_key()] for m in mappings if m}
+        return (m[self.model.primary_key()] for m in mappings if m)
 
     def _indexes_iterator(self):
-        ids_sets = (self._index_objects_ids(*index) for index in self.indexed_filters)
+        ids_sets = (set(self._objects_ids(*index)) for index in self.indexed_filters)
         raw_ids = set.intersection(*ids_sets)
 
         pk_attribute = self.model.attributes[self.model.primary_key()]
