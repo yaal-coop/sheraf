@@ -8,7 +8,6 @@ import sheraf.constants
 from sheraf.exceptions import InvalidFilterException, InvalidOrderException
 
 from collections.abc import Iterable, Sized
-from sheraf.tools.more_itertools import unique_everseen
 
 
 class QuerySet(object):
@@ -113,11 +112,7 @@ class QuerySet(object):
         if not self._iterator:
             self._init_iterator()
 
-        while True:
-            try:
-                return next(self._iterator)
-            except sheraf.exceptions.ModelObjectNotFoundException:
-                continue
+        return next(self._iterator)
 
     def __eq__(self, other):
         if isinstance(other, Iterable):
@@ -200,24 +195,38 @@ class QuerySet(object):
             else [value]
         )
 
-    def _init_indexed_iterator(self, name, value, search_func):
+    def _index_objects_ids(self, name, value, search_func, reverse):
         index = self.model.indexes[name]
         keys = self._index_keys(index, value, search_func)
 
-        iterator = self.model.read_these_valid(**{name: keys})
+        if index.details.unique:
+            mappings = (index.get_item(key, True) for key in keys)
 
-        if not index.details.unique:
-            iterator = unique_everseen(iterator, lambda m: m.identifier)
+        else:
+            mappings_lists = (index.get_item(key, True) for key in keys)
+            mappings = (m for l in mappings_lists if l for m in l)
 
-        return iterator
+        return {m[self.model.primary_key()] for m in mappings if m}
+
+    def _init_indexed_iterator(self):
+        ids_sets = (self._index_objects_ids(*index) for index in self.indexed_filters)
+        raw_ids = set.intersection(*ids_sets)
+
+        pk_attribute = self.model.attributes[self.model.primary_key()]
+        ids = (pk_attribute.deserialize(id_) for id_ in raw_ids)
+        objects = self.model.read_these(ids)
+        return objects
 
     def _init_default_iterator(self, reverse=False):
         if not self.model:
             return iter(self._iterable)
 
-        for name, value, search_func, _ in self.indexed_filters:
-            return self._init_indexed_iterator(name, value, search_func)
+        # if there are some indexed filters, then iterate
+        # on those indexes.
+        if self.indexed_filters:
+            return self._init_indexed_iterator()
 
+        # iterate all items on the primary key
         identifier_index = self.model.indexes[self.model.primary_key()]
         keys = identifier_index.iterkeys(reverse)
         iterator = self.model.read_these(keys)
@@ -261,24 +270,10 @@ class QuerySet(object):
         )
 
     def _model_has_expected_values(self, model):
-        if not all(
+        return all(
             getattr(model, filter_name) == expected_value
             for filter_name, expected_value in self.non_indexed_filters
-        ):
-            return False
-
-        if not all(
-            (
-                set(model.indexes[name].details.call_search_func(model, value))
-                & set(model.indexes[name].details.get_model_values(model))
-            )
-            if search_func
-            else (value in model.indexes[name].details.get_model_values(model))
-            for name, value, search_func, _ in self.indexed_filters
-        ):
-            return False
-
-        return not self._predicate or self._predicate(model)
+        ) and (not self._predicate or self._predicate(model))
 
     def count(self):
         """

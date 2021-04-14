@@ -1,3 +1,11 @@
+[0.x.xx] - 2021-xx-xx
+=====================
+
+Changed
+*******
+- Refactored :class:`~sheraf.queryset.QuerySet` and improved performance for search
+  calls based on several indexes.
+
 [0.4.12] - 2021-04-13
 =====================
 
