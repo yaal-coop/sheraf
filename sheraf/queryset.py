@@ -193,15 +193,18 @@ class QuerySet(object):
             if name not in self.model.indexes and name in self.model.attributes
         ]
 
-    def _init_indexed_iterator(self, filter_name, filter_value, filter_search_func):
-        index = self.model.indexes[filter_name]
-        index_keys = (
-            index.details.call_search_func(self.model, filter_value)
-            if filter_search_func
-            else [filter_value]
+    def _index_keys(self, index, value, search_func):
+        return (
+            index.details.call_search_func(self.model, value)
+            if search_func
+            else [value]
         )
 
-        iterator = self.model.read_these_valid(**{filter_name: index_keys})
+    def _init_indexed_iterator(self, name, value, search_func):
+        index = self.model.indexes[name]
+        keys = self._index_keys(index, value, search_func)
+
+        iterator = self.model.read_these_valid(**{name: keys})
 
         if not index.details.unique:
             iterator = unique_everseen(iterator, lambda m: m.identifier)
