@@ -208,7 +208,7 @@ class QuerySet(object):
 
         return {m[self.model.primary_key()] for m in mappings if m}
 
-    def _init_indexed_iterator(self):
+    def _indexes_iterator(self):
         ids_sets = (self._index_objects_ids(*index) for index in self.indexed_filters)
         raw_ids = set.intersection(*ids_sets)
 
@@ -217,53 +217,39 @@ class QuerySet(object):
         objects = self.model.read_these(ids)
         return objects
 
-    def _init_default_iterator(self, reverse=False):
-        if not self.model:
-            return iter(self._iterable)
-
-        # if there are some indexed filters, then iterate
-        # on those indexes.
-        if self.indexed_filters:
-            return self._init_indexed_iterator()
-
-        # iterate all items on the primary key
+    def _primary_index_iterator(self):
         identifier_index = self.model.indexes[self.model.primary_key()]
+        reverse = self.orders.get(self.model.primary_key()) == sheraf.constants.DESC
         keys = identifier_index.iterkeys(reverse)
-        iterator = self.model.read_these(keys)
-        return iterator
+        return self.model.read_these(keys)
 
     def _init_iterator(self):
-        # The default sort order is by ascending identifier
-        if not self.orders:
-            iterator = self._init_default_iterator()
+        if self._iterable:
+            iterator = iter(self._iterable)
 
-        # If there is only one sort option, and it is over the primary key
-        # we can use iterators instead of sorting the whole collection.
-        elif (
-            self.model
-            and len(self.orders) == 1
-            and self.model.primary_key() in self.orders
-        ):
-            iterator = self._init_default_iterator(
-                self.orders[self.model.primary_key()] == sheraf.constants.DESC
-            )
+        elif not self.model:
+            iterator = iter([])
+
+        # iterate all items on the primary key
+        elif not self.indexed_filters:
+            iterator = self._primary_index_iterator()
+
+        # iterator on several indexed filters
+        elif not self.orders:
+            iterator = self._indexes_iterator()
 
         # Else we need to sort the collection.
         # So we successively sort the list from the less important
         # order to the most important order.
-        else:
-            if self._iterable is None:
-                keys = self.model.indexes[self.model.primary_key()].iterkeys()
-                self._iterable = self.model.read_these(keys)
-
+        if self.orders:
+            iterable = iterator
             for attribute, order in reversed(self.orders.items()):
-                self._iterable = sorted(
-                    self._iterable,
+                iterable = sorted(
+                    iterable,
                     key=operator.attrgetter(attribute),
                     reverse=(order == sheraf.constants.DESC),
                 )
-
-            iterator = iter(self._iterable)
+            iterator = iter(iterable)
 
         self._iterator = (
             model for model in iterator if self._model_has_expected_values(model)
