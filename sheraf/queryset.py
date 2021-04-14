@@ -185,15 +185,16 @@ class QuerySet(object):
             else [filter_value]
         )
 
-        self._iterator = self.model.read_these_valid(**{filter_name: index_keys})
+        iterator = self.model.read_these_valid(**{filter_name: index_keys})
 
         if not index.details.unique:
-            self._iterator = unique_everseen(self._iterator, lambda m: m.identifier)
+            iterator = unique_everseen(iterator, lambda m: m.identifier)
+
+        return iterator
 
     def _init_default_iterator(self, reverse=False):
         if not self.model:
-            self._iterator = iter(self._iterable)
-            return
+            return iter(self._iterable)
 
         indexed_filters = (
             (name, value, search_func)
@@ -202,49 +203,47 @@ class QuerySet(object):
         )
 
         for name, value, search_func in indexed_filters:
-            self._init_indexed_iterator(name, value, search_func)
+            return self._init_indexed_iterator(name, value, search_func)
 
-            if self._iterator:
-                return
-
-        if not self._iterator:
-            identifier_index = self.model.indexes[self.model.primary_key()]
-            keys = identifier_index.iterkeys(reverse)
-            self._iterator = self.model.read_these(keys)
+        identifier_index = self.model.indexes[self.model.primary_key()]
+        keys = identifier_index.iterkeys(reverse)
+        iterator = self.model.read_these(keys)
+        return iterator
 
     def _init_iterator(self):
         # The default sort order is by ascending identifier
         if not self.orders:
-            self._init_default_iterator()
-            return
+            iterator = self._init_default_iterator()
 
         # If there is only one sort option, and it is over the primary key
         # we can use iterators instead of sorting the whole collection.
-        if (
+        elif (
             self.model
             and len(self.orders) == 1
             and self.model.primary_key() in self.orders
         ):
-            self._init_default_iterator(
+            iterator = self._init_default_iterator(
                 self.orders[self.model.primary_key()] == sheraf.constants.DESC
             )
-            return
 
         # Else we need to sort the collection.
         # So we successively sort the list from the less important
         # order to the most important order.
-        if self._iterable is None:
-            keys = self.model.indexes[self.model.primary_key()].iterkeys()
-            self._iterable = self.model.read_these(keys)
+        else:
+            if self._iterable is None:
+                keys = self.model.indexes[self.model.primary_key()].iterkeys()
+                self._iterable = self.model.read_these(keys)
 
-        for attribute, order in reversed(self.orders.items()):
-            self._iterable = sorted(
-                self._iterable,
-                key=operator.attrgetter(attribute),
-                reverse=(order == sheraf.constants.DESC),
-            )
+            for attribute, order in reversed(self.orders.items()):
+                self._iterable = sorted(
+                    self._iterable,
+                    key=operator.attrgetter(attribute),
+                    reverse=(order == sheraf.constants.DESC),
+                )
 
-        self._iterator = iter(self._iterable)
+            iterator = iter(self._iterable)
+
+        self._iterator = iterator
 
     def _model_has_expected_values(self, model):
         for filter_name, expected_value, filter_search_func in self.filters.values():
