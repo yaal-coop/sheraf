@@ -6,7 +6,7 @@ from BTrees.OOBTree import OOTreeSet, union, intersection, difference
 
 import sheraf.constants
 from sheraf.exceptions import InvalidFilterException, InvalidOrderException
-
+from sheraf.tools.more_itertools import unique_everseen
 from collections.abc import Iterable, Sized
 
 
@@ -208,12 +208,20 @@ class QuerySet(object):
 
         return (m[self.model.primary_key()] for m in mappings if m)
 
-    def _indexes_iterator(self):
+    def _multi_indexes_iterator(self):
         ids_sets = (set(self._objects_ids(*index)) for index in self.indexed_filters)
         raw_ids = set.intersection(*ids_sets)
 
         pk_attribute = self.model.attributes[self.model.primary_key()]
         ids = (pk_attribute.deserialize(id_) for id_ in raw_ids)
+        objects = self.model.read_these(ids)
+        return objects
+
+    def _mono_indexes_iterator(self):
+        pk_attribute = self.model.attributes[self.model.primary_key()]
+        raw_ids = self._objects_ids(*self.indexed_filters[0])
+        unique_raw_ids = unique_everseen(raw_ids)
+        ids = (pk_attribute.deserialize(id_) for id_ in unique_raw_ids)
         objects = self.model.read_these(ids)
         return objects
 
@@ -236,7 +244,7 @@ class QuerySet(object):
 
         # iterator on several indexed filters
         elif not self.orders:
-            iterator = self._indexes_iterator()
+            iterator = self._mono_indexes_iterator()
 
         # Else we need to sort the collection.
         # So we successively sort the list from the less important
@@ -256,10 +264,24 @@ class QuerySet(object):
         )
 
     def _model_has_expected_values(self, model):
-        return all(
+        if not all(
             getattr(model, filter_name) == expected_value
             for filter_name, expected_value in self.non_indexed_filters
-        ) and (not self._predicate or self._predicate(model))
+        ):
+            return False
+
+        if not all(
+            (
+                set(model.indexes[name].details.call_search_func(model, value))
+                & set(model.indexes[name].details.get_model_values(model))
+            )
+            if search_func
+            else (value in model.indexes[name].details.get_model_values(model))
+            for name, value, search_func, _ in self.indexed_filters
+        ):
+            return False
+
+        return not self._predicate or self._predicate(model)
 
     def count(self):
         """

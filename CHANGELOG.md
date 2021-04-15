@@ -1,3 +1,11 @@
+[0.4.14] - 2021-04-15
+=====================
+
+Changed
+*******
+- Refactored :class:`~sheraf.queryset.QuerySet` and removed a bit of the last
+  commit to allow QuerySets to stay lazy.
+
 [0.4.13] - 2021-04-14
 =====================
 
