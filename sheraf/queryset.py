@@ -88,6 +88,9 @@ class QuerySet(object):
         self._iterable = iterable
         self._iterator = None
         self._predicate = predicate
+        self._start = None
+        self._stop = None
+        self._step = None
         self.model = model_class
         self.orders = OrderedDict()
 
@@ -134,18 +137,20 @@ class QuerySet(object):
         return QuerySet(difference(OOTreeSet(self), OOTreeSet(other)))
 
     def __getitem__(self, item):
-        self._init_iterator()
+        qs = self.copy()
 
         if isinstance(item, slice):
-            start, stop, step = item.start, item.stop, item.step
+            qs._start, qs._stop, qs._step = item.start, item.stop, item.step
         else:
-            start, stop, step = item, item + 1, 1
+            qs._start, qs._stop, qs._step = item, item + 1, 1
 
-        if self.model:
-            maxid = self.model.count()
-        elif isinstance(self._iterable, Sized):
-            maxid = len(self._iterable)
-        elif (start is None or start >= 0) and (stop is None or stop >= 0):
+        if qs.model:
+            maxid = qs.model.count()
+        elif isinstance(qs._iterable, Sized):
+            maxid = len(qs._iterable)
+        elif (qs._start is None or qs._start >= 0) and (
+            qs._stop is None or qs._stop >= 0
+        ):
             maxid = None
         else:
             raise ValueError(
@@ -154,18 +159,21 @@ class QuerySet(object):
 
         if maxid:
             if isinstance(item, slice):
-                start = item.start
-                stop = item.stop
-                step = item.step
-                if start and start < 0:
-                    start %= maxid
-                if stop and stop < 0:
-                    stop %= maxid
+                qs._start = item.start
+                qs._stop = item.stop
+                qs._step = item.step
+                if qs._start and qs._start < 0:
+                    qs._start %= maxid
+                if qs._stop and qs._stop < 0:
+                    qs._stop %= maxid
             else:
-                start, stop, step = item % maxid, (item % maxid) + 1, 1
+                qs._start, qs._stop, qs._step = (
+                    item % maxid,
+                    (item % maxid) + 1,
+                    1,
+                )
 
-        # TODO: Avoid to recreate a QuerySet and avoid itertools.islice
-        return QuerySet(itertools.islice(self._iterator, start, stop, step))
+        return qs
 
     @property
     def indexed_filters(self):
@@ -259,9 +267,16 @@ class QuerySet(object):
                 )
             iterator = iter(iterable)
 
+        # Checks the models fits all the filters
         self._iterator = (
             model for model in iterator if self._model_has_expected_values(model)
         )
+
+        # Only select a slice of the wanted models
+        if self._start is not None or self._stop is not None or self._step is not None:
+            self._iterator = itertools.islice(
+                self._iterator, self._start, self._stop, self._step
+            )
 
     def _model_has_expected_values(self, model):
         if not all(
