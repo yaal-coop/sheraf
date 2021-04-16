@@ -63,13 +63,18 @@ def test_set_to_none(sheraf_connection):
     assert model.submodel is None
 
 
-def test_set_id(sheraf_connection):
+def test_set_id(sheraf_database):
     class Model(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel1)
 
-    submodel = Submodel1.create()
-    model = Model.create(submodel=submodel.id)
-    assert model.submodel == submodel
+    with sheraf.connection(commit=True):
+        submodel = Submodel1.create()
+        model = Model.create(submodel=submodel.id)
+        assert model.submodel == submodel
+
+    with sheraf.connection():
+        model = Model.read(model.id)
+        assert model.submodel == submodel
 
 
 def test_set_bad_id(sheraf_connection):
@@ -126,6 +131,44 @@ def test_update_edition(sheraf_database):
         assert model.submodel.id == last_sub_id
 
 
+def test_update_edition_with_model(sheraf_database):
+    class Model(tests.UUIDAutoModel):
+        submodel = sheraf.ModelAttribute(Submodel1)
+
+    with sheraf.connection(commit=True):
+        sub1 = Submodel1.create()
+        sub2 = Submodel1.create()
+
+        model = Model.create(submodel=sub1)
+
+    with sheraf.connection(commit=True):
+        model.edit(value={"submodel": sub2}, edition=True)
+        assert model.submodel == sub2
+
+    with sheraf.connection():
+        model = Model.read(model.id)
+        assert model.submodel == sub2
+
+
+def test_update_edition_with_id(sheraf_database):
+    class Model(tests.UUIDAutoModel):
+        submodel = sheraf.ModelAttribute(Submodel1)
+
+    with sheraf.connection(commit=True):
+        sub1 = Submodel1.create()
+        sub2 = Submodel1.create()
+
+        model = Model.create(submodel=sub1)
+
+    with sheraf.connection(commit=True):
+        model.edit(value={"submodel": sub2.id}, edition=True)
+        assert model.submodel == sub2
+
+    with sheraf.connection():
+        model = Model.read(model.id)
+        assert model.submodel == sub2
+
+
 def test_update_no_edition(sheraf_database):
     class Model(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel1)
@@ -149,7 +192,7 @@ def test_update_no_edition(sheraf_database):
         assert model.submodel.id == last_sub_id
 
 
-def test_update_replacement(sheraf_database):
+def test_update_replacement_with_dict(sheraf_database):
     class Model(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel1)
 

@@ -218,7 +218,10 @@ class ModelAttribute(ModelLoader, Attribute):
             return self.model.create(**value).identifier
 
         else:
-            return value
+            try:
+                return self.model.read(value).identifier
+            except sheraf.SherafException:
+                return None
 
     def update(
         self,
@@ -229,7 +232,7 @@ class ModelAttribute(ModelLoader, Attribute):
         deletion=False,
         replacement=False,
     ):
-        if replacement or old_value is None:
+        if replacement or old_value is None or not isinstance(new_value, dict):
             return self.serialize(new_value)
 
         return old_value.edit(new_value, addition, edition, deletion, replacement)

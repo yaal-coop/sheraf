@@ -1,3 +1,11 @@
+[0.4.17] - 2021-04-16
+=====================
+
+Fixed
+*****
+- Fixed a bug with :meth:`~sheraf.models.base.BaseModel.assign` and
+  :class:`~sheraf.attributes.models.ModelAttribute` when passed model ids.
+
 [0.4.16] - 2021-04-16
 =====================
 
