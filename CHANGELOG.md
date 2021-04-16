@@ -1,3 +1,11 @@
+[0.4.15] - 2021-04-16
+=====================
+
+Changed
+*******
+- Refactored :class:`~sheraf.queryset.QuerySet` and removed slicing on negative
+  values.
+
 [0.4.14] - 2021-04-15
 =====================
 

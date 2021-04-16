@@ -78,7 +78,6 @@ class QuerySet(object):
 
     >>> with sheraf.connection():
     ...     assert QuerySet([peter]) == Cowboy.all()[0]
-    ...     assert QuerySet([george]) == Cowboy.all()[-1]
     ...     assert QuerySet([peter, steven]) == Cowboy.all()[0:2]
     ...     assert QuerySet([peter, steven, george]) == Cowboy.all()[0:]
     """
@@ -143,35 +142,6 @@ class QuerySet(object):
             qs._start, qs._stop, qs._step = item.start, item.stop, item.step
         else:
             qs._start, qs._stop, qs._step = item, item + 1, 1
-
-        if qs.model:
-            maxid = qs.model.count()
-        elif isinstance(qs._iterable, Sized):
-            maxid = len(qs._iterable)
-        elif (qs._start is None or qs._start >= 0) and (
-            qs._stop is None or qs._stop >= 0
-        ):
-            maxid = None
-        else:
-            raise ValueError(
-                "When a QuerySet contains an unknown sized object, slicing values must be > 0"
-            )
-
-        if maxid:
-            if isinstance(item, slice):
-                qs._start = item.start
-                qs._stop = item.stop
-                qs._step = item.step
-                if qs._start and qs._start < 0:
-                    qs._start %= maxid
-                if qs._stop and qs._stop < 0:
-                    qs._stop %= maxid
-            else:
-                qs._start, qs._stop, qs._step = (
-                    item % maxid,
-                    (item % maxid) + 1,
-                    1,
-                )
 
         return qs
 
