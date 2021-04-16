@@ -140,6 +140,45 @@ def test_unique_set_parent_none(sheraf_connection):
     assert parent.child is None
 
 
+def test_set_id(sheraf_connection):
+    mom = UniqueParent.create()
+    dad = UniqueParent.create()
+    child = UniqueParentChild.create()
+
+    child.parent = mom.id
+
+    assert mom.child == child
+    assert child.parent == mom
+
+    remom = UniqueParent.read(mom.id)
+    redad = UniqueParent.read(dad.id)
+    rechild = UniqueParentChild.read(child.id)
+
+    assert remom.child == child
+    assert rechild.parent == mom
+
+    child.parent = dad.id
+    assert dad.child == child
+    assert child.parent == dad
+
+    remom = UniqueParent.read(mom.id)
+    redad = UniqueParent.read(dad.id)
+    rechild = UniqueParentChild.read(child.id)
+
+    assert redad.child == child
+    assert rechild.parent == dad
+
+
+def test_set_bad_id(sheraf_connection):
+    mom = UniqueParent.create()
+    child = UniqueParentChild.create()
+
+    child.parent = "invalid"
+
+    assert mom.child is None
+    assert child.parent is None
+
+
 # ----------------------------------------------------------------------------
 # Multiple references
 # ----------------------------------------------------------------------------

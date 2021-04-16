@@ -63,6 +63,23 @@ def test_set_to_none(sheraf_connection):
     assert model.submodel is None
 
 
+def test_set_id(sheraf_connection):
+    class Model(tests.UUIDAutoModel):
+        submodel = sheraf.ModelAttribute(Submodel1)
+
+    submodel = Submodel1.create()
+    model = Model.create(submodel=submodel.id)
+    assert model.submodel == submodel
+
+
+def test_set_bad_id(sheraf_connection):
+    class Model(tests.UUIDAutoModel):
+        submodel = sheraf.ModelAttribute(Submodel1)
+
+    model = Model.create(submodel="invalid")
+    assert model.submodel is None
+
+
 def test_create(sheraf_connection):
     class Model(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel1)

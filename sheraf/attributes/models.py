@@ -311,10 +311,20 @@ class ReverseModelAttribute(AttributeLoader, Attribute):
         if value is None:
             return None
 
-        if isinstance(value, self.model):
+        if not isinstance(value, (list, set)):
             value = [value]
 
-        for referent in value:
+        checked_values = []
+        for v in value:
+            if isinstance(v, self.model):
+                checked_values.append(v)
+            else:
+                try:
+                    checked_values.append(self.model.read(v))
+                except sheraf.ModelObjectNotFoundException:
+                    pass
+
+        for referent in checked_values:
             if isinstance(self.model.attributes[self._attribute], ModelAttribute):
                 setattr(referent, self._attribute, parent)
 
@@ -325,7 +335,7 @@ class ReverseModelAttribute(AttributeLoader, Attribute):
                     getattr(referent, self._attribute) + [parent],
                 )
 
-        return value
+        return checked_values
 
     def delete(self, parent):
         referents = self.read(parent)
