@@ -192,22 +192,20 @@ class QuerySet(object):
 
         pk_attribute = self.model.attributes[self.model.primary_key()]
         ids = (pk_attribute.deserialize(id_) for id_ in raw_ids)
-        objects = self.model.read_these(ids)
-        return objects
+        return ids
 
     def _mono_indexes_iterator(self):
         pk_attribute = self.model.attributes[self.model.primary_key()]
         raw_ids = self._objects_ids(*self.indexed_filters[0])
         unique_raw_ids = unique_everseen(raw_ids)
         ids = (pk_attribute.deserialize(id_) for id_ in unique_raw_ids)
-        objects = self.model.read_these(ids)
-        return objects
+        return ids
 
     def _primary_index_iterator(self):
         identifier_index = self.model.indexes[self.model.primary_key()]
         reverse = self.orders.get(self.model.primary_key()) == sheraf.constants.DESC
-        keys = identifier_index.iterkeys(reverse)
-        return self.model.read_these(keys)
+        ids = identifier_index.iterkeys(reverse)
+        return ids
 
     def _init_iterator(self):
         if self._iterable:
@@ -224,8 +222,15 @@ class QuerySet(object):
         elif not self.orders:
             iterator = self._mono_indexes_iterator()
 
-        # Else we need to sort the collection.
-        # So we successively sort the list from the less important
+        if self.model:
+            iterator = self.model.read_these(iterator)
+
+        # Checks the models fits all the filters
+        iterator = (
+            model for model in iterator if self._model_has_expected_values(model)
+        )
+
+        # Successively sorts the list from the less important
         # order to the most important order.
         if self.orders:
             iterable = iterator
@@ -237,16 +242,11 @@ class QuerySet(object):
                 )
             iterator = iter(iterable)
 
-        # Checks the models fits all the filters
-        self._iterator = (
-            model for model in iterator if self._model_has_expected_values(model)
-        )
-
         # Only select a slice of the wanted models
         if self._start is not None or self._stop is not None or self._step is not None:
-            self._iterator = itertools.islice(
-                self._iterator, self._start, self._stop, self._step
-            )
+            iterator = itertools.islice(iterator, self._start, self._stop, self._step)
+
+        self._iterator = iterator
 
     def _model_has_expected_values(self, model):
         if not all(
