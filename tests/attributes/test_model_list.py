@@ -108,10 +108,10 @@ def test_indices(sheraf_connection, attribute, list_type):
     with pytest.raises(IndexError):
         model.models[1] = AModel.create()
 
-    with pytest.raises((TypeError, IndexError)):
+    with pytest.raises(TypeError):
         model.models["foo"]
 
-    with pytest.raises((TypeError, IndexError)):
+    with pytest.raises(TypeError):
         model.models["foo"] = AModel.create()
 
 

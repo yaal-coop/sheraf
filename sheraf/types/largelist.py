@@ -91,7 +91,8 @@ class LargeList(IOBTree):
                     _slice.start, min(len(self), _slice.stop), _slice.step
                 )
             )
-        else:
+
+        elif isinstance(item, int):
             if item >= len(self):
                 raise IndexError
 
@@ -101,6 +102,11 @@ class LargeList(IOBTree):
                 return IOBTree.__getitem__(self, item > 0 and item or len(self) + item)
             except KeyError as ex:
                 raise IndexError(ex)
+
+        else:
+            raise TypeError(
+                f"Invalid LargeList key '{item}'. It must be an integer or a slice."
+            )
 
     def __setitem__(self, key, value):
         if not isinstance(key, slice) and key >= len(self):

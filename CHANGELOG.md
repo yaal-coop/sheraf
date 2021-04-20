@@ -1,3 +1,11 @@
+[0.4.18] - 2021-04-xx
+=====================
+
+Changed
+*******
+- Better error message for invalid
+  :meth:`sheraf.types.largelist.LargeList.__getattr__` keys.
+
 [0.4.17] - 2021-04-16
 =====================
 
