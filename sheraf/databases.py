@@ -15,8 +15,8 @@ from sheraf.exceptions import ConnectionAlreadyOpened
 class LocalData:
     instance = None
 
-    def __init__(self):
-        self.pid = os.getpid()
+    def __init__(self, pid=None):
+        self.pid = pid or os.getpid()
         self.databases = {}
         self.last_database_context = {}
         self.zodb_databases = {}
@@ -32,8 +32,9 @@ class LocalData:
     @classmethod
     def get(cls):
         # TODO: put a lock on pid
-        if not cls.instance or cls.instance.pid != os.getpid():
-            cls.instance = LocalData()
+        pid = os.getpid()
+        if not cls.instance or cls.instance.pid != pid:
+            cls.instance = LocalData(pid)
         return cls.instance
 
 
