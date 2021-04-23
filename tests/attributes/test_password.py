@@ -13,7 +13,7 @@ class PasswordModelB(tests.UUIDAutoModel):
     pwd = sheraf.PasswordAttribute(method=crypt.METHOD_SHA256)
 
 
-class PasswordModelC(tests.UUIDAutoModel):
+class Rot13PasswordAttribute(sheraf.PasswordAttribute):
     @staticmethod
     def crypt(clear, *args, **kwargs):
         return codecs.encode(clear, "rot_13")
@@ -22,7 +22,9 @@ class PasswordModelC(tests.UUIDAutoModel):
     def compare(clear, crypted):
         return codecs.encode(clear, "rot_13") == crypted
 
-    pwd = sheraf.PasswordAttribute()
+
+class PasswordModelC(tests.UUIDAutoModel):
+    pwd = Rot13PasswordAttribute()
 
 
 @pytest.mark.parametrize("Model", [PasswordModelA, PasswordModelB, PasswordModelC])
