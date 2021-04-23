@@ -3,14 +3,15 @@ import sheraf
 
 
 class PasswordAccessor:
-    def __init__(self, crypted):
+    def __init__(self, compare, crypted):
+        self.compare = compare
         self.crypted = crypted
 
     def __str__(self):
         return self.crypted
 
     def __eq__(self, value):
-        return crypt.crypt(value, self.crypted) == self.crypted
+        return self.compare(value, self.crypted)
 
 
 class PasswordAttribute(sheraf.Attribute):
@@ -35,18 +36,26 @@ class PasswordAttribute(sheraf.Attribute):
     """
 
     def __init__(self, **kwargs):
-        self.salt_args = kwargs
+        self.crypt_args = kwargs
         super().__init__()
+
+    @staticmethod
+    def crypt(clear, *args, **kwargs):
+        salt = crypt.mksalt(**kwargs)
+        return crypt.crypt(clear, salt)
+
+    @staticmethod
+    def compare(clear, crypted):
+        return crypt.crypt(clear, crypted) == crypted
 
     def serialize(self, value):
         if value is None:
             return None
 
-        salt = crypt.mksalt(**self.salt_args)
-        return crypt.crypt(value, salt)
+        return self.crypt(value, **self.crypt_args)
 
     def deserialize(self, value):
         if value is None:
             return None
 
-        return PasswordAccessor(value)
+        return PasswordAccessor(self.compare, value)

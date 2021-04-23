@@ -1,3 +1,11 @@
+[0.4.19] - 2021-04-23
+=====================
+
+Changed
+*******
+- :class:`~sheraf.attributes.password.PasswordAttribute` comparision
+  and encryption functions can be overloaded. :issue:`39`
+
 [0.4.18] - 2021-04-20
 =====================
 
