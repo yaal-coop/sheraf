@@ -212,7 +212,9 @@ class Index:
 
         try:
             return func(*values)
-        except TypeError:
+        except TypeError as exc:
+            if "positional argument" not in str(exc):
+                raise
             return func(model, *values)
 
     def call_search_func(self, model, value):
@@ -220,5 +222,7 @@ class Index:
             return {value}
         try:
             return self.search_func(value)
-        except TypeError:
+        except TypeError as exc:
+            if "positional argument" not in str(exc):
+                raise
             return self.search_func(model, value)
