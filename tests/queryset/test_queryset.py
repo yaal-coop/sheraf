@@ -1,5 +1,4 @@
 import itertools
-import mock
 import pytest
 
 import sheraf
@@ -35,6 +34,13 @@ def test_comparison(sheraf_connection, m0, m1, m2):
     assert QuerySet([m0]) == QuerySet(m for m in [m0])
     assert QuerySet([m0]) == QuerySet(OOTreeSet([m0]))
     # assert QuerySet([m0, m1, m2]) == QuerySet(OOTreeSet([m0, m1, m2]))
+
+
+def test_bool(sheraf_connection, m0):
+    assert bool(QuerySet([m0])) is True
+    assert bool(QuerySet()) is False
+    assert bool(Cowboy.all()) is True
+    assert bool(Cowboy.search(size=99)) is False
 
 
 def test_create(sheraf_connection, m0):

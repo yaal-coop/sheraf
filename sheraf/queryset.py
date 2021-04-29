@@ -1,13 +1,13 @@
 import itertools
 import operator
 from collections import OrderedDict
+from collections.abc import Iterable
 
 from BTrees.OOBTree import OOTreeSet, union, intersection, difference
 
 import sheraf.constants
 from sheraf.exceptions import InvalidFilterException, InvalidOrderException
 from sheraf.tools.more_itertools import unique_everseen
-from collections.abc import Iterable, Sized
 
 
 class QuerySet(object):
@@ -134,6 +134,14 @@ class QuerySet(object):
 
     def __xor__(self, other):
         return QuerySet(difference(OOTreeSet(self), OOTreeSet(other)))
+
+    def __bool__(self):
+        try:
+            next(self)
+            self._iterator = None
+            return True
+        except StopIteration:
+            return False
 
     def __getitem__(self, item):
         qs = self.copy()
