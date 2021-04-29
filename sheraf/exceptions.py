@@ -136,6 +136,11 @@ class QuerySetUnpackException(SherafException):
     sheraf.exceptions.QuerySetUnpackException: Trying to unpack more than 1 value from a QuerySet
     """
 
+    def __init__(self, message=None):
+        if not message:
+            message = "Trying to unpack more than 1 value from a QuerySet"
+        super().__init__(message)
+
 
 class EmptyQuerySetUnpackException(QuerySetUnpackException):
     """Raised when calling :func:`~sheraf.queryset.QuerySet.get` on
@@ -148,6 +153,12 @@ class EmptyQuerySetUnpackException(QuerySetUnpackException):
     ...
     sheraf.exceptions.EmptyQuerySetUnpackException: Trying to unpack an empty QuerySet
     """
+
+    def __init__(self, message=None):
+        if not message:
+            message = "Trying to unpack an empty QuerySet"
+
+        super().__init__(message)
 
 
 class InvalidIndexException(SherafException):

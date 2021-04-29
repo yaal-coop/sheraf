@@ -102,13 +102,22 @@ class QuerySet(object):
         return self
 
     def __repr__(self):
+        result = "<QuerySet"
         if self.model:
-            return "<QuerySet model={}>".format(self.model.__name__)
+            result = f"{result} model={self.model.__name__}"
 
         if self._iterable:
-            return "<QuerySet iterable={}>".format(self._iterable)
+            result = f"{result} iterable={self._iterable}"
 
-        return "<QuerySet>"
+        if self._predicate:
+            result = f"{result} predicate={self._predicate}"
+
+        if self.filters:
+            filters = ", ".join(f"{k}={v[1]}" for k, v in self.filters.items())
+            result = f"{result} filters=({filters})"
+
+        result = f"{result}>"
+        return result
 
     def __next__(self):
         if not self._iterator:
@@ -572,15 +581,11 @@ class QuerySet(object):
         try:
             element = next(self)
         except StopIteration:
-            raise sheraf.exceptions.EmptyQuerySetUnpackException(
-                "Trying to unpack an empty QuerySet"
-            )
+            raise sheraf.exceptions.EmptyQuerySetUnpackException()
 
         try:
             next(self)
         except StopIteration:
             return element
         else:
-            raise sheraf.exceptions.QuerySetUnpackException(
-                "Trying to unpack more than 1 value from a QuerySet"
-            )
+            raise sheraf.exceptions.QuerySetUnpackException()
