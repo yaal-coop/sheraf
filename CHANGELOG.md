@@ -1,3 +1,11 @@
+[0.5.0] - 2021-04-30
+=====================
+
+Changed
+*******
+- :meth:`sheraf.queryset.QuerySet.__getitem__` does not return a list anymore
+  when one single value is accessed.
+
 [0.4.21] - 2021-04-30
 =====================
 

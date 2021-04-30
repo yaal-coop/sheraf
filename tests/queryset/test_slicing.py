@@ -7,8 +7,8 @@ from .conftest import Cowboy
 
 
 def test_slicing_models(sheraf_connection, m0, m1, m2):
-    assert [m0] == Cowboy.all()[0]
-    assert [m2] == Cowboy.all()[2]
+    assert m0 == Cowboy.all()[0]
+    assert m2 == Cowboy.all()[2]
 
     assert [m0, m1] == Cowboy.all()[0:2]
     assert [m0] == Cowboy.all()[0:1]
@@ -26,7 +26,7 @@ def test_slicing_models(sheraf_connection, m0, m1, m2):
 
 @pytest.mark.skip
 def test_slicing_models_negative_values(sheraf_connection, m0, m1, m2):
-    assert [m2] == Cowboy.all()[-1]
+    assert m2 == Cowboy.all()[-1]
 
     assert [] == Cowboy.all()[-1:-1]
 
@@ -44,8 +44,8 @@ def test_slicing_regular_models(sheraf_connection):
     m1 = Cowboy.create(id="bd45dd2c-a222-4342-9110-92994a2739ee")
     m2 = Cowboy.create(id="c8b15752-6605-48b2-be0b-d052fcac799f")
 
-    assert [m0] == Cowboy.all()[0]
-    assert [m2] == Cowboy.all()[2]
+    assert m0 == Cowboy.all()[0]
+    assert m2 == Cowboy.all()[2]
 
     assert [m0, m1] == Cowboy.all()[0:2]
     assert [m0] == Cowboy.all()[0:1]
@@ -70,7 +70,7 @@ def test_slicing_regular_models_negative_values(sheraf_connection):
     m1 = Cowboy.create(id="bd45dd2c-a222-4342-9110-92994a2739ee")
     m2 = Cowboy.create(id="c8b15752-6605-48b2-be0b-d052fcac799f")
 
-    assert [m2] == Cowboy.all()[-1]
+    assert m2 == Cowboy.all()[-1]
 
     assert [] == Cowboy.all()[-1:-1]
 
@@ -81,8 +81,8 @@ def test_slicing_regular_models_negative_values(sheraf_connection):
 
 
 def test_slicing_list(sheraf_connection, m0, m1, m2):
-    assert [m0] == QuerySet([m0, m1, m2])[0]
-    assert [m2] == QuerySet([m0, m1, m2])[2]
+    assert m0 == QuerySet([m0, m1, m2])[0]
+    assert m2 == QuerySet([m0, m1, m2])[2]
 
     assert [m0, m1] == QuerySet([m0, m1, m2])[0:2]
     assert [m0] == QuerySet([m0, m1, m2])[0:1]
@@ -98,7 +98,7 @@ def test_slicing_list(sheraf_connection, m0, m1, m2):
 
 @pytest.mark.skip
 def test_slicing_list_negative_values(sheraf_connection, m0, m1, m2):
-    assert [m2] == QuerySet([m0, m1, m2])[-1]
+    assert m2 == QuerySet([m0, m1, m2])[-1]
 
     assert [] == QuerySet([m0, m1, m2])[-1:-1]
 
@@ -109,8 +109,8 @@ def test_slicing_list_negative_values(sheraf_connection, m0, m1, m2):
 
 
 def test_slicing_iterator(sheraf_connection, m0, m1, m2):
-    assert [m0] == QuerySet(iter([m0, m1, m2]))[0]
-    assert [m2] == QuerySet(iter([m0, m1, m2]))[2]
+    assert m0 == QuerySet(iter([m0, m1, m2]))[0]
+    assert m2 == QuerySet(iter([m0, m1, m2]))[2]
 
     assert [m0, m1] == QuerySet(iter([m0, m1, m2]))[0:2]
     assert [m0] == QuerySet(iter([m0, m1, m2]))[0:1]
@@ -125,7 +125,7 @@ def test_slicing_iterator(sheraf_connection, m0, m1, m2):
 
 def test_slicing_iterator_negative_values(sheraf_connection, m0, m1, m2):
     with pytest.raises(ValueError):
-        assert [m2] == QuerySet(iter([m0, m1, m2]))[-1]
+        assert m2 == QuerySet(iter([m0, m1, m2]))[-1]
 
     with pytest.raises(ValueError):
         assert [m1] == QuerySet(iter([m0, m1, m2]))[1:-1]

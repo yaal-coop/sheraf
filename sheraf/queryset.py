@@ -77,7 +77,7 @@ class QuerySet(object):
     :class:`~sheraf.queryset.QuerySet`.
 
     >>> with sheraf.connection():
-    ...     assert QuerySet([peter]) == Cowboy.all()[0]
+    ...     assert peter == Cowboy.all()[0]
     ...     assert QuerySet([peter, steven]) == Cowboy.all()[0:2]
     ...     assert QuerySet([peter, steven, george]) == Cowboy.all()[0:]
     """
@@ -157,10 +157,11 @@ class QuerySet(object):
 
         if isinstance(item, slice):
             qs._start, qs._stop, qs._step = item.start, item.stop, item.step
+            return qs
+
         else:
             qs._start, qs._stop, qs._step = item, item + 1, 1
-
-        return qs
+            return next(qs)
 
     def __len__(self):
         return self.copy().count()
