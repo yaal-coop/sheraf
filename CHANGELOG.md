@@ -3,8 +3,9 @@
 
 Added
 *******
-- Implemented :meth:`~sheraf.queryset.QuerySet.__bool__` :issue:`41`
-- Improved :meth:`~sheraf.queryset.QuerySet.__repr__` :issue:`31`
+- Implemented :meth:`sheraf.queryset.QuerySet.__bool__` :issue:`41`
+- Improved :meth:`sheraf.queryset.QuerySet.__repr__` :issue:`31`
+- Implemented :meth:`sheraf.queryset.QuerySet.__len__`
 
 [0.4.19] - 2021-04-23
 =====================

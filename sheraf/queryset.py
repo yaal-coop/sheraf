@@ -162,6 +162,9 @@ class QuerySet(object):
 
         return qs
 
+    def __len__(self):
+        return self.copy().count()
+
     @property
     def indexed_filters(self):
         return [
@@ -313,6 +316,8 @@ class QuerySet(object):
         index = self.model.indexes[index_name]
         if filter_search_func:
             index_values = index.details.call_search_func(self.model, filter_value)
+        else:
+            index_values = filter_value
 
         if index.details.unique:
             return sum(int(index.has_item(v)) for v in index_values)
