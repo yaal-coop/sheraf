@@ -146,7 +146,7 @@ class QuerySet(object):
 
     def __bool__(self):
         try:
-            next(self)
+            next(self.copy())
             self._iterator = None
             return True
         except StopIteration:

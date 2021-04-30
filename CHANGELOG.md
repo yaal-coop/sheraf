@@ -1,3 +1,10 @@
+[0.4.21] - 2021-04-30
+=====================
+
+Changed
+*******
+- :meth:`sheraf.queryset.QuerySet.__bool__` does not consume the QuerySet.
+
 [0.4.20] - 2021-04-30
 =====================
 
