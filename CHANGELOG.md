@@ -6,6 +6,11 @@ Changed
 - :meth:`sheraf.queryset.QuerySet.__getitem__` does not return a list anymore
   when one single value is accessed.
 
+Removed
+*******
+- :class:`~sheraf.attributes.BaseAttribute`
+
+
 [0.4.21] - 2021-04-30
 =====================
 

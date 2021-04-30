@@ -229,7 +229,7 @@ The most basic way to reference another model is by using :class:`~sheraf.attrib
 The **id** of the **Horse** instance will be stored in the **Cowboy** instance.
 Accessing to the horse thus makes a second access to the database.
 
-Note that :func:`~sheraf.models.base.BaseAttribute.create` can make instances for both models.
+Note that :func:`~sheraf.models.base.BaseModel.create` can make instances for both models.
 The inner model should be passed as a dictionnary matching the attribute names to their values:
 
 .. code-block:: python

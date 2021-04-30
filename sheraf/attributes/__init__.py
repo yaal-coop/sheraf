@@ -1,4 +1,3 @@
-import warnings
 from BTrees.OOBTree import OOBTree
 from sheraf.attributes.index import Index
 
@@ -230,13 +229,3 @@ class Attribute(object):
         This method can be overload so a custom transformation is applied.
         """
         return self.values(value)
-
-
-class BaseAttribute(Attribute):
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            "sheraf.BaseAttribute has been renamed sheraf.Attribute. The old name will be removed in sheraf 0.5.0",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__(*args, **kwargs)
