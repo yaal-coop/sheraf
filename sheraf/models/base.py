@@ -104,13 +104,15 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         'Jolly Jumper'
         """
 
+        instance = None
         try:
             mapping = (default or cls.default_mapping)()
             instance = cls._decorate(mapping)
             instance.initialize(**kwargs)
             return instance
         except Exception:
-            instance.delete()
+            if instance:
+                instance.delete()
             raise
 
     def initialize(self, **kwargs):

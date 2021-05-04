@@ -100,6 +100,14 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     def __init__(self, *args, **kwargs):
         self._identifier = None
+
+        if not self.primary_key():
+            raise sheraf.exceptions.PrimaryKeyException(
+                "{} inherit from IndexedModel but has no primary key. Cannot create.".format(
+                    self.__class__.__name__
+                )
+            )
+
         super().__init__(*args, **kwargs)
 
     @classmethod
@@ -130,17 +138,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             registered models.
         """
         return sheraf.queryset.QuerySet(model_class=cls)
-
-    @classmethod
-    def create(cls, **kwargs):
-        if not cls.primary_key():
-            raise sheraf.exceptions.PrimaryKeyException(
-                "{} inherit from IndexedModel but has no primary key. Cannot create.".format(
-                    cls.__name__
-                )
-            )
-
-        return super().create(**kwargs)
 
     def initialize(self, **kwargs):
         if self.primary_key() in kwargs:
@@ -645,16 +642,15 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
     def index_manager(cls, index=None):
         return MultipleDatabaseIndexManager(cls.database_name, cls.table, index)
 
-    @classmethod
-    def create(cls, *args, **kwargs):
-        if "id" not in cls.attributes:
+    def __init__(self, *args, **kwargs):
+        if "id" not in self.__class__.attributes:
             raise sheraf.exceptions.PrimaryKeyException(
                 "{} inherit from IndexedModel but has no id attribute. Cannot create.".format(
-                    cls.__name__
+                    self.__class__.__name__
                 )
             )
 
-        return super().create(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class SimpleIndexedModel(BaseIndexedModel, metaclass=BaseIndexedModelMetaclass):
