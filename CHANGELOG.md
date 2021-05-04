@@ -1,6 +1,12 @@
 [0.5.0] - 2021-04-30
 =====================
 
+Added
+*****
+
+- :class:`~sheraf.attributes.models.ModelAttribute` can take a relative
+  model path.
+
 Changed
 *******
 - :meth:`sheraf.queryset.QuerySet.__getitem__` does not return a list anymore

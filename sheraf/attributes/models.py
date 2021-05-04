@@ -1,3 +1,4 @@
+import inspect
 import sheraf
 from sheraf.models.indexation import model_from_table
 from sheraf.attributes import Attribute
@@ -17,6 +18,9 @@ class ModelLoader(object):
     def __init__(self, model=None, **kwargs):
         super().__init__(**kwargs)
         self._model = model
+        frame = inspect.stack()[3]
+        module = inspect.getmodule(frame[0])
+        self.module_path = module.__name__ if module else None
 
     def load_model(self, modelpath):
         # Internal.
@@ -25,15 +29,20 @@ class ModelLoader(object):
         if isinstance(modelpath, bytes):
             modelpath = modelpath.decode("utf-8")
 
-        _path = modelpath.split(".")
-        _sub_path, _class = ".".join(_path[:-1]), _path[-1]
+        path = modelpath.split(".")
+        module_path, klass = ".".join(path[:-1]), path[-1]
+        module_path = module_path or self.module_path
 
-        _module = __import__(_sub_path, globals(), locals(), [_class], 0)
+        module = __import__(module_path, globals(), locals(), [klass], 0)
+
         # pypy:
-        if _module is None:  # pragma: no cover
+        if module is None:  # pragma: no cover
             raise ImportError(modelpath)
 
-        return getattr(_module, _class)
+        try:
+            return getattr(module, klass)
+        except AttributeError as exc:
+            raise ImportError(exc)
 
     def read(self, parent):
         self.check_model(parent)
@@ -61,11 +70,7 @@ class ModelLoader(object):
             try:
                 return ModelLoader.cache[model]
             except KeyError:
-                try:
-                    ModelLoader.cache[model] = self.load_model(model)
-                except ValueError:
-                    raise ImportError
-
+                ModelLoader.cache[model] = self.load_model(model)
                 return ModelLoader.cache[model]
 
         elif parent and not isinstance(model, type):

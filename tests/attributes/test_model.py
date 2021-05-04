@@ -26,6 +26,7 @@ utc_now = datetime.datetime(2016, 12, 31, 23, 59, 59, 5000)
     "model",
     [
         Submodel1,
+        "Submodel1",
         "{}.{}".format(Submodel1.__module__, Submodel1.__name__),
         "{}.{}".format(Submodel1.__module__, Submodel1.__name__).encode("utf-8"),
     ],
@@ -50,6 +51,22 @@ def test_simple_model(sheraf_database, model):
 
         assert utc_now == a.creation_datetime()
         assert utc_now == a.last_update_datetime()
+
+
+class SubmodelModule(sheraf.Model):
+    table = "submodelmodule"
+    name = sheraf.SimpleAttribute()
+
+
+class SupmodelModule(tests.UUIDAutoModel):
+    submodel = sheraf.ModelAttribute("SubmodelModule")
+
+
+def test_model_relative_model_path_module(sheraf_database):
+    with sheraf.connection():
+        sub = SubmodelModule.create()
+        sup = SupmodelModule.create(submodel=sub)
+        assert sup.submodel == sub
 
 
 def test_set_to_none(sheraf_connection):
