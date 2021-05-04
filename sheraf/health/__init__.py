@@ -143,7 +143,7 @@ def _print_check_model_health_result(console, check_reason, health_table, help):
     table.add_column("KO")
     table.add_column("OK")
 
-    for model_path, attributes in health_table[table_key].items():
+    for model_path, attributes in health_table.get(table_key, {}).items():
         table.add_row(
             model_path,
             str(sum(values["ko"] for values in attributes.values())),
@@ -153,7 +153,7 @@ def _print_check_model_health_result(console, check_reason, health_table, help):
         for attribute_name, values in attributes.items():
             table.add_row(f"  - {attribute_name}", str(values["ko"]), str(values["ok"]))
 
-    if health_table[table_key]:
+    if health_table.get(table_key):
         console.print(table)
     else:
         console.print("  No model to visit.")
@@ -175,7 +175,7 @@ def _print_check_instance_health_result(console, check_reason, health_table, hel
     table.add_column("Model")
     table.add_column("KO")
     table.add_column("OK")
-    for model_path, values in health_table[table_key].items():
+    for model_path, values in health_table.get(table_key, {}).items():
         table.add_row(model_path, str(values["ko"]), str(values["ok"]))
     console.print(table)
 
@@ -193,7 +193,7 @@ def _print_check_attribute_health_result(console, check_reason, health_table, he
     table.add_column("KO")
     table.add_column("OK")
 
-    for model_path, attributes in health_table[table_key].items():
+    for model_path, attributes in health_table.get(table_key, {}).items():
         table.add_row(
             model_path,
             str(sum(values["ko"] for values in attributes.values())),
@@ -203,7 +203,7 @@ def _print_check_attribute_health_result(console, check_reason, health_table, he
         for attribute_name, values in attributes.items():
             table.add_row(f"  - {attribute_name}", str(values["ko"]), str(values["ok"]))
 
-    if health_table[table_key]:
+    if health_table.get(table_key):
         console.print(table)
     else:
         console.print("  No model to visit.")
