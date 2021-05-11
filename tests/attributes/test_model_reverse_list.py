@@ -8,15 +8,13 @@ import tests
 
 
 class UniqueParent(tests.IntAutoModel):
-    children = sheraf.LargeListAttribute(
-        sheraf.ModelAttribute("tests.attributes.test_model_reverse_list.UniqueChild")
-    ).index(unique=True)
+    children = sheraf.LargeListAttribute(sheraf.ModelAttribute("UniqueChild")).index(
+        unique=True
+    )
 
 
 class UniqueChild(tests.IntAutoModel):
-    parent = sheraf.ReverseModelAttribute(
-        "tests.attributes.test_model_reverse_list.UniqueParent", "children"
-    )
+    parent = sheraf.ReverseModelAttribute("UniqueParent", "children")
 
 
 def test_unique_list_reference(sheraf_connection):
@@ -75,15 +73,11 @@ def test_unique_list_reference_delete_child(sheraf_connection):
 
 
 class MultiParent(tests.UUIDAutoModel):
-    children = sheraf.LargeListAttribute(
-        sheraf.ModelAttribute("tests.attributes.test_model_reverse_list.MultiChild")
-    ).index()
+    children = sheraf.LargeListAttribute(sheraf.ModelAttribute("MultiChild")).index()
 
 
 class MultiChild(tests.UUIDAutoModel):
-    parents = sheraf.ReverseModelAttribute(
-        "tests.attributes.test_model_reverse_list.MultiParent", "children"
-    )
+    parents = sheraf.ReverseModelAttribute("MultiParent", "children")
 
 
 def test_multiple_list_reference(sheraf_connection):

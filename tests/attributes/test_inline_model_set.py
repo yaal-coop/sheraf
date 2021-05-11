@@ -36,11 +36,7 @@ def test_inline_model_set(sheraf_connection):
 
 def test_model_absolute_string(sheraf_connection):
     class Model(tests.UUIDAutoModel):
-        inline = sheraf.SetAttribute(
-            sheraf.InlineModelAttribute(
-                "tests.attributes.test_inline_model_set.SetInlineModel"
-            )
-        )
+        inline = sheraf.SetAttribute(sheraf.InlineModelAttribute("SetInlineModel"))
 
     _model = Model.create()
     _model.inline.add(SetInlineModel.create())

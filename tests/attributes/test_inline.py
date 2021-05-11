@@ -71,7 +71,7 @@ def test_write(sheraf_connection):
 
 def test_model_absolute_string(sheraf_connection):
     class Model(tests.UUIDAutoModel):
-        inline = sheraf.InlineModelAttribute("tests.attributes.test_inline.InlineModel")
+        inline = sheraf.InlineModelAttribute("InlineModel")
 
     _model = Model.create()
     assert isinstance(_model.inline, InlineModel)

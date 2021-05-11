@@ -8,15 +8,11 @@ import tests
 
 
 class UniqueParent(tests.UUIDAutoModel):
-    child = sheraf.ModelAttribute(
-        "tests.attributes.test_model_reverse.UniqueParentChild"
-    ).index(unique=True)
+    child = sheraf.ModelAttribute("UniqueParentChild").index(unique=True)
 
 
 class UniqueParentChild(tests.UUIDAutoModel):
-    parent = sheraf.ReverseModelAttribute(
-        "tests.attributes.test_model_reverse.UniqueParent", "child"
-    )
+    parent = sheraf.ReverseModelAttribute("UniqueParent", "child")
 
 
 def test_unique_string_model_setattr(sheraf_connection):
@@ -185,15 +181,11 @@ def test_set_bad_id(sheraf_connection):
 
 
 class MultipleParent(tests.UUIDAutoModel):
-    child = sheraf.ModelAttribute(
-        "tests.attributes.test_model_reverse.MultipleParentChild"
-    ).index()
+    child = sheraf.ModelAttribute("MultipleParentChild").index()
 
 
 class MultipleParentChild(tests.UUIDAutoModel):
-    parents = sheraf.ReverseModelAttribute(
-        "tests.attributes.test_model_reverse.MultipleParent", "child"
-    )
+    parents = sheraf.ReverseModelAttribute("MultipleParent", "child")
 
 
 def test_multiple_string_model_setattr(sheraf_connection):
@@ -301,7 +293,7 @@ def test_multiple_delete_parent(sheraf_connection):
 
 
 class NoIndexParent(tests.UUIDAutoModel):
-    child = sheraf.ModelAttribute("tests.attributes.test_model_reverse.NoIndexChild")
+    child = sheraf.ModelAttribute("NoIndexChild")
 
 
 class NoIndexChild(tests.UUIDAutoModel):

@@ -70,9 +70,7 @@ def test_create_dict(sheraf_connection):
 def test_string_model(sheraf_database):
     class Horseboy(tests.UUIDAutoModel):
         name = sheraf.StringAttribute()
-        horses = sheraf.IndexedModelAttribute(
-            "tests.attributes.test_indexed_models.Horse"
-        )
+        horses = sheraf.IndexedModelAttribute(Horse)
 
     with sheraf.connection():
         george = Horseboy.create(name="George")

@@ -123,9 +123,7 @@ def test_keys_and_items(sheraf_connection):
 def test_model_absolute_string(sheraf_connection):
     class Model(tests.UUIDAutoModel):
         inline = sheraf.LargeDictAttribute(
-            sheraf.InlineModelAttribute(
-                "tests.attributes.test_inline_model_dict.DictInlineModel"
-            )
+            sheraf.InlineModelAttribute("DictInlineModel")
         )
 
     _model = Model.create()
