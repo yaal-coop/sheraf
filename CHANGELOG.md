@@ -6,6 +6,8 @@ Added
 
 - :class:`~sheraf.attributes.models.ModelAttribute` can take a relative
   model path.
+- :meth:`~sheraf.attributes.index.Index.values` can return unique object
+  instead of collections. :issue:`33`
 
 Changed
 *******

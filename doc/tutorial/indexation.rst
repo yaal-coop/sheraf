@@ -106,8 +106,8 @@ different indexes, and the `key` parameter can be used to identify them.
     >>> class Cowboy(sheraf.Model):
     ...     table = "multiple_cowboy"
     ...     birth = sheraf.DateTimeAttribute() \
-    ...         .index(key="year", values=lambda birth: {birth.year}) \
-    ...         .index(key="month", values=lambda birth: {birth.month})
+    ...         .index(key="year", values=lambda birth: birth.year) \
+    ...         .index(key="month", values=lambda birth: birth.month)
     ...
     >>> from datetime import datetime
     >>> with sheraf.connection():
@@ -138,15 +138,13 @@ taking the attribute value, and returning a collection of values that should be 
     ...
     >>> class Cowboy(sheraf.Model):
     ...     table = "valuable_cowboy"
-    ...     name = sheraf.StringAttribute().index(
-    ...          values=lambda name: {initials(name)},
-    ...     )
+    ...     name = sheraf.StringAttribute().index(values=initials)
     ...
     >>> with sheraf.connection(commit=True):
     ...     george = Cowboy.create(name="George Abitbol")
 
 
-Here we pass the a *lambda* function that returns the initials of a name inside a python set.
+Here we pass the a function that returns the initials of a.
 Now it is possible to search for someone only knowing its initials.
 
 .. code-block:: python
@@ -155,8 +153,13 @@ Now it is possible to search for someone only knowing its initials.
     ...     assert [george] == Cowboy.filter(name="GA")
     ...     assert [] == Cowboy.filter(name="George Abitbol")
 
-Note that the :func:`~sheraf.queryset.QuerySet.filter` **name** parameter does not go through the same
-*lambda* transformation. It search for the exact data in the index.
+Note that the :func:`~sheraf.queryset.QuerySet.filter` **name** parameter will not be
+transformed into initials. It search for the exact data in the index.
+
+.. note :: `values` functions can return either a single element or a collection of
+           elements. Depending on the `noneok` and `nullok`
+           :class:`~sheraf.attributes.index.Index` parameters, `None` and falsy index keys might be
+           ignored.
 
 Choose how to search data in the index
 ``````````````````````````````````````
@@ -186,7 +189,7 @@ By default the `search` argument takes the same argument than the
     >>> class Cowboy(sheraf.Model):
     ...     table = "invaluable_cowboy"
     ...     name = sheraf.StringAttribute().index(
-    ...         values=lambda name: {initials(name)},
+    ...         values=initials,
     ...         search=lambda name: {
     ...             "".join(p) for p in permutations(initials(name))
     ...         },
@@ -199,6 +202,13 @@ By default the `search` argument takes the same argument than the
 
 Now we index the initials of cowboys, but we search for all the combinations of initials
 with the words that are passed to the *search* argument.
+
+.. note :: `search` functions can return either a single element or a collection of
+           elements. If the collection is ordered as in a :class:`list`, then the index
+           will be searched in the order of the list.
+           If the list contains a same element several times, it will only be returned
+           once.
+
 
 Make custom searchs and recording the default behavior
 ``````````````````````````````````````````````````````
@@ -213,7 +223,7 @@ or `search`, they will be used by default if the :func:`~sheraf.attributes.Attri
 
     >>> class NameAttribute(sheraf.StringAttribute):
     ...     def values(self, name):
-    ...         return {initials(name)}
+    ...         return initials(name)
     ...
     ...     def search(self, name):
     ...         return {"".join(p) for p in permutations(initials(name))}
@@ -322,11 +332,11 @@ and a default one:
     ...
     ...     @name.values
     ...     def default_name_indexation(self, value):
-    ...         return {value.lower()}
+    ...         return value.lower()
     ...
     ...     @name.values(first_name, last_name)
     ...     def full_name_indexation(self, first_name, last_name):
-    ...         return {f"{first_name} {last_name}".lower()}
+    ...         return f"{first_name} {last_name}".lower()
     ...
     >>> with sheraf.connection():
     ...     george = Cowboy.create(first_name="George", last_name="Abitbol", surname="Georgy")
@@ -377,12 +387,12 @@ index on a parent attribute:
     ...     first_name = sheraf.StringAttribute()
     ...     last_name = sheraf.StringAttribute()
     ...
-    ...     last_name_index = sheraf.Index(last_name, values=lambda x: {x.lower()})
+    ...     last_name_index = sheraf.Index(last_name, values=lambda x: x.lower())
     ...
     >>> class UpperCowboy(Cowboy):
     ...     table = "upper_cowboys"
-    ...     last_name_index = sheraf.Index("last_name", values=lambda x: {x.upper()})
-    ...     first_name_index = sheraf.Index("first_name", values=lambda x: {x.upper()})
+    ...     last_name_index = sheraf.Index("last_name", values=lambda x: x.upper())
+    ...     first_name_index = sheraf.Index("first_name", values=lambda x: x.upper())
     ...
     >>> with sheraf.connection():
     ...     george = UpperCowboy.create(first_name="george", last_name="abitbol")

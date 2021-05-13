@@ -111,6 +111,11 @@ class Index:
           will be given the attribute values as positionnal arguments, in the order they were passed
           to the decorator.
 
+        The decorated function must return a single key, or a collection of keys, where the index
+        will store the current model instance. Depending on the `noneok` and `nullok`
+        :class:`~sheraf.attributes.index.Index` parameters, `None` and falsy index keys might be
+        ignored.
+
         >>> class Cowboy(sheraf.Model):
         ...     table = "any_values_table"
         ...     first_name = sheraf.StringAttribute()
@@ -120,11 +125,11 @@ class Index:
         ...
         ...     @theindex.values
         ...     def default_name_indexation(self, values):
-        ...         return {values.lower()}
+        ...         return values.lower()
         ...
         ...     @theindex.values(first_name, "last_name")
         ...     def full_name(self, first, last):
-        ...         return {f"{first} {last}".lower()}
+        ...         return f"{first} {last}".lower()
         ...
         >>> with sheraf.connection():
         ...     m = Cowboy.create(first_name="George", last_name="Abitbol", surname="Georgy")
@@ -157,7 +162,10 @@ class Index:
 
     def search(self, *args, **kwargs):
         """
-        This decorator sets the search method for the index.
+        This decorator sets the search method for the index. It should return
+        a single key to search in the index, or a collection of keys to
+        search in the index. If it returns an indexed collection, by default the
+        model instances will be returned in the order the index keys will be iterated.
 
         >>> class Model(sheraf.Model):
         ...     table = "any_search_table"
@@ -167,7 +175,7 @@ class Index:
         ...
         ...     @theindex.search
         ...     def the_search_method(self, values):
-        ...         return {values.lower()}
+        ...         return values.lower()
         ...
         >>> with sheraf.connection():
         ...     m = Model.create(foo="foo", bar="bar")
@@ -211,18 +219,25 @@ class Index:
             return set(values)
 
         try:
-            return func(*values)
+            values = func(*values)
         except TypeError as exc:
             if "positional argument" not in str(exc):
                 raise
-            return func(model, *values)
+            values = func(model, *values)
+
+        values = values if isinstance(values, (list, set, tuple, dict)) else {values}
+        return values
 
     def call_search_func(self, model, value):
         if not self.search_func:
             return {value}
+
         try:
-            return self.search_func(value)
+            values = self.search_func(value)
         except TypeError as exc:
             if "positional argument" not in str(exc):
                 raise
-            return self.search_func(model, value)
+            values = self.search_func(model, value)
+
+        values = values if isinstance(values, (list, set, tuple, dict)) else {values}
+        return values

@@ -7,29 +7,29 @@ import tests
 # ----------------------------------------------------------------------------
 
 
-class UniqueParent(tests.IntAutoModel):
-    children = sheraf.LargeListAttribute(sheraf.ModelAttribute("UniqueChild")).index(
-        unique=True
-    )
+class UniqueListParent(tests.IntAutoModel):
+    children = sheraf.LargeListAttribute(
+        sheraf.ModelAttribute("UniqueListChild")
+    ).index(unique=True)
 
 
-class UniqueChild(tests.IntAutoModel):
-    parent = sheraf.ReverseModelAttribute("UniqueParent", "children")
+class UniqueListChild(tests.IntAutoModel):
+    parent = sheraf.ReverseModelAttribute("UniqueListParent", "children")
 
 
 def test_unique_list_reference(sheraf_connection):
-    mom = UniqueParent.create()
-    dad = UniqueParent.create()
-    child1 = UniqueChild.create(parent=mom)
-    child2 = UniqueChild.create(parent=mom)
+    mom = UniqueListParent.create()
+    dad = UniqueListParent.create()
+    child1 = UniqueListChild.create(parent=mom)
+    child2 = UniqueListChild.create(parent=mom)
 
     assert mom.children == [child1, child2]
     assert child1.parent == mom
     assert child2.parent == mom
 
-    remom = UniqueParent.read(mom.id)
-    rechild1 = UniqueChild.read(child1.id)
-    rechild2 = UniqueChild.read(child2.id)
+    remom = UniqueListParent.read(mom.id)
+    rechild1 = UniqueListChild.read(child1.id)
+    rechild2 = UniqueListChild.read(child2.id)
 
     assert remom.children == [child1, child2]
     assert rechild1.parent == mom
@@ -39,19 +39,19 @@ def test_unique_list_reference(sheraf_connection):
     assert dad.children == [child1]
     assert mom.children == [child2]
 
-    remom = UniqueParent.read(mom.id)
-    redad = UniqueParent.read(dad.id)
-    rechild1 = UniqueChild.read(child1.id)
-    rechild2 = UniqueChild.read(child2.id)
+    remom = UniqueListParent.read(mom.id)
+    redad = UniqueListParent.read(dad.id)
+    rechild1 = UniqueListChild.read(child1.id)
+    rechild2 = UniqueListChild.read(child2.id)
 
     assert remom.children == [child2]
     assert redad.children == [child1]
 
 
 def test_unique_list_reference_delete_child(sheraf_connection):
-    parent = UniqueParent.create()
-    child1 = UniqueChild.create(parent=[parent])
-    child2 = UniqueChild.create(parent=[parent])
+    parent = UniqueListParent.create()
+    child1 = UniqueListChild.create(parent=[parent])
+    child2 = UniqueListChild.create(parent=[parent])
 
     assert child1 in parent.children
     assert child2 in parent.children
@@ -62,7 +62,7 @@ def test_unique_list_reference_delete_child(sheraf_connection):
     assert parent.children == [child2]
     assert parent.mapping["children"] == [child2.id]
 
-    reparent = UniqueParent.read(parent.id)
+    reparent = UniqueListParent.read(parent.id)
     assert reparent.children == [child2]
     assert reparent.mapping["children"] == [child2.id]
 
@@ -72,19 +72,21 @@ def test_unique_list_reference_delete_child(sheraf_connection):
 # ----------------------------------------------------------------------------
 
 
-class MultiParent(tests.UUIDAutoModel):
-    children = sheraf.LargeListAttribute(sheraf.ModelAttribute("MultiChild")).index()
+class MultiListParent(tests.UUIDAutoModel):
+    children = sheraf.LargeListAttribute(
+        sheraf.ModelAttribute("MultiListChild")
+    ).index()
 
 
-class MultiChild(tests.UUIDAutoModel):
-    parents = sheraf.ReverseModelAttribute("MultiParent", "children")
+class MultiListChild(tests.UUIDAutoModel):
+    parents = sheraf.ReverseModelAttribute("MultiListParent", "children")
 
 
 def test_multiple_list_reference(sheraf_connection):
-    mom = MultiParent.create()
-    dad = MultiParent.create()
-    child1 = MultiChild.create(parents=mom)
-    child2 = MultiChild.create(parents=mom)
+    mom = MultiListParent.create()
+    dad = MultiListParent.create()
+    child1 = MultiListChild.create(parents=mom)
+    child2 = MultiListChild.create(parents=mom)
 
     assert mom.children == [child1, child2]
     assert child1.parents == [mom]
@@ -94,17 +96,17 @@ def test_multiple_list_reference(sheraf_connection):
     assert dad.children == [child1]
     assert mom.children == [child2]
 
-    remom = MultiParent.read(mom.id)
-    redad = MultiParent.read(dad.id)
+    remom = MultiListParent.read(mom.id)
+    redad = MultiListParent.read(dad.id)
 
     assert redad.children == [child1]
     assert remom.children == [child2]
 
 
 def test_multiple_list_reference_delete_child(sheraf_connection):
-    parent = MultiParent.create()
-    child1 = MultiChild.create(parents=[parent])
-    child2 = MultiChild.create(parents=[parent])
+    parent = MultiListParent.create()
+    child1 = MultiListChild.create(parents=[parent])
+    child2 = MultiListChild.create(parents=[parent])
 
     assert parent.children == [child1, child2]
     assert child1.parents == [parent]
@@ -114,7 +116,7 @@ def test_multiple_list_reference_delete_child(sheraf_connection):
     assert parent.children == [child2]
     assert parent.mapping["children"] == [child2.id]
 
-    reparent = MultiParent.read(parent.id)
+    reparent = MultiListParent.read(parent.id)
     assert reparent.children == [child2]
     assert reparent.mapping["children"] == [child2.id]
 
