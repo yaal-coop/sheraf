@@ -164,7 +164,43 @@ class QuerySet(object):
             return next(qs)
 
     def __len__(self):
-        return self.copy().count()
+        """
+        :return: The number of objects in the
+            :class:`~sheraf.queryset.QuerySet`.
+
+        >>> with sheraf.connection():
+        ...     assert Cowboy.create()
+        ...     qs = Cowboy.all()
+        ...     assert len(qs) == 1
+        """
+        # No shortcut possible when there is a predicate,
+        # or when there are several filters
+        if self._predicate or not self.model or len(self.filters) > 1:
+            return sum(1 for _ in self.copy())
+
+        # We basically want to search all the models
+        if not self.filters:
+            return self.model.count()
+
+        # Take the unique filter, and hope it is indexed
+        index_name = list(self.filters.keys())[0]
+        _, filter_value, filter_search_func = list(self.filters.values())[0]
+        if index_name not in self.model.indexes:
+            return sum(1 for _ in self.copy())
+
+        index = self.model.indexes[index_name]
+        if filter_search_func:
+            index_values = index.details.call_search_func(self.model, filter_value)
+        else:
+            index_values = filter_value
+
+        if index.details.unique:
+            return sum(int(index.has_item(v)) for v in index_values)
+
+        else:
+            return sum(
+                len(index.get_item(v)) for v in index_values if index.has_item(v)
+            )
 
     @property
     def indexed_filters(self):
@@ -290,43 +326,7 @@ class QuerySet(object):
         return not self._predicate or self._predicate(model)
 
     def count(self):
-        """
-        :return: The number of objects in the
-            :class:`~sheraf.queryset.QuerySet`, but consumes it.
-
-        >>> with sheraf.connection():
-        ...     assert Cowboy.create()
-        ...     qs = Cowboy.all()
-        ...     assert qs.count() == 1
-        ...     assert qs.count() == 0
-        """
-        # No shortcut possible when there is a predicate
-        if (
-            self._predicate
-            or not self.model
-            or len(self.filters) > 1
-            or not self.filters
-        ):
-            return sum(1 for _ in self)
-
-        index_name = list(self.filters.keys())[0]
-        _, filter_value, filter_search_func = list(self.filters.values())[0]
-        if index_name not in self.model.indexes:
-            return sum(1 for _ in self)
-
-        index = self.model.indexes[index_name]
-        if filter_search_func:
-            index_values = index.details.call_search_func(self.model, filter_value)
-        else:
-            index_values = filter_value
-
-        if index.details.unique:
-            return sum(int(index.has_item(v)) for v in index_values)
-
-        else:
-            return sum(
-                len(index.get_item(v)) for v in index_values if index.has_item(v)
-            )
+        return len(self)
 
     def copy(self):
         """Copies the :class:`~sheraf.queryset.QuerySet` without consuming it.

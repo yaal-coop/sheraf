@@ -53,7 +53,7 @@ def test_create(sheraf_connection, m0):
 def test_count_all(sheraf_connection, m0, m1, m2, m3):
     qs = Cowboy.all()
     assert qs.count() == 4
-    assert qs.count() == 0
+    assert qs.count() == 4
 
 
 def test_len(sheraf_connection, m0, m1, m2, m3):
@@ -65,7 +65,7 @@ def test_len(sheraf_connection, m0, m1, m2, m3):
 def test_count_unindexed_attributes(sheraf_connection, m0, m1, m2, m3):
     qs = Cowboy.filter(age=30)
     assert qs.count() == 3
-    assert qs.count() == 0
+    assert qs.count() == 3
     assert Cowboy.filter(age=80).count() == 0
 
 

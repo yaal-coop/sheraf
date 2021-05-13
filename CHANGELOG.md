@@ -13,6 +13,7 @@ Changed
 *******
 - :meth:`sheraf.queryset.QuerySet.__getitem__` does not return a list anymore
   when one single value is accessed.
+- :meth:`sheraf.queryset.QuerySet.count` does not consume the QuerySet.
 
 Removed
 *******
