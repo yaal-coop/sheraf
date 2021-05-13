@@ -542,7 +542,7 @@ def test_multiple_keys_index_update(sheraf_database, Model):
 
 class CustomIndexationModelA(tests.IntAutoModel):
     foo = sheraf.SimpleAttribute().index(
-        unique=True, values=lambda string: {string.lower()}
+        unique=True, values=lambda string: {string.lower() if string else None}
     )
     bar = sheraf.SimpleAttribute()
     barindex = sheraf.Index("bar", key="bar")
@@ -553,7 +553,10 @@ class CustomIndexationModelB(tests.IntAutoModel):
     bar = sheraf.SimpleAttribute()
 
     fooindex = sheraf.Index(
-        "foo", key="foo", unique=True, values=lambda string: {string.lower()}
+        "foo",
+        key="foo",
+        unique=True,
+        values=lambda string: {string.lower() if string else None},
     )
     barindex = sheraf.Index("bar", key="bar")
 
@@ -567,7 +570,7 @@ class CustomIndexationModelC(tests.IntAutoModel):
 
     @fooindex.values()
     def fooindex_values(self, value):
-        return {value.lower()}
+        return {value.lower() if value else None}
 
 
 class CustomIndexationModelD(tests.IntAutoModel):
@@ -579,7 +582,7 @@ class CustomIndexationModelD(tests.IntAutoModel):
 
     @fooindex.values
     def fooindex_values(self, value):
-        return {value.lower()}
+        return {value.lower() if value else None}
 
 
 class CustomIndexationModelE(tests.IntAutoModel):
@@ -591,7 +594,19 @@ class CustomIndexationModelE(tests.IntAutoModel):
 
     @fooindex.values
     def fooindex_values(self, value):
-        return {value.lower()}
+        return {value.lower() if value else None}
+
+
+class CustomIndexationModelF(tests.IntAutoModel):
+    foo = sheraf.SimpleAttribute()
+    bar = sheraf.SimpleAttribute()
+
+    fooindex = sheraf.Index(foo, key="foo", unique=True)
+    barindex = sheraf.Index(bar, key="bar")
+
+    @fooindex.values
+    def fooindex_values(self, value):
+        return value.lower() if value else None
 
 
 @pytest.mark.parametrize(
@@ -602,6 +617,7 @@ class CustomIndexationModelE(tests.IntAutoModel):
         CustomIndexationModelC,
         CustomIndexationModelD,
         CustomIndexationModelE,
+        CustomIndexationModelF,
     ],
 )
 def test_custom_indexation_method(sheraf_database, Model):
