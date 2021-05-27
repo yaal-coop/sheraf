@@ -1,4 +1,5 @@
 import itertools
+import types
 import warnings
 
 import sheraf.exceptions
@@ -436,11 +437,33 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         )
 
     def __setattr__(self, name, value):
+        yield_callbacks = []
         attribute = self.attributes.get(name)
+
         if attribute:
             was_created = attribute.is_created(self)
-            if was_created:
+            if not was_created:
+                prev_value = None
+                for callback in attribute.cb_creation:
+                    res = callback(self, value)
+                    if isinstance(res, types.GeneratorType):
+                        try:
+                            next(res)
+                        except StopIteration:
+                            pass
+                        yield_callbacks.append(res)
+
+            else:
                 prev_value = getattr(self, name)
+                for callback in attribute.cb_edition:
+                    res = callback(self, value, prev_value)
+                    if isinstance(res, types.GeneratorType):
+                        try:
+                            next(res)
+                        except StopIteration:
+                            pass
+                        yield_callbacks.append(res)
+
             old_values = self.before_index_edition(attribute)
 
         super().__setattr__(name, value)
@@ -455,15 +478,35 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                     super().__setattr__(name, prev_value)
                 raise
 
+            for callback in yield_callbacks:
+                try:
+                    next(callback)
+                except StopIteration:
+                    pass
+
     def __delattr__(self, name):
+        yield_callbacks = []
         attribute = self.attributes.get(name)
         if attribute:
             old_values = self.before_index_edition(attribute)
+            for callback in attribute.cb_deletion:
+                res = callback(self, getattr(self, name))
+                if isinstance(res, types.GeneratorType):
+                    try:
+                        next(res)
+                    except StopIteration:
+                        pass
+                    yield_callbacks.append(res)
 
         super().__delattr__(name)
 
         if attribute:
             self.after_index_edition(attribute, old_values)
+            for callback in yield_callbacks:
+                try:
+                    next(callback)
+                except StopIteration:
+                    pass
 
     def before_index_edition(self, attribute):
         old_index_values = {}

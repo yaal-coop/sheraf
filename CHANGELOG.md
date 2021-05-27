@@ -8,6 +8,10 @@ Added
   model path.
 - :meth:`~sheraf.attributes.index.Index.values` can return unique object
   instead of collections. :issue:`33`
+- Implemented :meth:`~sheraf.attributes.Attribute.on_creation`,
+  :meth:`~sheraf.attributes.Attribute.on_edition`, and
+  :meth:`~sheraf.attributes.Attribute.on_deletion`callbacks.
+  :issue:`40`
 
 Changed
 *******

@@ -61,6 +61,9 @@ class Attribute(object):
         self.lazy = lazy
         self.store_default_value = store_default_value
         self.indexes = {}
+        self.cb_creation = []
+        self.cb_edition = []
+        self.cb_deletion = []
 
     def __repr__(self):
         return f"<{self.__class__.__name__} name={self.attribute_name}>"
@@ -229,3 +232,95 @@ class Attribute(object):
         This method can be overload so a custom transformation is applied.
         """
         return self.values(value)
+
+    def on_creation(self, *args, **kwargs):
+        """
+        Decorator for callbacks to call on an attribute creation. The callback
+        will be executed before the attribute is created. If the callback yields,
+        the part after the yield will be executed after the creation.
+
+        The callback will be passed the new value of the attribute.
+
+        The callback can be freely named.
+
+        >>> class Cowboy(sheraf.Model):
+        ...     table = "old_cowboys_creation"
+        ...     age = sheraf.IntegerAttribute()
+        ...
+        ...     @age.on_creation
+        ...     def create_age(self, new):
+        ...         print("New cowboy aged of", new)
+        ...
+        >>> with sheraf.connection():
+        ...     george = Cowboy.create(age=50)
+        New cowboy aged of 50
+        """
+
+        def wrapper(func):
+            self.cb_creation.append(func)
+            return func
+
+        return wrapper if not args else wrapper(args[0])
+
+    def on_edition(self, *args, **kwargs):
+        """
+        Decorator for callbacks to call on an attribute edition. The callback
+        will be executed before the attribute is edited. If the callback yields,
+        the part after the yield will be executed after the update.
+
+        The callback will be passed the old and the new value of the attribute.
+
+        The callback can be freely named.
+
+        >>> class Cowboy(sheraf.Model):
+        ...     table = "old_cowboys_edition"
+        ...     age = sheraf.IntegerAttribute()
+        ...
+        ...     @age.on_edition
+        ...     def update_age(self, new, old):
+        ...         print("I was", old, "years old")
+        ...         yield
+        ...         print("Now I am", new, "years old")
+        ...
+        >>> with sheraf.connection():
+        ...     george = Cowboy.create(age=50)
+        ...     george.age = 51
+        I was 50 years old
+        Now I am 51 years old
+        """
+
+        def wrapper(func):
+            self.cb_edition.append(func)
+            return func
+
+        return wrapper if not args else wrapper(args[0])
+
+    def on_deletion(self, *args, **kwargs):
+        """
+        Decorator for callbacks to call on an attribute deletion. The callback
+        will be executed before the attribute is deleted. If the callback yields,
+        the part after the yield will be executed after the deletion.
+
+        The callback will be passed the old value of the attribute.
+
+        The callback can be freely named.
+
+        >>> class Cowboy(sheraf.Model):
+        ...     table = "old_cowboys_deletion"
+        ...     age = sheraf.IntegerAttribute()
+        ...
+        ...     @age.on_deletion
+        ...     def delete_age(self, old):
+        ...         print("Deleting age of", 50)
+        ...
+        >>> with sheraf.connection():
+        ...     george = Cowboy.create(age=50)
+        ...     del george.age
+        Deleting age of 50
+        """
+
+        def wrapper(func):
+            self.cb_deletion.append(func)
+            return func
+
+        return wrapper if not args else wrapper(args[0])
