@@ -48,10 +48,14 @@ class IndexManager:
             if key not in table:
                 continue
 
-            if self.details.unique:
-                self._table_del_unique(table, key, model.mapping)
-            else:
-                self._table_del_multiple(table, key, model.mapping)
+            try:
+                if self.details.unique:
+                    self._table_del_unique(table, key, model.mapping)
+                else:
+                    self._table_del_multiple(table, key, model.mapping)
+
+            except ValueError:
+                raise ValueError(f"{model} not in index '{self.details.key}' key '{key}'")
 
     def update_item(self, model, old_values, new_values):
         if old_values and new_values:
