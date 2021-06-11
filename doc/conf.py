@@ -44,7 +44,7 @@ intersphinx_mapping = {
     "persistent": ("https://persistent.readthedocs.io/en/latest/", None),
     "relstorage": ("https://relstorage.readthedocs.io/en/latest/", None),
     "transaction": ("https://transaction.readthedocs.io/en/latest", None),
-    "werkzeug": ("https://werkzeug.palletsprojects.com/en/master/", None),
+    "werkzeug": ("https://werkzeug.palletsprojects.com/en/latest/", None),
     "wtforms": ("https://wtforms.readthedocs.io/en/stable/", None),
     "ZODB": ("https://zodb-docs.readthedocs.io/en/latest/", None),
     "zeo": ("https://zeo.readthedocs.io/en/latest/", None),
