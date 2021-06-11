@@ -46,7 +46,7 @@ psycopg2cffi = {version = "*", optional=true}
 relstorage = {version = "*", optional=true}
 
 rich = "^10"
-click = "^7"
+click = ">=7"
 
 [tool.poetry.extras]
 all = [
