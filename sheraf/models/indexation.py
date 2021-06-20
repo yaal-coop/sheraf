@@ -456,6 +456,11 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                         yield_callbacks.append(res)
 
             else:
+                if any(index.primary for index in attribute.indexes.values()):
+                    raise sheraf.SherafException(
+                        f"Attribute {name} has a primary index and cannot be edited."
+                    )
+
                 prev_value = getattr(self, name)
                 for callback in attribute.cb_edition:
                     res = callback(self, value, prev_value)

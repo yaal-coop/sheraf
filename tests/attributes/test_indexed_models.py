@@ -1,6 +1,7 @@
 import pytest
 import sheraf
 import tests
+import uuid
 
 
 class Horse(sheraf.AttributeModel):
@@ -95,6 +96,19 @@ def test_all(sheraf_connection):
 
     polly = george.horses.create(name="Polly pumper")
     assert [jolly, polly] == list(george.horses.all())
+
+
+def test_primary_attribute_cannot_be_edited(sheraf_connection):
+    first_id = str(uuid.uuid4())
+    second_id = str(uuid.uuid4())
+
+    george = Cowboy.create(id=first_id)
+    assert george.id == first_id
+
+    with pytest.raises(sheraf.SherafException):
+        george.id = second_id
+
+    assert george.id == first_id
 
 
 def test_no_primary_key(sheraf_database):
