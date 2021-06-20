@@ -440,7 +440,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         yield_callbacks = []
         attribute = self.attributes.get(name)
 
-        if attribute:
+        if attribute and (
+            attribute.indexes or attribute.cb_creation or attribute.cb_edition
+        ):
             was_created = attribute.is_created(self)
             if not was_created:
                 prev_value = None
@@ -468,7 +470,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
         super().__setattr__(name, value)
 
-        if attribute:
+        if attribute and (
+            attribute.indexes or attribute.cb_creation or attribute.cb_edition
+        ):
             try:
                 self.after_index_edition(attribute, old_values)
             except sheraf.SherafException:
