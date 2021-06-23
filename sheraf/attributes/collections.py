@@ -542,6 +542,8 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         self.persistent_type = persistent_type
         self.accessor_type = accessor_type
         kwargs.setdefault("default", self.persistent_type)
+        kwargs["read_memoization"] = False
+        kwargs["write_memoization"] = False
         super().__init__(**kwargs)
 
     def values(self, set_):

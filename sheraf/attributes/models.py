@@ -322,6 +322,7 @@ class ReverseModelAttribute(AttributeLoader, Attribute):
         if not isinstance(value, (list, set)):
             value = [value]
 
+        # if values are ids, then we should load corresponding models
         checked_values = []
         for v in value:
             if isinstance(v, self.model):
@@ -333,14 +334,23 @@ class ReverseModelAttribute(AttributeLoader, Attribute):
                     pass
 
         for referent in checked_values:
-            if isinstance(self.model.attributes[self._attribute], ModelAttribute):
+            attribute = self.model.attributes[self._attribute]
+
+            if isinstance(attribute, ModelAttribute):
                 setattr(referent, self._attribute, parent)
 
-            if isinstance(self.model.attributes[self._attribute], sheraf.ListAttribute):
+            if isinstance(attribute, sheraf.ListAttribute):
                 setattr(
                     referent,
                     self._attribute,
                     getattr(referent, self._attribute) + [parent],
+                )
+
+            if isinstance(attribute, sheraf.SetAttribute):
+                setattr(
+                    referent,
+                    self._attribute,
+                    getattr(referent, self._attribute) | {parent},
                 )
 
         return checked_values
@@ -355,16 +365,31 @@ class ReverseModelAttribute(AttributeLoader, Attribute):
             referents = [referents]
 
         for referent in list(referents):
-            if isinstance(self.model.attributes[self._attribute], ModelAttribute):
+            attribute = self.model.attributes[self._attribute]
+
+            if isinstance(attribute, ModelAttribute):
                 delattr(referent, self._attribute)
 
             if isinstance(
-                self.model.attributes[self._attribute],
+                attribute,
                 sheraf.ListAttribute,
             ):
                 new_values = [
                     e for e in getattr(referent, self._attribute) if e != parent
                 ]
+                setattr(
+                    referent,
+                    self._attribute,
+                    new_values,
+                )
+
+            if isinstance(
+                attribute,
+                sheraf.SetAttribute,
+            ):
+                new_values = {
+                    e for e in getattr(referent, self._attribute) if e != parent
+                }
                 setattr(
                     referent,
                     self._attribute,

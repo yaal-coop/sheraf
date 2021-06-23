@@ -12,6 +12,12 @@ Fixed
 - :class:`~sheraf.attributes.collections.SetAttribute` update method now
   casts the input value.
 
+Added
+*****
+
+- :class:`~sheraf.attributes.models.ReverseModelAttribute` can support
+  :class:`~sheraf.attributes.collections.SetAttribute`.
+
 [0.5.0] - 2021-05-27
 ====================
 
