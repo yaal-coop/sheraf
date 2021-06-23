@@ -475,6 +475,9 @@ class SetAttributeAccessor:
     def remove(self, item):
         self.mapping.remove(self._attribute.serialize(item))
 
+    def __eq__(self, other):
+        return set(self) == other
+
     def __and__(self, item):
         return set(item) & set(self)
 
