@@ -609,11 +609,11 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         replacement=False,
     ):
         if addition:
-            for item in new_value & (new_value ^ old_value):
+            for item in set(new_value) & (set(new_value) ^ old_value):
                 old_value.add(item)
 
         if deletion:
-            for item in old_value & (old_value ^ new_value):
+            for item in old_value & (old_value ^ set(new_value)):
                 old_value.remove(item)
 
         return old_value

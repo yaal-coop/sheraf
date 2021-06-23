@@ -1,10 +1,16 @@
 [0.5.1] - 2021-xx-xx
 ====================
 
-Edited
-******
+Changed
+*******
 
 - Primary indexes are not editable.
+
+Fixed
+*****
+
+- :class:`~sheraf.attributes.collections.SetAttribute` update method now
+  casts the input value.
 
 [0.5.0] - 2021-05-27
 ====================
