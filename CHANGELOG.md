@@ -1,3 +1,11 @@
+[0.5.x] - 2021-xx-xx
+====================
+
+Changed
+*******
+
+- IndexManager use `~BTrees.OOBTree.OOBTree` to store multiple indexes.
+
 [0.5.1] - 2021-06-23
 ====================
 

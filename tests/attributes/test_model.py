@@ -297,13 +297,11 @@ def test_generic_indexation(sheraf_connection):
     assert [m1] == Model.search(submodel=s1)
     assert [m2] == Model.search(submodel=s2)
 
-    assert (
-        m1.mapping
-        in sheraf_connection.root()[Model.table]["submodel"][(Submodel1.table, s1.id)]
+    assert {m1.raw_identifier: m1.mapping} == dict(
+        sheraf_connection.root()[Model.table]["submodel"][(Submodel1.table, s1.id)]
     )
-    assert (
-        m2.mapping
-        in sheraf_connection.root()[Model.table]["submodel"][(Submodel2.table, s2.id)]
+    assert {m2.raw_identifier: m2.mapping} == dict(
+        sheraf_connection.root()[Model.table]["submodel"][(Submodel2.table, s2.id)]
     )
 
 

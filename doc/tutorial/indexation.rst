@@ -32,7 +32,7 @@ A solution to keep good performances is to use attribute indexation with :class:
     ...     george = Cowboy.create(name="George Abitbol")
     ...
     ...     # A dedicated table has been created for the 'nameindex' index
-    ...     assert george.mapping in conn.root()["simple_cowboy"]["nameindex"]["George Abitbol"]
+    ...     assert george.mapping in conn.root()["simple_cowboy"]["nameindex"]["George Abitbol"].values()
     ...
     ...     # Filtering over names is a lot faster!
     ...     assert [george] == Cowboy.filter(nameindex="George Abitbol")

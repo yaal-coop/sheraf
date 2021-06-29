@@ -105,9 +105,15 @@ def test_multiple_healthcheck_attributes_index_with_key_when_instance_deleted(
         m21 = Model2.create(simple="simple21", str_indexed="str2")
         m22 = Model2.create(simple="simple22", str_indexed="str2")
         m21_deletedmapping = m21.mapping
-        assert index_table["str2"] == [m21.mapping, m22.mapping]
+        assert dict(index_table["str2"]) == {
+            m21.raw_identifier: m21.mapping,
+            m22.raw_identifier: m22.mapping,
+        }
         m21.delete()
-        index_table["str2"] = [m21_deletedmapping, m22.mapping]
+        index_table["str2"] = {
+            m21.raw_identifier: m21_deletedmapping,
+            m22.raw_identifier: m22.mapping,
+        }
 
     with sheraf.connection() as conn:
         kwargs = dict(model_checks=["index"], instance_checks=[], attribute_checks=[])

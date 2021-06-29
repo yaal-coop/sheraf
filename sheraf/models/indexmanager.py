@@ -1,14 +1,17 @@
 import itertools
 
 import sheraf.types
+from BTrees.OOBTree import OOBTree
 
 
 class IndexManager:
     root_default = sheraf.types.SmallDict
-    index_multiple_default = sheraf.types.LargeList
+    index_multiple_default = OOBTree
 
-    def __init__(self, details):
+    def __init__(self, details, index_multiple_default=None):
         self.details = details
+        if index_multiple_default:
+            self.index_multiple_default = index_multiple_default
 
     def add_item(self, model, keys=None):
         """
@@ -28,7 +31,25 @@ class IndexManager:
             if self.details.unique:
                 self._table_set_unique(table, key, model.mapping)
             else:
-                self._table_set_multiple(table, key, model.mapping)
+                self._table_set_multiple(
+                    table, key, model.mapping, model.raw_identifier
+                )
+
+    def get_item(self, key, silent_errors=False):
+        items = self._get_item(key, silent_errors)
+
+        if not isinstance(items, OOBTree):
+            # TODO: deprecate this and delete it sometimes
+            return items
+
+        if self.details.unique:
+            return items
+
+        elif items:
+            return items.values()
+
+        else:
+            return None
 
     def delete_item(self, model, keys=None):
         """
@@ -52,10 +73,14 @@ class IndexManager:
                 if self.details.unique:
                     self._table_del_unique(table, key, model.mapping)
                 else:
-                    self._table_del_multiple(table, key, model.mapping)
+                    self._table_del_multiple(
+                        table, key, model.mapping, model.raw_identifier
+                    )
 
             except ValueError:
-                raise ValueError(f"{model} not in index '{self.details.key}' key '{key}'")
+                raise ValueError(
+                    f"{model} not in index '{self.details.key}' key '{key}'"
+                )
 
     def update_item(self, model, old_values, new_values):
         if old_values and new_values:
@@ -92,20 +117,30 @@ class IndexManager:
                     )
                 )
 
-    def _table_del_unique(self, table, key, value):
-        del table[key]
+    def _table_del_unique(self, table, index_key, value):
+        del table[index_key]
 
-    def _table_del_multiple(self, table, key, value):
-        table[key].remove(value)
-        if len(table[key]) == 0:
-            del table[key]
+    def _table_del_multiple(self, table, index_key, value, primary_key):
+        if isinstance(table[index_key], OOBTree):
+            del table[index_key][primary_key]
+            if len(table[index_key]) == 0:
+                del table[index_key]
+        else:
+            # TODO: deprecate this and delete it sometimes
+            table[index_key].remove(value)
+            if len(table[index_key]) == 0:
+                del table[index_key]
 
-    def _table_set_unique(self, table, key, value):
-        table[key] = value
+    def _table_set_unique(self, table, index_key, value):
+        table[index_key] = value
 
-    def _table_set_multiple(self, table, key, value):
-        index_list = table.setdefault(key, self.index_multiple_default())
-        index_list.append(value)
+    def _table_set_multiple(self, table, index_key, value, primary_key):
+        index_container = table.setdefault(index_key, self.index_multiple_default())
+        if isinstance(index_container, OOBTree):
+            index_container[primary_key] = value
+        else:
+            # TODO: deprecate this and delete it sometimes
+            index_container.append(value)
 
     def _root_check(self):
         if all((not table for table in self.root().values())):
@@ -136,7 +171,7 @@ class SimpleIndexManager(IndexManager):
         except KeyError:
             return self.persistent.setdefault(self.details.key, self.details.mapping())
 
-    def get_item(self, key, silent_errors=False):
+    def _get_item(self, key, silent_errors=False):
         try:
             return self.persistent[self.details.key][key]
         except KeyError:
@@ -242,7 +277,7 @@ class MultipleDatabaseIndexManager(IndexManager):
 
         return False
 
-    def get_item(self, key, silent_errors=False):
+    def _get_item(self, key, silent_errors=False):
         last_exc = None
         for table in self.tables():
             try:

@@ -101,6 +101,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     def __init__(self, *args, **kwargs):
         self._identifier = None
+        self._raw_identifier = None
 
         if not self.primary_key():
             raise sheraf.exceptions.PrimaryKeyException(
@@ -559,6 +560,16 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
         return self._identifier
 
+    @property
+    def raw_identifier(self):
+        if not self._identifier:
+            self._identifier = getattr(self, self.primary_key())
+
+        if not self._raw_identifier:
+            self._raw_identifier = self.mapping[self.primary_key()]
+
+        return self._raw_identifier
+
     def _is_indexable(self, index):
         """
         To have its entries updated, an index must have its table previously
@@ -692,7 +703,11 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
     @classmethod
     def index_manager(cls, index=None):
-        return MultipleDatabaseIndexManager(cls.database_name, cls.table, index)
+        return MultipleDatabaseIndexManager(
+            cls.database_name,
+            cls.table,
+            index,
+        )
 
     def __init__(self, *args, **kwargs):
         if "id" not in self.__class__.attributes:

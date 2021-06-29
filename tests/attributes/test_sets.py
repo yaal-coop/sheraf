@@ -141,8 +141,12 @@ def test_indexation(sheraf_database, persistent_type, subattribute):
 
     with sheraf.connection(commit=True) as conn:
         m = Model.create(set=["foo", "bar"])
-        assert m.mapping in conn.root()[Model.table]["set"]["foo"]
-        assert m.mapping in conn.root()[Model.table]["set"]["bar"]
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["set"]["foo"]
+        )
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["set"]["bar"]
+        )
         assert [m] == list(Model.search(set="foo"))
 
 

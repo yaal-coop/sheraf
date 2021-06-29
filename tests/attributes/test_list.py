@@ -162,13 +162,21 @@ def test_indexation(sheraf_database, persistent_type, subattribute):
 
     with sheraf.connection(commit=True) as conn:
         m = Model.create(list=["foo", "bar"])
-        assert m.mapping in conn.root()[Model.table]["list"]["foo"]
-        assert m.mapping in conn.root()[Model.table]["list"]["bar"]
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["list"]["foo"]
+        )
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["list"]["bar"]
+        )
         assert [m] == list(Model.search(list="foo"))
 
         m.list = ["bar", "baz"]
-        assert m.mapping in conn.root()[Model.table]["list"]["bar"]
-        assert m.mapping in conn.root()[Model.table]["list"]["baz"]
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["list"]["bar"]
+        )
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["list"]["baz"]
+        )
         assert "foo" not in conn.root()[Model.table]["list"]
 
 
@@ -185,8 +193,12 @@ def test_indexation_limitation(sheraf_database, persistent_type, subattribute):
 
     with sheraf.connection(commit=True) as conn:
         m = Model.create(list=["foo", "bar"])
-        assert m.mapping in conn.root()[Model.table]["list"]["foo"]
-        assert m.mapping in conn.root()[Model.table]["list"]["bar"]
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["list"]["foo"]
+        )
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["list"]["bar"]
+        )
         assert [m] == list(Model.search(list="foo"))
         assert [m] == list(Model.search(list="bar"))
         assert [] == list(Model.search(list="baz"))
@@ -198,8 +210,12 @@ def test_indexation_limitation(sheraf_database, persistent_type, subattribute):
         m.list.append("baz")
         assert ["bar", "baz"] == list(m.list)
 
-        assert m.mapping in conn.root()[Model.table]["list"]["foo"]
-        assert m.mapping in conn.root()[Model.table]["list"]["bar"]
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["list"]["foo"]
+        )
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["list"]["bar"]
+        )
         assert "baz" not in conn.root()[Model.table]["list"]
 
         assert [] == list(Model.search(list="foo"))
@@ -222,9 +238,15 @@ def test_nested_indexation(sheraf_database, persistent_type):
 
     with sheraf.connection(commit=True) as conn:
         m = Model.create(list=[["foo", "bar"], ["baz"]])
-        assert m.mapping in conn.root()[Model.table]["list"]["foo"]
-        assert m.mapping in conn.root()[Model.table]["list"]["bar"]
-        assert m.mapping in conn.root()[Model.table]["list"]["baz"]
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["list"]["foo"]
+        )
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["list"]["bar"]
+        )
+        assert {m.raw_identifier: m.mapping} == dict(
+            conn.root()[Model.table]["list"]["baz"]
+        )
         assert [m] == list(Model.search(list="foo"))
 
 

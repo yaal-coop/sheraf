@@ -335,8 +335,11 @@ def test_multiple_index_creation(sheraf_database, Model):
     with sheraf.connection() as conn:
         index_table = conn.root()[Model.table]["my_attribute"]
         assert {"foo", "bar"} == set(index_table)
-        assert [mfoo.mapping] == list(index_table["foo"])
-        assert [mbar1.mapping, mbar2.mapping] == list(index_table["bar"])
+        assert {mfoo.raw_identifier: mfoo.mapping} == dict(index_table["foo"])
+        assert {
+            mbar1.raw_identifier: mbar1.mapping,
+            mbar2.raw_identifier: mbar2.mapping,
+        } == dict(index_table["bar"])
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
             Model.read(my_attribute="bar")
@@ -417,7 +420,7 @@ def test_index_key(sheraf_database):
     with sheraf.connection() as conn:
         index_table = conn.root()[IndexKeyModel.table]["another_index_key"]
         assert {"foo"} == set(index_table)
-        assert [mfoo.mapping] == list(index_table["foo"])
+        assert [{mfoo.raw_identifier: mfoo.mapping}] == [dict(index_table["foo"])]
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
             IndexKeyModel.read(another_index_key="foo")
@@ -464,9 +467,9 @@ def test_multiple_keys_index_create(sheraf_database, Model):
         index_table_key_1 = conn.root()[Model.table]["key_1"]
         index_table_key_2 = conn.root()[Model.table]["key_2"]
         assert {"foo"} == set(index_table_key_1)
-        assert [mfoo.mapping] == list(index_table_key_1["foo"])
+        assert {mfoo.raw_identifier: mfoo.mapping} == dict(index_table_key_1["foo"])
         assert {"foo"} == set(index_table_key_2)
-        assert [mfoo.mapping] == list(index_table_key_2["foo"])
+        assert {mfoo.raw_identifier: mfoo.mapping} == dict(index_table_key_2["foo"])
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
             Model.read(key_1="foo")
@@ -509,9 +512,9 @@ def test_multiple_keys_index_update(sheraf_database, Model):
         index_table_key_1 = conn.root()[Model.table]["key_1"]
         index_table_key_2 = conn.root()[Model.table]["key_2"]
         assert {"foo"} == set(index_table_key_1)
-        assert [mfoo.mapping] == list(index_table_key_1["foo"])
+        assert {mfoo.raw_identifier: mfoo.mapping} == dict(index_table_key_1["foo"])
         assert {"foo"} == set(index_table_key_2)
-        assert [mfoo.mapping] == list(index_table_key_2["foo"])
+        assert {mfoo.raw_identifier: mfoo.mapping} == dict(index_table_key_2["foo"])
 
         with pytest.raises(sheraf.exceptions.MultipleIndexException):
             Model.read(key_1="foo")
@@ -889,8 +892,8 @@ def test_common_index(sheraf_database):
         index_table = conn.root()[Model.table]["theindex"]
         assert {"foo", "bar"} == Model.indexes["theindex"].details.get_model_values(m)
         assert {"foo", "bar"} == set(index_table)
-        assert [m.mapping] == list(index_table["foo"])
-        assert [m.mapping] == list(index_table["bar"])
+        assert {m.raw_identifier: m.mapping} == dict(index_table["foo"])
+        assert {m.raw_identifier: m.mapping} == dict(index_table["bar"])
 
         assert [m] == list(Model.read_these(theindex=["foo"]))
         assert [m] == list(Model.read_these(theindex=["bar"]))
@@ -971,8 +974,8 @@ def test_common_index_different_values_methods(sheraf_database, Model):
     with sheraf.connection() as conn:
         index_table = conn.root()[Model.table]["theindex"]
         assert {"foo", "BAR"} == set(index_table)
-        assert [m.mapping] == list(index_table["foo"])
-        assert [m.mapping] == list(index_table["BAR"])
+        assert {m.raw_identifier: m.mapping} == dict(index_table["foo"])
+        assert {m.raw_identifier: m.mapping} == dict(index_table["BAR"])
 
         assert [m] == list(Model.read_these(theindex=["foo"]))
         assert [m] == list(Model.read_these(theindex=["BAR"]))
@@ -1027,8 +1030,8 @@ def test_common_index_default_values_methods(sheraf_database, Model):
     with sheraf.connection() as conn:
         index_table = conn.root()[Model.table]["theindex"]
         assert {"foo", "BAR"} == set(index_table)
-        assert [m.mapping] == list(index_table["foo"])
-        assert [m.mapping] == list(index_table["BAR"])
+        assert {m.raw_identifier: m.mapping} == dict(index_table["foo"])
+        assert {m.raw_identifier: m.mapping} == dict(index_table["BAR"])
 
         assert [m] == list(Model.read_these(theindex=["foo"]))
         assert [m] == list(Model.read_these(theindex=["BAR"]))

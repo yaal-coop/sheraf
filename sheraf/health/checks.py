@@ -73,7 +73,8 @@ def check_attributes_index(model_instance):
         else:
             result[index_name] = all(
                 value in index_table[index_name]
-                and model_instance.mapping in index_table[index_name][value]
+                and model_instance.mapping
+                == index_table[index_name][value][model_instance.raw_identifier]
                 for value in values
             )
     return result
@@ -106,7 +107,7 @@ def check_model_index(model):
                 else:
                     [
                         model.read(model._decorate(persistent).identifier)
-                        for persistent in mmapping
+                        for persistent in mmapping.values()
                     ]
                 result.setdefault(attribute_index_key, {"ok": 0, "ko": 0})["ok"] += 1
 
