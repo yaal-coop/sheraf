@@ -5,7 +5,7 @@ Changed
 *******
 
 - :class:`~sheraf.models.indexmanager.IndexManager` uses
-  `~BTrees.OOBTree.OOBTree` to store multiple indexes.
+  :class:`~BTrees.OOBTree.OOBTree` to store multiple indexes.
 
 [0.5.1] - 2021-06-23
 ====================
