@@ -1,3 +1,12 @@
+[0.5.3] - 2021-06-30
+====================
+
+Added
+*******
+
+- A :func:`~sheraf.cli.rebuild` that allows to rebuild an
+  index from the command line.
+
 [0.5.2] - 2021-06-29
 ====================
 
