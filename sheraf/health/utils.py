@@ -14,7 +14,18 @@ def import_submodules(*args):
     results = {}
     for package in args:
         if isinstance(package, str):
-            package = importlib.import_module(package)
+            try:
+                # try as a module path
+                package = importlib.import_module(package)
+            except ModuleNotFoundError as exc:
+                package = ".".join(package.split(".")[:-1])
+                try:
+                    # try as a module + model path
+                    pkg = importlib.import_module(package)
+                    return {package: pkg}
+
+                except ModuleNotFoundError:
+                    raise exc
 
         results[package.__name__] = package
 
@@ -46,7 +57,7 @@ def discover_models(*args):
     result = {
         (path, model)
         for path, model in IndexedModelMetaclass.tables.values()
-        if model.__module__ in modules.keys()
+        if model.__module__ in modules.keys() or model in modules.keys()
     }
 
     for model in args:
