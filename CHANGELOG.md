@@ -5,7 +5,7 @@ Added
 *******
 
 - :func:`sheraf.health.utils.import_models` can take a model path.
-
+- Implemented :meth:`~sheraf.attributes.Attribute.default` decorator.
 
 [0.5.3] - 2021-07-02
 ====================
