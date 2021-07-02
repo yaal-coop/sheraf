@@ -45,3 +45,15 @@ def test_index():
     assert "<Index key=primary unique=True primary>" == repr(primary)
     assert "<Index key=unique unique=True>" == repr(unique)
     assert "<Index key=multiple unique=False>" == repr(multiple)
+
+
+def test_default_decorator(sheraf_connection):
+    class Model(UUIDAutoModel):
+        simple = sheraf.SimpleAttribute()
+
+        @simple.default
+        def simple_default(self):
+            return 42
+
+    m = Model.create()
+    assert m.simple == 42

@@ -324,3 +324,23 @@ class Attribute(object):
             return func
 
         return wrapper if not args else wrapper(args[0])
+
+    def default(self, func):
+        """
+        Decorator for a callback to call to generate a default value for
+        the attribute.
+
+        >>> class Cowboy(sheraf.Model):
+        ...     table = "default_cowboys"
+        ...     age = sheraf.IntegerAttribute()
+        ...
+        ...     @age.default
+        ...     def default_age(self):
+        ...         return 42
+        ...
+        >>> with sheraf.connection(commit=True):
+        ...     george = Cowboy.create()
+        ...     george.age
+        42
+        """
+        self._default_value = func
