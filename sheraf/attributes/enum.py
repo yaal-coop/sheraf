@@ -19,6 +19,26 @@ class EnumAccessor:
     def __eq__(self, other):
         return self.enum.value == other
 
+    def __lt__(self, other):
+        if isinstance(other, EnumAccessor):
+            return self.enum.value < other.value
+        return self.enum.value < other
+
+    def __le__(self, other):
+        if isinstance(other, EnumAccessor):
+            return self.enum.value <= other.value
+        return self.enum.value <= other
+
+    def __gt__(self, other):
+        if isinstance(other, EnumAccessor):
+            return self.enum.value > other.value
+        return self.enum.value > other
+
+    def __ge__(self, other):
+        if isinstance(other, EnumAccessor):
+            return self.enum.value >= other.value
+        return self.enum.value >= other
+
     def __hash__(self):
         return hash(self.enum)
 

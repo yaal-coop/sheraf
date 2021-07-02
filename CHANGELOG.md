@@ -1,4 +1,4 @@
-[0.5.3] - 2021-06-30
+[0.5.3] - 2021-07-02
 ====================
 
 Added
@@ -6,6 +6,7 @@ Added
 
 - A :func:`~sheraf.cli.rebuild` that allows to rebuild an
   index from the command line.
+- :class:`~sheraf.attributes.enum.EnumAttribute` supports comparisons.
 
 [0.5.2] - 2021-06-29
 ====================

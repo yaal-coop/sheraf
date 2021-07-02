@@ -33,6 +33,12 @@ def test_enum_attribute(sheraf_connection):
     assert m.status.is_bar
     assert not m.status.is_foo
 
+    m.status = 1
+    assert m.status < n.status
+    assert m.status <= n.status
+    assert n.status > m.status
+    assert n.status >= m.status
+
 
 def test_bad_values(sheraf_connection):
     class Enum(enum.IntEnum):
