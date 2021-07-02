@@ -40,6 +40,31 @@ def test_healthcheck_attributes_index(sheraf_database, capsys):
         assert re.search(r"tests.health.fixture1.Model2[^\n]*1[^\n]*1", stdout)
 
 
+def test_healthcheck_attributes_index_with_model(sheraf_database, capsys):
+    from .fixture1 import Model2
+
+    with sheraf.connection(commit=True) as conn:
+        Model2.create(simple="simple1", str_indexed="str1")
+        Model2.create(simple="simple2", str_indexed="str2")
+        index_table = conn.root()["model2_table"]["str_indexed"]
+        del index_table["str1"]
+
+    with sheraf.connection() as conn:
+        kwargs = dict(instance_checks=[], attribute_checks=["index"])
+
+        assert "str1" not in conn.root()["model2_table"]["str_indexed"]
+        assert "str2" in conn.root()["model2_table"]["str_indexed"]
+        health = check_health(Model2, **kwargs)["check_attributes_index"]
+
+        assert {"str_indexed": {"ok": 1, "ko": 1}} == health[
+            "tests.health.fixture1.Model2"
+        ]
+
+        print_health(fixture1, **kwargs)
+        stdout = capsys.readouterr().out
+        assert re.search(r"tests.health.fixture1.Model2[^\n]*1[^\n]*1", stdout)
+
+
 def test_healthcheck_attributes_index_when_instance_deleted(sheraf_database, capsys):
     from .fixture1 import Model2unique
 
