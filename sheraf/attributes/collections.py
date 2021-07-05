@@ -156,10 +156,9 @@ class ListAttribute(sheraf.attributes.Attribute):
         accessor_type=ListAttributeAccessor,
         **kwargs
     ):
-        assert persistent_type is not None
-
         self.attribute = attribute
-        self.persistent_type = persistent_type
+        if persistent_type:
+            self.persistent_type = persistent_type
         self.accessor_type = accessor_type
         kwargs.setdefault("default", self.persistent_type)
         kwargs["read_memoization"] = False
@@ -265,15 +264,13 @@ class ListAttribute(sheraf.attributes.Attribute):
 class SmallListAttribute(ListAttribute):
     """Shortcut for ``ListAttribute(persistent_type=SmallList)``."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, persistent_type=sheraf.types.SmallList, **kwargs)
+    persistent_type = sheraf.types.SmallList
 
 
 class LargeListAttribute(ListAttribute):
     """Shortcut for ``ListAttribute(persistent_type=LargeList)``."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, persistent_type=sheraf.types.LargeList, **kwargs)
+    persistent_type = sheraf.types.LargeList
 
 
 class DictAttributeAccessor:
@@ -388,9 +385,9 @@ class DictAttribute(sheraf.attributes.Attribute):
         accessor_type=DictAttributeAccessor,
         **kwargs
     ):
-        assert persistent_type is not None
         self.attribute = attribute
-        self.persistent_type = persistent_type
+        if persistent_type:
+            self.persistent_type = persistent_type
         self.accessor_type = accessor_type
         kwargs.setdefault("default", self.persistent_type)
         super().__init__(**kwargs)
@@ -453,15 +450,13 @@ class DictAttribute(sheraf.attributes.Attribute):
 class LargeDictAttribute(DictAttribute):
     """Shortcut for ``DictAttribute(persistent_type=LargeDict)``"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, persistent_type=sheraf.types.LargeDict, **kwargs)
+    persistent_type = sheraf.types.LargeDict
 
 
 class SmallDictAttribute(DictAttribute):
     """Shortcut for ``DictAttribute(persistent_type=SmallDict)``"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, persistent_type=sheraf.types.SmallDict, **kwargs)
+    persistent_type = sheraf.types.SmallDict
 
 
 class SetAttributeAccessor:
@@ -530,16 +525,18 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
     ...    assert {1, 8, 13} == set(george.favorite_numbers)
     """
 
+    persistent_type = sheraf.types.Set
+
     def __init__(
         self,
         attribute=None,
-        persistent_type=sheraf.types.Set,
+        persistent_type=None,
         accessor_type=SetAttributeAccessor,
         **kwargs
     ):
-        assert persistent_type is not None
         self.attribute = attribute
-        self.persistent_type = persistent_type
+        if persistent_type:
+            self.persistent_type = persistent_type
         self.accessor_type = accessor_type
         kwargs.setdefault("default", self.persistent_type)
         kwargs["read_memoization"] = False
