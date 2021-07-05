@@ -698,12 +698,13 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
     database_name = None
     table = None
+    index_manager_class = MultipleDatabaseIndexManager
 
     id = sheraf.attributes.simples.SimpleAttribute().index(primary=True)
 
     @classmethod
     def index_manager(cls, index=None):
-        return MultipleDatabaseIndexManager(
+        return cls.index_manager_class(
             cls.database_name,
             cls.table,
             index,
@@ -721,6 +722,8 @@ class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
 
 
 class SimpleIndexedModel(BaseIndexedModel, metaclass=BaseIndexedModelMetaclass):
+    index_manager_class = SimpleIndexManager
+
     @classmethod
     def index_manager(cls, index=None):
-        return SimpleIndexManager(index)
+        return cls.index_manager_class(index)
