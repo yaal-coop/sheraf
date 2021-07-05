@@ -144,6 +144,12 @@ class QuerySet(object):
     def __xor__(self, other):
         return QuerySet(difference(OOTreeSet(self), OOTreeSet(other)))
 
+    def __add__(self, other):
+        qs = QuerySet()
+        qs.model = self.model
+        qs._iterator = unique_everseen(itertools.chain(self, other))
+        return qs
+
     def __bool__(self):
         try:
             next(self.copy())

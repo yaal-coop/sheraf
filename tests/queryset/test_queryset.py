@@ -216,3 +216,10 @@ def test_get(sheraf_connection, m0, m1):
 
     with pytest.raises(sheraf.exceptions.QuerySetUnpackException):
         Cowboy.get(name="NONAME")
+
+
+def test_concat(sheraf_connection, m0, m1, m2):
+    assert Cowboy.filter(age=30) == [m0, m2]
+    assert Cowboy.filter(genre="M") == [m0, m1, m2]
+    qs = Cowboy.filter(age=30) + Cowboy.filter(genre="M")
+    assert qs == [m0, m2, m1]
