@@ -30,7 +30,7 @@ class Index:
                    :meth:`~sheraf.attributes.Attribute.search` method is
                    used.
     :param mapping: The mapping object to be used to store the indexed values.
-                   By default :class:`~BTrees.OOBTree.OOBTree` is used.
+                   By default the `index_mapping` class attribute is used.
     :param nullok: If `True`, `None` or empty values can be indexed. `True` by default.
     :param noneok: Ignored in if `nullok` is `True`. Else, if `noneok` is
                    `True`, `None` values can be indexed. `False` by default."
@@ -71,6 +71,8 @@ class Index:
     UniqueIndexException
     """
 
+    default_mapping = OOBTree
+
     def __init__(
         self,
         *attributes,
@@ -89,7 +91,7 @@ class Index:
         self.default_values_func = values
         self.search_func = search or values
         self.values_funcs = {}
-        self.mapping = mapping or OOBTree
+        self.mapping = mapping or self.default_mapping
         self.primary = primary
         self.nullok = nullok
         self.noneok = noneok

@@ -103,7 +103,7 @@ class Attribute(object):
     def read_raw(self, parent):
         # Internal.
         # :param parent: The owner of this attribute
-        # :return: the raw representation of this attribute (ie as stored in ZODB)
+        # :return: the raw representation of this attribute
         try:
             return parent.mapping[self.key(parent)]
         except KeyError:
@@ -121,7 +121,7 @@ class Attribute(object):
         return value
 
     def serialize(self, value):
-        # Get data and transform it into something ZODB can store.
+        # Get data and transform it into something that can be stored.
 
         return value
 
@@ -138,7 +138,7 @@ class Attribute(object):
         return self.deserialize(self.read_raw(parent))
 
     def write(self, parent, value):
-        # Takes user data, transform it into something ZODB can store, and
+        # Takes user data, transform it into something that can be stored, and
         # store it into the model parent persistent.
 
         written_value = self.write_raw(parent, self.serialize(value))

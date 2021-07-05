@@ -3,7 +3,7 @@ collections such as :class:`dict`, :class:`list` or :class:`set`. They usually
 combine different objects:
 
 - A ``persistent_type`` that is the persistent data structure that will store
-  the data in ZODB. For instance
+  the data. For instance
   :class:`~sheraf.attributes.collections.ListAttribute` usually uses
   :class:`sheraf.types.SmallList` or :class:`~sheraf.types.largelist.LargeList`.
 
