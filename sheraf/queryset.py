@@ -1,7 +1,7 @@
 import itertools
 import operator
 from collections import OrderedDict
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 
 from BTrees.OOBTree import OOTreeSet, union, intersection, difference
 
@@ -145,10 +145,7 @@ class QuerySet(object):
         return QuerySet(difference(OOTreeSet(self), OOTreeSet(other)))
 
     def __add__(self, other):
-        qs = QuerySet()
-        qs.model = self.model
-        qs._iterator = unique_everseen(itertools.chain(self, other))
-        return qs
+        return QuerySet(unique_everseen(itertools.chain(self, other)))
 
     def __bool__(self):
         try:
@@ -211,12 +208,7 @@ class QuerySet(object):
     @property
     def indexed_filters(self):
         return [
-            (
-                name,
-                value,
-                search_func,
-                self.orders.get(name) == sheraf.constants.DESC,
-            )
+            (name, value, search_func, self.orders.get(name) == sheraf.constants.DESC,)
             for (name, value, search_func) in self.filters.values()
             if name in self.model.indexes
         ]
@@ -351,7 +343,12 @@ class QuerySet(object):
         ...     # now qcopy is consumed
         """
 
-        qs = QuerySet(self._iterable, self.model)
+        if isinstance(self._iterable, Iterator):
+            self._iterable, iterable = itertools.tee(self._iterable)
+        else:
+            iterable = self._iterable
+
+        qs = QuerySet(iterable, self.model)
         qs.filters = self.filters.copy()
         qs.orders = self.orders.copy()
         qs._predicate = self._predicate

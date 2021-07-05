@@ -46,7 +46,12 @@ def test_bool(sheraf_connection, m0):
 def test_create(sheraf_connection, m0):
     assert [m0] == Cowboy.filter(age=30)
     assert [] != Cowboy.filter(age=30)
+
     assert QuerySet([m0]) == Cowboy.filter(age=30)
+    assert m0 in Cowboy.filter(age=30)
+
+    res = [m0]
+    assert QuerySet(iter(res)) == Cowboy.filter(age=30)
     assert m0 in Cowboy.filter(age=30)
 
 
@@ -169,13 +174,34 @@ def test_itertools_tee(sheraf_connection, m0, m1, m2):
     assert [] == list(qall_tee)
 
 
-def test_copy(sheraf_connection, m0, m1, m2):
+def test_copy_model(sheraf_connection, m0, m1, m2):
     qall = Cowboy.all()
     qall_copy = qall.copy()
 
     assert [m0, m1, m2] == qall_copy
     assert [] == qall_copy
     assert [m0, m1, m2] == qall
+    assert [] == qall
+
+
+def test_copy_iterable(sheraf_connection, m0, m1, m2):
+    qall = QuerySet([m0, m2, m1])
+    qall_copy = qall.copy()
+
+    assert [m0, m2, m1] == qall_copy
+    assert [] == qall_copy
+    assert [m0, m2, m1] == qall
+    assert [] == qall
+
+
+def test_copy_iterable_iterator(sheraf_connection, m0, m1, m2):
+    res = [m0, m2, m1]
+    qall = QuerySet(iter(res))
+    qall_copy = qall.copy()
+
+    assert [m0, m2, m1] == qall_copy
+    assert [] == qall_copy
+    assert [m0, m2, m1] == qall
     assert [] == qall
 
 
@@ -221,5 +247,15 @@ def test_get(sheraf_connection, m0, m1):
 def test_concat(sheraf_connection, m0, m1, m2):
     assert Cowboy.filter(age=30) == [m0, m2]
     assert Cowboy.filter(genre="M") == [m0, m1, m2]
+
     qs = Cowboy.filter(age=30) + Cowboy.filter(genre="M")
+    assert qs == [m0, m2, m1]
+
+    qs = Cowboy.filter(age=30) + Cowboy.filter(genre="M")
+    assert next(qs) == m0
+    assert next(qs) == m2
+    assert next(qs) == m1
+
+    qs = Cowboy.filter(age=30) + Cowboy.filter(genre="M")
+    qs = qs[:100]
     assert qs == [m0, m2, m1]

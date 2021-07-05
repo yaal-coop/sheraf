@@ -1,8 +1,16 @@
+[0.5.5] - 2021-07-05
+====================
+
+Fixed
+*****
+- Fixed :class:`sheraf.queryset.QuerySet` concatenation when QuerySet
+  is copied.
+
 [0.5.4] - 2021-07-05
 ====================
 
 Added
-*******
+*****
 
 - :func:`sheraf.health.utils.import_models` can take a model path.
 - Implemented :meth:`~sheraf.attributes.Attribute.default` decorator.
@@ -12,7 +20,7 @@ Added
 ====================
 
 Added
-*******
+*****
 
 - A :func:`~sheraf.cli.rebuild` that allows to rebuild an
   index from the command line.
