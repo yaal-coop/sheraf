@@ -38,7 +38,7 @@ class IndexManager:
     def get_item(self, key, silent_errors=False):
         items = self._get_item(key, silent_errors)
 
-        if not isinstance(items, OOBTree):
+        if not isinstance(items, self.index_multiple_default):
             # TODO: deprecate this and delete it sometimes
             return items
 
@@ -121,7 +121,7 @@ class IndexManager:
         del table[index_key]
 
     def _table_del_multiple(self, table, index_key, value, primary_key):
-        if isinstance(table[index_key], OOBTree):
+        if isinstance(table[index_key], self.index_multiple_default):
             del table[index_key][primary_key]
             if len(table[index_key]) == 0:
                 del table[index_key]
@@ -136,7 +136,7 @@ class IndexManager:
 
     def _table_set_multiple(self, table, index_key, value, primary_key):
         index_container = table.setdefault(index_key, self.index_multiple_default())
-        if isinstance(index_container, OOBTree):
+        if isinstance(index_container, self.index_multiple_default):
             index_container[primary_key] = value
         else:
             # TODO: deprecate this and delete it sometimes
