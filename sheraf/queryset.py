@@ -3,8 +3,6 @@ import operator
 from collections import OrderedDict
 from collections.abc import Iterable, Iterator
 
-from BTrees.OOBTree import OOTreeSet, union, intersection, difference
-
 import sheraf.constants
 from sheraf.exceptions import InvalidFilterException, InvalidOrderException
 from sheraf.tools.more_itertools import unique_everseen
@@ -136,13 +134,13 @@ class QuerySet(object):
         return super().__eq__(other)
 
     def __and__(self, other):
-        return QuerySet(intersection(OOTreeSet(self), OOTreeSet(other)))
+        return QuerySet(set(self) & set(other))
 
     def __or__(self, other):
-        return QuerySet(union(OOTreeSet(self), OOTreeSet(other)))
+        return QuerySet(set(self) | set(other))
 
     def __xor__(self, other):
-        return QuerySet(difference(OOTreeSet(self), OOTreeSet(other)))
+        return QuerySet(set(self) ^ set(other))
 
     def __add__(self, other):
         return QuerySet(unique_everseen(itertools.chain(self, other)))
