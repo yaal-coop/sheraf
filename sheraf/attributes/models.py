@@ -483,14 +483,18 @@ class IndexedModelAttribute(ModelLoader, Attribute):
     ...     jolly = george.horses.create(name="Jolly Jumper", size=32)
     ...
     ...     assert jolly == george.horses.read("Jolly Jumper")
-    ...     assert jolly in george.horses.search(size=32)
+    ...     assert jolly in george.hors-    def __init__(self, model=None, **kwargs):
+-        kwargs.setdefault("default", sheraf.types.SmallDict)
+-        super().__init__(model=model, **kwargs)es.search(size=32)
     """
+
+    index_table_default = sheraf.types.SmallDict
 
     def read(self, parent):
         for index in self.model.indexes.values():
             key = self.key(parent)
             if key not in parent.mapping:
-                parent.mapping[key] = sheraf.types.SmallDict()
+                parent.mapping[key] = self.index_table_default()
             index.persistent = parent.mapping[key]
 
         return self.model
