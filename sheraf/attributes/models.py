@@ -483,9 +483,7 @@ class IndexedModelAttribute(ModelLoader, Attribute):
     ...     jolly = george.horses.create(name="Jolly Jumper", size=32)
     ...
     ...     assert jolly == george.horses.read("Jolly Jumper")
-    ...     assert jolly in george.hors-    def __init__(self, model=None, **kwargs):
--        kwargs.setdefault("default", sheraf.types.SmallDict)
--        super().__init__(model=model, **kwargs)es.search(size=32)
+    ...     assert jolly in george.horses.search(size=32)
     """
 
     index_table_default = sheraf.types.SmallDict
