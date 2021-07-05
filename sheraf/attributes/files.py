@@ -170,6 +170,7 @@ class FileAttribute(Attribute):
 class FilesGarbageCollector(object):
     DEFAULT_TABLE = "__sheraf_collected_files_to_remove"
     _instance = None
+    default_mapping = sheraf.types.Set
 
     @classmethod
     def instance(cls):
@@ -183,7 +184,7 @@ class FilesGarbageCollector(object):
     def _collected_paths(self):
         root = sheraf.Database.current_connection().root()
         if self.table not in root:
-            root[self.table] = sheraf.types.Set()
+            root[self.table] = self.default_mapping()
         return root[self.table]
 
     @staticmethod
