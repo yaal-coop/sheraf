@@ -420,8 +420,10 @@ class InlineModelAttribute(ModelLoader, Attribute):
     'Jolly Jumper'
     """
 
+    default_mapping = sheraf.types.SmallDict
+
     def __init__(self, model=None, **kwargs):
-        kwargs.setdefault("default", sheraf.types.SmallDict)
+        kwargs.setdefault("default", self.default_mapping)
         super().__init__(model=model, **kwargs)
 
     def deserialize(self, value):
