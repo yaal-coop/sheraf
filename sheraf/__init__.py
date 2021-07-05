@@ -1,9 +1,5 @@
 # pylint: disable=F,W
 # flake8: noqa
-from ZODB.DemoStorage import DemoStorage
-from ZODB.FileStorage import FileStorage
-from ZODB.MappingStorage import MappingStorage
-
 from .attributes import Attribute, set_read_memoization
 from .attributes.blobs import Blob, BlobAttribute
 from .attributes.collections import (
