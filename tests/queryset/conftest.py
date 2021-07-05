@@ -4,7 +4,7 @@ import sheraf
 import sheraf.models
 
 
-class Cowboy(sheraf.models.IntOrderedNamedAttributesModel):
+class Cowboy(sheraf.IntOrderedNamedAttributesModel):
     table = "my_model_queryset"
     age = sheraf.IntegerAttribute()
     name = sheraf.StringAttribute(default="John Doe")
