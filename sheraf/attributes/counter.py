@@ -1,7 +1,7 @@
 import BTrees.Length
 
-import sheraf.types.counter
 from sheraf.attributes.simples import IntegerAttribute
+from ..types.counter import Counter
 
 
 class CounterAttribute(IntegerAttribute):
@@ -88,14 +88,14 @@ class CounterAttribute(IntegerAttribute):
         """
         kwargs["lazy"] = False
         super().__init__(
-            default=lambda: sheraf.types.counter.Counter(default), **kwargs
+            default=lambda: Counter(default), **kwargs
         )
 
     def write(self, parent, value):
         counter = self.read_raw(parent)
         deserialized = self.deserialize(counter)
 
-        if not isinstance(counter, sheraf.types.counter.Counter):
+        if not isinstance(counter, Counter):
             self.write_raw(parent, deserialized)
 
         deserialized.set(self.serialize(value))
@@ -105,22 +105,22 @@ class CounterAttribute(IntegerAttribute):
         value = self.read_raw(parent)
         deserialized = self.deserialize(value)
 
-        if not isinstance(value, sheraf.types.counter.Counter):
+        if not isinstance(value, Counter):
             self.write_raw(parent, deserialized)
 
         return deserialized
 
     def serialize(self, value):
-        if isinstance(value, sheraf.types.counter.Counter):
+        if isinstance(value, Counter):
             return value.value
 
         return value
 
     def deserialize(self, value):
         if isinstance(value, BTrees.Length.Length):
-            return sheraf.types.counter.Counter(value.value)
+            return Counter(value.value)
 
-        if not isinstance(value, sheraf.types.counter.Counter):
-            return sheraf.types.counter.Counter(value)
+        if not isinstance(value, Counter):
+            return Counter(value)
 
         return value

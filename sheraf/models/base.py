@@ -1,4 +1,5 @@
-import sheraf.types
+import sheraf.attributes
+from ..types import SmallDict
 
 
 class BaseModelMetaclass(type):
@@ -61,7 +62,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
 
     attributes = {}
     mapping = None
-    default_mapping = sheraf.types.SmallDict
+    default_mapping = SmallDict
 
     @classmethod
     def create(cls, default=None, *args, **kwargs):

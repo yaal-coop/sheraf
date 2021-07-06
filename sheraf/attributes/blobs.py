@@ -3,7 +3,6 @@ import ZODB
 import sheraf.attributes.models
 import sheraf.models
 import sheraf.models.inline
-import sheraf.types
 
 
 class Blob(sheraf.models.inline.InlineModel):

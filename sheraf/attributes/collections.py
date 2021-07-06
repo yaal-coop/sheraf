@@ -72,7 +72,7 @@ You can also nest collections as you like, and play for instance with
 
 
 import sheraf
-import sheraf.types
+from ..types import SmallList, LargeList, SmallDict, LargeDict, Set
 
 
 class ListAttributeAccessor:
@@ -264,13 +264,13 @@ class ListAttribute(sheraf.attributes.Attribute):
 class SmallListAttribute(ListAttribute):
     """Shortcut for ``ListAttribute(persistent_type=SmallList)``."""
 
-    persistent_type = sheraf.types.SmallList
+    persistent_type = SmallList
 
 
 class LargeListAttribute(ListAttribute):
     """Shortcut for ``ListAttribute(persistent_type=LargeList)``."""
 
-    persistent_type = sheraf.types.LargeList
+    persistent_type = LargeList
 
 
 class DictAttributeAccessor:
@@ -450,13 +450,13 @@ class DictAttribute(sheraf.attributes.Attribute):
 class LargeDictAttribute(DictAttribute):
     """Shortcut for ``DictAttribute(persistent_type=LargeDict)``"""
 
-    persistent_type = sheraf.types.LargeDict
+    persistent_type = LargeDict
 
 
 class SmallDictAttribute(DictAttribute):
     """Shortcut for ``DictAttribute(persistent_type=SmallDict)``"""
 
-    persistent_type = sheraf.types.SmallDict
+    persistent_type = SmallDict
 
 
 class SetAttributeAccessor:
@@ -525,7 +525,7 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
     ...    assert {1, 8, 13} == set(george.favorite_numbers)
     """
 
-    persistent_type = sheraf.types.Set
+    persistent_type = Set
 
     def __init__(
         self,

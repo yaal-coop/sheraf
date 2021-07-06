@@ -1,11 +1,13 @@
 import itertools
 
-import sheraf.types
 from BTrees.OOBTree import OOBTree
+from ..types import SmallDict
+from sheraf.databases import Database
+from sheraf.exceptions import NotConnectedException, UniqueIndexException
 
 
 class IndexManager:
-    root_default = sheraf.types.SmallDict
+    root_default = SmallDict
     index_multiple_default = OOBTree
 
     def __init__(self, details, index_multiple_default=None):
@@ -111,7 +113,7 @@ class IndexManager:
 
         for value in values:
             if value in self.table():
-                raise sheraf.exceptions.UniqueIndexException(
+                raise UniqueIndexException(
                     "The key '{}' is already present in the index '{}'".format(
                         value, self.details.key
                     )
@@ -193,9 +195,9 @@ class SimpleIndexManager(IndexManager):
 
 
 def current_database_name():
-    current_name = sheraf.Database.current_name()
+    current_name = Database.current_name()
     if not current_name:
-        raise sheraf.exceptions.NotConnectedException()
+        raise NotConnectedException()
     return current_name
 
 
@@ -207,7 +209,7 @@ class MultipleDatabaseIndexManager(IndexManager):
 
     def database_root(self, database_name=None):
         database_name = database_name or self.database_name or current_database_name()
-        return sheraf.Database.current_connection(database_name).root()
+        return Database.current_connection(database_name).root()
 
     def root(self, database_name=None, setdefault=True):
         root = self.database_root(database_name)

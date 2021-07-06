@@ -1,8 +1,8 @@
 import os
 import sheraf
-import sheraf.types
 from sheraf.attributes import Attribute
 from sheraf.models.base import BaseModel
+from ..types import Set
 
 FILES_ROOT_DIR = "files/"
 
@@ -170,7 +170,7 @@ class FileAttribute(Attribute):
 class FilesGarbageCollector(object):
     DEFAULT_TABLE = "__sheraf_collected_files_to_remove"
     _instance = None
-    default_mapping = sheraf.types.Set
+    default_mapping = Set
 
     @classmethod
     def instance(cls):
