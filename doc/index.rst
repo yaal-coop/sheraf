@@ -20,7 +20,7 @@ Table of contents
    tutorial/index
    api/index
    databasetree
-   fts
+   fts/index
    integrations
    install
    changelog
