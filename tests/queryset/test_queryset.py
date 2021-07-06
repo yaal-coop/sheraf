@@ -259,3 +259,22 @@ def test_concat(sheraf_connection, m0, m1, m2):
     qs = Cowboy.filter(age=30) + Cowboy.filter(genre="M")
     qs = qs[:100]
     assert qs == [m0, m2, m1]
+
+
+def test_concat_empty(sheraf_connection, m0, m1, m2):
+    assert Cowboy.filter(age=30) == [m0, m2]
+    assert Cowboy.filter(genre="Z") == []
+
+    qs = Cowboy.filter(genre="Z") + Cowboy.filter(age=30)
+    assert qs == [m0, m2]
+
+    qs = Cowboy.filter(age=30) + Cowboy.filter(genre="Z")
+    assert qs == [m0, m2]
+
+    qs = Cowboy.filter(genre="Z") + Cowboy.filter(age=30)
+    qs = qs[:100]
+    assert qs == [m0, m2]
+
+    qs = Cowboy.filter(age=30) + Cowboy.filter(genre="Z")
+    qs = qs[:100]
+    assert qs == [m0, m2]
