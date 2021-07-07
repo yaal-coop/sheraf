@@ -31,6 +31,9 @@ class Index:
                    used.
     :param mapping: The mapping object to be used to store the indexed values.
                    By default the `index_mapping` class attribute is used.
+                   If you know that the keys of the index will always be a
+                   specific type, like integers, you might way to use this
+                   attribute to use specialized datastructures.
     :param nullok: If `True`, `None` or empty values can be indexed. `True` by default.
     :param noneok: Ignored in if `nullok` is `True`. Else, if `noneok` is
                    `True`, `None` values can be indexed. `False` by default."
