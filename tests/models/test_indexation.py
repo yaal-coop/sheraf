@@ -631,6 +631,7 @@ def test_custom_indexation_method(sheraf_database, Model):
         assert {"foo"} == Model.indexes["foo"].details.get_values(
             m, [Model.attributes["foo"]], func
         )
+        assert {"foo"} == m.index_keys("foo")
 
     with sheraf.connection() as conn:
         index_table = conn.root()[Model.table]["foo"]
@@ -764,6 +765,7 @@ class CustomSearchModelE(tests.IntAutoModel):
 def test_custom_query_method(sheraf_database, Model):
     with sheraf.connection(commit=True):
         m = Model.create(foo="FOO", bar="BAR")
+        assert ["oof", "foo"] == Model.search_keys(foo="foo")
 
     with sheraf.connection() as conn:
         index_table = conn.root()[Model.table]["foo"]
@@ -771,15 +773,23 @@ def test_custom_query_method(sheraf_database, Model):
         assert m.mapping == index_table["foo"]
 
         assert [m] == list(Model.search(foo="oof"))
+        assert m.is_indexed_with(foo="oof")
         assert [m] == list(Model.search(foo="foo"))
+        assert m.is_indexed_with(foo="foo")
         assert [m] == list(Model.search(foo="OOF"))
+        assert m.is_indexed_with(foo="OOF")
         assert [m] == list(Model.search(foo="FOO"))
+        assert m.is_indexed_with(foo="FOO")
 
         assert [m] == list(Model.search(foo="oof", bar="BAR"))
+        assert m.is_indexed_with(foo="oof", bar="BAR")
         assert [m] == list(Model.search(foo="OOF", bar="BAR"))
+        assert m.is_indexed_with(foo="OOF", bar="BAR")
 
         assert [] == list(Model.search(foo="oof", bar="bar"))
+        assert not m.is_indexed_with(foo="oof", bar="bar")
         assert [] == list(Model.search(foo="OOF", bar="bar"))
+        assert not m.is_indexed_with(foo="OOF", bar="bar")
 
     with sheraf.connection():
         with pytest.raises(sheraf.exceptions.UniqueIndexException):
