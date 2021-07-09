@@ -140,6 +140,9 @@ class Index:
         ...     m = Cowboy.create(first_name="George", last_name="Abitbol", surname="Georgy")
         ...     assert m in Cowboy.filter(theindex="george abitbol")
         ...     assert m in Cowboy.filter(theindex="georgy")
+
+        .. note :: You can use :meth:`~sheraf.models.indexation.BaseIndexedModel.index_keys`
+                   to check the index keys your custom function generates.
         """
 
         # Guess if the decorator has been called with or without parenthesis
@@ -186,6 +189,9 @@ class Index:
         ...     m = Model.create(foo="foo", bar="bar")
         ...     assert m in Model.search(theindex="foo")
         ...     assert m in Model.search(theindex="BAR")
+
+        .. note :: You can use :meth:`~sheraf.models.indexation.BaseIndexedModel.search_keys`
+                   to check the index keys your custom function generates.
         """
 
         def wrapper(func):

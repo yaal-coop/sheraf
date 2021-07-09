@@ -635,6 +635,82 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         """
         return cls.indexes[index_name or cls.primary_key()].count()
 
+    def index_keys(self, index_name):
+        """
+        Returns the values generated for a given index.
+        This method is a helper to help debugging custom
+        :meth:`~sheraf.models.indexation.BaseIndexedModel.values` methods.
+
+        :param index_name: The name of the index.
+
+        >>> class Horse(sheraf.Model):
+        ...     table = "index_keys_horse"
+        ...     name = sheraf.StringAttribute().index(
+        ...         values=lambda name: name.lower()
+        ...     )
+        ...
+        >>> with sheraf.connection():
+        ...     jolly = Horse.create(name="Jolly Jumper")
+        ...     jolly.index_keys("name")
+        {'jolly jumper'}
+        """
+        return self.indexes[index_name].details.get_model_values(self)
+
+    @classmethod
+    def search_keys(cls, **kwargs):
+        """
+        Returns the values generated for a given index query.
+        This method is a helper to help debugging custom
+        :meth:`~sheraf.models.indexation.BaseIndexedModel.search` methods.
+
+        :param index_name: The name of the index.
+
+        >>> class Horse(sheraf.Model):
+        ...     table = "search_keys_horse"
+        ...     name = sheraf.StringAttribute().index(
+        ...         values=lambda name: name.lower()
+        ...     )
+        ...
+        >>> Horse.search_keys(name="Jolly Jumper")
+        {'jolly jumper'}
+        """
+
+        if len(kwargs) != 1:
+            raise AttributeError(
+                "search_keys takes exactly one argument, "
+                "and this must be a valid index"
+            )
+
+        index_name, value = list(kwargs.items())[0]
+        return cls.indexes[index_name].details.call_search_func(cls, value)
+
+    def is_indexed_with(self, **kwargs):
+        """
+        Checks if a model would be returned if a given query would be done.
+        This method does not make an actual query, and thus should be faster
+        than making a real one.
+
+        :params **kwargs: A list of indexes to check.
+
+        >>> class Horse(sheraf.Model):
+        ...     table = "is_indexed_with_horse"
+        ...     name = sheraf.StringAttribute().index(
+        ...         values=lambda name: name.lower()
+        ...     )
+        ...
+        >>> with sheraf.connection():
+        ...     jolly = Horse.create(name="Jolly Jumper")
+        ...     jolly.is_indexed_with(name="Jolly JUMPER")
+        True
+        """
+        return all(
+            any(
+                v in self.index_keys(index_name)
+                for v in self.search_keys(**{index_name: index_value})
+            )
+            for index_name, index_value in kwargs.items()
+        )
+
 
 class IndexedModelMetaclass(BaseIndexedModelMetaclass):
     """

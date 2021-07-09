@@ -1,3 +1,12 @@
+[0.5.6] - 2021-07-09
+====================
+
+Added
+*****
+- :meth:`sheraf.models.indexation.BaseIndexedModel.search_keys`,
+  :meth:`sheraf.models.indexation.BaseIndexedModel.index_keys` and
+  :meth:`sheraf.models.indexation.BaseIndexedModel.is_indexed_with`.
+
 [0.5.5] - 2021-07-05
 ====================
 
