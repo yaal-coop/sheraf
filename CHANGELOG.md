@@ -7,6 +7,11 @@ Added
   :meth:`sheraf.models.indexation.BaseIndexedModel.index_keys` and
   :meth:`sheraf.models.indexation.BaseIndexedModel.is_indexed_with`.
 
+Changed
+*******
+- :class:`~sheraf.databases.Database` use :class:`contextvars.ContextVar`
+  instead of :class:`threading.local`.
+
 [0.5.5] - 2021-07-05
 ====================
 
