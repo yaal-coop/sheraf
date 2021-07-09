@@ -1,7 +1,8 @@
 import contextlib
 import os
-import threading
 import traceback
+
+from contextvars import ContextVar
 
 import transaction
 import ZODB.config
@@ -10,6 +11,11 @@ import zodburi
 from ZODB.DemoStorage import DemoStorage
 
 from sheraf.exceptions import ConnectionAlreadyOpened
+
+
+# Isolated contexts state
+global_context_connections_state = ContextVar("global_context_connections_state")
+global_context_last_connection_state = ContextVar("global_context_last_connection_state")
 
 
 class LocalData:
@@ -21,11 +27,30 @@ class LocalData:
         self.last_database_context = {}
         self.zodb_databases = {}
 
-        class GlobalThreadContext(threading.local):
-            def __init__(self):
-                super().__init__()
-                self.connections = []
-                self.last_connection_context = None
+        class GlobalThreadContext:
+            @property
+            def connections(self):
+                try:
+                    return global_context_connections_state.get()
+                except LookupError:
+                    global_context_connections_state.set([])
+                    return global_context_connections_state.get()
+
+            @property
+            def last_connection_context(self):
+                try:
+                    return global_context_last_connection_state.get()
+                except LookupError:
+                    global_context_last_connection_state.set(None)
+                    return global_context_last_connection_state.get()
+
+            @last_connection_context.setter
+            def last_connection_context(self, value):
+                global_context_last_connection_state.set(value)
+
+            def reset_connections_state(self):
+                global_context_connections_state.set([])
+                global_context_last_connection_state.set(None)
 
         self.thread_context = GlobalThreadContext()
 
@@ -36,6 +61,10 @@ class LocalData:
         if not cls.instance or cls.instance.pid != pid:
             cls.instance = LocalData(pid)
         return cls.instance
+
+
+# Isolated context state
+database_context_connections_state = ContextVar("database_context_connections_state")
 
 
 class Database(object):
@@ -75,10 +104,17 @@ class Database(object):
         self.storage = None
         self.db_args = db_args or {}
 
-        class DatabaseThreadContext(threading.local):
-            def __init__(self):
-                super().__init__()
-                self.connections = []
+        class DatabaseThreadContext:
+            @property
+            def connections(self):
+                try:
+                    return database_context_connections_state.get()
+                except LookupError:
+                    database_context_connections_state.set([])
+                    return database_context_connections_state.get()
+
+            def reset_connections_state(self):
+                database_context_connections_state.set([])
 
         self.thread_context = DatabaseThreadContext()
 
