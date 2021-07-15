@@ -165,7 +165,7 @@ class ListAttribute(sheraf.attributes.Attribute):
         kwargs["write_memoization"] = False
         super().__init__(**kwargs)
 
-    def values(self, list_):
+    def index_keys(self, list_):
         """
         By default, every items in a :class:`~sheraf.attributes.collections.ListAttribute` is indexed.
 
@@ -200,13 +200,13 @@ class ListAttribute(sheraf.attributes.Attribute):
         if not self.attribute:
             return set(list_)
 
-        return set(y for v in list_ for y in self.attribute.values(v))
+        return set(y for v in list_ for y in self.attribute.index_keys(v))
 
-    def search(self, value):
+    def search_keys(self, value):
         if not self.attribute:
             return {value}
 
-        return {v for v in self.attribute.search(value)}
+        return {v for v in self.attribute.search_keys(value)}
 
     def deserialize(self, value):
         if not self.attribute:
@@ -543,7 +543,7 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         kwargs["write_memoization"] = False
         super().__init__(**kwargs)
 
-    def values(self, set_):
+    def index_keys(self, set_):
         """
         By default, every items in a :class:`~sheraf.attributes.collections.SetAttribute` is indexed.
 
@@ -578,13 +578,13 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         if not self.attribute:
             return set(set_)
 
-        return set(y for v in set_ for y in self.attribute.values(v))
+        return set(y for v in set_ for y in self.attribute.index_keys(v))
 
-    def search(self, value):
+    def search_keys(self, value):
         if not self.attribute:
             return {value}
 
-        return {v for v in self.attribute.search(value)}
+        return {v for v in self.attribute.search_keys(value)}
 
     def deserialize(self, value):
         if not self.attribute:

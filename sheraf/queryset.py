@@ -206,7 +206,12 @@ class QuerySet(object):
     @property
     def indexed_filters(self):
         return [
-            (name, value, search_func, self.orders.get(name) == sheraf.constants.DESC,)
+            (
+                name,
+                value,
+                search_func,
+                self.orders.get(name) == sheraf.constants.DESC,
+            )
             for (name, value, search_func) in self.filters.values()
             if name in self.model.indexes
         ]
@@ -311,10 +316,10 @@ class QuerySet(object):
         if not all(
             (
                 set(model.indexes[name].details.call_search_func(model, value))
-                & set(model.indexes[name].details.get_model_values(model))
+                & set(model.indexes[name].details.get_model_index_keys(model))
             )
             if search_func
-            else (value in model.indexes[name].details.get_model_values(model))
+            else (value in model.indexes[name].details.get_model_index_keys(model))
             for name, value, search_func, _ in self.indexed_filters
         ):
             return False
@@ -416,7 +421,7 @@ class QuerySet(object):
         >>> class MyCustomModel(sheraf.Model):
         ...     table = "my_custom_model"
         ...     my_attribute = sheraf.SimpleAttribute().index(
-        ...        values=lambda string: {string.lower()}
+        ...        index_keys_func=lambda string: {string.lower()}
         ...     )
         ...
         >>> with sheraf.connection(commit=True):

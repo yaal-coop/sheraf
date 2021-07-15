@@ -1,3 +1,11 @@
+[0.5.7] - 2021-07-15
+====================
+
+Changed
+*******
+- Index related 'values' methods and parameters have been renamed 'index_keys'
+- Index related 'search' methods and parameters have been renamed 'search_keys'
+
 [0.5.6] - 2021-07-09
 ====================
 

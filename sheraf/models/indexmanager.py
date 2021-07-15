@@ -25,7 +25,7 @@ class IndexManager:
                      are set.
         """
         if keys is None:
-            keys = self.details.get_model_values(model)
+            keys = self.details.get_model_index_keys(model)
 
         table = self.table()
 
@@ -63,7 +63,7 @@ class IndexManager:
                      are removed.
         """
         if keys is None:
-            keys = self.details.get_model_values(model)
+            keys = self.details.get_model_index_keys(model)
 
         table = self.table()
 

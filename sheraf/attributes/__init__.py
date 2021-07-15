@@ -1,5 +1,6 @@
 from BTrees.OOBTree import OOBTree
 from sheraf.attributes.index import Index
+import warnings
 
 
 def set_read_memoization(should_memoize_read):
@@ -177,6 +178,8 @@ class Attribute(object):
         self,
         unique=False,
         key=None,
+        index_keys_func=None,
+        search_keys_func=None,
         values=None,
         search=None,
         mapping=None,
@@ -191,17 +194,57 @@ class Attribute(object):
 
         - the index name will be this attribute name;
         - the mapping parameter will be this attribute `default_index_mapping` parameter;
-        - the values parameter will be this attribute :meth:`~sheraf.attributes.Attribute.values` method;
-        - the search parameter will be this attribute :meth:`~sheraf.attributes.Attribute.search` method;
+        - the index_keys_func parameter will be this attribute :meth:`~sheraf.attributes.Attribute.index_keys` method;
+        - the search_keys_func parameter will be this attribute :meth:`~sheraf.attributes.Attribute.search_keys` method;
         - the noneok parameter will be this attribute `noneok` parameter
         - the nullok parameter will be this attribute `nullok` parameter
         """
+        if values and not index_keys_func:
+            warnings.warn(
+                "Attribute.index 'values' attribute is deprecated and will be removed in sheraf 0.6. "
+                "Please use 'index_keys_func' instead",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            index_keys_func = values
+
+        if search and not search_keys_func:
+            warnings.warn(
+                "Attribute.index 'search' attribute is deprecated and will be removed in sheraf 0.6. "
+                "Please use 'search_keys_func' instead",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            search_keys_func = search
+
+        if hasattr(self, "values") and not index_keys_func:
+            warnings.warn(
+                "Attribute 'values' method is deprecated and will be removed in sheraf 0.6. "
+                "Please use 'index_keys' instead",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            index_keys_func = self.values
+
+        if hasattr(self, "search") and not search_keys_func:
+            warnings.warn(
+                "Attribute.index 'search' attribute is deprecated and will be removed in sheraf 0.6. "
+                "Please use 'search_keys' instead",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            search_keys_func = self.search
+
         self.indexes[key] = Index(
             self,
             unique=unique,
             key=key,
-            values=values or self.values,
-            search=search or values or self.search or self.values,
+            index_keys_func=index_keys_func or values or self.index_keys,
+            search_keys_func=search_keys_func
+            or search
+            or index_keys_func
+            or self.search_keys
+            or self.index_keys,
             mapping=mapping or self.default_index_mapping,
             primary=primary,
             nullok=nullok if nullok is not None else self.nullok,
@@ -211,7 +254,7 @@ class Attribute(object):
 
         return self
 
-    def values(self, value):
+    def index_keys(self, value):
         """
         The default transformation that will be applied when storing data if this attribute is indexed
         but the :func:`~sheraf.attributes.Attribute.index` `values_func` parameter is not provided.
@@ -222,16 +265,16 @@ class Attribute(object):
         """
         return {self.serialize(value)}
 
-    def search(self, value):
+    def search_keys(self, value):
         """
         The default transformation that will be applied when searching for data if this attribute is indexed
-        but the :func:`~sheraf.attributes.Attribute.index` `search_func` parameter is not provided.
+        but the :func:`~sheraf.attributes.Attribute.index` `search_keys_func` parameter is not provided.
 
         By default this calls :meth:`~sheraf.attributes.Attribute.values`.
 
         This method can be overload so a custom transformation is applied.
         """
-        return self.values(value)
+        return self.index_keys(value)
 
     def on_creation(self, *args, **kwargs):
         """

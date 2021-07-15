@@ -179,7 +179,7 @@ class ModelAttribute(ModelLoader, Attribute):
         kwargs["write_memoization"] = False
         super().__init__(default=None, model=model, **kwargs)
 
-    def values(self, model):
+    def index_keys(self, model):
         """
         By default :class:`~sheraf.attributes.models.ModelAttribute` are indexed on
         their identifier.

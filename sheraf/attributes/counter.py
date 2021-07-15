@@ -87,9 +87,7 @@ class CounterAttribute(IntegerAttribute):
         :param default: The counter default value. 0 if unset.
         """
         kwargs["lazy"] = False
-        super().__init__(
-            default=lambda: Counter(default), **kwargs
-        )
+        super().__init__(default=lambda: Counter(default), **kwargs)
 
     def write(self, parent, value):
         counter = self.read_raw(parent)

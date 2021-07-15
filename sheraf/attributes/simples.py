@@ -81,7 +81,7 @@ class UUIDAttribute(Attribute):
             return uuid.UUID(int=value)
         return None
 
-    def values(self, value):
+    def index_keys(self, value):
         return {value}
 
 

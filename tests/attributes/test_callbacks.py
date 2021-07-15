@@ -119,11 +119,11 @@ class CowboyA(tests.IntAutoModel):
 
     farm_size = sheraf.Index(farm)
 
-    @farm_size.search
+    @farm_size.search_keys_func
     def search_farm_size(self, size):
         return size
 
-    @farm_size.values
+    @farm_size.index_keys_func
     def index_farm_size(self, farm):
         return farm.size
 
@@ -163,11 +163,11 @@ class CowboyB(tests.IntAutoModel):
 
     farm_size = sheraf.Index(farms)
 
-    @farm_size.search
+    @farm_size.search_keys_func
     def search_farm_size(self, size):
         return size
 
-    @farm_size.values
+    @farm_size.index_keys_func
     def index_farm_size(self, farms):
         return {farm.size for farm in farms}
 
@@ -212,11 +212,11 @@ class CowboyC(tests.IntAutoModel):
 
     farm_size = sheraf.Index(farm)
 
-    @farm_size.search
+    @farm_size.search_keys_func
     def search_farm_size(self, size):
         return size
 
-    @farm_size.values
+    @farm_size.index_keys_func
     def index_farm_size(self, farm):
         return farm.size
 
@@ -258,11 +258,11 @@ class CowboyD(tests.IntAutoModel):
 
     farm_size = sheraf.Index(farms)
 
-    @farm_size.search
+    @farm_size.search_keys_func
     def search_farm_size(self, size):
         return size
 
-    @farm_size.values
+    @farm_size.index_keys_func
     def index_farm_size(self, farms):
         return {farm.size for farm in farms}
 

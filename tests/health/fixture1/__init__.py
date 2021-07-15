@@ -47,7 +47,7 @@ class Model3(sheraf.Model):
     table = "model3_table"
     simple = sheraf.SimpleAttribute(lazy=False)
     obj_indexed = sheraf.ModelAttribute(DummyModel, lazy=False).index(
-        unique=True, values=lambda x: {x.v}
+        unique=True, index_keys_func=lambda x: {x.v}
     )
 
 
@@ -55,5 +55,5 @@ class Model3k(sheraf.Model):
     table = "model3k_table"
     simple = sheraf.SimpleAttribute(lazy=False)
     obj_indexed = sheraf.ModelAttribute(DummyModel, lazy=False).index(
-        unique=True, key="obj", values=lambda x: {x.v}
+        unique=True, key="obj", index_keys_func=lambda x: {x.v}
     )

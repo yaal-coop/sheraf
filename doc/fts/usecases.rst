@@ -55,8 +55,8 @@ suggestion box if we type *Geor* or *abit*.
     >>> class Cowboy(sheraf.Model):
     ...     table = "cowboys_prefixes"
     ...     name = sheraf.StringAttribute().index(
-    ...         values=cowboy_indexation,
-    ...         search=cowboy_query,
+    ...         index_keys_func=cowboy_indexation,
+    ...         search_keys_func=cowboy_query,
     ...     )
 
 The indexation method sets the names in lowercase, remove the accents, then build all the possible combinations
@@ -121,8 +121,8 @@ Let us start with a simple implementation:
     >>> class Cowboy(sheraf.Model):
     ...     table = "cowboys_1"
     ...     name = sheraf.StringAttribute().index(
-    ...         values=cowboy_indexation,
-    ...         search=cowboy_query,
+    ...         index_keys_func=cowboy_indexation,
+    ...         search_keys_func=cowboy_query,
     ...     )
 
 Here we wrote two indexations and query functions that we use for the cowboy names indexation.
@@ -202,7 +202,7 @@ possible subwords. Now let us check our previous tests.
     >>> class Cowboy(sheraf.Model):
     ...     table = "cowboys_2"
     ...     name = sheraf.StringAttribute().index(
-    ...         values=cowboy_indexation,
+    ...         index_keys_func=cowboy_indexation,
     ...     )
     ...
     >>> with sheraf.connection(commit=True):

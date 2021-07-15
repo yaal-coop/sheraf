@@ -43,7 +43,7 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
             index.attributes = new_attrs
 
             # Get the attributes from the attribute names
-            index.values_funcs = {
+            index.index_keys_funcs = {
                 func: [
                     [
                         attributes[attr] if isinstance(attr, str) else attr
@@ -51,7 +51,7 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
                     ]
                     for attrs in attrs_groups
                 ]
-                for func, attrs_groups in index.values_funcs.items()
+                for func, attrs_groups in index.index_keys_funcs.items()
             }
 
             for attribute in index.attributes:
@@ -64,13 +64,13 @@ class BaseIndexedModelMetaclass(BaseModelMetaclass):
             # values func.
             attrs_with_func = [
                 attr
-                for func, attr_groups in index.values_funcs.items()
-                if func is not index.default_values_func
+                for func, attr_groups in index.index_keys_funcs.items()
+                if func is not index.default_index_keys_func
                 for attrs in attr_groups
                 for attr in attrs
             ]
 
-            index.values_funcs[index.default_values_func] = [
+            index.index_keys_funcs[index.default_index_keys_func] = [
                 [attribute]
                 for attribute in index.attributes
                 if attribute not in attrs_with_func
@@ -536,7 +536,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 )
                 continue
 
-            old_index_values[index] = index.get_model_values(self)
+            old_index_values[index] = index.get_model_index_keys(self)
         return old_index_values
 
     def after_index_edition(self, attribute, old_index_values):
@@ -544,7 +544,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             if not self._is_indexable(index):
                 continue
 
-            new_index_values = index.get_model_values(self)
+            new_index_values = index.get_model_index_keys(self)
 
             index_manager = self.indexes[index.key]
             index_manager.update_item(self, old_index_values[index], new_index_values)
@@ -639,14 +639,14 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         """
         Returns the values generated for a given index.
         This method is a helper to help debugging custom
-        :meth:`~sheraf.models.indexation.BaseIndexedModel.values` methods.
+        :meth:`~sheraf.models.indexation.BaseIndexedModel.index_keys` methods.
 
         :param index_name: The name of the index.
 
         >>> class Horse(sheraf.Model):
         ...     table = "index_keys_horse"
         ...     name = sheraf.StringAttribute().index(
-        ...         values=lambda name: name.lower()
+        ...         index_keys_func=lambda name: name.lower()
         ...     )
         ...
         >>> with sheraf.connection():
@@ -654,21 +654,21 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         ...     jolly.index_keys("name")
         {'jolly jumper'}
         """
-        return self.indexes[index_name].details.get_model_values(self)
+        return self.indexes[index_name].details.get_model_index_keys(self)
 
     @classmethod
     def search_keys(cls, **kwargs):
         """
         Returns the values generated for a given index query.
         This method is a helper to help debugging custom
-        :meth:`~sheraf.models.indexation.BaseIndexedModel.search` methods.
+        :meth:`~sheraf.models.indexation.BaseIndexedModel.search_keys` methods.
 
         :param index_name: The name of the index.
 
         >>> class Horse(sheraf.Model):
         ...     table = "search_keys_horse"
         ...     name = sheraf.StringAttribute().index(
-        ...         values=lambda name: name.lower()
+        ...         index_keys_func=lambda name: name.lower()
         ...     )
         ...
         >>> Horse.search_keys(name="Jolly Jumper")
@@ -695,7 +695,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         >>> class Horse(sheraf.Model):
         ...     table = "is_indexed_with_horse"
         ...     name = sheraf.StringAttribute().index(
-        ...         values=lambda name: name.lower()
+        ...         index_keys_func=lambda name: name.lower()
         ...     )
         ...
         >>> with sheraf.connection():

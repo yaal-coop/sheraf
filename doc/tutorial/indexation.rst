@@ -106,8 +106,8 @@ different indexes, and the `key` parameter can be used to identify them.
     >>> class Cowboy(sheraf.Model):
     ...     table = "multiple_cowboy"
     ...     birth = sheraf.DateTimeAttribute() \
-    ...         .index(key="year", values=lambda birth: birth.year) \
-    ...         .index(key="month", values=lambda birth: birth.month)
+    ...         .index(key="year", index_keys_func=lambda birth: birth.year) \
+    ...         .index(key="month", index_keys_func=lambda birth: birth.month)
     ...
     >>> from datetime import datetime
     >>> with sheraf.connection():
@@ -138,7 +138,7 @@ taking the attribute value, and returning a collection of values that should be 
     ...
     >>> class Cowboy(sheraf.Model):
     ...     table = "valuable_cowboy"
-    ...     name = sheraf.StringAttribute().index(values=initials)
+    ...     name = sheraf.StringAttribute().index(index_keys_func=initials)
     ...
     >>> with sheraf.connection(commit=True):
     ...     george = Cowboy.create(name="George Abitbol")
@@ -189,8 +189,8 @@ By default the `search` argument takes the same argument than the
     >>> class Cowboy(sheraf.Model):
     ...     table = "invaluable_cowboy"
     ...     name = sheraf.StringAttribute().index(
-    ...         values=initials,
-    ...         search=lambda name: {
+    ...         index_keys_func=initials,
+    ...         search_keys_func=lambda name: {
     ...             "".join(p) for p in permutations(initials(name))
     ...         },
     ...     )
@@ -222,10 +222,10 @@ or `search`, they will be used by default if the :func:`~sheraf.attributes.Attri
 .. code-block:: python
 
     >>> class NameAttribute(sheraf.StringAttribute):
-    ...     def values(self, name):
+    ...     def index_keys(self, name):
     ...         return initials(name)
     ...
-    ...     def search(self, name):
+    ...     def search_keys(self, name):
     ...         return {"".join(p) for p in permutations(initials(name))}
     ...
     >>> class Cowboy(sheraf.Model):
@@ -281,7 +281,7 @@ We could easilly use this to create a simple full-text search engine on a model 
     ...
     >>> class Cowboy(sheraf.Model):
     ...     table = "deeper_cowboy"
-    ...     biography = sheraf.SimpleAttribute().index(values=substrings)
+    ...     biography = sheraf.SimpleAttribute().index(index_keys_func=substrings)
     ...
     >>> with sheraf.connection():
     ...     george = Cowboy.create(
@@ -387,12 +387,12 @@ index on a parent attribute:
     ...     first_name = sheraf.StringAttribute()
     ...     last_name = sheraf.StringAttribute()
     ...
-    ...     last_name_index = sheraf.Index(last_name, values=lambda x: x.lower())
+    ...     last_name_index = sheraf.Index(last_name, index_keys_func=lambda x: x.lower())
     ...
     >>> class UpperCowboy(Cowboy):
     ...     table = "upper_cowboys"
-    ...     last_name_index = sheraf.Index("last_name", values=lambda x: x.upper())
-    ...     first_name_index = sheraf.Index("first_name", values=lambda x: x.upper())
+    ...     last_name_index = sheraf.Index("last_name", index_keys_func=lambda x: x.upper())
+    ...     first_name_index = sheraf.Index("first_name", index_keys_func=lambda x: x.upper())
     ...
     >>> with sheraf.connection():
     ...     george = UpperCowboy.create(first_name="george", last_name="abitbol")

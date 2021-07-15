@@ -1,4 +1,5 @@
 from BTrees.OOBTree import OOBTree
+import warnings
 
 
 class Index:
@@ -19,15 +20,17 @@ class Index:
                    when trying to write the second one. Automatically set to :class:`True` if
                    primary is :class:`True`.
     :type unique: bool
-    :param values: A callable that takes the current attribute value and returns a
-                   collection of values to index. Each generated value will be
-                   indexed each time this attribute is edited. It may take time if
+    :param index_keys_func: A callable that takes the current attribute value and returns a
+                   single key, or a collection of keys, where the model instance will be indexed.
+                   The keys will be regenerated each time this attribute will be edited,
+                   and the index will be updated accordingly.
+                   It may take time if
                    the generated collection is large. By default the attribute
-                   :meth:`~sheraf.attributes.Attribute.values` method is
+                   :meth:`~sheraf.attributes.Attribute.index_keys` method is
                    applied.
-    :param search: A callable that takes some raw data and returns a collection
-                   of values to search in the index. By default, the
-                   :meth:`~sheraf.attributes.Attribute.search` method is
+    :param search_keys_func: A callable that takes some raw data and returns a collection
+                   of keys to search in the index. By default, the
+                   :meth:`~sheraf.attributes.Attribute.search_keys_func` method is
                    used.
     :param mapping: The mapping object to be used to store the indexed values.
                    By default the `index_mapping` class attribute is used.
@@ -52,7 +55,7 @@ class Index:
     ...     email = sheraf.SimpleAttribute().index(unique=True)
     ...
     ...     # Indexing people by their decade
-    ...     age = sheraf.SimpleAttribute().index(key="decade", values=lambda age: {age // 10})
+    ...     age = sheraf.SimpleAttribute().index(key="decade", index_keys_func=lambda age: {age // 10})
     ...
     >>> with sheraf.connection(commit=True):
     ...     m = People.create(
@@ -81,6 +84,8 @@ class Index:
         *attributes,
         unique=False,
         key=None,
+        index_keys_func=None,
+        search_keys_func=None,
         values=None,
         search=None,
         mapping=None,
@@ -88,12 +93,30 @@ class Index:
         nullok=None,
         noneok=None,
     ):
+        if values and not index_keys_func:
+            warnings.warn(
+                "Index 'values' parameter is deprecated and will be removed in sheraf 0.6. "
+                "Please use 'index_keys_func' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            index_keys_func = values
+
+        if search and not search_keys_func:
+            warnings.warn(
+                "Index 'search' parameter is deprecated and will be removed in sheraf 0.6. "
+                "Please use 'search_keys_func' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            search_keys_func = search
+
         self.attributes = attributes
         self.unique = unique or primary
         self.key = key
-        self.default_values_func = values
-        self.search_func = search or values
-        self.values_funcs = {}
+        self.default_index_keys_func = index_keys_func
+        self._search_keys_func = search_keys_func or index_keys_func
+        self.index_keys_funcs = {}
         self.mapping = mapping or self.default_mapping
         self.primary = primary
         self.nullok = nullok
@@ -104,16 +127,16 @@ class Index:
             return "<Index key={} unique={} primary>".format(self.key, self.unique)
         return "<Index key={} unique={}>".format(self.key, self.unique)
 
-    def values(self, *args, **kwargs):
+    def index_keys_func(self, *args, **kwargs):
         """
-        This decorator sets a values method, for one, several or all of the index attributes.
+        This decorator sets a index_keys method, for one, several or all of the index attributes.
 
-        - If no positionnal argument is passed, then this sets a default values function for the
+        - If no positionnal argument is passed, then this sets a default index_keys function for the
           index.
-        - You can pass one or several attributes or attributes names to set a specific values method
+        - You can pass one or several attributes or attributes names to set a specific index_keys method
           for those attributes.
-        - If you do set a specific values method for one or several attributes, the decorated function
-          will be given the attribute values as positionnal arguments, in the order they were passed
+        - If you do set a specific index_keys method for one or several attributes, the decorated function
+          will be given the attribute index_keys as positionnal arguments, in the order they were passed
           to the decorator.
 
         The decorated function must return a single key, or a collection of keys, where the index
@@ -126,20 +149,20 @@ class Index:
         ...     first_name = sheraf.StringAttribute()
         ...     last_name = sheraf.StringAttribute()
         ...     surname = sheraf.StringAttribute()
-        ...     theindex = sheraf.Index(first_name, last_name, surname)
+        ...     name_parts = sheraf.Index(first_name, last_name, surname)
         ...
-        ...     @theindex.values
+        ...     @name_parts.index_keys_func
         ...     def default_name_indexation(self, values):
         ...         return values.lower()
         ...
-        ...     @theindex.values(first_name, "last_name")
+        ...     @name_parts.index_keys_func(first_name, "last_name")
         ...     def full_name(self, first, last):
         ...         return f"{first} {last}".lower()
         ...
         >>> with sheraf.connection():
         ...     m = Cowboy.create(first_name="George", last_name="Abitbol", surname="Georgy")
-        ...     assert m in Cowboy.filter(theindex="george abitbol")
-        ...     assert m in Cowboy.filter(theindex="georgy")
+        ...     assert m in Cowboy.search(name_parts="george abitbol")
+        ...     assert m in Cowboy.search(name_parts="georgy")
 
         .. note :: You can use :meth:`~sheraf.models.indexation.BaseIndexedModel.index_keys`
                    to check the index keys your custom function generates.
@@ -156,21 +179,30 @@ class Index:
             # If no attribute is passed as a positionnal argument,
             # the method will be the default values method
             if not attributes:
-                self.default_values_func = func
+                self.default_index_keys_func = func
 
-                if self.search_func is None:
-                    self.search_func = func
+                if self._search_keys_func is None:
+                    self._search_keys_func = func
 
             # Else the method will be assigned to each attribute
-            self.values_funcs.setdefault(func, []).append(attributes)
+            self.index_keys_funcs.setdefault(func, []).append(attributes)
 
             return func
 
         return wrapper if not args else wrapper(args[0])
 
-    def search(self, *args, **kwargs):
+    def values(self, *args, **kwargs):
+        warnings.warn(
+            "Index 'values' method is deprecated and will be removed in sheraf 0.6. "
+            "Please use 'index_keys_func' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.index_keys_func(*args, **kwargs)
+
+    def search_keys_func(self, *args, **kwargs):
         """
-        This decorator sets the search method for the index. It should return
+        This decorator sets the search_keys method for the index. It should return
         a single key to search in the index, or a collection of keys to
         search in the index. If it returns an indexed collection, by default the
         model instances will be returned in the order the index keys will be iterated.
@@ -181,7 +213,7 @@ class Index:
         ...     bar = sheraf.StringAttribute()
         ...     theindex = sheraf.Index(foo, bar)
         ...
-        ...     @theindex.search
+        ...     @theindex.search_keys_func
         ...     def the_search_method(self, values):
         ...         return values.lower()
         ...
@@ -195,21 +227,30 @@ class Index:
         """
 
         def wrapper(func):
-            self.search_func = func
+            self._search_keys_func = func
             return func
 
         return wrapper if not args else wrapper(args[0])
 
-    def get_model_values(self, model):
+    def search(self, *args, **kwargs):
+        warnings.warn(
+            "Index 'search' method is deprecated and will be removed in sheraf 0.6. "
+            "Please use 'search_keys_func' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.search_keys_func(*args, **kwargs)
+
+    def get_model_index_keys(self, model):
         return {
             v
-            for func, attr_groups in self.values_funcs.items()
+            for func, attr_groups in self.index_keys_funcs.items()
             for attributes in attr_groups
-            for v in self.get_values(model, attributes, func)
+            for v in self.get_index_keys(model, attributes, func)
         }
 
-    def get_values(self, model, attributes, func):
-        values = self.call_values_func(model, attributes, func)
+    def get_index_keys(self, model, attributes, func):
+        values = self.call_index_keys_func(model, attributes, func)
 
         if not self.nullok:  # Empty values are not indexed
             return {v for v in values if v}
@@ -220,7 +261,7 @@ class Index:
         else:  # Everything is indexed
             return values
 
-    def call_values_func(self, model, attributes, func):
+    def call_index_keys_func(self, model, attributes, func):
         if not all(attribute.is_created(model) for attribute in attributes):
             return {}
 
@@ -240,15 +281,15 @@ class Index:
         return values
 
     def call_search_func(self, model, value):
-        if not self.search_func:
+        if not self._search_keys_func:
             return {value}
 
         try:
-            values = self.search_func(value)
+            values = self._search_keys_func(value)
         except TypeError as exc:
             if "positional argument" not in str(exc):
                 raise
-            values = self.search_func(model, value)
+            values = self._search_keys_func(model, value)
 
         values = values if isinstance(values, (list, set, tuple, dict)) else {values}
         return values
