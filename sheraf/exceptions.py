@@ -244,3 +244,9 @@ class PrimaryKeyException(SherafException):
     ...
     sheraf.exceptions.PrimaryKeyException: "A model can have only one primary key. 'Horse' has 'name' and 'breed'"
     """
+
+
+class NoDatabaseConnectionException(SherafException):
+    """
+    Raised when calling :func:`~sheraf.Model.read` and there is no connection to the database specified by the attribute `database_name`.
+    """

@@ -3,7 +3,9 @@ import itertools
 from BTrees.OOBTree import OOBTree
 from ..types import SmallDict
 from sheraf.databases import Database
-from sheraf.exceptions import NotConnectedException, UniqueIndexException
+from sheraf.exceptions import NoDatabaseConnectionException
+from sheraf.exceptions import NotConnectedException
+from sheraf.exceptions import UniqueIndexException
 
 
 class IndexManager:
@@ -212,7 +214,10 @@ class MultipleDatabaseIndexManager(IndexManager):
         return Database.current_connection(database_name).root()
 
     def root(self, database_name=None, setdefault=True):
-        root = self.database_root(database_name)
+        try:
+            root = self.database_root(database_name)
+        except KeyError as exc:
+            raise NoDatabaseConnectionException(database_name) from exc
         try:
             return root[self.table_name]
         except KeyError:
