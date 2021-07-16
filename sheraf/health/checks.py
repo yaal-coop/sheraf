@@ -58,7 +58,7 @@ def check_attributes_index(model_instance):
         if index.details.primary:
             continue
 
-        values = index.details.get_model_values(model_instance)
+        values = index.details.get_model_index_keys(model_instance)
 
         if values and index_name not in index_table:
             result[index_name] = False

@@ -31,7 +31,7 @@ def test_integer_unique_index_creation(sheraf_database, instance, mapping):
 
     with sheraf.connection() as conn:
         index_table = conn.root()[Model.table]["my_attribute"]
-        assert {22} == Model.indexes["my_attribute"].details.get_model_values(mfoo)
+        assert {22} == Model.indexes["my_attribute"].details.get_model_index_keys(mfoo)
         assert {22} == set(index_table)
         assert mfoo.mapping == index_table[22]
 
@@ -275,7 +275,7 @@ def test_unique_indexation_on_model_attribute(sheraf_database):
     class Model(sheraf.Model):
         table = "model_table"
         dummy_attribute = sheraf.ModelAttribute(DummyModel).index(
-            unique=True, values=lambda x: {x.val}
+            unique=True, index_keys_func=lambda x: {x.val}
         )
 
     with sheraf.connection(commit=True):
@@ -290,7 +290,7 @@ def test_unique_indexation_on_model_attribute(sheraf_database):
 def test_unique_index_set_afterwards(sheraf_database):
     class DummyModel(tests.UUIDAutoModel):
         foo = sheraf.SimpleAttribute().index(
-            values=lambda foo: {foo.lower()} if foo else {}
+            index_keys_func=lambda foo: {foo.lower()} if foo else {}
         )
 
     with sheraf.connection(commit=True):
@@ -545,7 +545,7 @@ def test_multiple_keys_index_update(sheraf_database, Model):
 
 class CustomIndexationModelA(tests.IntAutoModel):
     foo = sheraf.SimpleAttribute().index(
-        unique=True, values=lambda string: {string.lower() if string else None}
+        unique=True, index_keys_func=lambda string: {string.lower() if string else None}
     )
     bar = sheraf.SimpleAttribute()
     barindex = sheraf.Index("bar", key="bar")
@@ -559,7 +559,7 @@ class CustomIndexationModelB(tests.IntAutoModel):
         "foo",
         key="foo",
         unique=True,
-        values=lambda string: {string.lower() if string else None},
+        index_keys_func=lambda string: {string.lower() if string else None},
     )
     barindex = sheraf.Index("bar", key="bar")
 
@@ -571,7 +571,7 @@ class CustomIndexationModelC(tests.IntAutoModel):
     fooindex = sheraf.Index("foo", key="foo", unique=True)
     barindex = sheraf.Index("bar", key="bar")
 
-    @fooindex.values()
+    @fooindex.index_keys_func()
     def fooindex_values(self, value):
         return {value.lower() if value else None}
 
@@ -583,7 +583,7 @@ class CustomIndexationModelD(tests.IntAutoModel):
     fooindex = sheraf.Index("foo", key="foo", unique=True)
     barindex = sheraf.Index("bar", key="bar")
 
-    @fooindex.values
+    @fooindex.index_keys_func
     def fooindex_values(self, value):
         return {value.lower() if value else None}
 
@@ -595,7 +595,7 @@ class CustomIndexationModelE(tests.IntAutoModel):
     fooindex = sheraf.Index(foo, key="foo", unique=True)
     barindex = sheraf.Index(bar, key="bar")
 
-    @fooindex.values
+    @fooindex.index_keys_func
     def fooindex_values(self, value):
         return {value.lower() if value else None}
 
@@ -607,7 +607,17 @@ class CustomIndexationModelF(tests.IntAutoModel):
     fooindex = sheraf.Index(foo, key="foo", unique=True)
     barindex = sheraf.Index(bar, key="bar")
 
-    @fooindex.values
+    @fooindex.index_keys_func
+    def fooindex_values(self, value):
+        return value.lower() if value else None
+
+
+class CustomIndexationModelG(tests.IntAutoModel):
+    foo = sheraf.SimpleAttribute().index(unique=True)
+    bar = sheraf.SimpleAttribute().index()
+
+    @foo.index_keys_func
+    @foo.search_keys_func
     def fooindex_values(self, value):
         return value.lower() if value else None
 
@@ -621,14 +631,15 @@ class CustomIndexationModelF(tests.IntAutoModel):
         CustomIndexationModelD,
         CustomIndexationModelE,
         CustomIndexationModelF,
+        CustomIndexationModelG,
     ],
 )
 def test_custom_indexation_method(sheraf_database, Model):
     with sheraf.connection(commit=True):
         m = Model.create(foo="FOO", bar="BAR")
-        func = Model.indexes["foo"].details.default_values_func
+        func = Model.indexes["foo"].details.default_index_keys_func
         assert func is not None
-        assert {"foo"} == Model.indexes["foo"].details.get_values(
+        assert {"foo"} == Model.indexes["foo"].details.get_index_keys(
             m, [Model.attributes["foo"]], func
         )
         assert {"foo"} == m.index_keys("foo")
@@ -663,22 +674,22 @@ def test_default_indexation_method(sheraf_database):
         foo = sheraf.SimpleAttribute().index()
 
     assert (
-        ModelA.indexes["foo"].details.default_values_func
-        == ModelA.attributes["foo"].values
+        ModelA.indexes["foo"].details.default_index_keys_func
+        == ModelA.attributes["foo"].index_keys
     )
 
     class ModelB(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute()
         fooindex = sheraf.Index("foo")
 
-    assert ModelB.indexes["fooindex"].details.default_values_func is None
+    assert ModelB.indexes["fooindex"].details.default_index_keys_func is None
 
 
 class CustomSearchModelA(tests.IntAutoModel):
     foo = sheraf.SimpleAttribute().index(
         unique=True,
-        values=lambda string: {string.lower()},
-        search=lambda string: [string.lower()[::-1], string.lower()],
+        index_keys_func=lambda string: {string.lower()},
+        search_keys_func=lambda string: [string.lower()[::-1], string.lower()],
     )
     bar = sheraf.SimpleAttribute().index()
 
@@ -691,8 +702,8 @@ class CustomSearchModelB(tests.IntAutoModel):
         "foo",
         key="foo",
         unique=True,
-        values=lambda string: {string.lower()},
-        search=lambda string: [string.lower()[::-1], string.lower()],
+        index_keys_func=lambda string: {string.lower()},
+        search_keys_func=lambda string: [string.lower()[::-1], string.lower()],
     )
 
     barindex = sheraf.Index("bar", key="bar")
@@ -706,12 +717,12 @@ class CustomSearchModelC(tests.IntAutoModel):
         "foo",
         key="foo",
         unique=True,
-        values=lambda string: {string.lower()},
+        index_keys_func=lambda string: {string.lower()},
     )
 
     barindex = sheraf.Index("bar", key="bar")
 
-    @fooindex.search()
+    @fooindex.search_keys_func()
     def search_foo(self, value):
         return [value.lower()[::-1], value.lower()]
 
@@ -724,12 +735,12 @@ class CustomSearchModelD(tests.IntAutoModel):
         "foo",
         key="foo",
         unique=True,
-        values=lambda string: {string.lower()},
+        index_keys_func=lambda string: {string.lower()},
     )
 
     barindex = sheraf.Index("bar", key="bar")
 
-    @fooindex.search
+    @fooindex.search_keys_func
     def search_foo(self, value):
         return [value.lower()[::-1], value.lower()]
 
@@ -742,12 +753,24 @@ class CustomSearchModelE(tests.IntAutoModel):
         foo,
         key="foo",
         unique=True,
-        values=lambda string: {string.lower()},
+        index_keys_func=lambda string: {string.lower()},
     )
 
     barindex = sheraf.Index(bar, key="bar")
 
-    @fooindex.search
+    @fooindex.search_keys_func
+    def search_foo(self, value):
+        return [value.lower()[::-1], value.lower()]
+
+
+class CustomSearchModelF(tests.IntAutoModel):
+    foo = sheraf.SimpleAttribute().index(
+        unique=True,
+        index_keys_func=lambda string: {string.lower()},
+    )
+    bar = sheraf.SimpleAttribute().index()
+
+    @foo.search_keys_func
     def search_foo(self, value):
         return [value.lower()[::-1], value.lower()]
 
@@ -760,6 +783,7 @@ class CustomSearchModelE(tests.IntAutoModel):
         CustomSearchModelC,
         CustomSearchModelD,
         CustomSearchModelE,
+        CustomSearchModelF,
     ],
 )
 def test_custom_query_method(sheraf_database, Model):
@@ -800,13 +824,16 @@ def test_default_search_method(sheraf_database):
     class ModelA(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute().index()
 
-    assert ModelA.indexes["foo"].details.search_func == ModelA.attributes["foo"].search
+    assert (
+        ModelA.indexes["foo"].details._search_keys_func
+        == ModelA.attributes["foo"].search_keys
+    )
 
     class ModelB(tests.IntAutoModel):
         foo = sheraf.SimpleAttribute()
         fooindex = sheraf.Index("foo")
 
-    assert ModelB.indexes["fooindex"].details.search_func is None
+    assert ModelB.indexes["fooindex"].details._search_keys_func is None
 
 
 # ----------------------------------------------------------------------------
@@ -900,7 +927,9 @@ def test_common_index(sheraf_database):
 
     with sheraf.connection() as conn:
         index_table = conn.root()[Model.table]["theindex"]
-        assert {"foo", "bar"} == Model.indexes["theindex"].details.get_model_values(m)
+        assert {"foo", "bar"} == Model.indexes["theindex"].details.get_model_index_keys(
+            m
+        )
         assert {"foo", "bar"} == set(index_table)
         assert {m.raw_identifier: m.mapping} == dict(index_table["foo"])
         assert {m.raw_identifier: m.mapping} == dict(index_table["bar"])
@@ -937,11 +966,11 @@ class CommonModelDifferentValuesMethodsA(tests.IntAutoModel):
     bar = sheraf.SimpleAttribute()
     theindex = sheraf.Index(foo, bar)
 
-    @theindex.values("foo")
+    @theindex.index_keys_func("foo")
     def lower(self, foo):
         return {foo.lower()}
 
-    @theindex.values("bar")
+    @theindex.index_keys_func("bar")
     def upper(self, bar):
         return {bar.upper()}
 
@@ -951,11 +980,11 @@ class CommonModelDifferentValuesMethodsB(tests.IntAutoModel):
     bar = sheraf.SimpleAttribute()
     theindex = sheraf.Index(foo, bar)
 
-    @theindex.values(foo)
+    @theindex.index_keys_func(foo)
     def lower(self, foo):
         return {foo.lower()}
 
-    @theindex.values(bar)
+    @theindex.index_keys_func(bar)
     def upper(self, bar):
         return {bar.upper()}
 
@@ -968,15 +997,15 @@ class CommonModelDifferentValuesMethodsB(tests.IntAutoModel):
     ),
 )
 def test_common_index_different_values_methods(sheraf_database, Model):
-    assert Model.indexes["theindex"].details.values_funcs[Model.lower] == [
+    assert Model.indexes["theindex"].details.index_keys_funcs[Model.lower] == [
         [Model.attributes["foo"]]
     ]
-    assert Model.indexes["theindex"].details.values_funcs[Model.upper] == [
+    assert Model.indexes["theindex"].details.index_keys_funcs[Model.upper] == [
         [Model.attributes["bar"]]
     ]
-    assert Model.indexes["theindex"].details.values_funcs[None] == []
-    assert Model.indexes["theindex"].details.default_values_func is None
-    assert Model.indexes["theindex"].details.search_func is None
+    assert Model.indexes["theindex"].details.index_keys_funcs[None] == []
+    assert Model.indexes["theindex"].details.default_index_keys_func is None
+    assert Model.indexes["theindex"].details._search_keys_func is None
 
     with sheraf.connection(commit=True) as conn:
         m = Model.create(foo="FOo", bar="bAr")
@@ -1003,9 +1032,9 @@ class CommonModelDefaultValuesMethodsA(tests.IntAutoModel):
 
     foo = sheraf.StringAttribute()
     bar = sheraf.SimpleAttribute()
-    theindex = sheraf.Index(foo, bar, values=lower)
+    theindex = sheraf.Index(foo, bar, index_keys_func=lower)
 
-    @theindex.values(bar)
+    @theindex.index_keys_func(bar)
     def upper(self, bar):
         return {bar.upper()}
 
@@ -1015,11 +1044,11 @@ class CommonModelDefaultValuesMethodsB(tests.IntAutoModel):
     bar = sheraf.SimpleAttribute()
     theindex = sheraf.Index(foo, bar)
 
-    @theindex.values
+    @theindex.index_keys_func
     def lower(self, value):
         return {value.lower()}
 
-    @theindex.values(bar)
+    @theindex.index_keys_func(bar)
     def upper(self, bar):
         return {bar.upper()}
 
@@ -1028,11 +1057,11 @@ class CommonModelDefaultValuesMethodsB(tests.IntAutoModel):
     "Model", (CommonModelDefaultValuesMethodsA, CommonModelDefaultValuesMethodsB)
 )
 def test_common_index_default_values_methods(sheraf_database, Model):
-    assert Model.indexes["theindex"].details.values_funcs[Model.upper] == [
+    assert Model.indexes["theindex"].details.index_keys_funcs[Model.upper] == [
         [Model.attributes["bar"]]
     ]
-    assert Model.indexes["theindex"].details.default_values_func == Model.lower
-    assert Model.indexes["theindex"].details.search_func == Model.lower
+    assert Model.indexes["theindex"].details.default_index_keys_func == Model.lower
+    assert Model.indexes["theindex"].details._search_keys_func == Model.lower
 
     with sheraf.connection(commit=True) as conn:
         m = Model.create(foo="FOo", bar="bAr")
@@ -1060,9 +1089,9 @@ class CommonValuesComputedSeparatelyModelA(tests.IntAutoModel):
     bar = sheraf.SimpleAttribute()
     theindex = sheraf.Index(foo, bar)
 
-    @theindex.values(foo)
-    @theindex.values(bar)
-    def values(self, x):
+    @theindex.index_keys_func(foo)
+    @theindex.index_keys_func(bar)
+    def index_keys(self, x):
         return {x.upper()}
 
 
@@ -1083,7 +1112,7 @@ class CommonValuesComputedTogetherModelA(tests.IntAutoModel):
     bar = sheraf.SimpleAttribute()
     theindex = sheraf.Index(foo, bar)
 
-    @theindex.values(foo, bar)
+    @theindex.index_keys_func(foo, bar)
     def theindex_values(self, foo, bar):
         return {f"{foo} {bar}"}
 
@@ -1093,7 +1122,7 @@ class CommonValuesComputedTogetherModelB(tests.IntAutoModel):
     bar = sheraf.SimpleAttribute()
     theindex = sheraf.Index(foo, bar)
 
-    @theindex.values(foo, bar)
+    @theindex.index_keys_func(foo, bar)
     def theindex_values(self, foo_, bar_):
         return {f"{foo_} {bar_}"}
 
@@ -1107,7 +1136,7 @@ class CommonValuesComputedTogetherModelB(tests.IntAutoModel):
 )
 def test_common_index_common_values_computed_together(sheraf_connection, Model):
     m = Model.create(foo="Hello", bar="world!")
-    assert {"Hello world!"} == Model.indexes["theindex"].details.get_model_values(m)
+    assert {"Hello world!"} == Model.indexes["theindex"].details.get_model_index_keys(m)
     assert m in Model.search(theindex="Hello world!")
 
 
@@ -1117,8 +1146,8 @@ def test_common_index_complex(sheraf_database):
         bar = sheraf.SimpleAttribute()
         theindex = sheraf.Index(foo, bar)
 
-        @theindex.values
-        def values(self, value):
+        @theindex.index_keys_func
+        def index_keys(self, value):
             return {value.lower(), value.upper()}
 
     with sheraf.connection(commit=True) as conn:

@@ -142,7 +142,7 @@ def test_edit_a_not_single_instance_when_two_indexes_with_key_afterwards(
         my_simple_attribute = (
             sheraf.SimpleAttribute()
             .index(key="key1")
-            .index(key="key2", values=lambda x: x)
+            .index(key="key2", index_keys_func=lambda x: x)
         )
 
     with sheraf.connection(commit=True):

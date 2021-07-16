@@ -15,7 +15,9 @@ from sheraf.exceptions import ConnectionAlreadyOpened
 
 # Isolated contexts state
 global_context_connections_state = ContextVar("global_context_connections_state")
-global_context_last_connection_state = ContextVar("global_context_last_connection_state")
+global_context_last_connection_state = ContextVar(
+    "global_context_last_connection_state"
+)
 
 
 class LocalData:

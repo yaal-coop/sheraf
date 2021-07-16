@@ -51,7 +51,7 @@ def test_read_these_invalid_calls(sheraf_connection):
 def test_count(sheraf_connection):
     class M(tests.UUIDAutoModel):
         foo = sheraf.IntegerAttribute()
-        evens = sheraf.Index(foo, values=lambda x: {x} if x % 2 == 0 else {})
+        evens = sheraf.Index(foo, index_keys_func=lambda x: {x} if x % 2 == 0 else {})
 
     assert 0 == M.count()
     assert 0 == M.count("evens")
