@@ -5,6 +5,8 @@ Changed
 *******
 - Index related 'values' methods and parameters have been renamed 'index_keys'
 - Index related 'search' methods and parameters have been renamed 'search_keys'
+- Implemented Attribute :meth:`~sheraf.attributes.Attribute.index_keys_func` and
+  :meth:`~sheraf.attributes.Attribute.search_keys_func`.
 
 [0.5.6] - 2021-07-09
 ====================

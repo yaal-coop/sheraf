@@ -612,6 +612,16 @@ class CustomIndexationModelF(tests.IntAutoModel):
         return value.lower() if value else None
 
 
+class CustomIndexationModelG(tests.IntAutoModel):
+    foo = sheraf.SimpleAttribute().index(unique=True)
+    bar = sheraf.SimpleAttribute().index()
+
+    @foo.index_keys_func
+    @foo.search_keys_func
+    def fooindex_values(self, value):
+        return value.lower() if value else None
+
+
 @pytest.mark.parametrize(
     "Model",
     [
@@ -621,6 +631,7 @@ class CustomIndexationModelF(tests.IntAutoModel):
         CustomIndexationModelD,
         CustomIndexationModelE,
         CustomIndexationModelF,
+        CustomIndexationModelG,
     ],
 )
 def test_custom_indexation_method(sheraf_database, Model):
@@ -752,6 +763,18 @@ class CustomSearchModelE(tests.IntAutoModel):
         return [value.lower()[::-1], value.lower()]
 
 
+class CustomSearchModelF(tests.IntAutoModel):
+    foo = sheraf.SimpleAttribute().index(
+        unique=True,
+        index_keys_func=lambda string: {string.lower()},
+    )
+    bar = sheraf.SimpleAttribute().index()
+
+    @foo.search_keys_func
+    def search_foo(self, value):
+        return [value.lower()[::-1], value.lower()]
+
+
 @pytest.mark.parametrize(
     "Model",
     [
@@ -760,6 +783,7 @@ class CustomSearchModelE(tests.IntAutoModel):
         CustomSearchModelC,
         CustomSearchModelD,
         CustomSearchModelE,
+        CustomSearchModelF,
     ],
 )
 def test_custom_query_method(sheraf_database, Model):

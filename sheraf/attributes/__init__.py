@@ -276,6 +276,20 @@ class Attribute(object):
         """
         return self.index_keys(value)
 
+    def index_keys_func(self, *args, **kwargs):
+        """
+        Shortcut for :meth:`~sheraf.attributes.index.Index.index_keys_func` for
+        the index that has the same name than this attribute.
+        """
+        return self.indexes[self.attribute_name].index_keys_func(*args, **kwargs)
+
+    def search_keys_func(self, *args, **kwargs):
+        """
+        Shortcut for :meth:`~sheraf.attributes.index.Index.search_keys_func` for
+        the index that has the same name than this attribute.
+        """
+        return self.indexes[self.attribute_name].search_keys_func(*args, **kwargs)
+
     def on_creation(self, *args, **kwargs):
         """
         Decorator for callbacks to call on an attribute creation. The callback
