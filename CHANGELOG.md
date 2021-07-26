@@ -1,3 +1,10 @@
+[0.5.8] - 2021-07-26
+====================
+
+Changed
+*******
+- :func:`~sheraf.transactions.attempt` opens a connection if needed.
+
 [0.5.7] - 2021-07-15
 ====================
 

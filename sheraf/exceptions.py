@@ -69,7 +69,7 @@ class NotConnectedException(SherafException):
     >>> with sheraf.connection():
     ...     sheraf.attempt(do_amazing_stuff)  # produces amazing stuff
     ...
-    >>> sheraf.attempt(do_amazing_stuff)
+    >>> sheraf.commit()
     Traceback (most recent call last):
         ...
     sheraf.exceptions.NotConnectedException

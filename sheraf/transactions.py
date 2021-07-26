@@ -56,75 +56,72 @@ def attempt(
     This has very few chances to be successful ¯\\_(ツ)_/¯
     """
 
-    connection = sheraf.Database.current_connection()
-    if not connection:
-        raise sheraf.exceptions.NotConnectedException()
-
-    args = args if args is not None else ()
-    kwargs = kwargs if kwargs is not None else {}
+    args = args or ()
+    kwargs = kwargs or {}
     if also_except:
         also_except = also_except if isinstance(also_except, tuple) else (also_except,)
     exception_classes = (ZODB.POSException.ConflictError,) + (also_except or ())
-
     _exc = Exception
-    for x in range(attempts):
-        start_time = time.time()
-        start_commit_time = None
-        try:
-            connection.transaction_manager.begin()
-            _response = function(*args, **kwargs)
 
-            if commit():
-                start_commit_time = time.time()
-                connection.transaction_manager.commit()
-            else:
+    with sheraf.connection(reuse=True) as connection:
+        for x in range(attempts):
+            start_time = time.time()
+            start_commit_time = None
+            try:
+                connection.transaction_manager.begin()
+                _response = function(*args, **kwargs)
+
+                if commit():
+                    start_commit_time = time.time()
+                    connection.transaction_manager.commit()
+                else:
+                    connection.transaction_manager.abort()
+
+                return _response
+
+            except exception_classes as exc:
+                # Not so easy to change the message of an exception. Just adding an 'extra_info' field
+                # https://stackoverflow.com/questions/6062576/adding-information-to-an-exception
+                # https://stackoverflow.com/questions/9157210/how-do-i-raise-the-same-exception-with-a-custom-message-in-python/9157277
+                now = time.time()
+                execution_time = now - start_time
+
+                if start_commit_time:
+                    commit_time = now - start_commit_time
+                    exc.extra_info = "Execution n°{} took {:.5f}s of which {:5f}s for the main function and {:5f}s to commit\n".format(
+                        x + 1, execution_time, execution_time - commit_time, commit_time
+                    )
+                else:
+                    exc.extra_info = "Execution n°{} took {:.5f}s\n".format(
+                        x + 1, execution_time
+                    )
+
+                if log_exceptions:
+                    extra = {
+                        "attempt": x + 1,
+                        "exception": exc,
+                        "total_time": execution_time,
+                        "stack": True,  # Sentry parameter: show full stack
+                    }
+                    if start_commit_time:
+                        extra["commit_time"] = commit_time
+                    logger.warning(exc.extra_info, exc_info=True, extra=extra)
+
                 connection.transaction_manager.abort()
 
-            return _response
+                if x != attempts - 1:
+                    if on_failure:
+                        on_failure(x)
 
-        except exception_classes as exc:
-            # Not so easy to change the message of an exception. Just adding an 'extra_info' field
-            # https://stackoverflow.com/questions/6062576/adding-information-to-an-exception
-            # https://stackoverflow.com/questions/9157210/how-do-i-raise-the-same-exception-with-a-custom-message-in-python/9157277
-            now = time.time()
-            execution_time = now - start_time
+                if x > 0:
+                    exc.extra_info += _exc.extra_info
 
-            if start_commit_time:
-                commit_time = now - start_commit_time
-                exc.extra_info = "Execution n°{} took {:.5f}s of which {:5f}s for the main function and {:5f}s to commit\n".format(
-                    x + 1, execution_time, execution_time - commit_time, commit_time
-                )
-            else:
-                exc.extra_info = "Execution n°{} took {:.5f}s\n".format(
-                    x + 1, execution_time
-                )
+                _exc = exc
 
-            if log_exceptions:
-                extra = {
-                    "attempt": x + 1,
-                    "exception": exc,
-                    "total_time": execution_time,
-                    "stack": True,  # Sentry parameter: show full stack
-                }
-                if start_commit_time:
-                    extra["commit_time"] = commit_time
-                logger.warning(exc.extra_info, exc_info=True, extra=extra)
-
-            connection.transaction_manager.abort()
-
-            if x != attempts - 1:
-                if on_failure:
-                    on_failure(x)
-
-            if x > 0:
-                exc.extra_info += _exc.extra_info
-
-            _exc = exc
-
-        except Exception:
-            connection.transaction_manager.abort()
-            raise
-    raise _exc
+            except Exception:
+                connection.transaction_manager.abort()
+                raise
+        raise _exc
 
 
 def commit(f=None):

@@ -22,11 +22,6 @@ def test_already_opened_exception(sheraf_database):
                 pass  # pragma: no cover
 
 
-def test_not_connected_exception():
-    with pytest.raises(sheraf.exceptions.NotConnectedException):
-        sheraf.attempt(lambda: True)
-
-
 def test_reset_database(sheraf_database):
     with sheraf.connection(commit=True) as conn:
         first_dt = conn.root()._p_mtime
