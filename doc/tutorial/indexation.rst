@@ -128,8 +128,9 @@ Choose how to record data in the index
 
 For instance, what if we would like to index cowboy not its name, but on its initials?
 
-:func:`~sheraf.attributes.Attribute.index` takes a `values` argument that is a function
-taking the attribute value, and returning a collection of values that should be indexed.
+:func:`~sheraf.attributes.Attribute.index` takes a `index_keys_func` argument that is a function
+taking the attribute value, and returning a collection of keys on which the model instance should
+be indexed.
 
 .. code-block:: python
 
@@ -156,7 +157,7 @@ Now it is possible to search for someone only knowing its initials.
 Note that the :func:`~sheraf.queryset.QuerySet.filter` **name** parameter will not be
 transformed into initials. It search for the exact data in the index.
 
-.. note :: `values` functions can return either a single element or a collection of
+.. note :: `index_keys_func` functions can return either a single element or a collection of
            elements. Depending on the `noneok` and `nullok`
            :class:`~sheraf.attributes.index.Index` parameters, `None` and falsy index keys might be
            ignored.
@@ -176,12 +177,12 @@ You could just use the :func:`~sheraf.queryset.QuerySet.search` method to do tha
 You may want to be able to edit the values you pass to *name*. For instance, you may want
 your users to be able to search for initials in whatever order they have been passed.
 
-:func:`~sheraf.attributes.Attribute.index` takes a `search` argument that is a function
+:func:`~sheraf.attributes.Attribute.index` takes a `search_keys_func` argument that is a function
 taking the data you want to search, and return a collection of keys to search in the index.
 :func:`~sheraf.queryset.QuerySet.search` will search for all the keys in the index, and will
 return the matching model instances.
-By default the `search` argument takes the same argument than the
-:func:`~sheraf.attributes.Attribute.index` *values* argument.
+By default the `search_keys_func` argument takes the same argument than the
+:func:`~sheraf.attributes.Attribute.index` *index_keys_func* argument.
 
 .. code-block:: python
 
@@ -203,7 +204,7 @@ By default the `search` argument takes the same argument than the
 Now we index the initials of cowboys, but we search for all the combinations of initials
 with the words that are passed to the *search* argument.
 
-.. note :: `search` functions can return either a single element or a collection of
+.. note :: `search_keys_func` functions can return either a single element or a collection of
            elements. If the collection is ordered as in a :class:`list`, then the index
            will be searched in the order of the list.
            If the list contains a same element several times, it will only be returned
@@ -215,9 +216,9 @@ Make custom searchs and recording the default behavior
 
 This `name` attribute and its indexation seems very convenient, so you would like to use
 it in other models. Luckily sheraf offers you a way to do this, and cut the boilerplate.
-If a :class:`~sheraf.attributes.Attribute` defines some methods called `values`
-or `search`, they will be used by default if the :func:`~sheraf.attributes.Attribute.index`
-`values_func` and `search_func` are not provided:
+If a :class:`~sheraf.attributes.Attribute` defines some methods called `index_keys`
+or `search_keys`, they will be used by default if the :func:`~sheraf.attributes.Attribute.index`
+`index_keys_func` and `search_keys_func` are not provided:
 
 .. code-block:: python
 
@@ -289,7 +290,8 @@ We could easilly use this to create a simple full-text search engine on a model 
     ...     )
     ...     assert [george] == Cowboy.filter(biography="boy")
 
-The ``substrings`` function extracts all the possible substring from all the words in a string. Now you can find a cowboy by searching for any piece of word in his biography.
+The ``substrings`` function extracts all the possible substring from all the words in a string.
+Now you can find a cowboy by searching for any piece of word in his biography.
 
 To see how indexes can be used to build a full-text search engine, you can check the :ref:`fts` section.
 
@@ -330,11 +332,11 @@ and a default one:
     ...
     ...     name = sheraf.Index(first_name, last_name, surname)
     ...
-    ...     @name.values
+    ...     @name.index_keys_func
     ...     def default_name_indexation(self, value):
     ...         return value.lower()
     ...
-    ...     @name.values(first_name, last_name)
+    ...     @name.index_keys_func(first_name, last_name)
     ...     def full_name_indexation(self, first_name, last_name):
     ...         return f"{first_name} {last_name}".lower()
     ...
@@ -344,10 +346,10 @@ and a default one:
     ...     assert george in Cowboy.search(name="Georgy")
     ...     assert george not in Cowboy.search(name="Abitbol")
 
-Here we used the :meth:`~sheraf.attributes.index.Index.values` decorator to define a ``default_name_indexation`` method.
+Here we used the :meth:`~sheraf.attributes.index.Index.index_keys_func` decorator to define a ``default_name_indexation`` method.
 As we did not pass any argument to the decorator, this method is the default indexation method for the index ``name``.
 We also defined a ``full_name``. By passing the ``first_name`` and ``last_name`` attributes to the
-:meth:`~sheraf.attributes.index.Index.values` decorator, we assigned this method to both the attributes, and thus
+:meth:`~sheraf.attributes.index.Index.index_keys_func` decorator, we assigned this method to both the attributes, and thus
 those very attributes can be indexed at the same time using this method.
 
 Using indexation methods common to several attributes is very useful if you need conditionnal indexation.
@@ -361,7 +363,7 @@ Using indexation methods common to several attributes is very useful if you need
     ...
     ...     sherif_names = sheraf.Index(name, sherif)
     ...
-    ...     @sherif_names.values(name, sherif)
+    ...     @sherif_names.index_keys_func(name, sherif)
     ...     def sherif_names_indexation(self, name, sherif):
     ...         return {name} if sherif else {}
     ...
