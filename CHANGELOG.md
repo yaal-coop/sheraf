@@ -1,3 +1,14 @@
+[0.5.9] - 2021-07-27
+====================
+
+Added
+*******
+- Implemented :meth:`~sheraf.attributes.Attribute.on_change`
+  as a shortcut for
+  :meth:`~sheraf.attributes.Attribute.on_creation`,
+  :meth:`~sheraf.attributes.Attribute.on_edition`, and
+  :meth:`~sheraf.attributes.Attribute.on_deletion`.
+
 [0.5.8] - 2021-07-26
 ====================
 

@@ -102,6 +102,30 @@ def test_on_deletion(sheraf_connection):
     assert m.deleted
 
 
+def test_on_change(sheraf_connection):
+    class Model(tests.IntAutoModel):
+        changed = False
+        foo = sheraf.SimpleAttribute()
+
+        @foo.on_change
+        def foo_change(self, new=None, old=None):
+            self.changed = True
+
+    m = Model.create()
+    assert not m.changed
+
+    m = Model.create(foo="bar")
+    assert m.changed
+
+    m.changed = False
+    m.foo = "baz"
+    assert m.changed
+
+    m.changed = False
+    del m.foo
+    assert m.changed
+
+
 class FarmA(tests.IntAutoModel):
     owner = sheraf.ReverseModelAttribute("CowboyA", "farm")
     size = sheraf.IntegerAttribute()

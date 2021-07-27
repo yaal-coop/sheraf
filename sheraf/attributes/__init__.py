@@ -382,6 +382,22 @@ class Attribute(object):
 
         return wrapper if not args else wrapper(args[0])
 
+    def on_change(self, *args, **kwargs):
+        """
+        Shortcut for :meth:`~sheraf.attributes.Attribute.on_creation`,
+        :meth:`~sheraf.attributes.Attribute.on_edition`
+        and :meth:`~sheraf.attributes.Attribute.on_deletion` at the
+        same time.
+        """
+
+        def wrapper(func):
+            self.cb_creation.append(func)
+            self.cb_edition.append(func)
+            self.cb_deletion.append(func)
+            return func
+
+        return wrapper if not args else wrapper(args[0])
+
     def default(self, func):
         """
         Decorator for a callback to call to generate a default value for
