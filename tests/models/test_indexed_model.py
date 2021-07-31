@@ -27,6 +27,18 @@ def test_read_invalid_parameters(sheraf_connection):
         M.read(foo=1, id=2)
 
 
+def test_read_raises_no_database_connection_exception(sheraf_connection):
+    class MyModel(sheraf.Model):
+        table = "test_read_raises_no_database_connection_exception"
+        database_name = "unexisting_db_name"
+
+    with pytest.raises(sheraf.exceptions.NoDatabaseConnectionException) as exc:
+        MyModel.read("id")
+
+    assert str(exc.value) == "unexisting_db_name"
+    assert isinstance(exc.value, sheraf.exceptions.SherafException)
+
+
 def test_read_these_invalid_index(sheraf_connection):
     with pytest.raises(sheraf.exceptions.ModelObjectNotFoundException):
         list(Model.read_these(["invalid"]))
