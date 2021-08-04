@@ -1,3 +1,10 @@
+[0.5.11] - 2021-08-04
+=====================
+
+Fixed
+*****
+- Bugfix on :meth:`sheraf.models.indexation.BaseIndexedModel.all`.
+
 [0.5.10] - 2021-08-04
 =====================
 
