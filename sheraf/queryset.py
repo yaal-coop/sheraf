@@ -272,19 +272,21 @@ class QuerySet(object):
 
     def _primary_index_iterator(self):
         identifier_index = self.model.indexes[self.primary_key]
+        pk_attribute = self.model.attributes[self.model.primary_key()]
+
         reverse = self.orders.get(self.primary_key) == sheraf.constants.DESC
         if self.primary_key == self.model.primary_key():
             ids = identifier_index.iterkeys(reverse)
 
         elif self.model.indexes[self.primary_key].details.unique:
             ids = (
-                mapping[self.model.primary_key()]
+                pk_attribute.deserialize(mapping[self.model.primary_key()])
                 for mapping in identifier_index.itervalues(reverse)
             )
 
         else:
             ids = (
-                id
+                pk_attribute.deserialize(id)
                 for mappings in identifier_index.itervalues(reverse)
                 for id in mappings.keys()
             )
