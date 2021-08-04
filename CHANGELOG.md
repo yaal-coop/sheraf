@@ -1,8 +1,15 @@
+[0.5.10] - 2021-08-04
+=====================
+
+Added
+******
+- :meth:`sheraf.models.indexation.BaseIndexedModel.all` can take an index as argument.
+
 [0.5.9] - 2021-07-27
 ====================
 
 Added
-*******
+*****
 - Implemented :meth:`~sheraf.attributes.Attribute.on_change`
   as a shortcut for
   :meth:`~sheraf.attributes.Attribute.on_creation`,

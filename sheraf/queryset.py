@@ -80,7 +80,14 @@ class QuerySet(object):
     ...     assert QuerySet([peter, steven, george]) == Cowboy.all()[0:]
     """
 
-    def __init__(self, iterable=None, model_class=None, predicate=None, **kwargs):
+    def __init__(
+        self,
+        iterable=None,
+        model_class=None,
+        predicate=None,
+        primary_key=None,
+        **kwargs,
+    ):
         self.filters = OrderedDict(kwargs)
         self._iterable = iterable
         self._iterator = None
@@ -89,6 +96,10 @@ class QuerySet(object):
         self._stop = None
         self._step = None
         self.model = model_class
+        if primary_key:
+            self.primary_key = primary_key
+        elif model_class:
+            self.primary_key = model_class.primary_key()
         self.orders = OrderedDict()
 
         if iterable is None and model_class is None:
@@ -260,9 +271,24 @@ class QuerySet(object):
         return ids
 
     def _primary_index_iterator(self):
-        identifier_index = self.model.indexes[self.model.primary_key()]
-        reverse = self.orders.get(self.model.primary_key()) == sheraf.constants.DESC
-        ids = identifier_index.iterkeys(reverse)
+        identifier_index = self.model.indexes[self.primary_key]
+        reverse = self.orders.get(self.primary_key) == sheraf.constants.DESC
+        if self.primary_key == self.model.primary_key():
+            ids = identifier_index.iterkeys(reverse)
+
+        elif self.model.indexes[self.primary_key].details.unique:
+            ids = (
+                mapping[self.model.primary_key()]
+                for mapping in identifier_index.itervalues(reverse)
+            )
+
+        else:
+            ids = (
+                id
+                for mappings in identifier_index.itervalues(reverse)
+                for id in mappings.keys()
+            )
+
         return ids
 
     def _init_iterator(self):
@@ -550,10 +576,10 @@ class QuerySet(object):
                     "Parameter id has an invalid order value {}".format(identifier)
                 )
 
-            if self.model.primary_key() in qs.orders:
+            if self.primary_key in qs.orders:
                 raise InvalidOrderException("Id order has been set twice")
 
-            qs.orders[self.model.primary_key()] = identifier
+            qs.orders[self.primary_key] = identifier
 
         common_attributes = set(qs.orders) & set(kwargs)
         if common_attributes:

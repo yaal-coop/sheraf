@@ -121,6 +121,36 @@ def test_all(sheraf_database):
         assert sheraf.queryset.QuerySet([m0, m1, m2]) == Model.all()
 
 
+def test_all_with_parameters_unique(sheraf_database):
+    class Model(sheraf.IntOrderedNamedAttributesModel):
+        table = "my_test_all_model"
+        foo = sheraf.SimpleAttribute().index(unique=True)
+
+    with sheraf.connection(commit=True):
+        m0 = Model.create(foo="bar")
+        m1 = Model.create(foo="baz")
+        m2 = Model.create(foo="bal")
+        Model.create()
+
+    with sheraf.connection():
+        assert {m0, m1, m2} == set(Model.all("foo"))
+
+
+def test_all_with_parameters_multiple(sheraf_database):
+    class Model(sheraf.IntOrderedNamedAttributesModel):
+        table = "my_test_all_model"
+        foo = sheraf.SimpleAttribute().index()
+
+    with sheraf.connection(commit=True):
+        m0 = Model.create(foo="bar")
+        m1 = Model.create(foo="bar")
+        m2 = Model.create(foo="baz")
+        Model.create()
+
+    with sheraf.connection():
+        assert {m0, m1, m2} == set(Model.all("foo"))
+
+
 def test_single_database(sheraf_database):
     with sheraf.connection(commit=True):
         m = Model.create()

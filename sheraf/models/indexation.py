@@ -134,12 +134,14 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         return cls._primary_key
 
     @classmethod
-    def all(cls):
+    def all(cls, index_name=None):
         """
+        :param index_name: Can be any index name. By default, this is the primary key.
+
         :return: A :class:`~sheraf.queryset.QuerySet` containing all the
-            registered models.
+            registered models in the given index.
         """
-        return sheraf.queryset.QuerySet(model_class=cls)
+        return sheraf.queryset.QuerySet(model_class=cls, primary_key=index_name)
 
     def initialize(self, **kwargs):
         if self.primary_key() in kwargs:

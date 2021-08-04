@@ -189,6 +189,11 @@ class SimpleIndexManager(IndexManager):
             return reversed(list(self.table().iterkeys()))
         return self.table().iterkeys()
 
+    def itervalues(self, reverse=False):
+        if reverse:
+            return reversed(list(self.table().itervalues()))
+        return self.table().itervalues()
+
     def count(self):
         try:
             return len(self.persistent[self.details.key])
@@ -315,6 +320,16 @@ class MultipleDatabaseIndexManager(IndexManager):
 
         return itertools.chain.from_iterable(
             table.iterkeys() for table in self.tables()
+        )
+
+    def itervalues(self, reverse=False):
+        if reverse:
+            return itertools.chain.from_iterable(
+                reversed(list(table.itervalues())) for table in self.tables()
+            )
+
+        return itertools.chain.from_iterable(
+            table.itervalues() for table in self.tables()
         )
 
     def count(self):
