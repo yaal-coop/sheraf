@@ -10,9 +10,16 @@ install(show_locals=True)
 
 @click.group()
 @click.argument("uri")
-def cli(uri):
+@click.pass_context
+def cli(ctx, uri):
     sys.path.append(".")
-    db = sheraf.Database(uri)
+    ctx.db = sheraf.Database(uri)
+
+
+@cli.result_callback()
+@click.pass_context
+def after_cli(ctx, result, **kwargs):
+    ctx.db.close()
 
 
 @cli.command()
