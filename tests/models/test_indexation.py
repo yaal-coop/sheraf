@@ -1253,7 +1253,7 @@ def test_reset_index_table(sheraf_database):
             assert warns[0].category is sheraf.exceptions.IndexationWarning
 
     with sheraf.connection(commit=True):
-        Model.index_table_rebuild(["foo"])
+        Model.index_table_rebuild("foo")
 
     with sheraf.connection(commit=True):
         assert 3 == Model.count()

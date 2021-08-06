@@ -1,3 +1,11 @@
+[0.5.12] - 2021-08-06
+=====================
+
+Changed
+*******
+- Bugfix on :meth:`sheraf.models.indexation.BaseIndexedModel.index_table_rebuild`
+  arguments are passed with `*args`.
+
 [0.5.11] - 2021-08-04
 =====================
 

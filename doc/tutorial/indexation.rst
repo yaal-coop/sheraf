@@ -460,7 +460,7 @@ You can see here that the indexation table *name* is absent. You can call :func:
 .. code-block:: python
 
     >>> with sheraf.connection(commit=True):
-    ...     Cowboy.index_table_rebuild(["name"])
+    ...     Cowboy.index_table_rebuild("name")
 
 Now that your index table is created and filled, you won't be bothered by an :class:`~sheraf.exceptions.IndexationWarning` anymore.
 

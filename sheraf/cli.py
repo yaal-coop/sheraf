@@ -27,10 +27,10 @@ def check(models):
 @click.option(
     "--indexes",
     help="The name of the indexes to rebuild. If not provided all the indexes will be rebuilt.",
-    default=None,
+    multiple=True,
 )
 def rebuild(models, indexes):
     with sheraf.connection(commit=True):
         models = discover_models(models)
         for _, model in models:
-            model.index_table_rebuild(indexes)
+            model.index_table_rebuild(*indexes)

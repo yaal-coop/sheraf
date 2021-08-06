@@ -319,24 +319,24 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             )
 
     @classmethod
-    def index_table_rebuild(cls, index_names=None):
+    def index_table_rebuild(cls, *args):
         """
         Resets a model indexation tables.
 
         This method should be called if an attribute became indexed in an already
         populated database.
 
-        :param index_names: A list of index names to reset. If `None`, all the
-                            indexes will be reseted. The primary index cannot be
-                            resetted.
+        :param *args: A list of index names to reset. If `None`, all the
+                      indexes will be reseted. The primary index cannot be
+                      resetted.
         """
-        if not index_names:
+        if not args:
             indexes = cls.indexes.values()
         else:
             indexes = [
                 index
                 for index_name, index in cls.indexes.items()
-                if index_name in index_names
+                if index_name in args
             ]
 
         for index in indexes:
@@ -526,7 +526,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             if not self._is_indexable(index):
                 warnings.warn(
                     "New index in an already populated table. %s.%s will not be indexed. "
-                    'Consider calling %s.index_table_rebuild(["%s"]) to initialize the indexation table.'
+                    'Consider calling %s.index_table_rebuild("%s") to initialize the indexation table.'
                     % (
                         self.__class__.__name__,
                         index.key,
