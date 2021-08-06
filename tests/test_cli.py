@@ -38,7 +38,6 @@ def test_rebuild_all_models_all_indexes(sheraf_zeo_database):
         [f"{sheraf_zeo_database.uri}&database_name=cli", "rebuild", "tests.test_cli"],
     )
     assert result.exit_code == 0, result.output
-    assert result.output == "", result.output
 
     with sheraf.connection() as conn:
         assert "foo" in conn.root()[CliModel.table]
@@ -61,12 +60,11 @@ def test_rebuild_all_models_one_index(sheraf_zeo_database):
             f"{sheraf_zeo_database.uri}&database_name=cli",
             "rebuild",
             "tests.test_cli",
-            "--indexes",
+            "--index",
             "foo",
         ],
     )
     assert result.exit_code == 0, result.output
-    assert result.output == "", result.output
 
     with sheraf.connection() as conn:
         assert "foo" in conn.root()[CliModel.table]

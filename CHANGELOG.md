@@ -3,6 +3,7 @@
 
 Changed
 *******
+- :meth:`sheraf.cli.rebuild` now have a progress bar.
 - Bugfix on :meth:`sheraf.models.indexation.BaseIndexedModel.index_table_rebuild`
   arguments are passed with `*args`.
 

@@ -319,7 +319,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             )
 
     @classmethod
-    def index_table_rebuild(cls, *args):
+    def index_table_rebuild(cls, *args, callback=None):
         """
         Resets a model indexation tables.
 
@@ -329,6 +329,8 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         :param *args: A list of index names to reset. If `None`, all the
                       indexes will be reseted. The primary index cannot be
                       resetted.
+        :param callback: A callback that is called each item a model instance is
+                         iterated.
         """
         if not args:
             indexes = cls.indexes.values()
@@ -345,10 +347,13 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
             index.delete()
 
-        for m in cls.all():
+        for i, m in enumerate(cls.all()):
             for index in indexes:
                 if not index.details.primary:
                     index.add_item(m)
+
+            if callback:
+                callback(i, m)
 
     @classmethod
     def filter(cls, predicate=None, **kwargs):
