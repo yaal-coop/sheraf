@@ -139,7 +139,11 @@ class IndexManager:
         table[index_key] = value
 
     def _table_set_multiple(self, table, index_key, value, primary_key):
-        index_container = table.setdefault(index_key, self.index_multiple_default())
+        try:
+            index_container = table[index_key]
+        except KeyError:
+            index_container = table.setdefault(index_key, self.index_multiple_default())
+
         if isinstance(index_container, self.index_multiple_default):
             index_container[primary_key] = value
         else:
