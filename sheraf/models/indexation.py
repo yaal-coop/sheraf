@@ -352,8 +352,8 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                 if not index.details.primary:
                     index.add_item(m)
 
-            if callback:
-                callback(i, m)
+            if callback and callback(i, m) is False:
+                break
 
     @classmethod
     def filter(cls, predicate=None, **kwargs):
