@@ -1,3 +1,11 @@
+[0.5.13] - 2021-08-10
+=====================
+
+Added
+*****
+- :class:`~sheraf.attributes.index.Index` has a `auto` parameter, that can
+  disable the automatic use of the index.
+
 [0.5.12] - 2021-08-10
 =====================
 

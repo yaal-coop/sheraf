@@ -528,6 +528,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
     def before_index_edition(self, attribute):
         old_index_values = {}
         for index in attribute.indexes.values():
+            if not index.auto:
+                continue
+
             if not self._is_indexable(index):
                 warnings.warn(
                     "New index in an already populated table. %s.%s will not be indexed. "
@@ -548,7 +551,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
     def after_index_edition(self, attribute, old_index_values):
         for index in attribute.indexes.values():
-            if not self._is_indexable(index):
+            if not index.auto or not self._is_indexable(index):
                 continue
 
             new_index_values = index.get_model_index_keys(self)

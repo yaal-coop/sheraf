@@ -40,6 +40,7 @@ class Index:
     :param nullok: If `True`, `None` or empty values can be indexed. `True` by default.
     :param noneok: Ignored in if `nullok` is `True`. Else, if `noneok` is
                    `True`, `None` values can be indexed. `False` by default."
+    :param auto: Defaults to `True`, enable the automatic index update. When set to `False` the index won't be updated when the attributes are updated.
 
     >>> class People(sheraf.Model):
     ...     table = "index_people"
@@ -92,6 +93,7 @@ class Index:
         primary=False,
         nullok=None,
         noneok=None,
+        auto=True,
     ):
         if values and not index_keys_func:
             warnings.warn(
@@ -121,6 +123,7 @@ class Index:
         self.primary = primary
         self.nullok = nullok
         self.noneok = noneok
+        self.auto = auto
 
     def __repr__(self):
         if self.primary:

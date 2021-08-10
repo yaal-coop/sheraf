@@ -224,7 +224,7 @@ class QuerySet(object):
                 self.orders.get(name) == sheraf.constants.DESC,
             )
             for (name, value, search_func) in self.filters.values()
-            if name in self.model.indexes
+            if name in self.model.indexes and self.model.indexes[name].details.auto
         ]
 
     @property
@@ -232,7 +232,10 @@ class QuerySet(object):
         return [
             (name, value)
             for (name, value, _) in self.filters.values()
-            if name not in self.model.indexes and name in self.model.attributes
+            if (name not in self.model.indexes and name in self.model.attributes)
+            or (
+                name in self.model.indexes and not self.model.indexes[name].details.auto
+            )
         ]
 
     def _index_keys(self, index, value, search_func):
