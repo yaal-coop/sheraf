@@ -55,7 +55,7 @@ Here is a quick example of sheraf usage:
 Why use sheraf instead of plain ZODB?
 -------------------------------------
 
-Sheraf aims to provid tools to make the development with ZODB more
+Sheraf aims to provide tools to make the development with ZODB more
 quick and easy. The indexation mechanism and the model definition
 is taking care of by sheraf, allowing you to avoid boilerplate and focus
 on the valuable parts of your application.
