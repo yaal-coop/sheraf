@@ -67,6 +67,7 @@ def rebuild(models, index, batch_size, commit):
                     if i and i % batch_size == 0:
                         if commit:
                             conn.transaction_manager.commit()
+                            conn.cacheGC()
                         else:
                             conn.transaction_manager.savepoint(True)
                     progress.update(task, advance=1)
