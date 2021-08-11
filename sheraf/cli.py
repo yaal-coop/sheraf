@@ -37,7 +37,16 @@ def check(models):
     help="The name of the indexes to rebuild. If not provided all the indexes will be rebuilt.",
     multiple=True,
 )
-def rebuild(models, index):
+@click.option(
+    "--batch-size",
+    help="The number of elements to iterate between two transactions savepoints or commits.",
+    default=1000,
+    type=int,
+)
+@click.option(
+    "--commit", help="Make a real commit for each batch", default=False, is_flag=True
+)
+def rebuild(models, index, batch_size, commit):
     with sheraf.connection(commit=True) as conn:
         with Progress(
             TextColumn("[progress.description]{task.description}"),
@@ -55,8 +64,11 @@ def rebuild(models, index):
                 task = progress.add_task(model.table, total=model.count())
 
                 def callback(i, m):
-                    if i and i % 1000 == 0:
-                        conn.transaction_manager.savepoint(True)
+                    if i and i % batch_size == 0:
+                        if commit:
+                            conn.transaction_manager.commit()
+                        else:
+                            conn.transaction_manager.savepoint(True)
                     progress.update(task, advance=1)
 
                 model.index_table_rebuild(*index, callback=callback)

@@ -1,3 +1,12 @@
+[0.5.14] - 2021-08-xx
+=====================
+
+Added
+*****
+- :meth:`sheraf.cli.rebuild` have two options `--batch-size` that sets the number
+  of elements to iterate between two savepoints, and `--commit` that replaces
+  savepoints by real transaction commits.
+
 [0.5.13] - 2021-08-10
 =====================
 
