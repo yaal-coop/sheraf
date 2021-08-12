@@ -336,9 +336,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             indexes = cls.indexes.values()
         else:
             indexes = [
-                index
-                for index_name, index in cls.indexes.items()
-                if index_name in args
+                index for index_name, index in cls.indexes.items() if index_name in args
             ]
 
         for index in indexes:
@@ -444,6 +442,25 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             and self.identifier == other.identifier
         )
 
+    def call_callbacks(self, callbacks, **kwargs):
+        yield_callbacks = []
+        for callback in callbacks:
+            res = callback(self, **kwargs)
+            if isinstance(res, types.GeneratorType):
+                try:
+                    next(res)
+                except StopIteration:
+                    pass
+                yield_callbacks.append(res)
+        return yield_callbacks
+
+    def call_callbacks_again(self, callbacks):
+        for callback in callbacks:
+            try:
+                next(callback)
+            except StopIteration:
+                pass
+
     def __setattr__(self, name, value):
         yield_callbacks = []
         attribute = self.attributes.get(name)
@@ -454,30 +471,18 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             was_created = attribute.is_created(self)
             if not was_created:
                 prev_value = None
-                for callback in attribute.cb_creation:
-                    res = callback(self, value)
-                    if isinstance(res, types.GeneratorType):
-                        try:
-                            next(res)
-                        except StopIteration:
-                            pass
-                        yield_callbacks.append(res)
+                yield_callbacks = self.call_callbacks(attribute.cb_creation, new=value)
+
+            elif any(index.primary for index in attribute.indexes.values()):
+                raise sheraf.SherafException(
+                    f"Attribute {name} has a primary index and cannot be edited."
+                )
 
             else:
-                if any(index.primary for index in attribute.indexes.values()):
-                    raise sheraf.SherafException(
-                        f"Attribute {name} has a primary index and cannot be edited."
-                    )
-
                 prev_value = getattr(self, name)
-                for callback in attribute.cb_edition:
-                    res = callback(self, value, prev_value)
-                    if isinstance(res, types.GeneratorType):
-                        try:
-                            next(res)
-                        except StopIteration:
-                            pass
-                        yield_callbacks.append(res)
+                yield_callbacks = self.call_callbacks(
+                    attribute.cb_edition, new=value, old=prev_value
+                )
 
             old_values = self.before_index_edition(attribute)
 
@@ -495,35 +500,22 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                     super().__setattr__(name, prev_value)
                 raise
 
-            for callback in yield_callbacks:
-                try:
-                    next(callback)
-                except StopIteration:
-                    pass
+            self.call_callbacks_again(yield_callbacks)
 
     def __delattr__(self, name):
         yield_callbacks = []
         attribute = self.attributes.get(name)
         if attribute:
             old_values = self.before_index_edition(attribute)
-            for callback in attribute.cb_deletion:
-                res = callback(self, getattr(self, name))
-                if isinstance(res, types.GeneratorType):
-                    try:
-                        next(res)
-                    except StopIteration:
-                        pass
-                    yield_callbacks.append(res)
+            yield_callbacks = self.call_callbacks(
+                attribute.cb_deletion, old=getattr(self, name)
+            )
 
         super().__delattr__(name)
 
         if attribute:
             self.after_index_edition(attribute, old_values)
-            for callback in yield_callbacks:
-                try:
-                    next(callback)
-                except StopIteration:
-                    pass
+            self.call_callbacks_again(yield_callbacks)
 
     def before_index_edition(self, attribute):
         old_index_values = {}
