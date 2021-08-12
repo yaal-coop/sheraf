@@ -491,15 +491,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         if attribute and (
             attribute.indexes or attribute.cb_creation or attribute.cb_edition
         ):
-            try:
-                self.after_index_edition(attribute, old_values)
-            except sheraf.SherafException:
-                if not was_created:
-                    super().__delattr__(name)
-                else:
-                    super().__setattr__(name, prev_value)
-                raise
-
+            self.after_index_edition(attribute, old_values)
             self.call_callbacks_again(yield_callbacks)
 
     def __delattr__(self, name):
