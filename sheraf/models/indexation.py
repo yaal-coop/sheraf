@@ -468,9 +468,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         if attribute and (
             attribute.indexes or attribute.cb_creation or attribute.cb_edition
         ):
-            was_created = attribute.is_created(self)
-            if not was_created:
-                prev_value = None
+            if not attribute.is_created(self):
                 yield_callbacks = self.call_callbacks(attribute.cb_creation, new=value)
 
             elif any(index.primary for index in attribute.indexes.values()):
