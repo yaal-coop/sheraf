@@ -8,6 +8,13 @@ from sheraf.exceptions import NotConnectedException
 from sheraf.exceptions import UniqueIndexException
 
 
+def setdefault(table, key, alternative):
+    try:
+        return table[key]
+    except KeyError:
+        return table.setdefault(key, alternative())
+
+
 class IndexManager:
     root_default = SmallDict
     index_multiple_default = OOBTree
@@ -139,10 +146,7 @@ class IndexManager:
         table[index_key] = value
 
     def _table_set_multiple(self, table, index_key, value, primary_key):
-        try:
-            index_container = table[index_key]
-        except KeyError:
-            index_container = table.setdefault(index_key, self.index_multiple_default())
+        index_container = setdefault(table, index_key, self.index_multiple_default)
 
         if isinstance(index_container, self.index_multiple_default):
             index_container[primary_key] = value
@@ -174,10 +178,7 @@ class SimpleIndexManager(IndexManager):
         return self.details.key in self.persistent
 
     def table(self):
-        try:
-            return self.persistent[self.details.key]
-        except KeyError:
-            return self.persistent.setdefault(self.details.key, self.details.mapping())
+        return setdefault(self.persistent, self.details.key, self.details.mapping)
 
     def _get_item(self, key, silent_errors=False):
         try:
@@ -222,17 +223,16 @@ class MultipleDatabaseIndexManager(IndexManager):
         database_name = database_name or self.database_name or current_database_name()
         return Database.current_connection(database_name).root()
 
-    def root(self, database_name=None, setdefault=True):
+    def root(self, database_name=None, ignore_errors=True):
         try:
             root = self.database_root(database_name)
         except KeyError as exc:
             raise NoDatabaseConnectionException(database_name) from exc
-        try:
-            return root[self.table_name]
-        except KeyError:
-            if not setdefault:
-                raise
-            return root.setdefault(self.table_name, self.root_default())
+
+        if ignore_errors:
+            return setdefault(root, self.table_name, self.root_default)
+
+        return root[self.table_name]
 
     def delete_root(self, database_name=None):
         del self.database_root(database_name)[self.table_name]
@@ -253,16 +253,13 @@ class MultipleDatabaseIndexManager(IndexManager):
 
         return False
 
-    def table(self, database_name=None, setdefault=True):
-        root = self.root(database_name, setdefault)
+    def table(self, database_name=None, ignore_errors=True):
+        root = self.root(database_name, ignore_errors)
 
-        try:
-            return root[self.details.key]
-        except KeyError:
-            if not setdefault:
-                raise
+        if ignore_errors:
+            return setdefault(root, self.details.key, self.details.mapping)
 
-        return root.setdefault(self.details.key, self.details.mapping())
+        return root[self.details.key]
 
     def tables(self):
         tables = []
