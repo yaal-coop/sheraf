@@ -610,12 +610,13 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         deletion=False,
         replacement=False,
     ):
+        old_value_backup = set(old_value)
         if addition:
-            for item in set(new_value) & (set(new_value) ^ old_value):
+            for item in set(new_value) & (set(new_value) ^ old_value_backup):
                 old_value.add(item)
 
         if deletion:
-            for item in old_value & (old_value ^ set(new_value)):
+            for item in old_value_backup & (old_value_backup ^ set(new_value)):
                 old_value.remove(item)
 
         return old_value
