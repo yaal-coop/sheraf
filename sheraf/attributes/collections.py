@@ -610,13 +610,32 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         deletion=False,
         replacement=False,
     ):
-        old_value_backup = set(old_value)
+        serialized_old_value = {
+            self.attribute.serialize(item) if self.attribute else item
+            for item in old_value
+        }
+        serialized_new_value = {
+            self.attribute.serialize(item) if self.attribute else item
+            for item in new_value
+        }
+
         if addition:
-            for item in set(new_value) & (set(new_value) ^ old_value_backup):
-                old_value.add(item)
+            for item in serialized_new_value & (
+                serialized_new_value ^ serialized_old_value
+            ):
+                print("add", item)
+                if self.attribute:
+                    old_value.add(self.attribute.serialize(item))
+                else:
+                    old_value.add(item)
 
         if deletion:
-            for item in old_value_backup & (old_value_backup ^ set(new_value)):
-                old_value.remove(item)
+            for item in serialized_old_value & (
+                serialized_old_value ^ serialized_new_value
+            ):
+                if self.attribute:
+                    old_value.remove(self.attribute.serialize(item))
+                else:
+                    old_value.remove(item)
 
         return old_value

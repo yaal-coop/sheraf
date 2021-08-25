@@ -1,3 +1,10 @@
+[0.5.16] - 2021-08-25
+=====================
+
+Fixed
+*****
+- :meth:`~sheraf.attributes.collections.SetAttribute.update` error with models.
+
 [0.5.15] - 2021-08-25
 =====================
 
