@@ -504,7 +504,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         super().__delattr__(name)
 
         if attribute:
-            self.after_index_edition(attribute, old_values)
+            self.after_index_edition(attribute, old_values, ignore_errors=True)
             self.call_callbacks_again(yield_callbacks)
 
     def before_index_edition(self, attribute):
@@ -531,7 +531,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             old_index_values[index] = index.get_model_index_keys(self)
         return old_index_values
 
-    def after_index_edition(self, attribute, old_index_values):
+    def after_index_edition(self, attribute, old_index_values, ignore_errors=True):
         for index in attribute.indexes.values():
             if not index.auto or not self._is_indexable(index):
                 continue
@@ -539,7 +539,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             new_index_values = index.get_model_index_keys(self)
 
             index_manager = self.indexes[index.key]
-            index_manager.update_item(self, old_index_values[index], new_index_values)
+            index_manager.update_item(
+                self, old_index_values[index], new_index_values, ignore_errors=True
+            )
 
     @property
     def identifier(self):

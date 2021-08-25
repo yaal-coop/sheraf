@@ -1,3 +1,12 @@
+[0.5.15] - 2021-08-25
+=====================
+
+Fixed
+*****
+- An error when several indexes exists on several common attributes,
+  and one of them is unique, and a :class:`~sheraf.exceptions.UniqueIndexException`
+  is raised.
+
 [0.5.14] - 2021-08-25
 =====================
 

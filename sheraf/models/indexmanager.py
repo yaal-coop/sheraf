@@ -62,7 +62,7 @@ class IndexManager:
         else:
             return None
 
-    def delete_item(self, model, keys=None):
+    def delete_item(self, model, keys=None, ignore_errors=False):
         """
         Delete model instances from a given index.
 
@@ -88,12 +88,13 @@ class IndexManager:
                         table, key, model.mapping, model.raw_identifier
                     )
 
-            except ValueError:
-                raise ValueError(
-                    f"{model} not in index '{self.details.key}' key '{key}'"
-                )
+            except (KeyError, ValueError) as exc:
+                if not ignore_errors:
+                    raise ValueError(
+                        f"{model} not in index '{self.details.key}' key '{key}'"
+                    ) from exc
 
-    def update_item(self, model, old_values, new_values):
+    def update_item(self, model, old_values, new_values, ignore_errors=False):
         if old_values and new_values:
             del_values = old_values - new_values
             add_values = new_values - old_values
@@ -102,7 +103,7 @@ class IndexManager:
                 self.check_item(model, add_values)
 
             if del_values:
-                self.delete_item(model, del_values)
+                self.delete_item(model, del_values, ignore_errors)
 
             if add_values:
                 self.add_item(model, add_values)
@@ -112,7 +113,7 @@ class IndexManager:
             self.add_item(model, new_values)
 
         elif not new_values:
-            self.delete_item(model, old_values)
+            self.delete_item(model, old_values, ignore_errors)
 
         self._root_check()
 

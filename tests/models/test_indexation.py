@@ -287,6 +287,35 @@ def test_unique_index_set_afterwards(sheraf_database):
         assert [dummy] == list(DummyModel.filter(foo="bar"))
 
 
+def test_unique_index_double_attributes(sheraf_database):
+    class Model(tests.IntAutoModel):
+        foo = sheraf.SimpleAttribute()
+        bar = sheraf.SimpleAttribute()
+
+        unique = sheraf.Index(foo, bar, unique=True)
+        multiple = sheraf.Index(foo, bar)
+
+        @unique.index_keys_func(foo, bar)
+        def index_unique(self, foo, bar):
+            return frozenset({foo, bar})
+
+    with sheraf.connection(commit=True):
+        Model.create(foo="foo", bar="bar")
+        assert Model.count() == 1
+
+    with sheraf.connection():
+        with pytest.raises(sheraf.exceptions.UniqueIndexException):
+            Model.create(foo="foo", bar="bar")
+
+        assert Model.count() == 1
+
+    with sheraf.connection():
+        with pytest.raises(sheraf.exceptions.UniqueIndexException):
+            Model.create(bar="bar", foo="foo")
+
+        assert Model.count() == 1
+
+
 # ---------------------------------------------------------------------------------
 # Multiple Indexes
 # ---------------------------------------------------------------------------------
