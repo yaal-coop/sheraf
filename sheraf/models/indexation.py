@@ -540,7 +540,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
             index_manager = self.indexes[index.key]
             index_manager.update_item(
-                self, old_index_values[index], new_index_values, ignore_errors=True
+                self, old_index_values[index], new_index_values, ignore_errors=ignore_errors
             )
 
     @property
