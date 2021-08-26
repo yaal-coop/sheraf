@@ -267,3 +267,39 @@ def test_nested_model_indexation(sheraf_database, persistent_type):
         sub = Submodel.create()
         m = Model.create(submodels=[sub])
         assert [m] == Model.search(submodels=sub)
+
+
+class AssignAnything(tests.IntAutoModel):
+    model = sheraf.ReverseModelAttribute("AssignModel", "list")
+
+
+class AssignModel(tests.UUIDAutoModel):
+    list = sheraf.LargeListAttribute(sheraf.ModelAttribute(AssignAnything)).index()
+
+
+@pytest.mark.skip
+def test_assign_indexed(sheraf_connection):
+    m0 = AssignAnything.create()
+    m1 = AssignAnything.create()
+    m2 = AssignAnything.create()
+
+    m = AssignModel.create(list={m0})
+    m0 = AssignAnything.read(m0.id)
+    assert [m0] == list(m.list)
+    assert m in m0.model
+
+    m.assign(list=[m0, m1])
+    m0 = AssignAnything.read(m0.id)
+    m1 = AssignAnything.read(m1.id)
+    assert [m0, m1] == m.list
+    assert m in m0.model
+    assert m in m1.model
+
+    m.assign(list=[m0.id, m1.id, m2.id])
+    m0 = AssignAnything.read(m0.id)
+    m1 = AssignAnything.read(m1.id)
+    m2 = AssignAnything.read(m2.id)
+    assert [m0, m1, m2] == m.list
+    assert m in m0.model
+    assert m in m1.model
+    assert m in m2.model

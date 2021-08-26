@@ -151,6 +151,41 @@ def test_set_assign_list_value(sheraf_connection):
     assert {m0, m1, m2} == set(m.set)
 
 
+class AssignAnything(tests.IntAutoModel):
+    model = sheraf.ReverseModelAttribute("AssignModel", "set")
+
+
+class AssignModel(tests.UUIDAutoModel):
+    set = sheraf.SetAttribute(sheraf.ModelAttribute(AssignAnything)).index()
+
+
+def test_set_assign_list_value_indexed(sheraf_connection):
+    m0 = AssignAnything.create()
+    m1 = AssignAnything.create()
+    m2 = AssignAnything.create()
+
+    m = AssignModel.create(set={m0})
+    m0 = AssignAnything.read(m0.id)
+    assert {m0} == set(m.set)
+    assert m in m0.model
+
+    m.assign(set=[m0, m1])
+    m0 = AssignAnything.read(m0.id)
+    m1 = AssignAnything.read(m1.id)
+    assert {m0, m1} == set(m.set)
+    assert m in m0.model
+    assert m in m1.model
+
+    m.assign(set=[m0.id, m1.id, m2.id])
+    m0 = AssignAnything.read(m0.id)
+    m1 = AssignAnything.read(m1.id)
+    m2 = AssignAnything.read(m2.id)
+    assert {m0, m1, m2} == set(m.set)
+    assert m in m0.model
+    assert m in m1.model
+    assert m in m2.model
+
+
 @pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
 @pytest.mark.parametrize("subattribute", [None, sheraf.StringAttribute()])
 def test_indexation(sheraf_database, persistent_type, subattribute):
