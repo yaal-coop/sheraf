@@ -44,9 +44,12 @@ def check(models):
     type=int,
 )
 @click.option(
-    "--commit", help="Make a real commit for each batch", default=False, is_flag=True
+    "--commit/--no-commit", help="Make a real commit for each batch. Defaults to False.", default=False, is_flag=True
 )
-def rebuild(models, index, batch_size, commit):
+@click.option(
+    "--reset/--no-reset", help="Delete the whole index before rebuilding it. Defaults to True.", default=True, is_flag=True
+)
+def rebuild(models, index, batch_size, commit, reset):
     with sheraf.connection(commit=True) as conn:
         with Progress(
             TextColumn("[progress.description]{task.description}"),
@@ -72,4 +75,4 @@ def rebuild(models, index, batch_size, commit):
                             conn.transaction_manager.savepoint(True)
                     progress.update(task, advance=1)
 
-                model.index_table_rebuild(*index, callback=callback)
+                model.index_table_rebuild(*index, callback=callback, reset=reset)
