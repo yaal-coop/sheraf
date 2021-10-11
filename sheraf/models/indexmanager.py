@@ -24,6 +24,11 @@ class IndexManager:
         if index_multiple_default:
             self.index_multiple_default = index_multiple_default
 
+    def __repr__(self):
+        if not self.details:
+            return f"<{self.__class__.__name__}>"
+        return f"<{self.__class__.__name__} name={self.details.key}>"
+
     def add_item(self, model, keys=None):
         """
         Sets model instances from a given index .
