@@ -96,3 +96,86 @@ def test_rebuild_one_model_all_index(sheraf_zeo_database):
         assert "boo" in conn.root()[CliModel.table]
         assert bar in CliModel.search(foo="bar")
         assert baz in CliModel.search(foo="baz")
+
+
+def test_rebuild_savepoint(sheraf_zeo_database):
+    with sheraf.connection(commit=True) as conn:
+        for _ in range(100):
+            baz = CliModel.create(foo="baz", boo="baz")
+
+        del conn.root()[CliModel.table]["foo"]
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            f"{sheraf_zeo_database.uri}&database_name=cli",
+            "rebuild",
+            "tests.test_cli",
+            "--index",
+            "foo",
+            "--batch-size",
+            "25",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+
+    with sheraf.connection() as conn:
+        assert "foo" in conn.root()[CliModel.table]
+        assert baz in CliModel.search(foo="baz")
+
+
+def test_rebuild_commit(sheraf_zeo_database):
+    with sheraf.connection(commit=True) as conn:
+        for _ in range(100):
+            baz = CliModel.create(foo="baz", boo="baz")
+
+        del conn.root()[CliModel.table]["foo"]
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            f"{sheraf_zeo_database.uri}&database_name=cli",
+            "rebuild",
+            "tests.test_cli",
+            "--index",
+            "foo",
+            "--batch-size",
+            "25",
+            "--commit",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+
+    with sheraf.connection() as conn:
+        assert "foo" in conn.root()[CliModel.table]
+        assert baz in CliModel.search(foo="baz")
+
+
+def test_rebuild_fork(sheraf_zeo_database):
+    with sheraf.connection(commit=True) as conn:
+        for _ in range(100):
+            baz = CliModel.create(foo="baz", boo="baz")
+
+        del conn.root()[CliModel.table]["foo"]
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            f"{sheraf_zeo_database.uri}&database_name=cli",
+            "rebuild",
+            "tests.test_cli",
+            "--index",
+            "foo",
+            "--batch-size",
+            "25",
+            "--fork",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+
+    with sheraf.connection() as conn:
+        assert "foo" in conn.root()[CliModel.table]
+        assert baz in CliModel.search(foo="baz")

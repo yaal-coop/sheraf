@@ -1,5 +1,6 @@
 import click
 import math
+import multiprocessing
 import sheraf
 import sys
 from rich.traceback import install
@@ -57,6 +58,12 @@ def check(models):
     is_flag=True,
 )
 @click.option(
+    "--fork/--no-fork",
+    help="Computes each batch in a different process. Implies --commit. Defaults to False.",
+    default=False,
+    is_flag=True,
+)
+@click.option(
     "--start",
     help="The indice of the first element to reset.",
     default=None,
@@ -68,33 +75,70 @@ def check(models):
     default=None,
     type=int,
 )
-def rebuild(models, index, batch_size, commit, reset, start, end):
-    with sheraf.connection(commit=True) as conn:
-        with Progress(
-            TextColumn("[progress.description]{task.description}"),
-            BarColumn(bar_width=None),
-            TextColumn("{task.completed}", justify="right"),
-            TextColumn("/"),
-            TextColumn("{task.total}"),
-            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-            TimeRemainingColumn(),
-            transient=True,
-        ) as progress:
-            models = discover_models(models)
+def rebuild(models, index, batch_size, commit, reset, fork, start, end):
+    with Progress(
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(bar_width=None),
+        TextColumn("{task.completed}", justify="right"),
+        TextColumn("/"),
+        TextColumn("{task.total}"),
+        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        TimeRemainingColumn(),
+        transient=True,
+    ) as progress:
+        models = discover_models(models)
+
+        if not fork:
+            with sheraf.connection(commit=True) as conn:
+                for _, model in models:
+                    total = min(end or math.inf, model.count()) - (start or 0)
+                    task = progress.add_task(model.table, total=total)
+
+                    def callback(i, m):
+                        if i and i % batch_size == 0:
+                            if commit:
+                                conn.transaction_manager.commit()
+                                conn.cacheGC()
+                            else:
+                                conn.transaction_manager.savepoint(True)
+                        progress.update(task, advance=1)
+
+                    model.index_table_rebuild(
+                        *index, callback=callback, reset=reset, start=start, end=end
+                    )
+
+        else:
+
+            def process(uri, model, index, start, end):
+                if uri:
+                    sheraf.Database(uri)
+
+                with sheraf.connection(commit=True):
+                    model.index_table_rebuild(*index, reset=False, start=start, end=end)
 
             for _, model in models:
-                total = min(end or math.inf, model.count()) - (start or 0)
-                task = progress.add_task(model.table, total=total)
+                with sheraf.connection(commit=True):
+                    total = min(end or math.inf, model.count()) - (start or 0)
+                    task = progress.add_task(model.table, total=total)
+                    uri = sheraf.Database.get().uri
+                    nb_batches = math.ceil(total / batch_size)
 
-                def callback(i, m):
-                    if i and i % batch_size == 0:
-                        if commit:
-                            conn.transaction_manager.commit()
-                            conn.cacheGC()
-                        else:
-                            conn.transaction_manager.savepoint(True)
-                    progress.update(task, advance=1)
+                    if reset:
+                        model.index_table_reset(index)
 
-                model.index_table_rebuild(
-                    *index, callback=callback, reset=reset, start=start, end=end
-                )
+                for i in range(nb_batches):
+                    start = batch_size * i
+                    end = min(batch_size * (i + 1), total)
+                    p = multiprocessing.Process(
+                        target=process,
+                        args=(
+                            uri,
+                            model,
+                            index,
+                            start,
+                            end,
+                        ),
+                    )
+                    p.start()
+                    p.join()
+                    progress.update(task, advance=end - start)

@@ -1,3 +1,11 @@
+[0.5.19] - 2021-xx-xx
+=====================
+
+Added
+*****
+- :meth:`sheraf.cli.rebuild` have a `--fork` option to compute each batch in a separate
+  process.
+
 [0.5.18] - 2021-08-26
 =====================
 

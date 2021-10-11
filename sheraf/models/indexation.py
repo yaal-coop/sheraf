@@ -336,19 +336,15 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         :param reset: If `True` the index tables are deleted before reindexaxtion.
                       Defaults to `True`.
         """
+        if reset:
+            cls.index_table_reset(*args)
+
         if not args:
             indexes = cls.indexes.values()
         else:
             indexes = [
                 index for index_name, index in cls.indexes.items() if index_name in args
             ]
-
-        if reset:
-            for index in indexes:
-                if index.details.primary:
-                    continue
-
-                index.delete()
 
         for i, m in enumerate(cls.all()[start:end]):
             for index in indexes:
@@ -357,6 +353,19 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
             if callback and callback(i, m) is False:
                 break
+
+    @classmethod
+    def index_table_reset(cls, *args):
+        if not args:
+            indexes = cls.indexes.values()
+        else:
+            indexes = [
+                index for index_name, index in cls.indexes.items() if index_name in args
+            ]
+
+        for index in indexes:
+            if not index.details.primary:
+                index.delete()
 
     @classmethod
     def filter(cls, predicate=None, **kwargs):
