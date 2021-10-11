@@ -197,11 +197,20 @@ class ModelAttribute(ModelLoader, Attribute):
         if isinstance(value, tuple):
             table, id_ = value
             model = BaseIndexedModel.from_table(table)
+            if model is None:
+                self.check_model()
+                model = BaseIndexedModel.from_table(table)
+
         else:
+            id_ = value
             model = (
                 self.model[0] if isinstance(self.model, (list, tuple)) else self.model
             )
-            id_ = value
+            if model is None:
+                self.check_model()
+                model = (
+                    self.model[0] if isinstance(self.model, (list, tuple)) else self.model
+                )
 
         try:
             return model.read(id_)
