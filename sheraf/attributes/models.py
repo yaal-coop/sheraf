@@ -1,6 +1,6 @@
 import inspect
 import sheraf
-from sheraf.models.indexation import model_from_table
+from sheraf.models.indexation import BaseIndexedModel
 from sheraf.attributes import Attribute
 from sheraf.attributes.collections import ListAttribute, SetAttribute
 
@@ -196,7 +196,7 @@ class ModelAttribute(ModelLoader, Attribute):
     def deserialize(self, value):
         if isinstance(value, tuple):
             table, id_ = value
-            model = model_from_table(table)
+            model = BaseIndexedModel.from_table(table)
         else:
             model = (
                 self.model[0] if isinstance(self.model, (list, tuple)) else self.model

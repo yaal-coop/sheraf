@@ -421,6 +421,12 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         """
         return cls.filter(*args, **kwargs).get()
 
+    @classmethod
+    def from_table(cls, table_name):
+        if table_name not in IndexedModelMetaclass.tables:
+            return None
+        return IndexedModelMetaclass.tables[table_name][1]
+
     def __repr__(self):
         try:
             identifier = (
@@ -739,11 +745,6 @@ class IndexedModelMetaclass(BaseIndexedModelMetaclass):
             IndexedModelMetaclass.tables[table_name] = (qualname, klass)
         return klass
 
-
-def model_from_table(table_name):
-    if table_name not in IndexedModelMetaclass.tables:
-        return None
-    return IndexedModelMetaclass.tables[table_name][1]
 
 
 class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):

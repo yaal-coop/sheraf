@@ -2,7 +2,7 @@ import pytest
 import uuid
 import sheraf
 import tests
-from sheraf.models.indexation import model_from_table
+from sheraf.models.indexation import BaseIndexedModel
 
 
 class MyInlineModel(sheraf.InlineModel):
@@ -207,8 +207,8 @@ def test_model_from_table():
         table = "tablem"
         foo = sheraf.SimpleAttribute()
 
-    assert model_from_table("tablem") is M
-    assert model_from_table("invalid") is None
+    assert BaseIndexedModel.from_table("tablem") is M
+    assert BaseIndexedModel.from_table("invalid") is None
 
 
 def test_delete_last_model(sheraf_connection):
