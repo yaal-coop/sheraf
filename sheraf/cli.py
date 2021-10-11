@@ -1,4 +1,5 @@
 import click
+import math
 import sheraf
 import sys
 from rich.traceback import install
@@ -49,7 +50,19 @@ def check(models):
 @click.option(
     "--reset/--no-reset", help="Delete the whole index before rebuilding it. Defaults to True.", default=True, is_flag=True
 )
-def rebuild(models, index, batch_size, commit, reset):
+@click.option(
+    "--start",
+    help="The indice of the first element to reset.",
+    default=None,
+    type=int,
+)
+@click.option(
+    "--end",
+    help="The indice of the last element to reset.",
+    default=None,
+    type=int,
+)
+def rebuild(models, index, batch_size, commit, reset, start, end):
     with sheraf.connection(commit=True) as conn:
         with Progress(
             TextColumn("[progress.description]{task.description}"),
@@ -64,7 +77,8 @@ def rebuild(models, index, batch_size, commit, reset):
             models = discover_models(models)
 
             for _, model in models:
-                task = progress.add_task(model.table, total=model.count())
+                total = min(end or math.inf, model.count()) - (start or 0)
+                task = progress.add_task(model.table, total=total)
 
                 def callback(i, m):
                     if i and i % batch_size == 0:
@@ -75,4 +89,4 @@ def rebuild(models, index, batch_size, commit, reset):
                             conn.transaction_manager.savepoint(True)
                     progress.update(task, advance=1)
 
-                model.index_table_rebuild(*index, callback=callback, reset=reset)
+                model.index_table_rebuild(*index, callback=callback, reset=reset, start=start, end=end)

@@ -319,7 +319,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             )
 
     @classmethod
-    def index_table_rebuild(cls, *args, callback=None, reset=True):
+    def index_table_rebuild(cls, *args, callback=None, reset=True, start=None, end=None):
         """
         Resets a model indexation tables.
 
@@ -348,7 +348,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
                 index.delete()
 
-        for i, m in enumerate(cls.all()):
+        for i, m in enumerate(cls.all()[start:end]):
             for index in indexes:
                 if not index.details.primary:
                     index.add_item(m)
