@@ -45,10 +45,16 @@ def check(models):
     type=int,
 )
 @click.option(
-    "--commit/--no-commit", help="Make a real commit for each batch. Defaults to False.", default=False, is_flag=True
+    "--commit/--no-commit",
+    help="Make a real commit for each batch. Defaults to False.",
+    default=False,
+    is_flag=True,
 )
 @click.option(
-    "--reset/--no-reset", help="Delete the whole index before rebuilding it. Defaults to True.", default=True, is_flag=True
+    "--reset/--no-reset",
+    help="Delete the whole index before rebuilding it. Defaults to True.",
+    default=True,
+    is_flag=True,
 )
 @click.option(
     "--start",
@@ -89,4 +95,6 @@ def rebuild(models, index, batch_size, commit, reset, start, end):
                             conn.transaction_manager.savepoint(True)
                     progress.update(task, advance=1)
 
-                model.index_table_rebuild(*index, callback=callback, reset=reset, start=start, end=end)
+                model.index_table_rebuild(
+                    *index, callback=callback, reset=reset, start=start, end=end
+                )

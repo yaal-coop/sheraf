@@ -209,7 +209,9 @@ class ModelAttribute(ModelLoader, Attribute):
             if model is None:
                 self.check_model()
                 model = (
-                    self.model[0] if isinstance(self.model, (list, tuple)) else self.model
+                    self.model[0]
+                    if isinstance(self.model, (list, tuple))
+                    else self.model
                 )
 
         try:

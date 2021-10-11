@@ -319,7 +319,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             )
 
     @classmethod
-    def index_table_rebuild(cls, *args, callback=None, reset=True, start=None, end=None):
+    def index_table_rebuild(
+        cls, *args, callback=None, reset=True, start=None, end=None
+    ):
         """
         Resets a model indexation tables.
 
@@ -549,7 +551,10 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
             index_manager = self.indexes[index.key]
             index_manager.update_item(
-                self, old_index_values[index], new_index_values, ignore_errors=ignore_errors
+                self,
+                old_index_values[index],
+                new_index_values,
+                ignore_errors=ignore_errors,
             )
 
     @property
@@ -744,7 +749,6 @@ class IndexedModelMetaclass(BaseIndexedModelMetaclass):
                 raise sheraf.exceptions.SameNameForTableException(message)
             IndexedModelMetaclass.tables[table_name] = (qualname, klass)
         return klass
-
 
 
 class IndexedModel(BaseIndexedModel, metaclass=IndexedModelMetaclass):
