@@ -1,4 +1,11 @@
-[0.5.19] - 2021-xx-xx
+[0.5.20] - 2021-11-17
+=====================
+
+Added
+*****
+- `__repr__` for :mod:`~sheraf.attributes.collections` attributes.
+
+[0.5.19] - 2021-10-11
 =====================
 
 Added
