@@ -87,6 +87,7 @@ pytest-xdist = "*"
 ptpython = "*"
 werkzeug = "*"
 wtforms = "*"
+toml = "*"
 tox = "*"
 unidecode = "*"
 
