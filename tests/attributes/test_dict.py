@@ -53,6 +53,10 @@ def test_dict_attribute(sheraf_connection, persistent_type, subattribute):
 
     m.dict["a"] = 5
     assert "a" in m.dict
+
+    if subattribute:
+        assert repr(m.dict) == "{'a': 5}"
+
     m.dict = None
     assert "a" not in m.dict
 

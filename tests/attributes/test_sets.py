@@ -47,6 +47,10 @@ def test_set_attribute(sheraf_connection, persistent_type, subattribute):
 
     a.set.add(1)
     assert 1 in a.set
+
+    if subattribute:
+        assert repr(a.set) == "{1}"
+
     a.set = None
     assert 1 not in a.set
 

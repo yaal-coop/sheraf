@@ -80,6 +80,9 @@ class ListAttributeAccessor:
         self._attribute = attribute
         self.mapping = persistent
 
+    def __repr__(self):
+        return str(list(self))
+
     def __iter__(self):
         return (self._attribute.deserialize(item) for item in self.mapping)
 
@@ -278,6 +281,9 @@ class DictAttributeAccessor:
         self._attribute = attribute
         self.mapping = persistent
 
+    def __repr__(self):
+        return str(dict(self))
+
     def __setitem__(self, key, value):
         self.mapping[key] = self._attribute.serialize(value)
 
@@ -463,6 +469,9 @@ class SetAttributeAccessor:
     def __init__(self, attribute, persistent, **kwargs):
         self._attribute = attribute
         self.mapping = persistent
+
+    def __repr__(self):
+        return str(set(self))
 
     def add(self, item):
         self.mapping.add(self._attribute.serialize(item))
