@@ -118,7 +118,7 @@ and he has another horse. Let us edit the form and send it back:
 
     >>> with sheraf.connection():
     ...     cowboy, form = cowboy_form(request, george.id)
-    {'age': ['Not a valid integer value']}
+    {'age': ['Not a valid integer value.']}
 
     >>> with sheraf.connection():
     ...     cowboy.age
