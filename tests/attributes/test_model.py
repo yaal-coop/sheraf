@@ -325,10 +325,20 @@ def test_assign_several_models(sheraf_database, model):
 
     with sheraf.connection(commit=True):
         m = Model.create()
-        sub = Submodel1.create()
-        m.assign(submodel=sub)
+        sub1 = Submodel1.create()
+        m.assign(submodel=sub1)
+        assert m.submodel == sub1
+
+    with sheraf.connection(commit=True):
+        m = Model.read(m.id)
+        sub1 = Submodel1.read(sub1.id)
+        assert m.submodel == sub1
+
+        sub2 = Submodel2.create()
+        m.assign(submodel=sub2)
+        assert m.submodel == sub2
 
     with sheraf.connection():
         m = Model.read(m.id)
-        sub = Submodel1.read(sub.id)
-        assert m.submodel == sub
+        sub2 = Submodel2.read(sub2.id)
+        assert m.submodel == sub2
