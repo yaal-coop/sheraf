@@ -1,3 +1,12 @@
+[0.5.21] - 2021-12-15
+=====================
+
+Fixed
+*****
+- :meth:`~sheraf.models.base.BaseModel.assign` calls with
+  :class:`~sheraf.attributes.models.ModelAttribute` that have
+  several model class types.
+
 [0.5.20] - 2021-11-17
 =====================
 
