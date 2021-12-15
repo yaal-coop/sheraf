@@ -234,8 +234,15 @@ class ModelAttribute(ModelLoader, Attribute):
             return self.model.create(**value).identifier
 
         else:
+            if isinstance(value, tuple):
+                model_name, model_id = value
+                [model_class] = [cls for cls in self.model if cls.table == model_name]
+            else:
+                model_id = value
+                model_class = self.model
+
             try:
-                return self.model.read(value).identifier
+                return model_class.read(model_id).identifier
             except sheraf.SherafException:
                 return None
 

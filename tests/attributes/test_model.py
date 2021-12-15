@@ -306,7 +306,29 @@ def test_generic_indexation(sheraf_connection):
 
 
 def test_raise_exception_if_no_model_are_defined(sheraf_database):
-    with pytest.raises(sheraf.exceptions.SherafException) as e:
+    with pytest.raises(sheraf.exceptions.SherafException):
 
         class Model(tests.UUIDAutoModel):
             submodel = sheraf.ModelAttribute()
+
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        (Submodel1, Submodel2),
+        ("Submodel1", "Submodel2"),
+    ],
+)
+def test_assign_several_models(sheraf_database, model):
+    class Model(tests.UUIDAutoModel):
+        submodel = sheraf.ModelAttribute(model)
+
+    with sheraf.connection(commit=True):
+        m = Model.create()
+        sub = Submodel1.create()
+        m.assign(submodel=sub)
+
+    with sheraf.connection():
+        m = Model.read(m.id)
+        sub = Submodel1.read(sub.id)
+        assert m.submodel == sub
