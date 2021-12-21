@@ -76,6 +76,7 @@ from ..types import LargeList
 from ..types import Set
 from ..types import SmallDict
 from ..types import SmallList
+from .simples import TypedAttribute
 
 
 class ListAttributeAccessor:
@@ -516,7 +517,7 @@ class SetAttributeAccessor:
         self.mapping.clear()
 
 
-class SetAttribute(sheraf.attributes.simples.TypedAttribute):
+class SetAttribute(TypedAttribute):
     """Attribute mimicking the behavior of :class:`set`.
 
     >>> class Cowboy(sheraf.Model):

@@ -101,17 +101,17 @@ class AttributeLoader(ModelLoader):
         if isinstance(attribute, (ListAttribute, SetAttribute)):
             if not isinstance(attribute.attribute, ModelAttribute):
                 raise sheraf.SherafException(
-                    f"'{self._model.__name__}.{attribute}' attribute should hold a 'ModelAttribute' to be referenced by a 'ReverseModelAttribute'"
+                    f"'{self._model.__name__}.{attribute_name}' attribute should hold a 'ModelAttribute' to be referenced by a 'ReverseModelAttribute'"
                 )
 
         elif not isinstance(attribute, ModelAttribute):
             raise sheraf.SherafException(
-                f"'{self._model.__name__}.{attribute}' should be a 'ModelAttribute' or a collection of 'ModelAttribute' to be referenced by a 'ReversedModelAttribute'"
+                f"'{self._model.__name__}.{attribute_name}' should be a 'ModelAttribute' or a collection of 'ModelAttribute' to be referenced by a 'ReversedModelAttribute'"
             )
 
         if attribute_name not in self.model.indexes:
             raise sheraf.SherafException(
-                f"'{self._model.__name__}.{attribute}' should have an index to be referenced by a 'ReversedModelAttribute'"
+                f"'{self._model.__name__}.{attribute_name}' should have an index to be referenced by a 'ReversedModelAttribute'"
             )
 
 

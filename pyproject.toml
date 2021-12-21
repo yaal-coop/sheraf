@@ -21,9 +21,9 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Framework :: ZODB",
 ]
-authors = ["Yaal team <contact@yaal.fr>"]
+authors = ["Yaal team <contact@yaal.coop>"]
 maintainers = [
-    "Éloi Rivard <eloi@yaal.fr>",
+    "Éloi Rivard <eloi@yaal.coop>",
 ]
 homepage = "https://sheraf.readthedocs.io/en/latest/"
 documentation = "https://sheraf.readthedocs.io/en/latest/"
