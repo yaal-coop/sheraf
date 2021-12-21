@@ -2,12 +2,9 @@ import queue
 import threading
 
 import pytest
-import ZODB.POSException
-
-import sheraf
 import sheraf.transactions
 import tests
-
+import ZODB.POSException
 from tests.utils import conflict
 
 

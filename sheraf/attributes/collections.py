@@ -69,10 +69,13 @@ You can also nest collections as you like, and play for instance with
 ...     )
 ...     assert 6 == george.dice_results["monday"][1]
 """
-
-
 import sheraf
-from ..types import SmallList, LargeList, SmallDict, LargeDict, Set
+
+from ..types import LargeDict
+from ..types import LargeList
+from ..types import Set
+from ..types import SmallDict
+from ..types import SmallList
 
 
 class ListAttributeAccessor:
@@ -203,7 +206,7 @@ class ListAttribute(sheraf.attributes.Attribute):
         if not self.attribute:
             return set(list_)
 
-        return set(y for v in list_ for y in self.attribute.index_keys(v))
+        return {y for v in list_ for y in self.attribute.index_keys(v)}
 
     def search_keys(self, value):
         if not self.attribute:
@@ -587,7 +590,7 @@ class SetAttribute(sheraf.attributes.simples.TypedAttribute):
         if not self.attribute:
             return set(set_)
 
-        return set(y for v in set_ for y in self.attribute.index_keys(v))
+        return {y for v in set_ for y in self.attribute.index_keys(v)}
 
     def search_keys(self, value):
         if not self.attribute:

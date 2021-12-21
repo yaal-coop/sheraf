@@ -1,8 +1,9 @@
 import codecs
 import crypt
+
 import pytest
-import tests
 import sheraf
+import tests
 
 
 class PasswordModelA(tests.UUIDAutoModel):

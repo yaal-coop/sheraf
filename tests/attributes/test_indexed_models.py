@@ -1,7 +1,8 @@
+import uuid
+
 import pytest
 import sheraf
 import tests
-import uuid
 
 
 class Horse(sheraf.AttributeModel):

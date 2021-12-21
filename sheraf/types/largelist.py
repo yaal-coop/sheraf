@@ -64,7 +64,7 @@ class LargeList(IOBTree):
                 return
 
         if not all or not found:
-            raise ValueError("{} not in {}".format(item, self))
+            raise ValueError(f"{item} not in {self}")
 
     def pop(self):
         length = len(self)

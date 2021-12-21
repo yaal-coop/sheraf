@@ -2,7 +2,6 @@ import numbers
 import uuid
 
 import pytest
-
 import sheraf
 import tests
 

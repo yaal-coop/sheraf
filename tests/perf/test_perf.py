@@ -2,10 +2,8 @@ import random
 import time
 
 import persistent
-import transaction
-
-import sheraf
 import sheraf.types
+import transaction
 
 OBJECTS_NUMBERS = 10000
 

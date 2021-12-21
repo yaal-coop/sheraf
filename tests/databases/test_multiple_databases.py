@@ -1,9 +1,9 @@
-import mock
-import pytest
+from unittest import mock
 
+import pytest
 import sheraf
-from sheraf.exceptions import ObjectNotFoundException
 import tests
+from sheraf.exceptions import ObjectNotFoundException
 
 
 def test_connection_returned_by_context_manager_connection(

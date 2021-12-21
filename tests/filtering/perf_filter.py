@@ -5,9 +5,8 @@ import multiprocessing
 import pstats
 import re
 
-from ZODB.DemoStorage import DemoStorage
-
 import sheraf
+from ZODB.DemoStorage import DemoStorage
 
 # ------------------------------------------------------
 # Models
@@ -64,8 +63,8 @@ def profiled_filter_with_demostorage(numdata, clazz, filter_value):
     init_data(clazz, numdata)
     result = profiled_filter(clazz, filter_value)
     nzeros = str(numdata).count("0")
-    print("10^{nzeros} objects : {result} secs".format(nzeros=nzeros, result=result))
-    return ("10^{nzeros}".format(nzeros=nzeros), result)
+    print(f"10^{nzeros} objects : {result} secs")
+    return (f"10^{nzeros}", result)
 
 
 def profiled_filter_bench(clazz, filter_value, max_units=5):

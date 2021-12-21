@@ -1,6 +1,6 @@
-import mock
-import pytest
+from unittest import mock
 
+import pytest
 import sheraf
 import tests
 

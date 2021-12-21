@@ -2,9 +2,9 @@ import multiprocessing
 
 import BTrees
 import pytest
-import ZODB
 import sheraf
 import tests
+import ZODB
 
 
 class Model(tests.UUIDAutoModel):

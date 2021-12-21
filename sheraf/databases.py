@@ -1,16 +1,14 @@
 import contextlib
 import os
 import traceback
-
 from contextvars import ContextVar
 
 import transaction
 import ZODB.config
 import ZODB.DB
 import zodburi
-from ZODB.DemoStorage import DemoStorage
-
 from sheraf.exceptions import ConnectionAlreadyOpened
+from ZODB.DemoStorage import DemoStorage
 
 
 # Isolated contexts state
@@ -69,7 +67,7 @@ class LocalData:
 database_context_connections_state = ContextVar("database_context_connections_state")
 
 
-class Database(object):
+class Database:
     """A ZODB :class:`ZODB.DB` wrapper with a :class:`ZODB.interfaces.IStorage`
     factory.
 
@@ -131,7 +129,7 @@ class Database(object):
         )
 
     def __repr__(self):
-        description = "<Database database_name='{}'".format(self.name)
+        description = f"<Database database_name='{self.name}'"
 
         if self.db_args.get("read_only", False):
             description += " ro"
@@ -167,7 +165,7 @@ class Database(object):
                     self.name, last_context[0], last_context[1]
                 )
                 if last_context
-                else "A database named '{}' already exists.".format(self.name)
+                else f"A database named '{self.name}' already exists."
             )
 
         self.db = ZODB.DB(self.storage, **self.db_args)
@@ -195,10 +193,10 @@ class Database(object):
             message = (
                 "First connection was {} on {} at line {}".format(
                     Database.last_connection(),
-                    *data.thread_context.last_connection_context
+                    *data.thread_context.last_connection_context,
                 )
                 if data.thread_context.last_connection_context
-                else "First connection was {}".format(Database.last_connection())
+                else f"First connection was {Database.last_connection()}"
             )
             raise ConnectionAlreadyOpened(message)
 
@@ -356,7 +354,7 @@ class Database(object):
         try:
             return LocalData.get().databases[database_name]
         except KeyError:
-            raise KeyError("No database named '{}'.".format(database_name))
+            raise KeyError(f"No database named '{database_name}'.")
 
     @classmethod
     def get_or_create(cls, **kwargs):

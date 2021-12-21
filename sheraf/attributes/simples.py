@@ -1,8 +1,8 @@
 import datetime
 import uuid
 from numbers import Integral
-from BTrees.LOBTree import LOBTree
 
+from BTrees.LOBTree import LOBTree
 from sheraf.attributes import Attribute
 
 

@@ -1,7 +1,6 @@
 import contextlib
 
 import pytest
-
 import sheraf
 
 

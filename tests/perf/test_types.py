@@ -1,6 +1,5 @@
 import threading
 
-import sheraf
 import sheraf.types
 
 LENGTH = 100

@@ -1,10 +1,10 @@
 import itertools
-import pytest
 
-import sheraf
+import pytest
 import sheraf.models
 from BTrees.OOBTree import OOTreeSet
-from sheraf.exceptions import InvalidFilterException, NotConnectedException
+from sheraf.exceptions import InvalidFilterException
+from sheraf.exceptions import NotConnectedException
 from sheraf.queryset import QuerySet
 
 from .conftest import Cowboy

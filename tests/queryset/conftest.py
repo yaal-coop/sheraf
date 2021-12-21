@@ -1,6 +1,4 @@
 import pytest
-
-import sheraf
 import sheraf.models
 
 

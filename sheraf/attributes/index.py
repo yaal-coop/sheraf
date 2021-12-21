@@ -1,5 +1,6 @@
-from BTrees.OOBTree import OOBTree
 import warnings
+
+from BTrees.OOBTree import OOBTree
 
 
 class Index:
@@ -127,8 +128,8 @@ class Index:
 
     def __repr__(self):
         if self.primary:
-            return "<Index key={} unique={} primary>".format(self.key, self.unique)
-        return "<Index key={} unique={}>".format(self.key, self.unique)
+            return f"<Index key={self.key} unique={self.unique} primary>"
+        return f"<Index key={self.key} unique={self.unique}>"
 
     def index_keys_func(self, *args, **kwargs):
         """

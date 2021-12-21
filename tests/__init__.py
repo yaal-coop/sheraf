@@ -1,7 +1,5 @@
-from sheraf.models import (
-    UUIDIndexedDatedNamedAttributesModel,
-    IntOrderedNamedAttributesModel,
-)
+from sheraf.models import IntOrderedNamedAttributesModel
+from sheraf.models import UUIDIndexedDatedNamedAttributesModel
 from sheraf.models.indexation import IndexedModelMetaclass
 
 

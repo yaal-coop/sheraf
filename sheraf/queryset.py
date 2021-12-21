@@ -1,14 +1,16 @@
 import itertools
 import operator
 from collections import OrderedDict
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable
+from collections.abc import Iterator
 
 import sheraf.constants
-from sheraf.exceptions import InvalidFilterException, InvalidOrderException
+from sheraf.exceptions import InvalidFilterException
+from sheraf.exceptions import InvalidOrderException
 from sheraf.tools.more_itertools import unique_everseen
 
 
-class QuerySet(object):
+class QuerySet:
     """
     A :class:`~sheraf.queryset.QuerySet` is a collection containing
     :class:`~sheraf.models.Model` instances. Like in a regular :class:`set`,
@@ -564,7 +566,7 @@ class QuerySet(object):
             for attribute, value in kwargs.items():
                 if attribute not in self.model.attributes:
                     raise sheraf.exceptions.InvalidOrderException(
-                        "{} has no attribute {}".format(self.model.__name__, attribute)
+                        f"{self.model.__name__} has no attribute {attribute}"
                     )
 
                 if value not in (sheraf.constants.ASC, sheraf.constants.DESC):
@@ -578,7 +580,7 @@ class QuerySet(object):
             identifier = args[0]
             if identifier not in (sheraf.constants.ASC, sheraf.constants.DESC):
                 raise InvalidOrderException(
-                    "Parameter id has an invalid order value {}".format(identifier)
+                    f"Parameter id has an invalid order value {identifier}"
                 )
 
             if self.primary_key in qs.orders:

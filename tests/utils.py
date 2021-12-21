@@ -8,13 +8,13 @@ import tempfile
 import warnings
 
 import portpicker
-import ZODB.POSException
-
 import sheraf
-from sheraf.databases import Database, LocalData
+import ZODB.POSException
+from sheraf.databases import Database
+from sheraf.databases import LocalData
 
 
-class Conflict(object):
+class Conflict:
     def __call__(self, times=1):
         if not hasattr(self, "times"):
             self.times = 0
@@ -65,7 +65,7 @@ def create_database(db_args):
                 db_name, last_context[0], last_context[1]
             )
             if last_context
-            else "Database '{}' was already open".format(db_name)
+            else f"Database '{db_name}' was already open"
         )
         Database.get(db_name).close()
         return Database(**db_args)
@@ -113,9 +113,9 @@ def create_zeo_configuration_file(
     conf_content = ZEO_CONFIGURATION_FILE_CONTENT.format(
         port=zeo_port,
         path=file_storage_path,
-        blob_dir="blob-dir {}".format(blob_dir) if blob_dir else "",
+        blob_dir=f"blob-dir {blob_dir}" if blob_dir else "",
     )
-    with io.open(zeo_conf_path, "w") as f:
+    with open(zeo_conf_path, "w") as f:
         f.write(conf_content)
 
 

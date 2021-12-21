@@ -1,10 +1,14 @@
-import click
 import math
 import multiprocessing
-import sheraf
 import sys
+
+import click
+import sheraf
+from rich.progress import BarColumn
+from rich.progress import Progress
+from rich.progress import TextColumn
+from rich.progress import TimeRemainingColumn
 from rich.traceback import install
-from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
 from sheraf.health.utils import discover_models
 
 

@@ -1,14 +1,15 @@
-import uuid
 import random
 import sys
+import uuid
 
-from .attributes import (
-    DatedNamedAttributesModel,
-    IntAttributesModel,
-    NamedAttributesModel,
-)
-from .indexation import SimpleIndexedModel, IndexedModel
-from sheraf.attributes.simples import IntegerAttribute, StringUUIDAttribute
+from sheraf.attributes.simples import IntegerAttribute
+from sheraf.attributes.simples import StringUUIDAttribute
+
+from .attributes import DatedNamedAttributesModel
+from .attributes import IntAttributesModel
+from .attributes import NamedAttributesModel
+from .indexation import IndexedModel
+from .indexation import SimpleIndexedModel
 
 
 class UUIDIndexedModel:

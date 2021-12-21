@@ -1,7 +1,8 @@
 import re
 
 import sheraf
-from sheraf.health import check_health, print_health
+from sheraf.health import check_health
+from sheraf.health import print_health
 
 from . import fixture1
 

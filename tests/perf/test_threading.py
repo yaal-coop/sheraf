@@ -1,9 +1,8 @@
 import threading
 
-import transaction
-
 import sheraf
 import tests
+import transaction
 
 
 class Child(sheraf.InlineModel):

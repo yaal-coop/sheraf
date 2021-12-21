@@ -2,8 +2,6 @@ import datetime
 
 import libfaketime
 import pytest
-
-import sheraf
 import sheraf.exceptions
 import tests
 
@@ -27,8 +25,8 @@ utc_now = datetime.datetime(2016, 12, 31, 23, 59, 59, 5000)
     [
         Submodel1,
         "Submodel1",
-        "{}.{}".format(Submodel1.__module__, Submodel1.__name__),
-        "{}.{}".format(Submodel1.__module__, Submodel1.__name__).encode("utf-8"),
+        f"{Submodel1.__module__}.{Submodel1.__name__}",
+        f"{Submodel1.__module__}.{Submodel1.__name__}".encode(),
     ],
 )
 def test_simple_model(sheraf_database, model):

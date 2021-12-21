@@ -1,9 +1,8 @@
 import os
 
-import transaction
-
 import sheraf
 import tests
+import transaction
 
 
 class TestDiskStorage:
@@ -18,13 +17,13 @@ class TestDiskStorage:
             Account = self.get_Account(Model)
             self.clean(Model)
 
-            sheraf.Database(filename="tmp/{}.fs".format(Account.__class__.__name__))
+            sheraf.Database(filename=f"tmp/{Account.__class__.__name__}.fs")
             ids = self.build(Account)
             self.check(Account, ids)
 
             model_size = sum(os.stat(f).st_size for f in self.get_db_files(Model))
             max_size = max(max_size, model_size)
-            print((Model.__name__, model_size, "{:.2f}".format(model_size / max_size)))
+            print((Model.__name__, model_size, f"{model_size / max_size:.2f}"))
 
     def build(self, Account):
         with sheraf.connection():
@@ -55,10 +54,10 @@ class TestDiskStorage:
     def get_db_files(self, Model):
         name = Model.__class__.__name__
         return [
-            "tmp/{}.fs".format(name),
-            "tmp/{}.fs.tmp".format(name),
-            "tmp/{}.fs.index".format(name),
-            "tmp/{}.fs.lock".format(name),
+            f"tmp/{name}.fs",
+            f"tmp/{name}.fs.tmp",
+            f"tmp/{name}.fs.index",
+            f"tmp/{name}.fs.lock",
         ]
 
     def clean(self, Model):

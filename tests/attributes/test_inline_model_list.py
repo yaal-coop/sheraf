@@ -61,7 +61,7 @@ def test_model_absolute_string(sheraf_connection, attribute, list_type):
     class Model(tests.UUIDAutoModel):
         inline = attribute(
             sheraf.InlineModelAttribute(
-                "{}.{}".format(ListInlineModel.__module__, ListInlineModel.__name__)
+                f"{ListInlineModel.__module__}.{ListInlineModel.__name__}"
             )
         )
 

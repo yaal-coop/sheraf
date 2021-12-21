@@ -1,6 +1,5 @@
-import ZODB
-
 import sheraf
+import ZODB
 
 
 def check_conflict_resolution():

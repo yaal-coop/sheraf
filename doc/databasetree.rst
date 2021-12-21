@@ -371,4 +371,3 @@ the horses :class:`~sheraf.types.SmallDict` are indexed by their names.
             "saloon_index_id" -> "saloonmapping" [label="62a29766-3ccc"];
          }
      }
-

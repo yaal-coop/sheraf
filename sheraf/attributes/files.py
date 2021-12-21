@@ -1,7 +1,9 @@
 import os
+
 import sheraf
 from sheraf.attributes import Attribute
 from sheraf.models.base import BaseModel
+
 from ..types import Set
 
 FILES_ROOT_DIR = "files/"
@@ -72,7 +74,7 @@ class FileObject:
         if self.attribute_name in self.model.mapping:
             return self.model.mapping[self.attribute_name]
 
-        file_name = "{}.{}".format(self.model.identifier, self.extension)
+        file_name = f"{self.model.identifier}.{self.extension}"
         path = os.path.join(self.directory(), file_name)
 
         return os.path.relpath(path, FILES_ROOT_DIR)
@@ -167,7 +169,7 @@ class FileAttribute(Attribute):
         _file.delete()
 
 
-class FilesGarbageCollector(object):
+class FilesGarbageCollector:
     DEFAULT_TABLE = "__sheraf_collected_files_to_remove"
     _instance = None
     default_mapping = Set

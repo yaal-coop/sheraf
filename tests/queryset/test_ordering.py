@@ -1,7 +1,6 @@
 import sys
 
 import pytest
-
 import sheraf
 from sheraf.exceptions import InvalidOrderException
 from sheraf.queryset import QuerySet

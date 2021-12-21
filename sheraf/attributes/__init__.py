@@ -1,6 +1,7 @@
+import warnings
+
 from BTrees.OOBTree import OOBTree
 from sheraf.attributes.index import Index
-import warnings
 
 
 def set_read_memoization(should_memoize_read):
@@ -11,7 +12,7 @@ def set_write_memoization(should_memoize_write):
     Attribute.write_memoization = should_memoize_write
 
 
-class Attribute(object):
+class Attribute:
     """
     Base type of all attributes of a base model.
 

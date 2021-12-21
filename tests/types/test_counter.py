@@ -1,5 +1,4 @@
 import pytest
-
 import sheraf
 
 
@@ -93,7 +92,7 @@ def test_int_math():
     assert 5 == counter
     assert 2.0 == var
 
-    class Foo(object):
+    class Foo:
         def __add__(self, other):
             return NotImplemented
 

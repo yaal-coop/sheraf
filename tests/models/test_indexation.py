@@ -1,9 +1,9 @@
+import warnings
+
 import BTrees.OOBTree
 import pytest
-import sheraf
 import sheraf.exceptions
 import tests
-import warnings
 
 
 # ----------------------------------------------------------------------------

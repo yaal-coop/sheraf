@@ -1,7 +1,6 @@
 import string
 
 import pytest
-
 import sheraf
 
 

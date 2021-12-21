@@ -1,7 +1,6 @@
 import datetime
 import time
 
-import sheraf.attributes
 import sheraf.attributes.simples
 from sheraf.models.base import BaseModel
 

@@ -123,7 +123,7 @@ flakes-ignore = [
 legacy_tox_ini = """
 [tox]
 isolated_build = true
-envlist = doc,py36,py37,py38,py39,py310,coverage
+envlist = style,doc,py36,py37,py38,py39,py310,coverage
 skipsdist=true
 
 [testenv]
@@ -143,4 +143,9 @@ commands =
     poetry run coverage erase
     poetry run pytest --cov {posargs}
     poetry run coverage html
+
+[testenv:style]
+deps = pre-commit
+skip_install = true
+commands = pre-commit run --all-files
 """

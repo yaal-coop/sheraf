@@ -1,5 +1,4 @@
 import pytest
-
 import tests
 from sheraf.queryset import QuerySet
 

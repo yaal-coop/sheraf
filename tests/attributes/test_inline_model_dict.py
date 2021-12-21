@@ -1,7 +1,7 @@
 import pytest
-from BTrees.IOBTree import IOBTree
 import sheraf
 import tests
+from BTrees.IOBTree import IOBTree
 
 
 class DictInlineModel(sheraf.InlineModel):

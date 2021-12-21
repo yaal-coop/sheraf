@@ -64,7 +64,7 @@ def discover_models(*args):
         if isinstance(model, IndexedModelMetaclass):
             result.add(
                 (
-                    "{}.{}".format(model.__module__, model.__name__),
+                    f"{model.__module__}.{model.__name__}",
                     model,
                 )
             )

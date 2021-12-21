@@ -1,5 +1,4 @@
 import pytest
-
 import sheraf
 from tests.utils import close_database
 

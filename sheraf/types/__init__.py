@@ -3,14 +3,11 @@
 There are no need to setup specific types in basic usage of sheraf
 because `Model` uses `xAttribute`, not `Type`.
 """
-
-
 import BTrees.Length
 import BTrees.OOBTree
 import persistent
-import ZODB
-
 import sheraf.tools.dicttools
+import ZODB
 
 from .largedict import LargeDict
 from .largelist import LargeList

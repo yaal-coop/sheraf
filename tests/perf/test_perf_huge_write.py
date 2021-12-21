@@ -2,11 +2,9 @@ import datetime
 import random
 
 import persistent
-import transaction
-
-import sheraf
 import sheraf.types
 import tests
+import transaction
 
 OBJECTS_NUMBERS = 100_000
 

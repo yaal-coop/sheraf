@@ -1,7 +1,7 @@
 import io
-import tests
 
 import sheraf
+import tests
 
 
 class ModelWithBlob(tests.UUIDAutoModel):

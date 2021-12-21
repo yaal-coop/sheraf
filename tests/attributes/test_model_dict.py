@@ -1,5 +1,4 @@
 import pytest
-
 import sheraf
 import tests
 
@@ -12,8 +11,8 @@ class AModel(tests.UUIDAutoModel):
     "model",
     [
         AModel,
-        "{}.{}".format(AModel.__module__, AModel.__name__),
-        "{}.{}".format(AModel.__module__, AModel.__name__).encode("utf-8"),
+        f"{AModel.__module__}.{AModel.__name__}",
+        f"{AModel.__module__}.{AModel.__name__}".encode(),
     ],
 )
 def test_model_dict(sheraf_connection, model):

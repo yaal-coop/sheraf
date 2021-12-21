@@ -1,12 +1,11 @@
 import multiprocessing
 import threading
+from unittest import mock
 
-import mock
 import pytest
-from ZODB.POSException import ConflictError
-
 import sheraf
 import tests
+from ZODB.POSException import ConflictError
 
 
 class Model(tests.UUIDAutoModel):
@@ -189,7 +188,7 @@ def test_nested_connections_raise_exception_message(cacheMinimize, sheraf_databa
     with sheraf.connection():
         with pytest.raises(
             sheraf.exceptions.ConnectionAlreadyOpened,
-            match="First connection was .* on .*{} at line".format(__file__),
+            match=f"First connection was .* on .*{__file__} at line",
         ):
             with sheraf.connection():
                 pass  # pragma: no cover

@@ -1,10 +1,9 @@
 import multiprocessing
 
 import pytest
-import ZODB
-
 import sheraf
 import tests
+import ZODB
 
 
 @pytest.mark.parametrize(

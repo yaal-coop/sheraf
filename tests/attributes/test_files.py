@@ -1,11 +1,9 @@
 import os
 import shutil
+from unittest.mock import sentinel
 
 import BTrees.OOBTree
 import pytest
-from mock import sentinel
-
-import sheraf
 import sheraf.attributes.files
 import tests
 

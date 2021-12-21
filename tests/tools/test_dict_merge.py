@@ -1,6 +1,6 @@
 import pytest
-
-from sheraf.tools.dicttools import DictConflictException, merge
+from sheraf.tools.dicttools import DictConflictException
+from sheraf.tools.dicttools import merge
 
 
 def test_conflict():

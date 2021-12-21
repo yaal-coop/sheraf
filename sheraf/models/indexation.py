@@ -3,11 +3,10 @@ import types
 import warnings
 
 import sheraf.exceptions
-from sheraf.models.base import BaseModel, BaseModelMetaclass
-from sheraf.models.indexmanager import (
-    SimpleIndexManager,
-    MultipleDatabaseIndexManager,
-)
+from sheraf.models.base import BaseModel
+from sheraf.models.base import BaseModelMetaclass
+from sheraf.models.indexmanager import MultipleDatabaseIndexManager
+from sheraf.models.indexmanager import SimpleIndexManager
 
 
 class BaseIndexedModelMetaclass(BaseModelMetaclass):
@@ -172,7 +171,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             index = cls.indexes[index_name]
         except KeyError:
             raise sheraf.exceptions.InvalidIndexException(
-                "'{}' is not a valid index".format(index_name)
+                f"'{index_name}' is not a valid index"
             )
 
         return index, key

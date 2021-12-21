@@ -1,4 +1,5 @@
 import sheraf.attributes
+
 from ..types import SmallDict
 
 
@@ -44,7 +45,7 @@ class BaseModelMetaclass(type):
         return klass
 
 
-class BaseModel(object, metaclass=BaseModelMetaclass):
+class BaseModel(metaclass=BaseModelMetaclass):
     """
     :class:`~sheraf.models.base.BaseModel` is the base class for every other model classes.
     This is where the attribute reading and writing are handled.
@@ -176,7 +177,7 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
                 return attribute
 
         except AttributeError as exc:
-            if "object has no attribute '{}'".format(name) not in str(exc):
+            if f"object has no attribute '{name}'" not in str(exc):
                 raise
 
         try:
@@ -348,4 +349,4 @@ class BaseModel(object, metaclass=BaseModelMetaclass):
         return key in self.attributes
 
     def __repr__(self):
-        return "<{}>".format(self.__class__.__name__)
+        return f"<{self.__class__.__name__}>"

@@ -6,10 +6,9 @@ import tempfile
 from itertools import chain
 
 import persistent
-import transaction
-
 import sheraf
 import tests
+import transaction
 
 
 class Test_tel(persistent.Persistent):
@@ -99,7 +98,7 @@ def clear_database(state):
         transaction.commit()
 
 
-class State(object):
+class State:
     pass
 
 

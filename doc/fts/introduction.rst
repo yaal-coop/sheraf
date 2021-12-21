@@ -89,4 +89,3 @@ give perfect results. You can also define strategies where you use some of those
 does not return good enough results.
 Some libraries like `Whoosh <https://whoosh.readthedocs.io/>`_ implement almost all the previous concepts,
 and it also manages the storing of indexes.
-

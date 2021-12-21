@@ -1,9 +1,7 @@
 import pytest
-import tests
 import sheraf.exceptions
+import tests
 from ZODB.POSException import ConflictError
-
-import sheraf
 
 
 def test_custom_exceptions(sheraf_database):

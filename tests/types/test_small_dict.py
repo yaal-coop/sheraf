@@ -1,7 +1,6 @@
 import pytest
-import ZODB
-
 import sheraf
+import ZODB
 
 
 @pytest.mark.parametrize(

@@ -1,5 +1,6 @@
-import pytest
 import uuid
+
+import pytest
 import sheraf
 import tests
 from sheraf.models.indexation import BaseIndexedModel
@@ -97,7 +98,7 @@ def test_default_id(sheraf_database):
 def test_repr_model_with_id(sheraf_database):
     with sheraf.connection():
         m = Model.create()
-        assert "<Model id={}>".format(m.id) == repr(m)
+        assert f"<Model id={m.id}>" == repr(m)
 
 
 def test_repr_model_without_id(sheraf_database):
@@ -164,7 +165,7 @@ def test_id_inmapping_uuid_model(sheraf_database):
 
     class M(sheraf.Model):
         table = "test_uuid_model"
-        id = sheraf.StringUUIDAttribute(default=lambda: "{}".format(str(mid))).index(
+        id = sheraf.StringUUIDAttribute(default=lambda: f"{str(mid)}").index(
             primary=True
         )
 

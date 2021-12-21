@@ -3,9 +3,8 @@ import logging
 import random
 import time
 
-import ZODB.POSException
-
 import sheraf
+import ZODB.POSException
 
 ATTEMPTS = 5
 logger = logging.getLogger(__name__)

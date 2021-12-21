@@ -1,11 +1,16 @@
 from rich.console import Console
-from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
+from rich.markdown import Markdown
+from rich.progress import BarColumn
+from rich.progress import Progress
+from rich.progress import TextColumn
+from rich.progress import TimeRemainingColumn
 from rich.table import Table
 from rich.text import Text
-from rich.markdown import Markdown
 from sheraf.health.utils import discover_models
 
-from .checks import check_conflict_resolution, check_attributes_index, check_model_index
+from .checks import check_attributes_index
+from .checks import check_conflict_resolution
+from .checks import check_model_index
 
 
 # Set the list of check functions to be run

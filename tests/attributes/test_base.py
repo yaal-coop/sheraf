@@ -1,6 +1,6 @@
 import sheraf
-from tests import UUIDAutoModel
 from sheraf.attributes.index import Index
+from tests import UUIDAutoModel
 
 
 def test_default_read_and_write_memoization_attribute(sheraf_connection):

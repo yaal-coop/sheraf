@@ -1,11 +1,13 @@
 import inspect
+
 import sheraf
-from sheraf.models.indexation import BaseIndexedModel
 from sheraf.attributes import Attribute
-from sheraf.attributes.collections import ListAttribute, SetAttribute
+from sheraf.attributes.collections import ListAttribute
+from sheraf.attributes.collections import SetAttribute
+from sheraf.models.indexation import BaseIndexedModel
 
 
-class ModelLoader(object):
+class ModelLoader:
     """
     Loads models from the base in a cache.
 
@@ -75,7 +77,7 @@ class ModelLoader(object):
 
         elif parent and not isinstance(model, type):
             return type(
-                "{}.{}".format(parent.__class__.__name__, self.key(parent)),
+                f"{parent.__class__.__name__}.{self.key(parent)}",
                 (model.__class__,),
                 model.attributes,
             )

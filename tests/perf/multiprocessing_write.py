@@ -1,8 +1,7 @@
 import multiprocessing
 
-from BTrees.OOBTree import OOBTree
-
 import sheraf
+from BTrees.OOBTree import OOBTree
 
 
 class PerfConcurrentDB:

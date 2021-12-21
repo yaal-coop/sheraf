@@ -1,11 +1,12 @@
 import itertools
 
 from BTrees.OOBTree import OOBTree
-from ..types import SmallDict
 from sheraf.databases import Database
 from sheraf.exceptions import NoDatabaseConnectionException
 from sheraf.exceptions import NotConnectedException
 from sheraf.exceptions import UniqueIndexException
+
+from ..types import SmallDict
 
 
 def setdefault(table, key, alternative):
@@ -161,7 +162,7 @@ class IndexManager:
             index_container.append(value)
 
     def _root_check(self):
-        if all((not table for table in self.root().values())):
+        if all(not table for table in self.root().values()):
             self.delete_root()
 
 
