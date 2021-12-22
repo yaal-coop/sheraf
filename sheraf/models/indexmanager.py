@@ -188,10 +188,7 @@ class SimpleIndexManager(IndexManager):
         return setdefault(self.persistent, self.details.key, self.details.mapping)
 
     def _get_item(self, key, silent_errors=False):
-        try:
-            return self.persistent[self.details.key][key]
-        except KeyError:
-            return None
+        return self.persistent[self.details.key][key]
 
     def has_item(self, key):
         return self.persistent[self.details.key].has_key(key)

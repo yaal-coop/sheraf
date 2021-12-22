@@ -36,10 +36,10 @@ def test_read(sheraf_database):
         assert jolly == george.horses.read(name="Jolly Jumper")
 
         with pytest.raises(sheraf.ModelObjectNotFoundException):
-            george.read("any horse")
+            george.horses.read("any horse")
 
         with pytest.raises(sheraf.ModelObjectNotFoundException):
-            george.read(id="YO")
+            george.horses.read(name="YO")
 
 
 def test_read_these(sheraf_database):
@@ -54,6 +54,22 @@ def test_read_these(sheraf_database):
         assert [jolly, polly] == list(
             george.horses.read_these(("Jolly Jumper", "Polly Pumper"))
         )
+
+
+def test_delete(sheraf_connection):
+    george = Cowboy.create(name="George")
+    jolly = george.horses.create(name="Jolly Jumper")
+
+    assert george.horses.get() == jolly
+    assert george.horses.read("Jolly Jumper") == jolly
+
+    jolly.delete()
+
+    with pytest.raises(sheraf.exceptions.EmptyQuerySetUnpackException):
+        george.horses.get()
+
+    with pytest.raises(sheraf.ModelObjectNotFoundException):
+        assert george.horses.read("Jolly Jumper")
 
 
 def test_create_dict(sheraf_connection):

@@ -1,3 +1,10 @@
+[0.5.23] - 2021-12-22
+=====================
+
+Fixed
+*****
+- Fixed :meth:`~sheraf.attributes.models.IndexedModelAttribute.read` exceptions on bad IDs
+
 [0.5.22] - 2021-12-15
 =====================
 
