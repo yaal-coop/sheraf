@@ -1,3 +1,10 @@
+[0.5.24] - 202x-xx-xx
+=====================
+
+Added
+*****
+- Implemented :meth:`sheraf.attributes.enum.EnumAttribute.__repr__`
+
 [0.5.23] - 2021-12-22
 =====================
 

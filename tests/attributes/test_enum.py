@@ -24,6 +24,7 @@ def test_enum_attribute(sheraf_connection):
     assert m.status == n.status
     assert m.status.is_foo
     assert not m.status.is_bar
+    assert repr(m.status) == "<Enum.FOO: 1>"
 
     m.status = Enum.BAR
     n.status = 2
@@ -33,6 +34,7 @@ def test_enum_attribute(sheraf_connection):
     assert m.status == n.status
     assert m.status.is_bar
     assert not m.status.is_foo
+    assert repr(m.status) == "<Enum.BAR: 2>"
 
     m.status = 1
     assert m.status < n.status

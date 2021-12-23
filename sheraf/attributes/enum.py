@@ -45,6 +45,9 @@ class EnumAccessor:
     def __str__(self):
         return str(self.enum.value)
 
+    def __repr__(self):
+        return repr(self.enum)
+
 
 class EnumAttribute(sheraf.Attribute):
     """
