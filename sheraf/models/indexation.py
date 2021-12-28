@@ -451,6 +451,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             self.__class__.__name__, self.primary_key(), identifier
         )
 
+    def __str__(self):
+        return str(self.identifier)
+
     def __hash__(self):
         return hash(self.identifier)
 

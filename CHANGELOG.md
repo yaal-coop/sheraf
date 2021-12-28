@@ -5,6 +5,7 @@ Added
 *****
 - Implemented :meth:`sheraf.attributes.enum.EnumAttribute.__repr__`
 - Ended support for python 3.6
+- Implemented :meth:`sheraf.models.indexation.BaseIndexedModel.__str__`,
 
 [0.5.23] - 2021-12-22
 =====================

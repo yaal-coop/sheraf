@@ -105,6 +105,14 @@ def test_repr_model_without_id(sheraf_database):
     assert "<Model id=None>" == repr(Model())
 
 
+def test_str(sheraf_connection):
+    class M(tests.UUIDAutoModel):
+        foo = sheraf.StringAttribute()
+
+    m = M.create()
+    assert str(m) == str(m.id)
+
+
 def test_all(sheraf_database):
     class Model(sheraf.IntOrderedNamedAttributesModel):
         table = "my_test_all_model"
