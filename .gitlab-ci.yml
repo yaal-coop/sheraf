@@ -9,7 +9,7 @@ stages:
 before_script:
   - curl -O https://bootstrap.pypa.io/get-pip.py
   - python get-pip.py
-  - pip install tox poetry coveralls pyyaml
+  - pip install tox poetry coveralls pyyaml toml
 
 style:
   image: python:3.10
