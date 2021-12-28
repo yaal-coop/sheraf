@@ -267,10 +267,9 @@ class BaseModel(metaclass=BaseModelMetaclass):
         ...     len(george.arms)
         3
         >>> with sheraf.connection(commit=True):
-        ...     george.assign(name="George Abitbol", arms=[
+        ...     len(george.assign(name="George Abitbol", arms=[
         ...         {"name": "Superarm 1"}, {"name": "Superarm 2"},
-        ...     ])
-        ...     len(george.arms)
+        ...     ]).arms)
         2
         >>> with sheraf.connection():
         ...     george.arms[0].name
@@ -279,7 +278,9 @@ class BaseModel(metaclass=BaseModelMetaclass):
         George passed from 3 arms to only 2 because *assign* does remove sub instances. If we had called :func:`~sheraf.models.base.BaseModel.update` instead,
         George would have his two first arms be renamed *superarms* but, the third one would not have been removed.
         """
-        self.edit(kwargs, addition=True, edition=True, deletion=True, replacement=False)
+        return self.edit(
+            kwargs, addition=True, edition=True, deletion=True, replacement=False
+        )
 
     def edit(
         self,
