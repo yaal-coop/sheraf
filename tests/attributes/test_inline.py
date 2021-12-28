@@ -217,3 +217,63 @@ def test_inline_model_update(sheraf_database):
 
     with sheraf.connection():
         assert "foobar" == Model.read(m.id).bar.foo
+
+
+def test_on_creation(sheraf_connection):
+    class Model(sheraf.InlineModel):
+        created = False
+        foo = sheraf.SimpleAttribute()
+
+    class OtherModel(sheraf.InlineModel):
+        created = False
+        foo = sheraf.SimpleAttribute()
+
+    @Model.on_creation
+    def foo_creation(model):
+        model.created = True
+
+    m = Model.create()
+    assert m.created
+
+    n = OtherModel.create()
+    assert not n.created
+
+
+def test_on_creation_dict(sheraf_connection):
+    class MyInline(sheraf.InlineModel):
+        foo = sheraf.SimpleAttribute()
+
+    class Model(tests.IntAutoModel):
+        created = False
+        bar = sheraf.InlineModelAttribute(MyInline)
+
+    class OtherModel(tests.IntAutoModel):
+        created = False
+        bar = sheraf.InlineModelAttribute(MyInline)
+
+    @MyInline.on_creation
+    def foo_creation(model):
+        Model.created = True
+
+    assert not Model.created
+    Model.create(bar={"foo": "baz"})
+    assert Model.created
+
+    assert not OtherModel.created
+    OtherModel.create(bar={"foo": "baz"})
+    assert not OtherModel.created
+
+
+def test_on_deletion(sheraf_connection):
+    class Model(sheraf.InlineModel):
+        deleted = False
+        foo = sheraf.SimpleAttribute()
+
+    @Model.on_deletion
+    def foo_deletion(model):
+        Model.deleted = True
+
+    m = Model.create()
+    assert not Model.deleted
+    m.delete()
+    assert Model.deleted

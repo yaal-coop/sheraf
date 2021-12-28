@@ -1,5 +1,4 @@
 import itertools
-import types
 import warnings
 
 import sheraf.exceptions
@@ -437,27 +436,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             return None
         return IndexedModelMetaclass.tables[table_name][1]
 
-    @staticmethod
-    def call_callbacks(callbacks, *args, **kwargs):
-        yield_callbacks = []
-        for callback in callbacks:
-            res = callback(*args, **kwargs)
-            if isinstance(res, types.GeneratorType):
-                try:
-                    next(res)
-                except StopIteration:
-                    pass
-                yield_callbacks.append(res)
-        return yield_callbacks
-
-    @staticmethod
-    def call_callbacks_again(callbacks):
-        for callback in callbacks:
-            try:
-                next(callback)
-            except StopIteration:
-                pass
-
     def __repr__(self):
         try:
             identifier = (
@@ -630,24 +608,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             kwargs.setdefault(attribute.key(self), attribute.create(self))
 
         return super().copy(**kwargs)
-
-    def delete(self):
-        """Delete the current model instance.
-
-        >>> class MyModel(sheraf.Model):
-        ...     table = "my_model"
-        ...
-        >>> with sheraf.connection():
-        ...    m = MyModel.create()
-        ...    assert m == MyModel.read(m.id)
-        ...    m.delete()
-        ...    m.read(m.id)
-        Traceback (most recent call last):
-            ...
-        sheraf.exceptions.ModelObjectNotFoundException: Id '...' not found in MyModel
-        """
-        for attr_name in self.attributes.keys():
-            delattr(self, attr_name)
 
     @classmethod
     def count(cls, index_name=None):

@@ -1,3 +1,5 @@
+import types
+
 import sheraf.attributes
 
 from ..types import SmallDict
@@ -12,6 +14,8 @@ class BaseModelMetaclass(type):
     def __new__(cls, name, bases, attrs):
         klass = super().__new__(cls, name, bases, attrs)
         klass.attributes = {}
+        klass.cb_creation = []
+        klass.cb_deletion = []
 
         for name, attr in attrs.items():
             if not isinstance(attr, sheraf.attributes.Attribute):
@@ -110,12 +114,36 @@ class BaseModel(metaclass=BaseModelMetaclass):
         try:
             mapping = (default or cls.default_mapping)()
             instance = cls._decorate(mapping)
+            yield_callbacks = cls.call_callbacks(cls.cb_creation, instance)
             instance.initialize(**kwargs)
+            cls.call_callbacks_again(yield_callbacks)
             return instance
         except Exception:
             if instance:
                 instance.delete()
             raise
+
+    def delete(self):
+        """Delete the current model instance.
+
+        >>> class MyModel(sheraf.Model):
+        ...     table = "my_model"
+        ...
+        >>> with sheraf.connection():
+        ...    m = MyModel.create()
+        ...    assert m == MyModel.read(m.id)
+        ...    m.delete()
+        ...    m.read(m.id)
+        Traceback (most recent call last):
+            ...
+        sheraf.exceptions.ModelObjectNotFoundException: Id '...' not found in MyModel
+        """
+
+        cls = self.__class__
+        yield_callbacks = cls.call_callbacks(cls.cb_deletion, self)
+        for attr_name in self.attributes.keys():
+            delattr(self, attr_name)
+        cls.call_callbacks_again(yield_callbacks)
 
     def initialize(self, **kwargs):
         for attribute, value in kwargs.items():
@@ -134,6 +162,91 @@ class BaseModel(metaclass=BaseModelMetaclass):
                 and not attribute.is_created(self)
             ):
                 self.__setattr__(name, attribute.create(self))
+
+    @staticmethod
+    def call_callbacks(callbacks, *args, **kwargs):
+        yield_callbacks = []
+        for callback in callbacks:
+            res = callback(*args, **kwargs)
+            if isinstance(res, types.GeneratorType):
+                try:
+                    next(res)
+                except StopIteration:
+                    pass
+                yield_callbacks.append(res)
+        return yield_callbacks
+
+    @staticmethod
+    def call_callbacks_again(callbacks):
+        for callback in callbacks:
+            try:
+                next(callback)
+            except StopIteration:
+                pass
+
+    @classmethod
+    def on_creation(cls, *args, **kwargs):
+        """
+        Decorator for callbacks to call on an instance creation. The callback
+        will be executed before the instance is created. If the callback yields,
+        the part after the yield will be executed after the creation.
+
+        The callback should take one attribute that is the model instance.
+
+        The callback can be freely named.
+
+        >>> class Cowboy(sheraf.Model):
+        ...     table = "cowboy_cb_creation"
+        ...     name = sheraf.StringAttribute()
+        ...
+        >>>
+        ... @Cowboy.on_creation
+        ... def welcome_new_cowboys(cowboy):
+        ...     yield
+        ...     print(f"Welcome {cowboy.name}!")
+        ...
+        >>> with sheraf.connection():
+        ...     george = Cowboy.create(name="George Abitbol")
+        Welcome George Abitbol!
+        """
+
+        def wrapper(func):
+            cls.cb_creation.append(func)
+            return func
+
+        return wrapper if not args else wrapper(args[0])
+
+    @classmethod
+    def on_deletion(cls, *args, **kwargs):
+        """
+        Decorator for callbacks to call on an instance deletion. The callback
+        will be executed before the instance is deleted. If the callback yields,
+        the part after the yield will be executed after the creation.
+
+        The callback should take one attribute that is the model instance.
+
+        The callback can be freely named.
+
+        >>> class Cowboy(sheraf.Model):
+        ...     table = "cowboy_cb_creation"
+        ...     name = sheraf.StringAttribute()
+        ...
+        >>>
+        ... @Cowboy.on_deletion
+        ... def goodby_old_cowboys(cowboy):
+        ...     print(f"So long {cowboy.name}!")
+        ...
+        >>> with sheraf.connection():
+        ...     george = Cowboy.create(name="George Abitbol")
+        ...     george.delete()
+        So long George Abitbol!
+        """
+
+        def wrapper(func):
+            cls.cb_deletion.append(func)
+            return func
+
+        return wrapper if not args else wrapper(args[0])
 
     @classmethod
     def _decorate(cls, mapping):
