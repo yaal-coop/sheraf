@@ -1,5 +1,4 @@
 import itertools
-import types
 import warnings
 
 import sheraf.exceptions
@@ -464,25 +463,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             and self.identifier == other.identifier
         )
 
-    def call_callbacks(self, callbacks, **kwargs):
-        yield_callbacks = []
-        for callback in callbacks:
-            res = callback(self, **kwargs)
-            if isinstance(res, types.GeneratorType):
-                try:
-                    next(res)
-                except StopIteration:
-                    pass
-                yield_callbacks.append(res)
-        return yield_callbacks
-
-    def call_callbacks_again(self, callbacks):
-        for callback in callbacks:
-            try:
-                next(callback)
-            except StopIteration:
-                pass
-
     def __setattr__(self, name, value):
         yield_callbacks = []
         attribute = self.attributes.get(name)
@@ -491,7 +471,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             attribute.indexes or attribute.cb_creation or attribute.cb_edition
         ):
             if not attribute.is_created(self):
-                yield_callbacks = self.call_callbacks(attribute.cb_creation, new=value)
+                yield_callbacks = self.call_callbacks(
+                    attribute.cb_creation, self, new=value
+                )
 
             elif any(index.primary for index in attribute.indexes.values()):
                 raise sheraf.SherafException(
@@ -501,7 +483,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             else:
                 prev_value = getattr(self, name)
                 yield_callbacks = self.call_callbacks(
-                    attribute.cb_edition, new=value, old=prev_value
+                    attribute.cb_edition, self, new=value, old=prev_value
                 )
 
             old_values = self.before_index_edition(attribute)
@@ -520,7 +502,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         if attribute:
             old_values = self.before_index_edition(attribute)
             yield_callbacks = self.call_callbacks(
-                attribute.cb_deletion, old=getattr(self, name)
+                attribute.cb_deletion, self, old=getattr(self, name)
             )
 
         super().__delattr__(name)
@@ -626,24 +608,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             kwargs.setdefault(attribute.key(self), attribute.create(self))
 
         return super().copy(**kwargs)
-
-    def delete(self):
-        """Delete the current model instance.
-
-        >>> class MyModel(sheraf.Model):
-        ...     table = "my_model"
-        ...
-        >>> with sheraf.connection():
-        ...    m = MyModel.create()
-        ...    assert m == MyModel.read(m.id)
-        ...    m.delete()
-        ...    m.read(m.id)
-        Traceback (most recent call last):
-            ...
-        sheraf.exceptions.ModelObjectNotFoundException: Id '...' not found in MyModel
-        """
-        for attr_name in self.attributes.keys():
-            delattr(self, attr_name)
 
     @classmethod
     def count(cls, index_name=None):

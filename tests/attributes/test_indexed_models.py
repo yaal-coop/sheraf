@@ -177,3 +177,43 @@ def test_order(sheraf_connection):
 
     assert [jolly, polly, loosy] == george.horses.order(size=sheraf.DESC)
     assert [loosy, polly, jolly] == george.horses.order(size=sheraf.ASC)
+
+
+def test_on_creation(sheraf_connection):
+    class SubModelA(sheraf.AttributeModel):
+        id = sheraf.StringAttribute().index(primary=True)
+        trigger = sheraf.BooleanAttribute(default=False)
+
+    class SubModelB(sheraf.AttributeModel):
+        id = sheraf.StringAttribute().index(primary=True)
+        trigger = sheraf.BooleanAttribute(default=False)
+
+    class Model(tests.IntAutoModel):
+        sub_a = sheraf.IndexedModelAttribute(SubModelA)
+        sub_b = sheraf.IndexedModelAttribute(SubModelB)
+
+    @SubModelA.on_creation
+    def foo_creation(model):
+        model.trigger = True
+
+    m = Model.create(sub_a=[{"id": "A"}], sub_b=[{"id": "B"}])
+    assert m.sub_a.read("A").trigger
+    assert not m.sub_b.read("B").trigger
+
+
+def test_on_deletion(sheraf_connection):
+    class SubModel(sheraf.AttributeModel):
+        id = sheraf.StringAttribute().index(primary=True)
+        trigger = False
+
+    class Model(tests.IntAutoModel):
+        sub = sheraf.IndexedModelAttribute(SubModel)
+
+    @SubModel.on_deletion
+    def foo_deletion(model):
+        SubModel.trigger = True
+
+    m = Model.create(sub=[{"id": "A"}])
+    assert not SubModel.trigger
+    m.sub.read("A").delete()
+    assert SubModel.trigger
