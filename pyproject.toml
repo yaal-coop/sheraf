@@ -77,7 +77,6 @@ pdbpp = "*"
 portpicker = "*"
 pytest = "*"
 pytest-cov = "*"
-pytest-flakes = "*"
 pytest-lazy-fixture = "*"
 pytest-libfaketime = "*"
 pytest-timeout = "*"
@@ -113,9 +112,6 @@ addopts = "-n auto --durations=10 --color=yes --showlocals --full-trace --timeou
 norecursedirs = "local.virtualenv nodes_modules media .tox tests/perf .eggs .hg .git build doc/build"
 doctest_optionflags= "ALLOW_UNICODE IGNORE_EXCEPTION_DETAIL ELLIPSIS"
 timeout = 0
-flakes-ignore = [
-  ".*@neomake*.py ALL"
-]
 
 [tool.tox]
 legacy_tox_ini = """

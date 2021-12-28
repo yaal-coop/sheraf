@@ -1,5 +1,4 @@
 # pylint: disable=F,W
-# flake8: noqa
 from .attributes import Attribute
 from .attributes import set_read_memoization
 from .attributes.blobs import Blob
