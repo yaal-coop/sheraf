@@ -11,7 +11,6 @@ license = "MIT"
 keywords = ["zodb", "orm"]
 classifiers = [
     "Intended Audience :: Developers",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -123,7 +122,7 @@ flakes-ignore = [
 legacy_tox_ini = """
 [tox]
 isolated_build = true
-envlist = style,doc,py36,py37,py38,py39,py310,coverage
+envlist = style,doc,py37,py38,py39,py310,coverage
 skipsdist=true
 
 [testenv]
