@@ -437,6 +437,27 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             return None
         return IndexedModelMetaclass.tables[table_name][1]
 
+    @staticmethod
+    def call_callbacks(callbacks, *args, **kwargs):
+        yield_callbacks = []
+        for callback in callbacks:
+            res = callback(*args, **kwargs)
+            if isinstance(res, types.GeneratorType):
+                try:
+                    next(res)
+                except StopIteration:
+                    pass
+                yield_callbacks.append(res)
+        return yield_callbacks
+
+    @staticmethod
+    def call_callbacks_again(callbacks):
+        for callback in callbacks:
+            try:
+                next(callback)
+            except StopIteration:
+                pass
+
     def __repr__(self):
         try:
             identifier = (
@@ -464,25 +485,6 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             and self.identifier == other.identifier
         )
 
-    def call_callbacks(self, callbacks, **kwargs):
-        yield_callbacks = []
-        for callback in callbacks:
-            res = callback(self, **kwargs)
-            if isinstance(res, types.GeneratorType):
-                try:
-                    next(res)
-                except StopIteration:
-                    pass
-                yield_callbacks.append(res)
-        return yield_callbacks
-
-    def call_callbacks_again(self, callbacks):
-        for callback in callbacks:
-            try:
-                next(callback)
-            except StopIteration:
-                pass
-
     def __setattr__(self, name, value):
         yield_callbacks = []
         attribute = self.attributes.get(name)
@@ -491,7 +493,9 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             attribute.indexes or attribute.cb_creation or attribute.cb_edition
         ):
             if not attribute.is_created(self):
-                yield_callbacks = self.call_callbacks(attribute.cb_creation, new=value)
+                yield_callbacks = self.call_callbacks(
+                    attribute.cb_creation, self, new=value
+                )
 
             elif any(index.primary for index in attribute.indexes.values()):
                 raise sheraf.SherafException(
@@ -501,7 +505,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             else:
                 prev_value = getattr(self, name)
                 yield_callbacks = self.call_callbacks(
-                    attribute.cb_edition, new=value, old=prev_value
+                    attribute.cb_edition, self, new=value, old=prev_value
                 )
 
             old_values = self.before_index_edition(attribute)
@@ -520,7 +524,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         if attribute:
             old_values = self.before_index_edition(attribute)
             yield_callbacks = self.call_callbacks(
-                attribute.cb_deletion, old=getattr(self, name)
+                attribute.cb_deletion, self, old=getattr(self, name)
             )
 
         super().__delattr__(name)
