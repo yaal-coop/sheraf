@@ -30,7 +30,7 @@ repository = "https://gitlab.com/yaal/sheraf"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.6, <4"
+python = ">=3.7, <4"
 zodb = ">=5"
 zodburi = "*"
 
@@ -47,7 +47,6 @@ relstorage = {version = "*", optional=true}
 
 rich = "^10"
 click = ">=7"
-contextvars = { version = "*", python = "<3.7" }
 
 [tool.poetry.extras]
 all = [

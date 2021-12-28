@@ -1,7 +1,7 @@
 sheraf documentation
 ====================
 
-sheraf is a wrapper library around `ZODB <https://www.zodb.org>`_ that provides models management and indexation. It aims to make the use of `ZODB` simple by providing ready-to-use tools and explicit tools. sheraf is currently compatible with `ZODB 5` and `python 3.6+`.
+sheraf is a wrapper library around `ZODB <https://www.zodb.org>`_ that provides models management and indexation. It aims to make the use of `ZODB` simple by providing ready-to-use tools and explicit tools. sheraf is currently compatible with `ZODB 5` and `python 3.7+`.
 
 We expect sheraf to:
 
