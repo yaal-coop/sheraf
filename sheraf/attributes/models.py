@@ -20,31 +20,31 @@ class ModelLoader:
     def __init__(self, model=None, **kwargs):
         super().__init__(**kwargs)
         self._model = model
-        frame = inspect.stack()[3]
-        module = inspect.getmodule(frame[0])
-        self.module_path = module.__name__ if module else None
+        modules = [inspect.getmodule(frame[0]) for frame in inspect.stack()]
+        self.module_paths = [module.__name__ for module in modules if module]
 
     def load_model(self, modelpath):
-        # Internal.
-        # :param modelpath: namespace of the model to load (eg 'x.y.z')
-        # :return: a model class given its path
         if isinstance(modelpath, bytes):
             modelpath = modelpath.decode("utf-8")
 
         path = modelpath.split(".")
         module_path, klass = ".".join(path[:-1]), path[-1]
-        module_path = module_path or self.module_path
 
-        module = __import__(module_path, globals(), locals(), [klass], 0)
+        module_paths = [module_path] if module_path else self.module_paths
 
-        # pypy:
-        if module is None:  # pragma: no cover
-            raise ImportError(modelpath)
+        for module_path in module_paths:
+            module = __import__(module_path, globals(), locals(), [klass], 0)
 
-        try:
-            return getattr(module, klass)
-        except AttributeError as exc:
-            raise ImportError(exc)
+            # pypy:
+            if module is None:  # pragma: no cover
+                continue
+
+            try:
+                return getattr(module, klass)
+            except AttributeError:
+                pass
+
+        raise ImportError(f"Unable to load model '{klass}'")
 
     def read(self, parent):
         self.check_model(parent)
