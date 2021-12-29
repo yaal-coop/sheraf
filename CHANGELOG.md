@@ -8,6 +8,7 @@ Added
 - Implemented :meth:`sheraf.models.indexation.BaseIndexedModel.__str__`,
 - Implemented :meth:`sheraf.models.indexation.BaseIndexedModel.on_creation` and
   :meth:`sheraf.models.indexation.BaseIndexedModel.on_deletion` callbacks.
+- :class:`~sheraf.attributes.models.IndexedModelAttribute` indexation.
 
 [0.5.23] - 2021-12-22
 =====================

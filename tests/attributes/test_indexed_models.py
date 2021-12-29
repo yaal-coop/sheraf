@@ -217,3 +217,71 @@ def test_on_deletion(sheraf_connection):
     assert not SubModel.trigger
     m.sub.read("A").delete()
     assert SubModel.trigger
+
+
+class IndexedHorse(sheraf.AttributeModel):
+    name = sheraf.StringAttribute().index(primary=True)
+    size = sheraf.IntegerAttribute()
+
+
+class IndexedCowboy(tests.UUIDAutoModel):
+    name = sheraf.StringAttribute()
+    horses = sheraf.IndexedModelAttribute("IndexedHorse").index(unique=True)
+
+
+def test_indexation(sheraf_connection):
+    george = IndexedCowboy.create(name="George")
+    jolly = george.horses.create(name="Jolly Jumper")
+    polly = george.horses.create(name="Polly Pumper")
+
+    george.index_keys("horses") == {
+        jolly.identifier,
+        polly.identifier,
+    }
+    IndexedCowboy.search_keys(horses=jolly) == jolly.name
+    IndexedCowboy.search_keys(horses=jolly.name) == jolly.name
+
+    horses_table = sheraf_connection.root()[IndexedCowboy.table]["horses"]
+    assert set(horses_table.keys()) == {
+        jolly.identifier,
+        polly.identifier,
+    }
+    assert IndexedCowboy.search(horses=jolly.name).get() == george
+    assert IndexedCowboy.search(horses=jolly).get() == george
+
+    george = IndexedCowboy.read(george.id)
+    assert set(horses_table.keys()) == {
+        jolly.identifier,
+        polly.identifier,
+    }
+    assert IndexedCowboy.search(horses=jolly.name).get() == george
+    assert IndexedCowboy.search(horses=jolly).get() == george
+
+    dolly = george.horses.create(name="Dolly Dumper")
+    assert set(horses_table.keys()) == {
+        jolly.identifier,
+        polly.identifier,
+        dolly.identifier,
+    }
+    assert IndexedCowboy.search(horses=jolly.name).get() == george
+    assert IndexedCowboy.search(horses=jolly).get() == george
+    assert IndexedCowboy.search(horses=dolly.name).get() == george
+    assert IndexedCowboy.search(horses=dolly).get() == george
+
+
+class ReverseIndexedHorse(sheraf.AttributeModel):
+    name = sheraf.StringAttribute().index(primary=True)
+    size = sheraf.IntegerAttribute()
+    cowboy = sheraf.ReverseModelAttribute("ReverseIndexedCowboy", "horses")
+
+
+class ReverseIndexedCowboy(tests.UUIDAutoModel):
+    name = sheraf.StringAttribute()
+    horses = sheraf.IndexedModelAttribute("ReverseIndexedHorse").index(unique=True)
+
+
+def test_reverse_indexation(sheraf_connection):
+    george = ReverseIndexedCowboy.create(name="George")
+    jolly = george.horses.create(name="Jolly Jumper")
+
+    assert jolly.cowboy == george
