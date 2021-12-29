@@ -101,18 +101,20 @@ class AttributeLoader(ModelLoader):
         if isinstance(attribute, (ListAttribute, SetAttribute)):
             if not isinstance(attribute.attribute, ModelAttribute):
                 raise sheraf.SherafException(
-                    f"'{self._model.__name__}.{attribute_name}' attribute should hold a 'ModelAttribute' to be referenced by a 'ReverseModelAttribute'"
+                    f"'{self._model.__name__}.{attribute_name}' attribute should hold a 'ModelAttribute' or a 'IndexedModelAttribute' to be referenced by a 'ReverseModelAttribute'"
                 )
 
-        elif not isinstance(attribute, ModelAttribute):
+        elif not isinstance(attribute, (ModelAttribute, IndexedModelAttribute)):
             raise sheraf.SherafException(
-                f"'{self._model.__name__}.{attribute_name}' should be a 'ModelAttribute' or a collection of 'ModelAttribute' to be referenced by a 'ReversedModelAttribute'"
+                f"'{self._model.__name__}.{attribute_name}' should be a 'ModelAttribute' or a 'IndexedModelAttribute' or a collection of these to be referenced by a 'ReversedModelAttribute'"
             )
 
         if attribute_name not in self.model.indexes:
             raise sheraf.SherafException(
                 f"'{self._model.__name__}.{attribute_name}' should have an index to be referenced by a 'ReversedModelAttribute'"
             )
+
+        return attribute
 
 
 class ModelAttribute(ModelLoader, Attribute):
@@ -506,17 +508,41 @@ class IndexedModelAttribute(ModelLoader, Attribute):
 
     index_table_default = sheraf.types.SmallDict
 
-    def read(self, parent):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cb_registered = dict()
+
+    def decorate_model(self, parent):
         for index in self.model.indexes.values():
             key = self.key(parent)
             if key not in parent.mapping:
                 parent.mapping[key] = self.index_table_default()
             index.persistent = parent.mapping[key]
 
+    def read(self, parent):
+
+        if not self.cb_registered.get(parent):
+            self.cb_registered[parent] = True
+
+            @self.model.on_creation
+            @self.model.on_deletion
+            def update_parent_index(instance):
+                old_values = parent.before_index_edition(self)
+                yield
+                parent.after_index_edition(self, old_values)
+
+        self.decorate_model(parent)
         return self.model
 
     def write(self, parent, value):
-        model = self.read(parent)
-        for values_dict in value:
-            model.create(**values_dict)
-        return model
+        self.decorate_model(parent)
+        if value is not None and not inspect.isclass(value):
+            for values_dict in value:
+                self.model.create(**values_dict)
+        return self.model
+
+    def index_keys(self, model):
+        return {instance.raw_identifier for instance in model.all()}
+
+    def search_keys(self, query):
+        return {query.raw_identifier if isinstance(query, self.model) else query}
