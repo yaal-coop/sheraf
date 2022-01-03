@@ -128,6 +128,17 @@ def test_primary_attribute_cannot_be_edited(sheraf_connection):
     assert george.id == first_id
 
 
+def test_unchanged_primary_attribute_can_be_assigned(sheraf_connection):
+    first_id = str(uuid.uuid4())
+
+    george = Cowboy.create(id=first_id)
+    assert george.id == first_id
+
+    george.id = first_id
+
+    assert george.id == first_id
+
+
 def test_no_primary_key(sheraf_database):
     class HorseWithNoName(sheraf.AttributeModel):
         foo = sheraf.SimpleAttribute()

@@ -475,13 +475,16 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                     attribute.cb_creation, self, new=value
                 )
 
-            elif any(index.primary for index in attribute.indexes.values()):
-                raise sheraf.SherafException(
-                    f"Attribute {name} has a primary index and cannot be edited."
-                )
-
             else:
                 prev_value = getattr(self, name)
+                if (
+                    any(index.primary for index in attribute.indexes.values())
+                    and prev_value != value
+                ):
+                    raise sheraf.SherafException(
+                        f"Attribute '{name}' has a primary index and cannot be edited."
+                    )
+
                 yield_callbacks = self.call_callbacks(
                     attribute.cb_edition, self, new=value, old=prev_value
                 )
