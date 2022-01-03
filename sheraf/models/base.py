@@ -119,8 +119,11 @@ class BaseModel(metaclass=BaseModelMetaclass):
             cls.call_callbacks_again(yield_callbacks)
             return instance
         except Exception:
-            if instance:
-                instance.delete()
+            try:
+                if instance:
+                    instance.delete()
+            except:
+                pass
             raise
 
     def delete(self):

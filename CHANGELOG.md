@@ -1,3 +1,10 @@
+[0.5.25] - 2022-01-03
+=====================
+
+Changed
+*******
+- Do not catch model deletion errors when model creation fails.
+
 [0.5.24] - 2021-12-29
 =====================
 
