@@ -96,6 +96,9 @@ class ListAttributeAccessor:
     def __bool__(self):
         return bool(self.mapping)
 
+    def __delitem__(self, index):
+        del self.mapping[index]
+
     def __setitem__(self, key, value):
         if key >= len(self.mapping) or key < 0:
             raise IndexError("list index out of range")

@@ -1,3 +1,10 @@
+[0.5.26] - 2022-01-06
+=====================
+
+Added
+*******
+- :class:`~sheraf.attributes.collections.ListAttribute` supports item deletion.
+
 [0.5.25] - 2022-01-03
 =====================
 
