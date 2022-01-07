@@ -59,7 +59,7 @@ def test_same(sheraf_database):
             assert c.root.list[i] == 1
 
 
-def test_deletion():
+def test_remove():
     a = sheraf.types.LargeList([1, 2, 3, 2])
     a.remove(2)
     assert [1, 3, 2] == a
@@ -69,12 +69,27 @@ def test_deletion():
         a.remove(2)
 
 
-def test_deletion_all():
+def test_remove_all():
     a = sheraf.types.LargeList([1, 2, 3, 2])
     a.remove(2, True)
     assert [1, 3] == a
     with pytest.raises(ValueError):
         a.remove(2)
+
+
+def test_delete():
+    a = sheraf.types.LargeList([0, 1, 2])
+    assert [0, 1, 2] == a
+    assert a[0] == 0
+    assert a[1] == 1
+    assert a[2] == 2
+    assert len(a) == 3
+
+    del a[1]
+    assert [0, 2] == a
+    assert a[0] == 0
+    assert a[1] == 2
+    assert len(a) == 2
 
 
 def test_append():

@@ -48,9 +48,14 @@ def test_list_attribute(sheraf_connection, persistent_type, subattribute):
         m.list.clear()
         assert len(m.list) == 0
 
-    m.list = [1, 2, 3]
+    m.list = [0, 1, 2]
+    assert m.list[0] == 0
+    assert m.list[1] == 1
+    assert m.list[2] == 2
     del m.list[1]
-    assert list(m.list) == [1, 3]
+    assert list(m.list) == [0, 2]
+    assert m.list[0] == 0
+    assert m.list[1] == 2
 
     m.list = [1, 2]
     assert list(m.list) == [1, 2]

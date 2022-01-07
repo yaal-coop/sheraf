@@ -1,3 +1,10 @@
+[0.5.27] - 2022-01-07
+=====================
+
+Added
+*******
+- :class:`~sheraf.types.largelist.LargeList` supports item deletion.
+
 [0.5.26] - 2022-01-06
 =====================
 

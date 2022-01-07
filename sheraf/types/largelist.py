@@ -53,12 +53,7 @@ class LargeList(IOBTree):
                 continue
 
             found = True
-            IOBTree.__delitem__(self, key)
-            for i in range(key + 1, len(self)):
-                item = IOBTree.__getitem__(self, i)
-                IOBTree.__setitem__(self, i - 1, item)
-                IOBTree.__delitem__(self, i)
-            self._set_length(len(self) - 1)
+            del self[key]
 
             if not all:
                 return
@@ -112,6 +107,14 @@ class LargeList(IOBTree):
         if not isinstance(key, slice) and key >= len(self):
             raise IndexError
         return super().__setitem__(key, value)
+
+    def __delitem__(self, key):
+        IOBTree.__delitem__(self, key)
+        for i in range(key + 1, len(self)):
+            item = IOBTree.__getitem__(self, i)
+            IOBTree.__setitem__(self, i - 1, item)
+            IOBTree.__delitem__(self, i)
+        self._set_length(len(self) - 1)
 
     def _reslice(self, item):
         if item.step is None or item.step > 0:
