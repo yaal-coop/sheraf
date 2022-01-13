@@ -338,3 +338,28 @@ def test_replace(sheraf_database):
     with sheraf.connection() as conn1:
         with sheraf.connection(reuse=True) as conn2:
             assert conn1 is conn2
+
+
+class FakeOperationalError(Exception):
+    """
+    The package psycopg2 isn't installed in the test virtualenv.
+    So, we can't import OperationalError like this:
+    from psycopg2 import OperationalError
+    Our test can use a fake OperationalError exception.
+    """
+
+    pass
+
+
+@mock.patch("transaction.TransactionManager.abort", side_effect=FakeOperationalError)
+def test_it_should_close_connection_on_operational_error(abort, sheraf_database):
+    with pytest.raises(FakeOperationalError):
+        with sheraf.connection():
+            pass
+            # OperationalError raised on the exit of the context manager
+
+    # The connection should be closed even if the abort raises an OperationalError.
+    # An OperationalError can be raised with RelStorage for example when the
+    # PostgreSQL server is restaring or is in recovery mode.
+    assert sheraf.Database.current_connection() is None
+    assert sheraf.Database.current_name() is None
