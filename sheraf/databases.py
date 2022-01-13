@@ -297,14 +297,18 @@ class Database:
 
         finally:
             # TODO: to be changed with try/except NoTransaction when upgrading transaction>2.0 @cedric
-            if not commit and _connection.transaction_manager:
-                _connection.transaction_manager.abort()
+            try:
+                if not commit and _connection.transaction_manager:
+                    _connection.transaction_manager.abort()
 
-            if cache_minimize:
-                for conn in _connection.connections.values():
-                    conn.cacheMinimize()
-
-            self.connection_close(_connection)
+                if cache_minimize:
+                    for conn in _connection.connections.values():
+                        conn.cacheMinimize()
+            finally:
+                # Always close the connection even if the abort raises an OperationalError.
+                # An OperationalError can be raised with RelStorage for example when the
+                # PostgreSQL server is restaring or is in recovery mode.
+                self.connection_close(_connection)
 
     @classmethod
     def last_connection(cls, database=None):
