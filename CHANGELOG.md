@@ -1,3 +1,10 @@
+[0.5.28] - 2022-01-14
+=====================
+
+Changed
+*******
+- The context manager `connection` always closes the connection :pr:`26`
+
 [0.5.27] - 2022-01-07
 =====================
 
