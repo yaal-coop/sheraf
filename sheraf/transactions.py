@@ -4,7 +4,6 @@ import random
 import time
 
 import sheraf
-import ZODB.POSException
 
 ATTEMPTS = 5
 logger = logging.getLogger(__name__)
@@ -54,6 +53,7 @@ def attempt(
     ...         print("This has very few chances to be successful ¯\\\\_(ツ)_/¯")
     This has very few chances to be successful ¯\\_(ツ)_/¯
     """
+    import ZODB.POSException
 
     args = args or ()
     kwargs = kwargs or {}

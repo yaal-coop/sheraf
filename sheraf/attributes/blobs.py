@@ -1,6 +1,5 @@
 import sheraf.attributes.models
 import sheraf.models.inline
-import ZODB
 
 
 class Blob(sheraf.models.inline.InlineModel):
@@ -19,6 +18,8 @@ class Blob(sheraf.models.inline.InlineModel):
         :param kwargs: optional attributes to set
         :return: A sheraf object wrapping a :class:`ZODB.blob.Blob` object, or ``None`` if this is an empty and unnamed file.
         """
+        import ZODB
+
         m = super().create(**kwargs)
 
         stream_data = stream.read() if stream else None

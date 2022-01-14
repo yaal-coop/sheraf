@@ -3,12 +3,7 @@ import os
 import traceback
 from contextvars import ContextVar
 
-import transaction
-import ZODB.config
-import ZODB.DB
-import zodburi
 from sheraf.exceptions import ConnectionAlreadyOpened
-from ZODB.DemoStorage import DemoStorage
 
 
 # Isolated contexts state
@@ -142,6 +137,10 @@ class Database:
 
     def reset(self, storage=None, uri=None):
         """Close and reopen a database connection."""
+        import zodburi
+        import ZODB.DB
+        from ZODB.DemoStorage import DemoStorage
+
         if self.db:
             self.close()
 
@@ -182,6 +181,8 @@ class Database:
 
         :return: A :class:`~ZODB.Connection.Connection` object.
         """
+        import transaction
+
         data = LocalData.get()
 
         # No other connection exists

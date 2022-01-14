@@ -1,5 +1,4 @@
 import persistent
-import ZODB.POSException
 
 
 class CounterMetaclass(type):
@@ -142,6 +141,8 @@ class Counter(persistent.Persistent, metaclass=CounterMetaclass):
         self.value -= value
 
     def _p_resolveConflict(self, old_state, saved_state, new_state):
+        import ZODB.POSException
+
         old_value, old_nb_editions = old_state
         saved_value, saved_nb_editions = saved_state
         new_value, new_nb_editions = new_state

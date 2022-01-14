@@ -3,11 +3,9 @@
 There are no need to setup specific types in basic usage of sheraf
 because `Model` uses `xAttribute`, not `Type`.
 """
-import BTrees.Length
 import BTrees.OOBTree
 import persistent
 import sheraf.tools.dicttools
-import ZODB
 
 from .largedict import LargeDict
 from .largelist import LargeList
@@ -30,6 +28,8 @@ class SmallDict(persistent.mapping.PersistentMapping):
     """
 
     def _p_resolveConflict(self, old, saved, commited):
+        import ZODB
+
         try:
             return sheraf.tools.dicttools.merge(old, saved, commited)
         except sheraf.tools.dicttools.DictConflictException:

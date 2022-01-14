@@ -1,5 +1,4 @@
 import sheraf
-import ZODB
 
 
 def check_conflict_resolution():
@@ -8,6 +7,8 @@ def check_conflict_resolution():
     When this is KO, it is generally because sheraf is not installed in the ZEO
     environnement, so ZEO cannot solve sheraf object conflicts.
     """
+    import ZODB
+
     table_name = "__conflict_resolution_test_model__"
     nestable = sheraf.Database.get().nestable
     sheraf.Database.get().nestable = True

@@ -1,6 +1,6 @@
 import multiprocessing
 
-import BTrees
+import BTrees.Length
 import pytest
 import sheraf
 import tests

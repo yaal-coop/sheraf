@@ -1,4 +1,3 @@
-import BTrees.Length
 from sheraf.attributes.simples import IntegerAttribute
 
 from ..types.counter import Counter
@@ -115,6 +114,8 @@ class CounterAttribute(IntegerAttribute):
         return value
 
     def deserialize(self, value):
+        import BTrees.Length
+
         if isinstance(value, BTrees.Length.Length):
             return Counter(value.value)
 
