@@ -4,15 +4,6 @@ import sys
 
 import click
 import sheraf
-from rich.progress import BarColumn
-from rich.progress import Progress
-from rich.progress import TextColumn
-from rich.progress import TimeRemainingColumn
-from rich.traceback import install
-from sheraf.health.utils import discover_models
-
-
-install(show_locals=True)
 
 
 @click.group()
@@ -32,8 +23,10 @@ def after_cli(ctx, result, **kwargs):
 @cli.command()
 @click.argument("models", nargs=-1)
 def check(models):
+    from sheraf.health import print_health
+
     with sheraf.connection():
-        sheraf.print_health(*models)
+        print_health(*models)
 
 
 @cli.command()
@@ -80,6 +73,12 @@ def check(models):
     type=int,
 )
 def rebuild(models, index, batch_size, commit, reset, fork, start, end):
+    from rich.progress import BarColumn
+    from rich.progress import Progress
+    from rich.progress import TextColumn
+    from rich.progress import TimeRemainingColumn
+    from sheraf.health.utils import discover_models
+
     with Progress(
         TextColumn("[progress.description]{task.description}"),
         BarColumn(bar_width=None),

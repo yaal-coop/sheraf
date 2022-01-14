@@ -48,8 +48,6 @@ from .exceptions import QuerySetUnpackException
 from .exceptions import SameNameForTableException
 from .exceptions import SherafException
 from .exceptions import UniqueIndexException
-from .health import check_health
-from .health import print_health
 from .models import AttributeModel
 from .models import IntIndexedIntAttributesModel
 from .models import IntIndexedModel

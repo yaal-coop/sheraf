@@ -4,6 +4,7 @@
 Changed
 *******
 - The context manager `connection` always closes the connection :pr:`26`
+- health functions are not imported by default anymore.
 
 [0.5.27] - 2022-01-07
 =====================
