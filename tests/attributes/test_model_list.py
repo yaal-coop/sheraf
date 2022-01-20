@@ -362,3 +362,78 @@ def test_update_no_deletion(sheraf_database, attribute, list_type):
 
         assert isinstance(model.mapping["models"], list_type)
         assert 1 == len(model.models)
+
+
+@pytest.mark.parametrize(
+    "attribute,list_type",
+    [
+        (sheraf.SmallListAttribute, sheraf.types.SmallList),
+        (sheraf.LargeListAttribute, sheraf.types.LargeList),
+    ],
+)
+def test_generic(sheraf_database, attribute, list_type):
+    class AModel(sheraf.Model):
+        table = "amodel"
+        name = sheraf.SimpleAttribute()
+
+    class BModel(sheraf.Model):
+        table = "bmodel"
+        name = sheraf.SimpleAttribute()
+
+    class Model(tests.UUIDAutoModel):
+        models = attribute(sheraf.ModelAttribute((AModel, BModel)))
+
+    with sheraf.connection(commit=True):
+        a = AModel.create()
+        m = Model.create(models=[a])
+
+    with sheraf.connection(commit=True):
+        m = Model.read(m.id)
+        assert m.models == [a]
+
+        b = BModel.create()
+        m.models = [a, b]
+
+    with sheraf.connection(commit=True):
+        m = Model.read(m.id)
+        assert m.models == [a, b]
+
+
+@pytest.mark.parametrize(
+    "attribute,list_type",
+    [
+        (sheraf.SmallListAttribute, sheraf.types.SmallList),
+        (sheraf.LargeListAttribute, sheraf.types.LargeList),
+    ],
+)
+def test_generic_indexation(sheraf_database, attribute, list_type):
+    class AModel(sheraf.Model):
+        table = "amodel"
+        name = sheraf.SimpleAttribute()
+
+    class BModel(sheraf.Model):
+        table = "bmodel"
+        name = sheraf.SimpleAttribute()
+
+    class Model(tests.UUIDAutoModel):
+        models = attribute(sheraf.ModelAttribute((AModel, BModel))).index()
+
+    with sheraf.connection(commit=True):
+        a = AModel.create()
+        m = Model.create(models=[a])
+        assert m in Model.search(models=a)
+
+    with sheraf.connection(commit=True):
+        m = Model.read(m.id)
+        assert m.models == [a]
+
+        b = BModel.create()
+        m.models = [a, b]
+        assert m in Model.search(models=a)
+        assert m in Model.search(models=b)
+
+    with sheraf.connection(commit=True):
+        m = Model.read(m.id)
+        assert m.models == [a, b]
+        assert m in Model.search(models=a)
+        assert m in Model.search(models=b)
