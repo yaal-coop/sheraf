@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import datetime
 import os
 import sys
 
@@ -24,8 +25,9 @@ templates_path = ["_templates"]
 source_suffix = [".rst", ".md"]
 master_doc = "index"
 project = "sheraf"
-copyright = "2020, Yaal"
-author = "Yaal"
+year = datetime.datetime.now().strftime("%Y")
+copyright = f"{year}, Yaal Coop"
+author = "Yaal Coop"
 
 version = "{}.{}".format(
     sheraf.version.__version_info__[0], sheraf.version.__version_info__[1]
