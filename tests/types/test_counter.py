@@ -25,8 +25,8 @@ def test_basics():
     counter.set(10)
     assert isinstance(counter, sheraf.types.counter.Counter)
     assert counter == 10
-    assert 10 == counter ** 1
-    assert 1 == 1 ** counter
+    assert 10 == counter**1
+    assert 1 == 1**counter
     assert 10 == counter % 12
     assert 2 == 12 % counter
 

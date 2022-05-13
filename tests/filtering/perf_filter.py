@@ -69,7 +69,7 @@ def profiled_filter_with_demostorage(numdata, clazz, filter_value):
 
 def profiled_filter_bench(clazz, filter_value, max_units=5):
     args = [
-        10 ** pos - (10 ** (pos - 1) if pos > 1 else 0)
+        10**pos - (10 ** (pos - 1) if pos > 1 else 0)
         for pos in range(1, max_units + 1)
     ]
     pool = multiprocessing.Pool(len(args))

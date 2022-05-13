@@ -3,7 +3,7 @@ import time
 import sheraf
 import tests
 
-DICT_SIZE = 10 ** 5
+DICT_SIZE = 10**5
 
 
 class TestLargeDict(sheraf.testing.TestCase):
