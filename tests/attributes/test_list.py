@@ -47,6 +47,7 @@ def test_list_attribute(sheraf_connection, persistent_type, subattribute):
     if subattribute or persistent_type == sheraf.types.LargeList:
         m.list.clear()
         assert len(m.list) == 0
+        assert not m.list
 
     m.list = [0, 1, 2]
     assert m.list[0] == 0
@@ -70,6 +71,10 @@ def test_list_attribute(sheraf_connection, persistent_type, subattribute):
 
     m.list = None
     assert len(m.list) == 0
+    assert not m.list
+
+    m.list = []
+    assert not m.list
 
 
 @pytest.mark.parametrize(
