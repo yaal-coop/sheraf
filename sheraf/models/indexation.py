@@ -467,9 +467,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         yield_callbacks = []
         attribute = self.attributes.get(name)
 
-        if attribute and (
-            attribute.indexes or attribute.cb_creation or attribute.cb_edition
-        ):
+        if attribute and (attribute.cb_creation or attribute.cb_edition):
             if not attribute.is_created(self):
                 yield_callbacks = self.call_callbacks(
                     attribute.cb_creation, self, new=value
@@ -477,23 +475,28 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
             else:
                 prev_value = getattr(self, name)
-                if attribute.has_primary_index and prev_value != value:
-                    raise sheraf.SherafException(
-                        f"Attribute '{name}' has a primary index and cannot be edited."
-                    )
-
                 yield_callbacks = self.call_callbacks(
                     attribute.cb_edition, self, new=value, old=prev_value
+                )
+
+        if attribute and attribute.indexes:
+            if (
+                attribute.is_created(self)
+                and attribute.has_primary_index
+                and getattr(self, name) != value
+            ):
+                raise sheraf.SherafException(
+                    f"Attribute '{name}' has a primary index and cannot be edited."
                 )
 
             old_values = self.before_index_edition(attribute)
 
         super().__setattr__(name, value)
 
-        if attribute and (
-            attribute.indexes or attribute.cb_creation or attribute.cb_edition
-        ):
+        if attribute and attribute.indexes:
             self.after_index_edition(attribute, old_values)
+
+        if yield_callbacks:
             self.call_callbacks_again(yield_callbacks)
 
     def __delattr__(self, name):
