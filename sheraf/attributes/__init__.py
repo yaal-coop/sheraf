@@ -70,6 +70,10 @@ class Attribute:
     def __repr__(self):
         return f"<{self.__class__.__name__} name={self.attribute_name}>"
 
+    @property
+    def has_primary_index(self):
+        return any(index.primary for index in self.indexes.values())
+
     def create(self, parent):
         """
         :return: The attribute's defined default value. If it is a callable, return

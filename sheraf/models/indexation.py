@@ -477,10 +477,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
             else:
                 prev_value = getattr(self, name)
-                if (
-                    any(index.primary for index in attribute.indexes.values())
-                    and prev_value != value
-                ):
+                if attribute.has_primary_index and prev_value != value:
                     raise sheraf.SherafException(
                         f"Attribute '{name}' has a primary index and cannot be edited."
                     )
