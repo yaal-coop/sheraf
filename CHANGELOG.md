@@ -4,6 +4,7 @@
 Changed
 *******
 - support for rich > 10
+- index performances improvements
 
 [0.5.29] - 2022-01-14
 =====================
