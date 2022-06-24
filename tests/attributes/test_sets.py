@@ -23,10 +23,12 @@ def test_set_attribute(sheraf_connection, persistent_type, subattribute):
         assert {12, 15, 18} == set(a.set | {18})
         assert {12} == set(a.set & {18, 12})
         assert {12, 18} == set(a.set ^ {18, 15})
+        assert {12} == set(a.set - {15})
 
         assert {12, 15, 18} == set({18} | a.set)
         assert {12} == set({18, 12} & a.set)
         assert {12, 18} == set({18, 15} ^ a.set)
+        assert {4} == set({12, 15, 4} - a.set)
 
         a.set |= {18}
         assert {12, 15, 18} == set(a.set)
@@ -34,6 +36,9 @@ def test_set_attribute(sheraf_connection, persistent_type, subattribute):
         assert {12, 15} == set(a.set)
         a.set &= {12, 15}
         assert {12, 15} == set(a.set)
+        a.set -= {15}
+        assert {12} == set(a.set)
+        a.set = {12, 15}
 
     a = Model.read(a.id)
     assert {12, 15} == set(a.set)

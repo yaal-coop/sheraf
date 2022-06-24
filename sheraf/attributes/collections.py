@@ -507,6 +507,12 @@ class SetAttributeAccessor:
     def __rxor__(self, item):
         return set(item) ^ set(self)
 
+    def __sub__(self, item):
+        return set(self) - set(item)
+
+    def __rsub__(self, item):
+        return set(item) - set(self)
+
     def __iter__(self):
         return (self._attribute.deserialize(item) for item in self.mapping)
 

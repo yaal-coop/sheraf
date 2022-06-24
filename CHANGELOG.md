@@ -1,6 +1,10 @@
 [0.5.30] - 2022-01-xx
 =====================
 
+Added
+*****
+- :class:`~sheraf.attributes.collections.SetAttribute` handles minus operator
+
 Changed
 *******
 - support for rich > 10
@@ -25,14 +29,14 @@ Changed
 =====================
 
 Added
-*******
+*****
 - :class:`~sheraf.types.largelist.LargeList` supports item deletion.
 
 [0.5.26] - 2022-01-06
 =====================
 
 Added
-*******
+*****
 - :class:`~sheraf.attributes.collections.ListAttribute` supports item deletion.
 
 [0.5.25] - 2022-01-03
