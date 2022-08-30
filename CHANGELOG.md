@@ -1,3 +1,11 @@
+[0.5.31] - 2022-08-30
+=====================
+
+Added
+*****
+- :class:`sheraf.queryset.QuerySet` model attribute is kept when bitwise
+  operator is used.
+
 [0.5.30] - 2022-06-24
 =====================
 

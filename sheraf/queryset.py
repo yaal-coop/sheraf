@@ -147,16 +147,28 @@ class QuerySet:
         return super().__eq__(other)
 
     def __and__(self, other):
-        return QuerySet(set(self) & set(other))
+        return QuerySet(
+            set(self) & set(other),
+            self.model if self.model == other.model else None,
+        )
 
     def __or__(self, other):
-        return QuerySet(set(self) | set(other))
+        return QuerySet(
+            set(self) | set(other),
+            self.model if self.model == other.model else None,
+        )
 
     def __xor__(self, other):
-        return QuerySet(set(self) ^ set(other))
+        return QuerySet(
+            set(self) ^ set(other),
+            self.model if self.model == other.model else None,
+        )
 
     def __add__(self, other):
-        return QuerySet(unique_everseen(itertools.chain(self, other)))
+        return QuerySet(
+            unique_everseen(itertools.chain(self, other)),
+            self.model if self.model == other.model else None,
+        )
 
     def __bool__(self):
         try:
@@ -314,7 +326,10 @@ class QuerySet:
             iterator = self._mono_indexes_iterator()
 
         if self.model:
-            iterator = self.model.read_these(iterator)
+            iterator = (
+                self.model.read(key) if not isinstance(key, self.model) else key
+                for key in iterator
+            )
 
         # Checks the models fits all the filters
         iterator = (

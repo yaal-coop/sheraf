@@ -249,9 +249,11 @@ def test_concat(sheraf_connection, m0, m1, m2):
     assert Cowboy.filter(genre="M") == [m0, m1, m2]
 
     qs = Cowboy.filter(age=30) + Cowboy.filter(genre="M")
+    assert Cowboy == qs.model
     assert qs == [m0, m2, m1]
 
     qs = Cowboy.filter(age=30) + Cowboy.filter(genre="M")
+    assert qs.model == Cowboy
     assert next(qs) == m0
     assert next(qs) == m2
     assert next(qs) == m1
