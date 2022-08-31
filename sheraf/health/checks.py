@@ -73,6 +73,7 @@ def check_attributes_index(model_instance):
         else:
             result[index_name] = all(
                 value in index_table[index_name]
+                and model_instance.raw_identifier in index_table[index_name][value]
                 and model_instance.mapping
                 == index_table[index_name][value][model_instance.raw_identifier]
                 for value in values
