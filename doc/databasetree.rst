@@ -1,7 +1,7 @@
-A look on the database tree
+A look at the database tree
 ===========================
 
-Let us have a look on how the database tree is like in a case with indexed models,
+Let us have a look at how the database tree is like in a case with indexed models,
 external models attributes and indexed models attributes.
 
 .. contents::
@@ -293,7 +293,7 @@ We modified *Cowboy* so it can host *Horse* instances. Then we created a new
 cowboy called *steven* that own two horses.
 
 The indexation mechanism works near the same way for first-level models or
-attribute models. So the index table for *Horse* is an *OOBTree*. The *Horse*
+attribute models. So, the index table for *Horse* is an *OOBTree*. The *Horse*
 only index is *name* (there is no *id* index as this is not a first-level model).
 So there is another *OOBTree* for names in the *Horse* index table. Then,
 the horses :class:`~sheraf.types.SmallDict` are indexed by their names.
