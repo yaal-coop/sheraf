@@ -9,7 +9,7 @@ Sheraf provides a way to quickly access your data matching some criterias. This 
 Faster filtering and ordering
 -----------------------------
 
-With large collections, searching for models with :func:`~sheraf.queryset.QuerySet.filter` can be very long. Indeed, the default behavior of :func:`~sheraf.queryset.QuerySet.filter` is to scan every available model, and tests its values.
+With large collections, searching for models with :func:`~sheraf.queryset.QuerySet.filter` can be very long. Indeed, the default behavior of :func:`~sheraf.queryset.QuerySet.filter` is to scan every available model instances, and tests its values.
 
 .. code-block:: python
 
@@ -17,7 +17,7 @@ With large collections, searching for models with :func:`~sheraf.queryset.QueryS
     >>> MyModel.filter(my_attribute="something") # doctest: +SKIP
     >>> (model for model in MyModel.all() if model.my_attribute == "something") # doctest: +SKIP
 
-Of course all the models are not loaded in memory at once due to the lazy behavior of :class:`~sheraf.queryset.QuerySet`, but the iteration still need to make numerous accesses to the database, and test every model instance, thus severely degrading the performances.
+Of course all the model instances are not loaded in memory at once due to the lazy behavior of :class:`~sheraf.queryset.QuerySet`, but the iteration still need to make numerous accesses to the database, and test every model instance, thus severely degrading the performances.
 
 A solution to keep good performances is to use attribute indexation with :class:`~sheraf.attributes.index.Index`. Creating an :class:`~sheraf.attributes.index.Index` object in a :class:`~sheraf.models.indexation.IndexedModel` creates a new index table in the database. This table matches the model instances with their attribute values.
 
