@@ -21,7 +21,7 @@ another word that represents its sense. For instance *translations* and *transla
 *translat*. Both words refer to the same concept we call here *translat*, even if it is not a proper English word.
 Thus, a query containing *translations* can return results containing *translated*.
 With the proper tooling, this step is done automatically, but depends on the language. Indeed different languages have different
-prefixes and suffixes. Stemming can be done with librarys like `pystemmer <https://github.com/snowballstem/pystemmer>`_
+prefixes and suffixes. Stemming can be done with libraries like `pystemmer <https://github.com/snowballstem/pystemmer>`_
 or `nltk <https://github.com/nltk/nltk>`_.
 
 lemmatization is a variant of stemming that only reduce words to existing words. For instance *translations* and
