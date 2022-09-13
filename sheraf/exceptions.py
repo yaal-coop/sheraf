@@ -114,31 +114,8 @@ class InvalidOrderException(SherafException):
 
 
 class QuerySetUnpackException(SherafException):
-    """Raised when calling :func:`~sheraf.queryset.QuerySet.get` on
-    :class:`~sheraf.queryset.QuerySet` containing invalid number of elements.
-
-    >>> class Cowboy(sheraf.Model):
-    ...     table = "people"
-    ...     name = sheraf.SimpleAttribute()
-    ...
-    >>> with sheraf.connection():
-    ...     peter = Cowboy.create(name="Peter")
-    ...
-    ...     assert peter == Cowboy.filter(name="Peter").get()
-    ...
-    >>> # Fails with too many values
-    ... with sheraf.connection():
-    ...     Cowboy.create(name="Peter")
-    ...     Cowboy.create(name="Steven")
-    ...     Cowboy.all().get()
-    Traceback (most recent call last):
-        ...
-    sheraf.exceptions.QuerySetUnpackException: Trying to unpack more than 1 value from a QuerySet
-    """
-
-    def __init__(self, message=None):
-        if not message:
-            message = "Trying to unpack more than 1 value from a QuerySet"
+    def __init__(self, message=None, queryset=None):
+        self.queryset = queryset
         super().__init__(message)
 
 
@@ -154,11 +131,34 @@ class EmptyQuerySetUnpackException(QuerySetUnpackException):
     sheraf.exceptions.EmptyQuerySetUnpackException: Trying to unpack an empty QuerySet
     """
 
-    def __init__(self, message=None):
+    def __init__(self, message=None, queryset=None):
         if not message:
             message = "Trying to unpack an empty QuerySet"
+            if queryset:
+                message += " " + repr(queryset)
 
-        super().__init__(message)
+        super().__init__(message, queryset)
+
+
+class TooManyValuesSetUnpackException(QuerySetUnpackException):
+    """Raised when calling :func:`~sheraf.queryset.QuerySet.get` on
+    :class:`~sheraf.queryset.QuerySet` containing more than one element.
+
+    >>> # Fails with zero value
+    ... with sheraf.connection():
+    ...     Cowboy.filter(name="unknown cowboy").get()
+    Traceback (most recent call last):
+    ...
+    sheraf.exceptions.EmptyQuerySetUnpackException: Trying to unpack a QuerySet with multiple elements
+    """
+
+    def __init__(self, message=None, queryset=None):
+        if not message:
+            message = "Trying to unpack a QuerySet with multiple elements"
+            if queryset:
+                message += " " + repr(queryset)
+
+        super().__init__(message, queryset)
 
 
 class InvalidIndexException(SherafException):

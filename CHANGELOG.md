@@ -1,3 +1,14 @@
+[0.5.32] - 2022-09-13
+=====================
+
+Added
+*****
+- :class:`sheraf.exceptions.TooManyValuesSetUnpackException`
+
+Changed
+*******
+- Improved :class:`sheraf.queryset.QuerySet` exceptions error messages.
+
 [0.5.31] - 2022-08-30
 =====================
 

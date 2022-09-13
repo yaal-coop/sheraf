@@ -626,7 +626,7 @@ class QuerySet:
         ...     Cowboy.all().get()
         Traceback (most recent call last):
             ...
-        sheraf.exceptions.QuerySetUnpackException: Trying to unpack more than 1 value from a QuerySet
+        sheraf.exceptions.TooManyValuesSetUnpackException: Trying to unpack a QuerySet with multiple elements <QuerySet model=Cowboy>
         >>> with sheraf.connection():
         ...     Cowboy.filter(age=30).get()
         Traceback (most recent call last):
@@ -641,11 +641,11 @@ class QuerySet:
         try:
             element = next(self)
         except StopIteration:
-            raise sheraf.exceptions.EmptyQuerySetUnpackException()
+            raise sheraf.exceptions.EmptyQuerySetUnpackException(queryset=self)
 
         try:
             next(self)
         except StopIteration:
             return element
         else:
-            raise sheraf.exceptions.QuerySetUnpackException()
+            raise sheraf.exceptions.TooManyValuesSetUnpackException(queryset=self)

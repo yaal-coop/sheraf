@@ -416,12 +416,12 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         ...     Cowboy.get()
         Traceback (most recent call last):
             ...
-        sheraf.exceptions.QuerySetUnpackException: Trying to unpack more than 1 value from a QuerySet
+        sheraf.exceptions.TooManyValuesSetUnpackException: Trying to unpack a QuerySet with multiple elements <QuerySet model=Cowboy>
         >>> with sheraf.connection():
         ...     Cowboy.get(age=30)
         Traceback (most recent call last):
             ...
-        sheraf.exceptions.QuerySetUnpackException: Trying to unpack more than 1 value from a QuerySet
+        sheraf.exceptions.TooManyValuesSetUnpackException: Trying to unpack a QuerySet with multiple elements <QuerySet model=Cowboy filters=(age=30)>
         >>> with sheraf.connection():
         ...     Cowboy.get(name="Unknown cowboy")
         Traceback (most recent call last):
