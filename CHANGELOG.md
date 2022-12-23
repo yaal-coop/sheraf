@@ -1,6 +1,10 @@
 [0.5.33] - 2022-12-23
 =====================
 
+Added
+*****
+- Python 3.11 support
+
 Changed
 *******
 - :class:`sheraf.queryset.QuerySet` order performance optimizations.
