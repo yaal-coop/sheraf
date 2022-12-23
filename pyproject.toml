@@ -121,7 +121,7 @@ envlist = style,doc,py37,py38,py39,py310,coverage
 skipsdist=true
 
 [testenv]
-whitelist_externals = poetry
+allowlist_externals = poetry
 commands =
     poetry install --extras all
     poetry run pytest {posargs}
