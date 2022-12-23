@@ -1,3 +1,10 @@
+[0.5.33] - 2022-12-23
+=====================
+
+Changed
+*******
+- :class:`sheraf.queryset.QuerySet` order performance optimizations.
+
 [0.5.32] - 2022-09-13
 =====================
 

@@ -252,16 +252,28 @@ class QuerySet:
             )
         ]
 
-    def _index_keys(self, index, value, search_func):
-        return (
-            index.details.call_search_func(self.model, value)
-            if search_func
-            else [value]
-        )
+    @property
+    def first_indexed_order(self):
+        for name, value in self.orders.items():
+            if (
+                self.model
+                and name in self.model.indexes
+                and self.model.indexes[name].details.auto
+            ):
+                return name, value
 
-    def _objects_ids(self, name, value, search_func, reverse):
-        index = self.model.indexes[name]
-        keys = self._index_keys(index, value, search_func)
+    def get_index_keys(self, index, filter_value, search_func, reverse):
+        if not filter_value:
+            return index.iterkeys(reverse=reverse)
+
+        if search_func:
+            return index.details.call_search_func(self.model, filter_value)
+
+        return [filter_value]
+
+    def _objects_ids(self, index_name, filter_value, search_func, reverse):
+        index = self.model.indexes[index_name]
+        keys = self.get_index_keys(index, filter_value, search_func, reverse)
 
         if index.details.unique:
             mappings = (index.get_item(key, True) for key in keys)
@@ -272,7 +284,7 @@ class QuerySet:
 
         return (m[self.model.primary_key()] for m in mappings if m)
 
-    def _multi_indexes_iterator(self):
+    def _multiple_indexes_iterator(self):
         ids_sets = (set(self._objects_ids(*index)) for index in self.indexed_filters)
         raw_ids = set.intersection(*ids_sets)
 
@@ -280,31 +292,37 @@ class QuerySet:
         ids = (pk_attribute.deserialize(id_) for id_ in raw_ids)
         return ids
 
-    def _mono_indexes_iterator(self):
+    def _single_index_iterator(
+        self, index_name, filter_value=None, search_func=None, reverse=False
+    ):
+        """
+        Returns an iterator over one indexed attribute.
+        """
         pk_attribute = self.model.attributes[self.model.primary_key()]
-        raw_ids = self._objects_ids(*self.indexed_filters[0])
+
+        raw_ids = self._objects_ids(index_name, filter_value, search_func, reverse)
         unique_raw_ids = unique_everseen(raw_ids)
         ids = (pk_attribute.deserialize(id_) for id_ in unique_raw_ids)
         return ids
 
     def _primary_index_iterator(self):
-        identifier_index = self.model.indexes[self.primary_key]
+        pk_index = self.model.indexes[self.primary_key]
         pk_attribute = self.model.attributes[self.model.primary_key()]
 
         reverse = self.orders.get(self.primary_key) == sheraf.constants.DESC
         if self.primary_key == self.model.primary_key():
-            ids = identifier_index.iterkeys(reverse)
+            ids = pk_index.iterkeys(reverse)
 
         elif self.model.indexes[self.primary_key].details.unique:
             ids = (
                 pk_attribute.deserialize(mapping[self.model.primary_key()])
-                for mapping in identifier_index.itervalues(reverse)
+                for mapping in pk_index.itervalues(reverse)
             )
 
         else:
             ids = (
                 pk_attribute.deserialize(id)
-                for mappings in identifier_index.itervalues(reverse)
+                for mappings in pk_index.itervalues(reverse)
                 for id in mappings.keys()
             )
 
@@ -317,14 +335,22 @@ class QuerySet:
         elif not self.model:
             iterator = iter([])
 
+        # iterator on the first indexed filtered attribute
+        elif self.indexed_filters:
+            iterator = self._single_index_iterator(*self.indexed_filters[0])
+
+        # iterator on the first indexed orderde attribute
+        elif self.first_indexed_order:
+            iterator = self._single_index_iterator(
+                index_name=self.first_indexed_order[0],
+                reverse=self.first_indexed_order[1],
+            )
+
         # iterate all items on the primary key
-        elif not self.indexed_filters:
+        else:
             iterator = self._primary_index_iterator()
 
-        # iterator on several indexed filters
-        elif not self.orders:
-            iterator = self._mono_indexes_iterator()
-
+        # instanciate model objects
         if self.model:
             iterator = (
                 self.model.read(key) if not isinstance(key, self.model) else key
@@ -338,9 +364,15 @@ class QuerySet:
 
         # Successively sorts the list from the less important
         # order to the most important order.
-        if self.orders:
+        already_ordered = (
+            not self.indexed_filters
+            and self.first_indexed_order
+            and len(self.orders) == 1
+        )
+        if self.orders and not already_ordered:
             iterable = iterator
             for attribute, order in reversed(self.orders.items()):
+                # those calls to 'sorted' have a HUGE impact on read perfs
                 iterable = sorted(
                     iterable,
                     key=operator.attrgetter(attribute),
