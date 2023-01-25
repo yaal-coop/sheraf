@@ -1,3 +1,11 @@
+[0.5.34] - 2023-xx-xx
+=====================
+
+Changed
+*******
+- :class:`~sheraf.models.base.BaseModel` init non-lazy attributes first,
+  so they can safely be accessed in @on_change callbacks
+
 [0.5.33] - 2022-12-23
 =====================
 
