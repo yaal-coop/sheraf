@@ -166,7 +166,6 @@ class BaseModel(metaclass=BaseModelMetaclass):
                 )
             self.__setattr__(attribute, value)
 
-
     @staticmethod
     def call_callbacks(callbacks, *args, **kwargs):
         yield_callbacks = []
