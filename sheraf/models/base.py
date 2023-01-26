@@ -149,14 +149,6 @@ class BaseModel(metaclass=BaseModelMetaclass):
         cls.call_callbacks_again(yield_callbacks)
 
     def initialize(self, **kwargs):
-        for name, attribute in self.attributes.items():
-            if (
-                not attribute.lazy
-                and name not in kwargs
-                and not attribute.is_created(self)
-            ):
-                self.__setattr__(name, attribute.create(self))
-
         for attribute, value in kwargs.items():
             if attribute not in self.attributes:
                 raise TypeError(
@@ -165,6 +157,14 @@ class BaseModel(metaclass=BaseModelMetaclass):
                     )
                 )
             self.__setattr__(attribute, value)
+
+        for name, attribute in self.attributes.items():
+            if (
+                not attribute.lazy
+                and name not in kwargs
+                and not attribute.is_created(self)
+            ):
+                self.__setattr__(name, attribute.create(self))
 
     @staticmethod
     def call_callbacks(callbacks, *args, **kwargs):
