@@ -476,7 +476,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
     def __setattr__(self, name, value):
         yield_callbacks = []
         attribute = self.attributes.get(name)
-        update_index = (
+        should_update_index = (
             attribute
             and attribute.indexes
             and (not attribute.is_created(self) or getattr(self, name) != value)
@@ -493,7 +493,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
                     attribute.cb_edition, self, new=value, old=getattr(self, name)
                 )
 
-        if update_index:
+        if should_update_index:
             if (
                 attribute.is_created(self)
                 and attribute.has_primary_index
@@ -507,7 +507,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
         super().__setattr__(name, value)
 
-        if update_index:
+        if should_update_index:
             self.after_index_edition(attribute, old_values)
 
         if yield_callbacks:
