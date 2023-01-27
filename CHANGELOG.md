@@ -3,8 +3,8 @@
 
 Changed
 *******
-- :class:`~sheraf.models.base.BaseModel` init non-lazy attributes first,
-  so they can safely be accessed in @on_change callbacks
+- Every :class:`~sheraf.models.indexation.BaseIndexedModel` index is initialized
+  at object creation if needed, before the attributes are saved.
 
 [0.5.33] - 2022-12-23
 =====================

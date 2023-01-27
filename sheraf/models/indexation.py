@@ -142,6 +142,16 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         return sheraf.queryset.QuerySet(model_class=cls, primary_key=index_name)
 
     def initialize(self, **kwargs):
+        for index_name, index_manager in self.indexes.items():
+            if not index_manager.details.auto:
+                continue
+
+            if (
+                self._is_indexable(index_manager.details, warn=True)
+                and not index_manager.table_initialized()
+            ):
+                index_manager.table()
+
         if self.primary_key() in kwargs:
             identifier = kwargs[self.primary_key()]
             del kwargs[self.primary_key()]
@@ -524,19 +534,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             if not index.auto:
                 continue
 
-            if not self._is_indexable(index):
-                warnings.warn(
-                    "New index in an already populated table. %s.%s will not be indexed. "
-                    'Consider calling %s.index_table_rebuild("%s") to initialize the indexation table.'
-                    % (
-                        self.__class__.__name__,
-                        index.key,
-                        self.__class__.__name__,
-                        index.key,
-                    ),
-                    sheraf.exceptions.IndexationWarning,
-                    stacklevel=5,
-                )
+            if not self._is_indexable(index, warn=True):
                 continue
 
             old_index_values[index] = index.get_model_index_keys(self)
@@ -578,7 +576,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
         return self._raw_identifier
 
-    def _is_indexable(self, index):
+    def _is_indexable(self, index, warn=False):
         """
         To have its entries updated, an index must have its table previously
         initialized, with the exception of the very first model instance in
@@ -589,7 +587,21 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
         index_manager = self.indexes[index.key]
         index_table_exists = index_manager.table_initialized()
-        return self._is_first_instance or index_table_exists
+        indexable = self._is_first_instance or index_table_exists
+        if not indexable and warn:
+            warnings.warn(
+                "New index in an already populated table. %s.%s will not be indexed. "
+                'Consider calling %s.index_table_rebuild("%s") to initialize the indexation table.'
+                % (
+                    self.__class__.__name__,
+                    index.key,
+                    self.__class__.__name__,
+                    index.key,
+                ),
+                sheraf.exceptions.IndexationWarning,
+                stacklevel=5,
+            )
+        return indexable
 
     def copy(self, **kwargs):
         r"""
