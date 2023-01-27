@@ -5,6 +5,9 @@ Changed
 *******
 - Every :class:`~sheraf.models.indexation.BaseIndexedModel` index is initialized
   at object creation if needed, before the attributes are saved.
+- Callbacks are run in parallel for :meth:`~sheraf.models.indexation.BaseIndexedModel.create`,
+  :meth:`~sheraf.models.indexation.BaseIndexedModel.update` and
+  :meth:`~sheraf.models.indexation.BaseIndexedModel.delete`
 
 [0.5.33] - 2022-12-23
 =====================

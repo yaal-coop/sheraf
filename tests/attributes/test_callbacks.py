@@ -9,12 +9,9 @@ def test_on_creation(sheraf_connection):
 
         @foo.on_creation
         def foo_creation(self, new):
-            if new == "whatever":
-                self.created = True
+            self.created = True
 
-    m = Model.create()
-    assert not m.created
-    m.foo = "whatever"
+    m = Model.create(foo="whatever")
     assert m.created
 
 

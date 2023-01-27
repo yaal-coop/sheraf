@@ -143,30 +143,70 @@ class BaseModel(metaclass=BaseModelMetaclass):
         """
 
         cls = self.__class__
-        yield_callbacks = cls.call_callbacks(cls.cb_deletion, self)
-        for attr_name in self.attributes.keys():
-            delattr(self, attr_name)
-        cls.call_callbacks_again(yield_callbacks)
+        model_yield_callbacks = cls.call_callbacks(cls.cb_deletion, self)
+
+        attributes_yield_callbacks = {}
+        for attribute_name, attribute in self.attributes.items():
+            attributes_yield_callbacks[attribute_name] = self.call_callbacks(
+                attribute.cb_deletion, self, old=getattr(self, attribute_name)
+            )
+
+        for attribute_name in self.attributes.keys():
+            self.delete_attribute(attribute_name)
+
+        for attribute_name in self.attributes.keys():
+            self.call_callbacks_again(attributes_yield_callbacks[attribute_name])
+
+        cls.call_callbacks_again(model_yield_callbacks)
 
     def initialize(self, **kwargs):
-        for attribute_name, value in kwargs.items():
-            attribute = self.attributes.get(attribute_name)
-            if not attribute:
-                raise TypeError(
-                    "TypeError: create() got an unexpected keyword argument '{}'".format(
-                        attribute_name
-                    )
+        invalid_attributes = [
+            attribute_name
+            for attribute_name in kwargs.keys()
+            if not self.attributes.get(attribute_name)
+        ]
+        if invalid_attributes:
+            raise TypeError(
+                "TypeError: create() got an unexpected keywords arguments '{}'".format(
+                    ", ".join(invalid_attributes)
                 )
-            self.__setattr__(attribute_name, value)
+            )
 
-        for attribute_name, attribute in self.attributes.items():
+        yield_callbacks = {}
+        additional_yield_callbacks = {}
+        additional_values = {}
+        additional_attributes = [
+            (attribute_name, attribute)
+            for attribute_name, attribute in self.attributes.items()
             if (
                 not attribute.lazy
                 and attribute_name not in kwargs
                 and not attribute.is_created(self)
-            ):
-                value = attribute.create(self)
-                self.__setattr__(attribute_name, value)
+            )
+        ]
+        for attribute_name, value in kwargs.items():
+            attribute = self.attributes.get(attribute_name)
+            yield_callbacks[attribute_name] = self.call_callbacks(
+                attribute.cb_creation, self, new=value
+            )
+
+        for attribute_name, attribute in additional_attributes:
+            additional_values[attribute_name] = attribute.create(self)
+            additional_yield_callbacks = self.call_callbacks(
+                attribute.cb_creation, self, new=additional_values[attribute_name]
+            )
+
+        for attribute_name, value in kwargs.items():
+            self.set_attribute(attribute_name, value)
+
+        for attribute_name, attribute in additional_attributes:
+            self.set_attribute(attribute_name, additional_values[attribute_name])
+
+        for attribute_name in kwargs.keys():
+            self.call_callbacks_again(yield_callbacks[attribute_name])
+
+        for attribute_name, attribute in additional_attributes:
+            self.call_callbacks_again(additional_yield_callbacks)
 
     @staticmethod
     def call_callbacks(callbacks, *args, **kwargs):
@@ -446,20 +486,49 @@ class BaseModel(metaclass=BaseModelMetaclass):
         :param replacement: Like *edition*, but create a new element instead of updating one.
         :param strict: If strict is *True*, every keys in value must be sheraf attributes of the current model. Default is *False*.
         """
-        for attr, new_value in value.items():
-            try:
-                old_value = self.attributes[attr].read(self)
-                updated = self.attributes[attr].update(
-                    old_value, new_value, addition, edition, deletion, replacement
+        invalid_attributes = [
+            attribute_name
+            for attribute_name in value.keys()
+            if attribute_name not in self.attributes
+        ]
+        if strict and invalid_attributes:
+            raise TypeError(
+                "TypeError: edit() got unexpected keyword arguments '{}'".format(
+                    ", ".join(invalid_attributes)
                 )
-                self.__setattr__(attr, updated)
-            except KeyError:
-                if strict is True:
-                    raise TypeError(
-                        "TypeError: edit() got an unexpected keyword argument '{}'".format(
-                            attr
-                        )
-                    )
+            )
+
+        yield_callbacks = {}
+        valid_attributes = [
+            attribute_name
+            for attribute_name in value.keys()
+            if attribute_name in self.attributes
+        ]
+        for attribute_name in valid_attributes:
+            attribute = self.attributes[attribute_name]
+            new_value = value[attribute_name]
+            if not attribute.is_created(self):
+                yield_callbacks[attribute_name] = self.call_callbacks(
+                    attribute.cb_creation, self, new=new_value
+                )
+            else:
+                old_value = attribute.read(self)
+                yield_callbacks[attribute_name] = self.call_callbacks(
+                    attribute.cb_edition, self, new=new_value, old=old_value
+                )
+
+        for attribute_name in valid_attributes:
+            attribute = self.attributes[attribute_name]
+            new_value = value[attribute_name]
+            old_value = attribute.read(self)
+            updated = attribute.update(
+                old_value, new_value, addition, edition, deletion, replacement
+            )
+            self.set_attribute(attribute_name, updated)
+
+        for attribute_name in valid_attributes:
+            self.call_callbacks_again(yield_callbacks[attribute_name])
+
         return self
 
     def save(self):
