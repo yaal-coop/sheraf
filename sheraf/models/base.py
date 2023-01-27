@@ -149,22 +149,24 @@ class BaseModel(metaclass=BaseModelMetaclass):
         cls.call_callbacks_again(yield_callbacks)
 
     def initialize(self, **kwargs):
-        for attribute, value in kwargs.items():
-            if attribute not in self.attributes:
+        for attribute_name, value in kwargs.items():
+            attribute = self.attributes.get(attribute_name)
+            if not attribute:
                 raise TypeError(
                     "TypeError: create() got an unexpected keyword argument '{}'".format(
-                        attribute
+                        attribute_name
                     )
                 )
-            self.__setattr__(attribute, value)
+            self.__setattr__(attribute_name, value)
 
-        for name, attribute in self.attributes.items():
+        for attribute_name, attribute in self.attributes.items():
             if (
                 not attribute.lazy
-                and name not in kwargs
+                and attribute_name not in kwargs
                 and not attribute.is_created(self)
             ):
-                self.__setattr__(name, attribute.create(self))
+                value = attribute.create(self)
+                self.__setattr__(attribute_name, value)
 
     @staticmethod
     def call_callbacks(callbacks, *args, **kwargs):
@@ -268,23 +270,24 @@ class BaseModel(metaclass=BaseModelMetaclass):
 
         yield_callbacks = []
         attribute = self.attributes.get(name)
-        if attribute and (attribute.cb_creation or attribute.cb_edition):
-            if not attribute.is_created(self):
-                yield_callbacks = self.call_callbacks(
-                    attribute.cb_creation, self, new=value
-                )
+        if not attribute.is_created(self):
+            yield_callbacks = self.call_callbacks(
+                attribute.cb_creation, self, new=value
+            )
 
-            else:
-                yield_callbacks = self.call_callbacks(
-                    attribute.cb_edition, self, new=value, old=getattr(self, name)
-                )
+        else:
+            yield_callbacks = self.call_callbacks(
+                attribute.cb_edition, self, new=value, old=getattr(self, name)
+            )
 
+        self.set_attribute(name, value)
+
+        self.call_callbacks_again(yield_callbacks)
+
+    def set_attribute(self, name, value):
         value = self.attributes[name].write(self, value)
         if self.attributes[name].write_memoization:
             super().__setattr__(name, value)
-
-        if yield_callbacks:
-            self.call_callbacks_again(yield_callbacks)
 
     def __delattr__(self, name):
         if name not in self.attributes:
@@ -295,14 +298,15 @@ class BaseModel(metaclass=BaseModelMetaclass):
         yield_callbacks = self.call_callbacks(
             attribute.cb_deletion, self, old=getattr(self, name)
         )
+        self.delete_attribute(name)
+        self.call_callbacks_again(yield_callbacks)
 
+    def delete_attribute(self, name):
         self.attributes[name].delete(self)
         try:
             super().__delattr__(name)
         except AttributeError:
             return
-
-        self.call_callbacks_again(yield_callbacks)
 
     def __getattribute__(self, name):
         # TODO: Find a way to check that self.name exists or not without

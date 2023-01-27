@@ -473,7 +473,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
             and self.identifier == other.identifier
         )
 
-    def __setattr__(self, name, value):
+    def set_attribute(self, name, value):
         attribute = self.attributes.get(name)
         should_update_index = (
             attribute
@@ -493,21 +493,16 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
 
             old_values = self.before_index_edition(attribute)
 
-        super().__setattr__(name, value)
+        super().set_attribute(name, value)
 
         if should_update_index:
             self.after_index_edition(attribute, old_values)
 
-    def __delattr__(self, name):
-        yield_callbacks = []
+    def delete_attribute(self, name):
         attribute = self.attributes.get(name)
-        if attribute:
-            old_values = self.before_index_edition(attribute)
-
-        super().__delattr__(name)
-
-        if attribute:
-            self.after_index_edition(attribute, old_values, ignore_errors=True)
+        old_values = self.before_index_edition(attribute)
+        super().delete_attribute(name)
+        self.after_index_edition(attribute, old_values, ignore_errors=True)
 
     def before_index_edition(self, attribute):
         old_index_values = {}
