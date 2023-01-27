@@ -266,19 +266,43 @@ class BaseModel(metaclass=BaseModelMetaclass):
             super().__setattr__(name, value)
             return
 
+        yield_callbacks = []
+        attribute = self.attributes.get(name)
+        if attribute and (attribute.cb_creation or attribute.cb_edition):
+            if not attribute.is_created(self):
+                yield_callbacks = self.call_callbacks(
+                    attribute.cb_creation, self, new=value
+                )
+
+            else:
+                yield_callbacks = self.call_callbacks(
+                    attribute.cb_edition, self, new=value, old=getattr(self, name)
+                )
+
         value = self.attributes[name].write(self, value)
         if self.attributes[name].write_memoization:
             super().__setattr__(name, value)
 
+        if yield_callbacks:
+            self.call_callbacks_again(yield_callbacks)
+
     def __delattr__(self, name):
-        if name in self.attributes:
-            self.attributes[name].delete(self)
-            try:
-                super().__delattr__(name)
-            except AttributeError:
-                return
-        else:
+        if name not in self.attributes:
             super().__delattr__(name)
+            return
+
+        attribute = self.attributes.get(name)
+        yield_callbacks = self.call_callbacks(
+            attribute.cb_deletion, self, old=getattr(self, name)
+        )
+
+        self.attributes[name].delete(self)
+        try:
+            super().__delattr__(name)
+        except AttributeError:
+            return
+
+        self.call_callbacks_again(yield_callbacks)
 
     def __getattribute__(self, name):
         # TODO: Find a way to check that self.name exists or not without

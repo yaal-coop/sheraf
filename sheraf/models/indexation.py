@@ -474,24 +474,12 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         )
 
     def __setattr__(self, name, value):
-        yield_callbacks = []
         attribute = self.attributes.get(name)
         should_update_index = (
             attribute
             and attribute.indexes
             and (not attribute.is_created(self) or getattr(self, name) != value)
         )
-
-        if attribute and (attribute.cb_creation or attribute.cb_edition):
-            if not attribute.is_created(self):
-                yield_callbacks = self.call_callbacks(
-                    attribute.cb_creation, self, new=value
-                )
-
-            else:
-                yield_callbacks = self.call_callbacks(
-                    attribute.cb_edition, self, new=value, old=getattr(self, name)
-                )
 
         if should_update_index:
             if (
@@ -510,23 +498,16 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
         if should_update_index:
             self.after_index_edition(attribute, old_values)
 
-        if yield_callbacks:
-            self.call_callbacks_again(yield_callbacks)
-
     def __delattr__(self, name):
         yield_callbacks = []
         attribute = self.attributes.get(name)
         if attribute:
             old_values = self.before_index_edition(attribute)
-            yield_callbacks = self.call_callbacks(
-                attribute.cb_deletion, self, old=getattr(self, name)
-            )
 
         super().__delattr__(name)
 
         if attribute:
             self.after_index_edition(attribute, old_values, ignore_errors=True)
-            self.call_callbacks_again(yield_callbacks)
 
     def before_index_edition(self, attribute):
         old_index_values = {}
