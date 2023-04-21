@@ -264,3 +264,77 @@ def test_nested_model_indexation(sheraf_database, persistent_type):
         sub = Submodel.create()
         m = Model.create(submodels={sub})
         assert [m] == Model.search(submodels=sub)
+
+
+@pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
+def test_int_to_collection(sheraf_connection, persistent_type):
+    class Model(tests.UUIDAutoModel):
+        foobar = sheraf.IntegerAttribute()
+
+    m = Model.create(foobar=10)
+    assert m.foobar == 10
+
+    class Model(tests.UUIDAutoModel):
+        foobar = sheraf.SetAttribute(
+            attribute=sheraf.IntegerAttribute(), persistent_type=persistent_type
+        )
+
+    m = Model.read(m.id)
+    assert m.foobar == {10}
+
+    m.foobar = {10, 11}
+    assert m.foobar == {10, 11}
+
+    m = Model.read(m.id)
+    assert m.foobar == {10, 11}
+
+
+@pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
+def test_string_to_collection(sheraf_connection, persistent_type):
+    class Model(tests.UUIDAutoModel):
+        foobar = sheraf.StringAttribute()
+
+    m = Model.create(foobar="baz")
+    assert m.foobar == "baz"
+
+    class Model(tests.UUIDAutoModel):
+        foobar = sheraf.SetAttribute(
+            attribute=sheraf.StringAttribute(), persistent_type=persistent_type
+        )
+
+    m = Model.read(m.id)
+    assert m.foobar == {"baz"}
+
+    m.foobar = {"baz", "lorem"}
+    assert m.foobar == {"baz", "lorem"}
+
+    m = Model.read(m.id)
+    assert m.foobar == {"baz", "lorem"}
+
+
+@pytest.mark.parametrize("persistent_type", [sheraf.types.Set, set])
+def test_model_to_collection(sheraf_connection, persistent_type):
+    class SubModel(tests.UUIDAutoModel):
+        pass
+
+    class Model(tests.UUIDAutoModel):
+        foobar = sheraf.ModelAttribute(SubModel)
+
+    s = SubModel.create()
+    m = Model.create(foobar=s)
+    assert m.foobar == s
+
+    class Model(tests.UUIDAutoModel):
+        foobar = sheraf.SetAttribute(
+            attribute=sheraf.ModelAttribute(SubModel), persistent_type=persistent_type
+        )
+
+    m = Model.read(m.id)
+    assert m.foobar == {s}
+
+    t = SubModel.create()
+    m.foobar = {s, t}
+    assert m.foobar == {s, t}
+
+    m = Model.read(m.id)
+    assert m.foobar == {s, t}

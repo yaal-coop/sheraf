@@ -80,9 +80,13 @@ from .simples import TypedAttribute
 
 
 class ListAttributeAccessor:
-    def __init__(self, attribute, persistent):
+    def __init__(self, attribute, persistent, persistent_type):
         self._attribute = attribute
-        self.mapping = persistent
+        self.mapping = (
+            persistent
+            if isinstance(persistent, persistent_type)
+            else persistent_type([persistent])
+        )
 
     def __repr__(self):
         return str(list(self))
@@ -222,7 +226,11 @@ class ListAttribute(sheraf.attributes.Attribute):
         if not self.attribute:
             return value
 
-        return self.accessor_type(attribute=self.attribute, persistent=value)
+        return self.accessor_type(
+            attribute=self.attribute,
+            persistent=value,
+            persistent_type=self.persistent_type,
+        )
 
     def serialize(self, value):
         if not self.attribute:
@@ -284,7 +292,7 @@ class LargeListAttribute(ListAttribute):
 
 
 class DictAttributeAccessor:
-    def __init__(self, attribute, persistent, **kwargs):
+    def __init__(self, attribute, persistent):
         self._attribute = attribute
         self.mapping = persistent
 
@@ -473,9 +481,13 @@ class SmallDictAttribute(DictAttribute):
 
 
 class SetAttributeAccessor:
-    def __init__(self, attribute, persistent, **kwargs):
+    def __init__(self, attribute, persistent, persistent_type):
         self._attribute = attribute
-        self.mapping = persistent
+        self.mapping = (
+            persistent
+            if isinstance(persistent, persistent_type)
+            else persistent_type({persistent})
+        )
 
     def __repr__(self):
         return str(set(self))
@@ -612,7 +624,11 @@ class SetAttribute(TypedAttribute):
         if not self.attribute:
             return value
 
-        return self.accessor_type(attribute=self.attribute, persistent=value)
+        return self.accessor_type(
+            attribute=self.attribute,
+            persistent=value,
+            persistent_type=self.persistent_type,
+        )
 
     def serialize(self, value):
         if not self.attribute:
