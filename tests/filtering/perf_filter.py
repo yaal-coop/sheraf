@@ -52,7 +52,11 @@ def profiled_filter(clazz, filter_value, do_something=lambda _: None):
     )  # Python3+ : pstats.SortKey.CUMULATIVE
     result = s.getvalue()
     first_line = result.split("\n")[0]
-    ncalls, npcalls, cumtime, = re.split(
+    (
+        ncalls,
+        npcalls,
+        cumtime,
+    ) = re.split(
         r"[^0-9.]+", first_line
     )[1:-1]
     return cumtime

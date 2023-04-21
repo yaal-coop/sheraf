@@ -287,7 +287,6 @@ class MultipleDatabaseIndexManager(IndexManager):
                 if self.root(db_name, False) and self.details.key in self.root(
                     db_name, False
                 ):
-
                     return True
             except KeyError:
                 pass

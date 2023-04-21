@@ -19,7 +19,10 @@ def test_edit_nested_both_different_with_pr():
 
 
 def test_edit_nested_both_different_with_nested_pr():
-    assert {"ref": PR("ref"), "deeper": {"foo": "after", "bar": "after"},} == merge(
+    assert {
+        "ref": PR("ref"),
+        "deeper": {"foo": "after", "bar": "after"},
+    } == merge(
         {"ref": PR("ref"), "deeper": {"foo": "before", "bar": "before"}},
         {"ref": PR("ref"), "deeper": {"foo": "after", "bar": "before"}},
         {"ref": PR("ref"), "deeper": {"foo": "before", "bar": "after"}},

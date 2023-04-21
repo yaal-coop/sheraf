@@ -520,7 +520,6 @@ class IndexedModelAttribute(ModelLoader, Attribute):
             index.persistent = parent.mapping[key]
 
     def read(self, parent):
-
         if not self.cb_registered.get(parent):
             self.cb_registered[parent] = True
 

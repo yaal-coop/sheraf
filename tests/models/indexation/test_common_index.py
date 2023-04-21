@@ -187,7 +187,6 @@ class CommonValuesComputedSeparatelyModelA(tests.IntAutoModel):
     (CommonValuesComputedSeparatelyModelA,),
 )
 def test_common_index_common_values_computed_separately(sheraf_database, Model):
-
     with sheraf.connection(commit=True):
         m = Model.create(foo="Hello", bar="world!")
         assert m in Model.filter(theindex="HELLO")

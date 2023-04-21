@@ -39,7 +39,6 @@ def test_same_item_same_modification_no_conflict(database):
         conn.root()["mydict"] = sheraf.types.SmallDict({"something": None})
 
     with sheraf.connection(commit=True) as conn1:
-
         with sheraf.connection(commit=True) as conn2:
             conn2.root()["mydict"]["something"] = "YOLO"
 
@@ -63,7 +62,6 @@ def test_different_item_modification_no_conflict(database):
         )
 
     with sheraf.connection(commit=True) as conn1:
-
         with sheraf.connection(commit=True) as conn2:
             conn2.root()["mydict"]["something"] = "conn2"
 
@@ -85,7 +83,6 @@ def test_same_item_different_modification_conflict(database):
         conn.root()["mydict"] = sheraf.types.SmallDict({"something": None})
 
     with sheraf.connection() as conn1:
-
         with sheraf.connection(commit=True) as conn2:
             conn2.root()["mydict"]["something"] = "conn2"
 
