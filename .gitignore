@@ -22,3 +22,4 @@ build
 *@neomake*
 .coverage.*
 .mypy_cache
+poetry.lock
