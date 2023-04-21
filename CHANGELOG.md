@@ -1,3 +1,10 @@
+[0.5.36] - 2023-04-21
+=====================
+
+Changed
+*******
+- Fixed :class:`~sheraf.attributes.collections.SetAttribute` simple attribute upgrade.
+
 [0.5.35] - 2023-04-21
 =====================
 

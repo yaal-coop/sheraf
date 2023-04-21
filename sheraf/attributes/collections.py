@@ -486,7 +486,7 @@ class SetAttributeAccessor:
         self.mapping = (
             persistent
             if isinstance(persistent, persistent_type)
-            else persistent_type({persistent})
+            else persistent_type({persistent,})
         )
 
     def __repr__(self):
