@@ -48,6 +48,7 @@ relstorage = {version = "*", optional=true}
 
 rich = ">=10"
 click = ">=7"
+legacycrypt = "^0.3"
 
 [tool.poetry.extras]
 all = [

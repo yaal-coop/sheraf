@@ -1,6 +1,6 @@
 import codecs
-import crypt
 
+import legacycrypt
 import pytest
 import sheraf
 import tests
@@ -11,7 +11,7 @@ class PasswordModelA(tests.UUIDAutoModel):
 
 
 class PasswordModelB(tests.UUIDAutoModel):
-    pwd = sheraf.PasswordAttribute(method=crypt.METHOD_SHA256)
+    pwd = sheraf.PasswordAttribute(method=legacycrypt.METHOD_SHA256)
 
 
 class Rot13PasswordAttribute(sheraf.PasswordAttribute):

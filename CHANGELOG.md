@@ -1,3 +1,10 @@
+[0.5.37] - 2023-05-17
+=====================
+
+Changed
+*******
+- Use 'legacycrypt' instead of crypt to avoid python warnings.
+
 [0.5.36] - 2023-04-21
 =====================
 

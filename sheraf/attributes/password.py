@@ -40,16 +40,16 @@ class PasswordAttribute(sheraf.Attribute):
 
     @staticmethod
     def crypt(clear, *args, **kwargs):
-        import crypt
+        import legacycrypt
 
-        salt = crypt.mksalt(**kwargs)
-        return crypt.crypt(clear, salt)
+        salt = legacycrypt.mksalt(**kwargs)
+        return legacycrypt.crypt(clear, salt)
 
     @staticmethod
     def compare(clear, crypted):
-        import crypt
+        import legacycrypt
 
-        return crypt.crypt(clear, crypted) == crypted
+        return legacycrypt.crypt(clear, crypted) == crypted
 
     def serialize(self, value):
         if value is None:
