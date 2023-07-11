@@ -112,6 +112,16 @@ def test_create(sheraf_connection):
 
 def test_delete(sheraf_connection):
     class Model(tests.UUIDAutoModel):
+        foobar = sheraf.StringAttribute()
+
+    m = Model.create(foobar="foobar")
+    m.delete()
+    with pytest.raises(AttributeError):
+        m.foobar
+
+
+def test_delete_submodel(sheraf_connection):
+    class Model(tests.UUIDAutoModel):
         submodel = sheraf.ModelAttribute(Submodel1)
 
     sub1 = Submodel1.create(name="foobar")

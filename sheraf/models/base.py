@@ -68,6 +68,10 @@ class BaseModel(metaclass=BaseModelMetaclass):
     attributes = {}
     mapping = None
     default_mapping = SmallDict
+    deleted = None
+
+    def __init__(self):
+        self.deleted = False
 
     @classmethod
     def create(cls, default=None, *args, **kwargs):
@@ -135,8 +139,9 @@ class BaseModel(metaclass=BaseModelMetaclass):
         >>> with sheraf.connection():
         ...    m = MyModel.create()
         ...    assert m == MyModel.read(m.id)
+        ...    m_id = m.id
         ...    m.delete()
-        ...    m.read(m.id)
+        ...    m.read(m_id)
         Traceback (most recent call last):
             ...
         sheraf.exceptions.ModelObjectNotFoundException: Id '...' not found in MyModel
@@ -153,6 +158,8 @@ class BaseModel(metaclass=BaseModelMetaclass):
 
         for attribute_name in self.attributes.keys():
             self.delete_attribute(attribute_name)
+
+        self.deleted = True
 
         for attribute_name in self.attributes.keys():
             self.call_callbacks_again(attributes_yield_callbacks[attribute_name])
@@ -363,6 +370,9 @@ class BaseModel(metaclass=BaseModelMetaclass):
         except AttributeError as exc:
             if f"object has no attribute '{name}'" not in str(exc):
                 raise
+
+        if self.deleted:
+            raise AttributeError("Cannot access attributes from a deleted object")
 
         try:
             attribute = self.attributes[name]
