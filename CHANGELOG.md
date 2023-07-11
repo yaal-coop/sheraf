@@ -1,3 +1,6 @@
+[0.5.38] - 2023-07-11
+=====================
+
 Changed
 *******
 - Accessing attributes from a deleted instance will raise a :class:`AttributeError`
