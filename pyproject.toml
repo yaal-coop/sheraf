@@ -11,7 +11,6 @@ license = "MIT"
 keywords = ["zodb", "orm"]
 classifiers = [
     "Intended Audience :: Developers",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -31,7 +30,7 @@ repository = "https://gitlab.com/yaal/sheraf"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.7, <4"
+python = "^3.8"
 zodb = ">=5"
 zodburi = "*"
 
@@ -119,7 +118,7 @@ timeout = 0
 legacy_tox_ini = """
 [tox]
 isolated_build = true
-envlist = style,doc,py37,py38,py39,py310,py311,coverage
+envlist = style,doc,py38,py39,py310,py311,coverage
 skipsdist=true
 
 [testenv]
