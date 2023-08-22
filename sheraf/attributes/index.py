@@ -11,7 +11,7 @@ class Index:
     :param attributes: The attributes being indexed. They can be either
         :class:`~sheraf.attributes.Attribute` or strings representing
         the attributes names in the model.
-    :type *attributes: A collection of :class:`~sheraf.attributes.Attribute` or strings.
+    :type attributes: A collection of :class:`~sheraf.attributes.Attribute` or strings.
     :param key: The key the index will use. By default, it takes the name it has
                 as a :class:`~sheraf.models.indexation.IndexedModel` attribute.
                 If the :func:`~sheraf.attributes.Attribute.index` is used,
