@@ -34,7 +34,7 @@ version = "{}.{}".format(
 )
 
 release = sheraf.__version__
-language = None
+language = "en"
 exclude_patterns = []
 pygments_style = "sphinx"
 todo_include_todos = False
