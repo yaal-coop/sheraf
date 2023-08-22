@@ -608,8 +608,7 @@ class BaseIndexedModel(BaseModel, metaclass=BaseIndexedModelMetaclass):
     def count(cls, index_name=None):
         """
         Counts the number of elements in an index.
-        :param index_name: The name of the index to count. By default
-            the primary index is used
+        :param index_name: The name of the index to count. By default the primary index is used
         """
         return cls.indexes[index_name or cls.primary_key()].count()
 
